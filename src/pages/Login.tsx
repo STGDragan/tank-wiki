@@ -16,6 +16,15 @@ const Login = () => {
   const [fullName, setFullName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
+
+  const handleToggleForm = () => {
+    setIsSignUp(!isSignUp);
+    setEmail("");
+    setPassword("");
+    setFullName("");
+    setSignUpSuccess(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +49,7 @@ const Login = () => {
         toast.success("Success!", {
           description: "Please check your email to verify your account.",
         });
+        setSignUpSuccess(true);
       }
     } else {
       // Sign In
@@ -72,59 +82,80 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {isSignUp && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input 
-                    id="fullName" 
-                    type="text" 
-                    placeholder="John Doe" 
-                    required 
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    autoComplete="name"
-                  />
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="m@example.com" 
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                />
+            {signUpSuccess ? (
+              <div className="text-center py-4">
+                <h3 className="text-xl font-semibold mb-2">Check your email</h3>
+                <p className="text-muted-foreground">
+                  We've sent a confirmation link to <span className="font-semibold text-primary">{email}</span>.
+                </p>
+                <p className="text-muted-foreground mt-2">
+                  Please click the link to complete your registration.
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-6 w-full"
+                  onClick={handleToggleForm}
+                >
+                  Back to Sign In
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
-              </Button>
-            </form>
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-              <button 
-                onClick={() => setIsSignUp(!isSignUp)} 
-                className="font-semibold text-primary hover:underline ml-1"
-                disabled={loading}
-              >
-                {isSignUp ? 'Sign In' : 'Sign up'}
-              </button>
-            </p>
+            ) : (
+              <>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName">Full Name</Label>
+                      <Input 
+                        id="fullName" 
+                        type="text" 
+                        placeholder="John Doe" 
+                        required 
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        autoComplete="name"
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="m@example.com" 
+                      required 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input 
+                      id="password" 
+                      type="password" 
+                      placeholder="••••••••" 
+                      required 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete={isSignUp ? "new-password" : "current-password"}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+                  </Button>
+                </form>
+                <p className="text-center text-sm text-muted-foreground mt-6">
+                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                  <button 
+                    onClick={handleToggleForm} 
+                    className="font-semibold text-primary hover:underline ml-1"
+                    disabled={loading}
+                  >
+                    {isSignUp ? 'Sign In' : 'Sign up'}
+                  </button>
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
