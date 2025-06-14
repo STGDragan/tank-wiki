@@ -48,6 +48,7 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
       type: "",
       brand: "",
       model: "",
+      installed_at: new Date(),
       notes: "",
     },
   });
