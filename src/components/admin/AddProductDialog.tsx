@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -36,6 +37,8 @@ const productFormSchema = z.object({
     z.literal('')
   ]).optional()
     .transform(e => e === "" ? undefined : e),
+  category: z.string().optional().transform(e => e === "" ? undefined : e),
+  subcategory: z.string().optional().transform(e => e === "" ? undefined : e),
   affiliate_provider: z.string().optional(),
   affiliate_url: z.union([
     z.string().url({ message: "Please enter a valid URL." }),
@@ -45,6 +48,14 @@ const productFormSchema = z.object({
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
+
+const categories = ["Equipment", "Livestock", "Food", "Consumables"];
+const subcategories: { [key: string]: string[] } = {
+  Equipment: ["Filter", "Heater", "Lighting", "Pump", "Tank", "Other"],
+  Livestock: ["Freshwater Fish", "Saltwater Fish", "Invertebrate", "Coral", "Plant"],
+  Food: ["Flakes", "Pellets", "Frozen", "Live", "Other"],
+  Consumables: ["Water Treatment", "Test Kits", "Substrate", "Fertilizer", "Other"],
+};
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
@@ -57,10 +68,14 @@ const AddProductDialog = () => {
       name: "",
       description: "",
       image_url: "",
+      category: "",
+      subcategory: "",
       affiliate_provider: "",
       affiliate_url: "",
     },
   });
+
+  const watchedCategory = form.watch("category");
 
   const addProductMutation = useMutation({
     mutationFn: async (newProduct: ProductFormValues) => {
@@ -70,6 +85,8 @@ const AddProductDialog = () => {
           name: newProduct.name,
           description: newProduct.description || null,
           image_url: newProduct.image_url || null,
+          category: newProduct.category || null,
+          subcategory: newProduct.subcategory || null,
         })
         .select()
         .single();
@@ -160,6 +177,57 @@ const AddProductDialog = () => {
                   <FormControl>
                     <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} value={field.value ?? ""} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue('subcategory', '');
+                  }} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subcategory</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!watchedCategory}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a subcategory" />
+                      </T_rigger>
+                    </FormControl>
+                    <SelectContent>
+                      {watchedCategory && subcategories[watchedCategory]?.map((subcat) => (
+                        <SelectItem key={subcat} value={subcat}>
+                          {subcat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

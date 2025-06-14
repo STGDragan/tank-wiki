@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -111,6 +112,8 @@ const AdminProducts = () => {
                     <span className="sr-only">Image</span>
                   </TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Subcategory</TableHead>
                   <TableHead className="hidden md:table-cell">Description</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
@@ -131,6 +134,8 @@ const AdminProducts = () => {
                         />
                       </TableCell>
                       <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>{product.category}</TableCell>
+                      <TableCell>{product.subcategory}</TableCell>
                       <TableCell className="hidden md:table-cell max-w-sm truncate">
                         {product.description}
                       </TableCell>
@@ -163,7 +168,7 @@ const AdminProducts = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       No products found. Get started by adding a new one!
                     </TableCell>
                   </TableRow>
