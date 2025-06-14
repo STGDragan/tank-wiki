@@ -312,8 +312,8 @@ const AquariumDetail = () => {
 
       <Tabs defaultValue="log" className="mt-4">
         <TabsList>
-          <TabsTrigger value="journal">Journal</TabsTrigger>
           <TabsTrigger value="log">Log</TabsTrigger>
+          <TabsTrigger value="journal">Journal</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
         </TabsList>
         <TabsContent value="journal">
