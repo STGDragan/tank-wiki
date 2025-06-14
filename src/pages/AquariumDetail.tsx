@@ -97,7 +97,7 @@ const AquariumDetail = () => {
           <LivestockTab aquariumId={aquarium.id} />
         </TabsContent>
         <TabsContent value="water-parameters">
-          <WaterParametersTab aquariumId={aquarium.id} />
+          <WaterParametersTab aquariumId={aquarium.id} aquariumType={aquarium.type} />
         </TabsContent>
         <TabsContent value="equipment">
           <EquipmentTab aquariumId={aquarium.id} />
