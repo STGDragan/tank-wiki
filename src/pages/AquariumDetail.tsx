@@ -201,7 +201,11 @@ const AquariumDetail = () => {
     <div className="space-y-8">
       <AquariumHeader aquarium={typedAquarium} />
       
-      <HealthRanking waterParameters={waterParameters || []} aquariumType={typedAquarium.type} />
+      <HealthRanking 
+        waterParameters={waterParameters || []} 
+        tasks={tasks || []} 
+        aquariumType={typedAquarium.type} 
+      />
 
       <WaterParametersSection
         waterParameters={waterParameters || []}

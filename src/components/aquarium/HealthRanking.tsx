@@ -4,31 +4,47 @@ import { Progress } from "@/components/ui/progress";
 import { Tables } from "@/integrations/supabase/types";
 
 type WaterParameterReading = Tables<'water_parameters'>;
+type MaintenanceTask = Tables<'maintenance'>;
 
 type HealthRankingProps = {
   waterParameters: WaterParameterReading[];
+  tasks: MaintenanceTask[];
   aquariumType: string | null;
 };
 
 // NOTE: This is a simplified calculation. We can improve this logic later.
-const calculateHealthScore = (waterParameters: WaterParameterReading[]): number => {
-    if (!waterParameters || waterParameters.length === 0) {
-        return 75; // Default score if no data
-    }
-    
-    const latestReading = waterParameters[0]; // Assumes readings are sorted by date desc
+const calculateHealthScore = (waterParameters: WaterParameterReading[], tasks: MaintenanceTask[]): number => {
     let score = 100;
+    
+    // Default score if no data, but still penalize for overdue tasks
+    if (!waterParameters || waterParameters.length === 0) {
+        score = 75; 
+    } else {
+        const latestReading = waterParameters[0]; // Assumes readings are sorted by date desc
 
-    if (latestReading.ammonia && latestReading.ammonia > 0) score -= 30;
-    if (latestReading.nitrite && latestReading.nitrite > 0) score -= 30;
-    if (latestReading.nitrate && latestReading.nitrate > 40) score -= 15; // Freshwater general limit
-    if (latestReading.ph && (latestReading.ph < 6.5 || latestReading.ph > 8.5)) score -= 10;
+        // Water parameter scoring
+        if (latestReading.ammonia && latestReading.ammonia > 0.25) score -= 30;
+        if (latestReading.nitrite && latestReading.nitrite > 0.25) score -= 30;
+        if (latestReading.nitrate && latestReading.nitrate > 40) score -= 15; // General limit
+        if (latestReading.ph && (latestReading.ph < 6.5 || latestReading.ph > 8.5)) score -= 10;
+    }
+
+    // Maintenance task scoring
+    const overdueTasks = tasks.filter(task => 
+        task.due_date && new Date(task.due_date) < new Date() && !task.completed_date
+    );
+
+    // Deduct points for each overdue task, up to a max penalty
+    const penaltyPerTask = 5;
+    const maxPenalty = 25;
+    const maintenancePenalty = Math.min(overdueTasks.length * penaltyPerTask, maxPenalty);
+    score -= maintenancePenalty;
 
     return Math.max(0, score);
 }
 
-export const HealthRanking = ({ waterParameters, aquariumType }: HealthRankingProps) => {
-    const score = calculateHealthScore(waterParameters);
+export const HealthRanking = ({ waterParameters, tasks, aquariumType }: HealthRankingProps) => {
+    const score = calculateHealthScore(waterParameters, tasks);
     let healthStatus: string;
 
     if (score >= 85) {
@@ -45,7 +61,7 @@ export const HealthRanking = ({ waterParameters, aquariumType }: HealthRankingPr
     <Card>
       <CardHeader>
         <CardTitle>Overall Tank Health</CardTitle>
-        <CardDescription>Based on the latest water parameter readings.</CardDescription>
+        <CardDescription>Based on the latest water parameter readings and overdue tasks.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center space-x-4">
