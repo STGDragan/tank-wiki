@@ -2,29 +2,20 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JournalTab from "@/components/aquarium/JournalTab";
 import WishlistTab from "@/components/aquarium/WishlistTab";
 import { HealthRanking } from "@/components/aquarium/HealthRanking";
 import { Tables } from "@/integrations/supabase/types";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { LivestockCard } from "@/components/aquarium/LivestockCard";
-import { Button } from "@/components/ui/button";
-import { Camera, PlusCircle } from "lucide-react";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
-import { EquipmentCard } from "@/components/aquarium/EquipmentCard";
-import { AddEquipmentForm } from "@/components/aquarium/AddEquipmentForm";
-import { WaterParameterCard } from "@/components/aquarium/WaterParameterCard";
-import { AddWaterParameterForm } from "@/components/aquarium/AddWaterParameterForm";
-import { MaintenanceCard } from "@/components/aquarium/MaintenanceCard";
-import { AddMaintenanceTaskForm } from "@/components/aquarium/AddMaintenanceTaskForm";
 import { toast } from "@/hooks/use-toast";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ImageUploader } from "@/components/aquarium/ImageUploader";
 import { AquariumRecommendations } from "@/components/aquarium/AquariumRecommendations";
+import { AquariumHeader } from "@/components/aquarium/AquariumHeader";
+import { WaterParametersSection } from "@/components/aquarium/WaterParametersSection";
+import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
+import { LivestockSection } from "@/components/aquarium/LivestockSection";
+import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 type Equipment = Tables<'equipment'> & { image_url?: string | null };
@@ -102,12 +93,6 @@ const AquariumDetail = () => {
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   
-  const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
-  const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
-  const [isAddWaterParamsOpen, setAddWaterParamsOpen] = useState(false);
-  const [isAddTaskOpen, setAddTaskOpen] = useState(false);
-  const [isImagePopoverOpen, setImagePopoverOpen] = useState(false);
-
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/login');
@@ -214,154 +199,32 @@ const AquariumDetail = () => {
 
   return (
     <div className="space-y-8">
-      <div className="relative rounded-lg overflow-hidden">
-        <img 
-            src={typedAquarium.image_url || `https://placehold.co/1200x400/34D399/FFFFFF?text=${encodeURIComponent(typedAquarium.name)}`} 
-            alt={typedAquarium.name} 
-            className="w-full h-48 md:h-64 object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-0 left-0 p-4 md:p-6">
-            <h1 className="text-2xl md:text-4xl font-bold text-white shadow-lg">{typedAquarium.name}</h1>
-            <p className="text-lg text-gray-200 mt-1 shadow-md">
-                {typedAquarium.type} - {typedAquarium.size} Gallons
-            </p>
-        </div>
-        <div className="absolute top-4 right-4">
-            <Popover open={isImagePopoverOpen} onOpenChange={setImagePopoverOpen}>
-                <PopoverTrigger asChild>
-                    <Button variant="secondary" size="icon">
-                        <Camera className="h-5 w-5" />
-                        <span className="sr-only">Change Image</span>
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                    <div className="space-y-4">
-                        <div className="space-y-1">
-                            <h4 className="font-medium leading-none">Tank Image</h4>
-                            <p className="text-sm text-muted-foreground">Upload a new main image for your tank.</p>
-                        </div>
-                        <ImageUploader 
-                            aquariumId={typedAquarium.id}
-                            onUploadSuccess={() => setImagePopoverOpen(false)} 
-                            table="aquariums"
-                            recordId={typedAquarium.id}
-                        />
-                    </div>
-                </PopoverContent>
-            </Popover>
-        </div>
-      </div>
+      <AquariumHeader aquarium={typedAquarium} />
       
       <HealthRanking waterParameters={waterParameters || []} aquariumType={typedAquarium.type} />
 
-      {/* Water Parameters Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Water Parameters</h2>
-           <Drawer open={isAddWaterParamsOpen} onOpenChange={setAddWaterParamsOpen}>
-            <DrawerTrigger asChild>
-              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Reading</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader><DrawerTitle>Add New Water Parameter Reading</DrawerTitle></DrawerHeader>
-              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddWaterParameterForm aquariumId={aquarium.id} aquariumType={aquarium.type} onSuccess={() => setAddWaterParamsOpen(false)} /></div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        {waterParameters && waterParameters.length > 0 ? (
-          <Carousel opts={{ align: "start" }} className="w-full">
-            <CarouselContent>
-              {waterParameters.map((item) => (
-                <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><WaterParameterCard reading={item} aquariumType={aquarium.type} /></CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious /><CarouselNext />
-          </Carousel>
-        ) : <p className="text-muted-foreground">No water parameter readings yet.</p>}
-      </section>
+      <WaterParametersSection
+        waterParameters={waterParameters || []}
+        aquariumId={aquarium.id}
+        aquariumType={aquarium.type}
+      />
 
-      {/* Maintenance Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Maintenance Schedule</h2>
-          <Drawer open={isAddTaskOpen} onOpenChange={setAddTaskOpen}>
-            <DrawerTrigger asChild>
-              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Task</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader><DrawerTitle>Add New Maintenance Task</DrawerTitle></DrawerHeader>
-              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
-                <AddMaintenanceTaskForm aquariumId={aquarium.id} onSuccess={() => setAddTaskOpen(false)} />
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        {tasks && tasks.length > 0 ? (
-          <Carousel opts={{ align: "start" }} className="w-full">
-            <CarouselContent>
-              {tasks.map((task) => (
-                <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <MaintenanceCard task={task} onMarkComplete={handleMarkComplete} onDelete={handleDeleteTask} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious /><CarouselNext />
-          </Carousel>
-        ) : <p className="text-muted-foreground">No maintenance tasks added yet.</p>}
-      </section>
+      <MaintenanceSection
+        tasks={tasks || []}
+        aquariumId={aquarium.id}
+        onMarkComplete={handleMarkComplete}
+        onDelete={handleDeleteTask}
+      />
 
-      {/* Livestock Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Livestock</h2>
-          <Drawer open={isAddLivestockOpen} onOpenChange={setAddLivestockOpen}>
-            <DrawerTrigger asChild>
-              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Livestock</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader><DrawerTitle>Add New Livestock</DrawerTitle></DrawerHeader>
-              <div className="px-4 pb-4"><AddLivestockForm aquariumId={aquarium.id} onSuccess={() => setAddLivestockOpen(false)} /></div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        {livestock && livestock.length > 0 ? (
-          <Carousel opts={{ align: "start" }} className="w-full">
-            <CarouselContent>
-              {livestock.map((item) => (
-                <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><LivestockCard livestock={item} /></CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious /><CarouselNext />
-          </Carousel>
-        ) : <p className="text-muted-foreground">No livestock added yet.</p>}
-      </section>
+      <LivestockSection
+        livestock={livestock || []}
+        aquariumId={aquarium.id}
+      />
       
-      {/* Equipment Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Equipment</h2>
-           <Drawer open={isAddEquipmentOpen} onOpenChange={setAddEquipmentOpen}>
-            <DrawerTrigger asChild>
-              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Equipment</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader><DrawerTitle>Add New Equipment</DrawerTitle></DrawerHeader>
-              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddEquipmentForm aquariumId={aquarium.id} onSuccess={() => setAddEquipmentOpen(false)} /></div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        {equipment && equipment.length > 0 ? (
-          <Carousel opts={{ align: "start" }} className="w-full">
-            <CarouselContent>
-              {equipment.map((item) => (
-                <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><EquipmentCard equipment={item} /></CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious /><CarouselNext />
-          </Carousel>
-        ) : <p className="text-muted-foreground">No equipment added yet.</p>}
-      </section>
+      <EquipmentSection
+        equipment={equipment || []}
+        aquariumId={aquarium.id}
+      />
 
       {/* Recommendations Section */}
       <section>
