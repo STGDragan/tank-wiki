@@ -3,11 +3,16 @@ import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, UserCircle, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield } from "lucide-react";
+import { useAuth } from "@/providers/AuthProvider";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
+];
+
+const adminNav = [
+    { name: "Products", href: "/admin/products", icon: Shield },
 ];
 
 const secondaryNav = [
@@ -16,6 +21,8 @@ const secondaryNav = [
 
 export function Sidebar() {
   const location = useLocation();
+  const { roles } = useAuth();
+  const isAdmin = roles?.includes("admin");
 
   const renderNav = (items: typeof mainNav) => (
     <ul className="space-y-1">
@@ -43,6 +50,7 @@ export function Sidebar() {
       </div>
       <div className="flex-1 p-4 space-y-6">
         <nav>{renderNav(mainNav)}</nav>
+        {isAdmin && <nav>{renderNav(adminNav)}</nav>}
         <nav>{renderNav(secondaryNav)}</nav>
       </div>
       <div className="p-4 border-t">
