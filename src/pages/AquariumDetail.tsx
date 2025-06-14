@@ -24,6 +24,7 @@ import { AddMaintenanceTaskForm } from "@/components/aquarium/AddMaintenanceTask
 import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ImageUploader } from "@/components/aquarium/ImageUploader";
+import { AquariumRecommendations } from "@/components/aquarium/AquariumRecommendations";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 type Equipment = Tables<'equipment'> & { image_url?: string | null };
@@ -360,6 +361,11 @@ const AquariumDetail = () => {
             <CarouselPrevious /><CarouselNext />
           </Carousel>
         ) : <p className="text-muted-foreground">No equipment added yet.</p>}
+      </section>
+
+      {/* Recommendations Section */}
+      <section>
+        <AquariumRecommendations />
       </section>
 
       <Tabs defaultValue="journal" className="mt-4">
