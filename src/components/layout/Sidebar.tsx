@@ -1,14 +1,11 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Fish, Droplets, Settings, UserCircle } from "lucide-react";
+import { LayoutDashboard, Settings, UserCircle } from "lucide-react";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Livestock", href: "/livestock", icon: Fish },
-  { name: "Water Tests", href: "/water-tests", icon: Droplets },
 ];
 
 const secondaryNav = [

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tables } from "@/integrations/supabase/types";
+import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 
 type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
 
@@ -53,16 +54,19 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
+    <div className="space-y-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <CreateTankDialog />
       </div>
       {aquariums && aquariums.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {aquariums.map(tank => (
-            <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} />
-          ))}
+        <div className="space-y-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {aquariums.map(tank => (
+              <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} />
+            ))}
+          </div>
+          <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name }))} />
         </div>
       ) : (
          <div className="text-center py-12 border-2 border-dashed rounded-lg">
