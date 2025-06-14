@@ -52,9 +52,11 @@ interface AquariumRecommendationsProps {
 
 export function AquariumRecommendations({ aquariumType }: AquariumRecommendationsProps) {
   let recommendations: Recommendation[] = [];
-  if (aquariumType === 'saltwater') {
+  const lowercasedType = aquariumType?.toLowerCase();
+
+  if (lowercasedType === 'saltwater') {
     recommendations = saltwaterRecommendations;
-  } else if (aquariumType === 'freshwater') {
+  } else if (lowercasedType === 'freshwater') {
     recommendations = freshwaterRecommendations;
   }
 
