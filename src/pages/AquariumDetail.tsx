@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JournalTab from "@/components/aquarium/JournalTab";
 import WishlistTab from "@/components/aquarium/WishlistTab";
 import { HealthRanking } from "@/components/aquarium/HealthRanking";
-import { Tables } from "@/integrations/supabase/types";
+import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { toast } from "@/hooks/use-toast";
 import { AquariumRecommendations } from "@/components/aquarium/AquariumRecommendations";
 import { AquariumHeader } from "@/components/aquarium/AquariumHeader";
@@ -18,7 +17,7 @@ import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
 import { LivestockSection } from "@/components/aquarium/LivestockSection";
 import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
 import { LogTab } from "@/components/aquarium/LogTab";
-import { format } from "date-fns";
+import { format, addDays, addWeeks, addMonths } from "date-fns";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 type Equipment = Tables<'equipment'> & { image_url?: string | null };
@@ -132,17 +131,50 @@ const AquariumDetail = () => {
       enabled: !!id && !!user,
   });
 
-  const updateTaskMutation = useMutation({
-      mutationFn: async ({ taskId, updates }: { taskId: string, updates: Partial<Tables<'maintenance'>> }) => {
-          const { error } = await supabase.from('maintenance').update(updates).eq('id', taskId);
-          if (error) throw new Error(error.message);
+  const completeTaskMutation = useMutation({
+      mutationFn: async ({ taskId, completedDate }: { taskId: string, completedDate: Date }) => {
+          const taskToComplete = tasks?.find(t => t.id === taskId);
+          if (!taskToComplete) throw new Error("Task not found");
+          if (!user) throw new Error("User not found");
+
+          // 1. Mark current task as complete
+          const { error: updateError } = await supabase.from('maintenance').update({ completed_date: completedDate.toISOString() }).eq('id', taskId);
+          if (updateError) throw updateError;
+          
+          // 2. If recurring, create a new task
+          if (taskToComplete.frequency) {
+              const calculateNextDueDate = (lastCompleted: Date, frequency: string): Date => {
+                  switch (frequency) {
+                      case 'daily': return addDays(lastCompleted, 1);
+                      case 'weekly': return addWeeks(lastCompleted, 1);
+                      case 'every 2 weeks': return addWeeks(lastCompleted, 2);
+                      case 'monthly': return addMonths(lastCompleted, 1);
+                      default: return addWeeks(lastCompleted, 1); // Fallback
+                  }
+              };
+
+              const nextDueDate = calculateNextDueDate(completedDate, taskToComplete.frequency);
+
+              const newTask: TablesInsert<'maintenance'> = {
+                  aquarium_id: taskToComplete.aquarium_id,
+                  user_id: user.id,
+                  task: taskToComplete.task,
+                  notes: taskToComplete.notes,
+                  due_date: nextDueDate.toISOString(),
+                  equipment_id: taskToComplete.equipment_id,
+                  frequency: taskToComplete.frequency,
+              };
+
+              const { error: insertError } = await supabase.from('maintenance').insert(newTask);
+              if (insertError) throw insertError;
+          }
       },
       onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['maintenance', id] });
-          toast({ title: 'Task updated!' });
+          toast({ title: 'Task completed!' });
       },
       onError: (err: Error) => {
-          toast({ title: 'Error updating task', description: err.message, variant: 'destructive' });
+          toast({ title: 'Error completing task', description: err.message, variant: 'destructive' });
       }
   });
 
@@ -161,7 +193,7 @@ const AquariumDetail = () => {
   });
 
   const handleMarkComplete = (taskId: string, completedDate: Date) => {
-      updateTaskMutation.mutate({ taskId, updates: { completed_date: completedDate.toISOString() } });
+      completeTaskMutation.mutate({ taskId, completedDate });
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -290,7 +322,7 @@ const AquariumDetail = () => {
       <WaterParametersSection
         waterParameters={waterParameters || []}
         aquariumId={aquarium.id}
-        aquariumType={aquarium.type}
+        aquariumType={typedAquarium.type}
       />
 
       <MaintenanceSection

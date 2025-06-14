@@ -213,6 +213,7 @@ export type Database = {
           created_at: string
           due_date: string | null
           equipment_id: string | null
+          frequency: string | null
           id: string
           notes: string | null
           task: string
@@ -224,6 +225,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           equipment_id?: string | null
+          frequency?: string | null
           id?: string
           notes?: string | null
           task: string
@@ -235,6 +237,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           equipment_id?: string | null
+          frequency?: string | null
           id?: string
           notes?: string | null
           task?: string

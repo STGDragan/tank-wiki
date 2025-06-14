@@ -30,6 +30,7 @@ const maintenanceTaskSchema = z.object({
   notes: z.string().optional(),
   due_date: z.date().optional(),
   equipment_id: z.string().optional(),
+  frequency: z.string().optional(),
 });
 
 type Equipment = Pick<Tables<'equipment'>, 'id' | 'type' | 'brand' | 'model'>;
@@ -43,6 +44,14 @@ const topMaintenanceTasks = [
     "Gravel Vacuum",
     "Trim Plants",
     "Dose Fertilizers",
+];
+
+const frequencyOptions = [
+    { value: "once", label: "Once" },
+    { value: "daily", label: "Daily" },
+    { value: "weekly", label: "Weekly" },
+    { value: "every 2 weeks", label: "Every 2 Weeks" },
+    { value: "monthly", label: "Monthly" },
 ];
 
 const fetchUserMaintenanceTasks = async (userId: string): Promise<string[]> => {
@@ -108,6 +117,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
             task: "",
             notes: "",
             equipment_id: "",
+            frequency: "once",
         },
     });
 
@@ -124,6 +134,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
             notes: values.notes || null,
             due_date: values.due_date ? values.due_date.toISOString() : null,
             equipment_id: (values.equipment_id && values.equipment_id !== 'none') ? values.equipment_id : null,
+            frequency: values.frequency === 'once' ? null : values.frequency,
         };
 
         const { error } = await supabase.from("maintenance").insert(newMaintenanceTask);
@@ -220,6 +231,31 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
                                     {equipmentList?.map(eq => (
                                         <SelectItem key={eq.id} value={eq.id}>
                                             {`${eq.type} (${eq.brand || ''} ${eq.model || ''})`.trim()}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="frequency"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Frequency</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select frequency" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {frequencyOptions.map(option => (
+                                        <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
