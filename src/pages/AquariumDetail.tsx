@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -240,6 +241,10 @@ const AquariumDetail = () => {
     return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [tasks, livestock, waterParameters]);
 
+  const pendingTasks = useMemo(() => {
+    return (tasks || []).filter(task => !task.completed_date);
+  }, [tasks]);
+
   const isLoading = authLoading || isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading;
 
   if (isLoading) {
@@ -289,7 +294,7 @@ const AquariumDetail = () => {
       />
 
       <MaintenanceSection
-        tasks={tasks || []}
+        tasks={pendingTasks}
         aquariumId={aquarium.id}
         onMarkComplete={handleMarkComplete}
         onDelete={handleDeleteTask}
