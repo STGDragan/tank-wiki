@@ -1,25 +1,76 @@
 
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
+import { useAuth } from "@/providers/AuthProvider";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const mockTanks = [
-  { id: '1', name: 'Main Reef', type: 'Saltwater', size: 120 },
-  { id: '2', name: 'Planted Community', type: 'Freshwater', size: 75 },
-  { id: '3', name: 'Shrimp Nano', type: 'Freshwater', size: 10 },
-];
+const fetchAquariums = async () => {
+    const { data, error } = await supabase.from('aquariums').select('*');
+    if (error) throw new Error(error.message);
+    return data;
+};
 
 const Dashboard = () => {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  const { data: aquariums, isLoading, error } = useQuery({
+    queryKey: ['aquariums'],
+    queryFn: fetchAquariums,
+    enabled: !!user,
+  });
+
+  if (authLoading || (isLoading && !aquariums)) {
+    return (
+        <div>
+            <div className="flex items-center justify-between mb-6">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-10 w-28" />
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-48 w-full" />
+                <Skeleton className="h-48 w-full" />
+            </div>
+        </div>
+    );
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <CreateTankDialog />
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {mockTanks.map(tank => (
-          <TankCard key={tank.id} {...tank} />
-        ))}
-      </div>
+      {aquariums && aquariums.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {aquariums.map(tank => (
+            <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} />
+          ))}
+        </div>
+      ) : (
+         <div className="text-center py-12 border-2 border-dashed rounded-lg">
+          <h2 className="text-xl font-semibold">No Aquariums Yet</h2>
+          <p className="text-muted-foreground mt-2">Get started by creating your first tank.</p>
+          <div className="mt-4">
+            <CreateTankDialog />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
