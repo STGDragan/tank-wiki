@@ -1,6 +1,5 @@
-
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useEffect, useState } from "react";
@@ -20,7 +19,9 @@ import { EquipmentCard } from "@/components/aquarium/EquipmentCard";
 import { AddEquipmentForm } from "@/components/aquarium/AddEquipmentForm";
 import { WaterParameterCard } from "@/components/aquarium/WaterParameterCard";
 import { AddWaterParameterForm } from "@/components/aquarium/AddWaterParameterForm";
-import { MaintenanceTab } from "@/components/aquarium/MaintenanceTab";
+import { MaintenanceCard } from "@/components/aquarium/MaintenanceCard";
+import { AddMaintenanceTaskForm } from "@/components/aquarium/AddMaintenanceTaskForm";
+import { toast } from "@/hooks/use-toast";
 
 type Livestock = Tables<'livestock'>;
 type Equipment = Tables<'equipment'>;
@@ -30,6 +31,7 @@ type WaterParameterReading = Tables<'water_parameters'> & {
   calcium?: number | null;
   magnesium?: number | null;
 };
+type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 
 const fetchAquariumById = async (id: string) => {
   const { data, error } = await supabase
@@ -78,14 +80,28 @@ const fetchWaterParameters = async (aquariumId: string): Promise<WaterParameterR
   return (data as WaterParameterReading[]) || [];
 };
 
+const fetchMaintenanceTasks = async (aquariumId: string): Promise<MaintenanceTask[]> => {
+    const { data, error } = await supabase
+        .from('maintenance')
+        .select('*, equipment(type, brand, model)')
+        .eq('aquarium_id', aquariumId)
+        .order('completed_date', { ascending: false, nullsFirst: true })
+        .order('due_date', { ascending: true, nullsFirst: false });
+    
+    if (error) throw new Error(error.message);
+    return data as MaintenanceTask[] || [];
+};
+
 const AquariumDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
   
   const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
   const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
   const [isAddWaterParamsOpen, setAddWaterParamsOpen] = useState(false);
+  const [isAddTaskOpen, setAddTaskOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -117,7 +133,49 @@ const AquariumDetail = () => {
     enabled: !!id && !!user,
   });
 
-  const isLoading = authLoading || isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading;
+  const { data: tasks, isLoading: isMaintenanceLoading, error: maintenanceError } = useQuery({
+      queryKey: ['maintenance', id],
+      queryFn: () => fetchMaintenanceTasks(id!),
+      enabled: !!id && !!user,
+  });
+
+  const updateTaskMutation = useMutation({
+      mutationFn: async ({ taskId, updates }: { taskId: string, updates: Partial<Tables<'maintenance'>> }) => {
+          const { error } = await supabase.from('maintenance').update(updates).eq('id', taskId);
+          if (error) throw new Error(error.message);
+      },
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['maintenance', id] });
+          toast({ title: 'Task updated!' });
+      },
+      onError: (err: Error) => {
+          toast({ title: 'Error updating task', description: err.message, variant: 'destructive' });
+      }
+  });
+
+  const deleteTaskMutation = useMutation({
+      mutationFn: async (taskId: string) => {
+          const { error } = await supabase.from('maintenance').delete().eq('id', taskId);
+          if (error) throw new Error(error.message);
+      },
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['maintenance', id] });
+          toast({ title: 'Task deleted!' });
+      },
+      onError: (err: Error) => {
+          toast({ title: 'Error deleting task', description: err.message, variant: 'destructive' });
+      }
+  });
+
+  const handleMarkComplete = (taskId: string) => {
+      updateTaskMutation.mutate({ taskId, updates: { completed_date: new Date().toISOString() } });
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+      deleteTaskMutation.mutate(taskId);
+  };
+
+  const isLoading = authLoading || isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading;
 
   if (isLoading) {
     return (
@@ -131,7 +189,7 @@ const AquariumDetail = () => {
     );
   }
 
-  const queryError = aquariumError || livestockError || equipmentError || waterParamsError;
+  const queryError = aquariumError || livestockError || equipmentError || waterParamsError || maintenanceError;
   if (queryError) {
     return <div>Error: {queryError.message}</div>;
   }
@@ -157,6 +215,62 @@ const AquariumDetail = () => {
       </div>
       
       <HealthRanking waterParameters={waterParameters || []} aquariumType={aquarium.type} />
+
+      {/* Water Parameters Section */}
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">Water Parameters</h2>
+           <Drawer open={isAddWaterParamsOpen} onOpenChange={setAddWaterParamsOpen}>
+            <DrawerTrigger asChild>
+              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Reading</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader><DrawerTitle>Add New Water Parameter Reading</DrawerTitle></DrawerHeader>
+              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddWaterParameterForm aquariumId={aquarium.id} aquariumType={aquarium.type} onSuccess={() => setAddWaterParamsOpen(false)} /></div>
+            </DrawerContent>
+          </Drawer>
+        </div>
+        {waterParameters && waterParameters.length > 0 ? (
+          <Carousel opts={{ align: "start" }} className="w-full">
+            <CarouselContent>
+              {waterParameters.map((item) => (
+                <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><WaterParameterCard reading={item} aquariumType={aquarium.type} /></CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious /><CarouselNext />
+          </Carousel>
+        ) : <p className="text-muted-foreground">No water parameter readings yet.</p>}
+      </section>
+
+      {/* Maintenance Section */}
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">Maintenance Schedule</h2>
+          <Drawer open={isAddTaskOpen} onOpenChange={setAddTaskOpen}>
+            <DrawerTrigger asChild>
+              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Task</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader><DrawerTitle>Add New Maintenance Task</DrawerTitle></DrawerHeader>
+              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
+                <AddMaintenanceTaskForm aquariumId={aquarium.id} onSuccess={() => setAddTaskOpen(false)} />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
+        {tasks && tasks.length > 0 ? (
+          <Carousel opts={{ align: "start" }} className="w-full">
+            <CarouselContent>
+              {tasks.map((task) => (
+                <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <MaintenanceCard task={task} onMarkComplete={handleMarkComplete} onDelete={handleDeleteTask} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious /><CarouselNext />
+          </Carousel>
+        ) : <p className="text-muted-foreground">No maintenance tasks added yet.</p>}
+      </section>
 
       {/* Livestock Section */}
       <section>
@@ -210,43 +324,13 @@ const AquariumDetail = () => {
         ) : <p className="text-muted-foreground">No equipment added yet.</p>}
       </section>
 
-      {/* Water Parameters Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Water Parameters</h2>
-           <Drawer open={isAddWaterParamsOpen} onOpenChange={setAddWaterParamsOpen}>
-            <DrawerTrigger asChild>
-              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Reading</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader><DrawerTitle>Add New Water Parameter Reading</DrawerTitle></DrawerHeader>
-              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddWaterParameterForm aquariumId={aquarium.id} aquariumType={aquarium.type} onSuccess={() => setAddWaterParamsOpen(false)} /></div>
-            </DrawerContent>
-          </Drawer>
-        </div>
-        {waterParameters && waterParameters.length > 0 ? (
-          <Carousel opts={{ align: "start" }} className="w-full">
-            <CarouselContent>
-              {waterParameters.map((item) => (
-                <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><WaterParameterCard reading={item} aquariumType={aquarium.type} /></CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious /><CarouselNext />
-          </Carousel>
-        ) : <p className="text-muted-foreground">No water parameter readings yet.</p>}
-      </section>
-
       <Tabs defaultValue="journal" className="mt-4">
         <TabsList>
           <TabsTrigger value="journal">Journal</TabsTrigger>
-          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
         </TabsList>
         <TabsContent value="journal">
           <JournalTab aquariumId={aquarium.id} />
-        </TabsContent>
-        <TabsContent value="maintenance">
-          <MaintenanceTab aquariumId={aquarium.id} />
         </TabsContent>
         <TabsContent value="wishlist">
           <WishlistTab aquariumId={aquarium.id} />
