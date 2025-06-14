@@ -55,8 +55,23 @@ export function Recommendations({ aquariums }: RecommendationsProps) {
   const hasSaltwater = aquariums.some((aq) => aq.type === 'saltwater');
   const hasFreshwater = aquariums.some((aq) => aq.type === 'freshwater');
 
-  if (!hasSaltwater && !hasFreshwater) {
-    return null;
+  const noTypedAquariums = !hasSaltwater && !hasFreshwater;
+
+  // Since this component is only rendered from the dashboard when aquariums.length > 0,
+  // noTypedAquariums being true means there are aquariums, but none have a type set.
+  if (noTypedAquariums) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Recommendations</CardTitle>
+          <CardDescription>Set an aquarium type to get personalized suggestions. In the meantime, check out these popular items!</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          <RecommendationCarousel title="Popular Saltwater Items" items={saltwaterRecommendations} />
+          <RecommendationCarousel title="Popular Freshwater Items" items={freshwaterRecommendations} />
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
