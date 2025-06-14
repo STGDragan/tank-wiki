@@ -11,7 +11,12 @@ import { PlusCircle } from "lucide-react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { AddWaterParameterForm } from "./AddWaterParameterForm";
 
-type WaterParameterReading = Tables<'water_parameters'>;
+type WaterParameterReading = Tables<'water_parameters'> & {
+  salinity?: number | null;
+  alkalinity?: number | null;
+  calcium?: number | null;
+  magnesium?: number | null;
+};
 
 const fetchWaterParameters = async (aquariumId: string): Promise<WaterParameterReading[]> => {
   const { data, error } = await supabase
@@ -21,7 +26,7 @@ const fetchWaterParameters = async (aquariumId: string): Promise<WaterParameterR
     .order("recorded_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data || [];
+  return (data as WaterParameterReading[]) || [];
 };
 
 const WaterParametersTab = ({ aquariumId, aquariumType }: { aquariumId: string, aquariumType: string | null }) => {
