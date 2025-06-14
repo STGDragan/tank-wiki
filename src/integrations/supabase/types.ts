@@ -419,9 +419,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      claim_admin_role: {
+      admin_role_exists: {
         Args: Record<PropertyKey, never>
-        Returns: string
+        Returns: boolean
       }
       has_role: {
         Args: {

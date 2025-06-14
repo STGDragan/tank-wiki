@@ -1,32 +1,38 @@
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useEffect, useState } from "react";
 
 const Settings = () => {
-  const { user, roles, refreshRoles } = useAuth();
+  const { roles } = useAuth();
   const { toast } = useToast();
-
-  const handleClaimAdmin = async () => {
-    if (!user) {
-      toast({ title: "Error", description: "You must be logged in.", variant: "destructive" });
-      return;
-    }
-
-    const { data, error } = await supabase.rpc('claim_admin_role');
-
-    if (error) {
-      toast({ title: "Error claiming admin role", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Success", description: data });
-      await refreshRoles();
-    }
-  };
+  const [adminExists, setAdminExists] = useState<boolean | null>(null);
+  const [loadingAdminStatus, setLoadingAdminStatus] = useState(true);
 
   const isAdmin = roles?.includes('admin');
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setLoadingAdminStatus(true);
+      supabase.rpc('admin_role_exists')
+        .then(({ data, error }) => {
+          if (error) {
+            toast({ title: "Error checking admin status", description: error.message, variant: "destructive" });
+            setAdminExists(null);
+          } else {
+            setAdminExists(data);
+          }
+        })
+        .finally(() => {
+          setLoadingAdminStatus(false);
+        });
+    } else {
+      setLoadingAdminStatus(false);
+    }
+  }, [isAdmin, toast]);
 
   return (
     <div className="space-y-8">
@@ -48,13 +54,18 @@ const Settings = () => {
           <CardDescription>
             {isAdmin 
               ? "You already have the admin role." 
-              : "Claim the admin role to manage products and other site settings. This can only be done by the first user."}
+              : loadingAdminStatus 
+                ? "Checking admin status..."
+                : adminExists === true
+                  ? "An administrator has already been configured for this application."
+                  : adminExists === false
+                    ? "No administrator has been configured for this application. An admin must be assigned manually via the Supabase dashboard."
+                    : "Could not determine admin status."
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!isAdmin && (
-            <Button onClick={handleClaimAdmin}>Claim Admin Role</Button>
-          )}
+          {/* The button to claim admin role has been removed to enhance security. */}
         </CardContent>
       </Card>
     </div>
