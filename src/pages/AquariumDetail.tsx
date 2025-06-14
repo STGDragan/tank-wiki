@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JournalTab from "@/components/aquarium/JournalTab";
@@ -16,6 +16,8 @@ import { WaterParametersSection } from "@/components/aquarium/WaterParametersSec
 import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
 import { LivestockSection } from "@/components/aquarium/LivestockSection";
 import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
+import { LogTab } from "@/components/aquarium/LogTab";
+import { format } from "date-fns";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 type Equipment = Tables<'equipment'> & { image_url?: string | null };
@@ -165,6 +167,79 @@ const AquariumDetail = () => {
       deleteTaskMutation.mutate(taskId);
   };
 
+  const logEntries = useMemo(() => {
+    type LogEntry = {
+        id: string;
+        type: 'maintenance' | 'livestock' | 'water_parameter';
+        date: Date;
+        title: string;
+        description: React.ReactNode;
+    };
+    const entries: LogEntry[] = [];
+
+    // 1. Completed maintenance tasks
+    const completedTasks = tasks?.filter(task => task.completed_date) || [];
+    completedTasks.forEach(task => {
+        entries.push({
+            id: `m-${task.id}`,
+            type: 'maintenance',
+            date: new Date(task.completed_date!),
+            title: 'Maintenance Task Completed',
+            description: (
+                <div>
+                    <p className="font-semibold">{task.task}</p>
+                    {task.notes && <p className="text-xs mt-1">Notes: {task.notes}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">
+                        Task created on: {format(new Date(task.created_at), 'PP')}
+                    </p>
+                </div>
+            )
+        });
+    });
+
+    // 2. Livestock additions
+    (livestock || []).forEach(item => {
+        entries.push({
+            id: `l-${item.id}`,
+            type: 'livestock',
+            date: new Date(item.added_at),
+            title: 'Livestock Added',
+            description: (
+                <div>
+                    <p className="font-semibold">{item.quantity}x {item.species}{item.name ? ` (${item.name})` : ''}</p>
+                    {item.notes && <p className="text-xs mt-1">Notes: {item.notes}</p>}
+                </div>
+            )
+        });
+    });
+
+    // 3. Water parameter readings
+    (waterParameters || []).forEach(reading => {
+        const params = [
+            reading.temperature && `Temp: ${reading.temperature}°`,
+            reading.ph && `pH: ${reading.ph}`,
+            reading.nitrate && `Nitrate: ${reading.nitrate} ppm`,
+            reading.nitrite && `Nitrite: ${reading.nitrite} ppm`,
+            reading.ammonia && `Ammonia: ${reading.ammonia} ppm`,
+            reading.salinity && `Salinity: ${reading.salinity} ppt`,
+            reading.alkalinity && `Alkalinity: ${reading.alkalinity} dKH`,
+            reading.calcium && `Calcium: ${reading.calcium} ppm`,
+            reading.magnesium && `Magnesium: ${reading.magnesium} ppm`,
+        ].filter(Boolean).join(' | ');
+
+        entries.push({
+            id: `wp-${reading.id}`,
+            type: 'water_parameter',
+            date: new Date(reading.recorded_at),
+            title: 'Water Parameters Tested',
+            description: <p>{params}</p>
+        });
+    });
+
+    // Sort all entries by date, descending
+    return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [tasks, livestock, waterParameters]);
+
   const isLoading = authLoading || isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading;
 
   if (isLoading) {
@@ -238,10 +313,14 @@ const AquariumDetail = () => {
       <Tabs defaultValue="journal" className="mt-4">
         <TabsList>
           <TabsTrigger value="journal">Journal</TabsTrigger>
-          <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+          <TabsTrigger value="log">Log</TabsTrigger>
+          <TabsTrigger value="wishlist">Wishlist</Tabs.Trigger>
         </TabsList>
         <TabsContent value="journal">
           <JournalTab aquariumId={aquarium.id} />
+        </TabsContent>
+        <TabsContent value="log">
+            <LogTab logEntries={logEntries} />
         </TabsContent>
         <TabsContent value="wishlist">
           <WishlistTab aquariumId={aquarium.id} />
