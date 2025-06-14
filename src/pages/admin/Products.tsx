@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -25,9 +24,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PlusCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import AddProductDialog from "@/components/admin/AddProductDialog";
 
 const fetchProducts = async () => {
   const { data, error } = await supabase
@@ -91,10 +91,7 @@ const AdminProducts = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
-        <Button disabled> {/* The "Add Product" functionality can be added next! */}
-          <PlusCircle />
-          Add Product
-        </Button>
+        <AddProductDialog />
       </div>
       <Card>
         <CardHeader>
