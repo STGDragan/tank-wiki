@@ -15,23 +15,24 @@ const Settings = () => {
   const isAdmin = roles?.includes('admin');
 
   useEffect(() => {
-    if (!isAdmin) {
-      setLoadingAdminStatus(true);
-      supabase.rpc('admin_role_exists')
-        .then(({ data, error }) => {
-          if (error) {
-            toast({ title: "Error checking admin status", description: error.message, variant: "destructive" });
-            setAdminExists(null);
-          } else {
-            setAdminExists(data);
-          }
-        })
-        .finally(() => {
-          setLoadingAdminStatus(false);
-        });
-    } else {
-      setLoadingAdminStatus(false);
-    }
+    const checkAdminStatus = async () => {
+      if (!isAdmin) {
+        setLoadingAdminStatus(true);
+        const { data, error } = await supabase.rpc('admin_role_exists');
+
+        if (error) {
+          toast({ title: "Error checking admin status", description: error.message, variant: "destructive" });
+          setAdminExists(null);
+        } else {
+          setAdminExists(data);
+        }
+        setLoadingAdminStatus(false);
+      } else {
+        setLoadingAdminStatus(false);
+      }
+    };
+
+    checkAdminStatus();
   }, [isAdmin, toast]);
 
   return (
