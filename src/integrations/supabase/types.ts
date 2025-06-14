@@ -162,6 +162,57 @@ export type Database = {
           },
         ]
       }
+      maintenance: {
+        Row: {
+          aquarium_id: string
+          completed_date: string | null
+          created_at: string
+          due_date: string | null
+          equipment_id: string | null
+          id: string
+          notes: string | null
+          task: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          completed_date?: string | null
+          created_at?: string
+          due_date?: string | null
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          task: string
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          completed_date?: string | null
+          created_at?: string
+          due_date?: string | null
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          task?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

@@ -20,6 +20,7 @@ import { EquipmentCard } from "@/components/aquarium/EquipmentCard";
 import { AddEquipmentForm } from "@/components/aquarium/AddEquipmentForm";
 import { WaterParameterCard } from "@/components/aquarium/WaterParameterCard";
 import { AddWaterParameterForm } from "@/components/aquarium/AddWaterParameterForm";
+import { MaintenanceTab } from "@/components/aquarium/MaintenanceTab";
 
 type Livestock = Tables<'livestock'>;
 type Equipment = Tables<'equipment'>;
@@ -238,10 +239,14 @@ const AquariumDetail = () => {
       <Tabs defaultValue="journal" className="mt-4">
         <TabsList>
           <TabsTrigger value="journal">Journal</TabsTrigger>
+          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
         </TabsList>
         <TabsContent value="journal">
           <JournalTab aquariumId={aquarium.id} />
+        </TabsContent>
+        <TabsContent value="maintenance">
+          <MaintenanceTab aquariumId={aquarium.id} />
         </TabsContent>
         <TabsContent value="wishlist">
           <WishlistTab aquariumId={aquarium.id} />
