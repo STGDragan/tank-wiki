@@ -17,7 +17,7 @@ interface QuickAddTaskProps {
   aquariums: Aquarium[];
 }
 
-const commonTasks = ['Water Change', 'Clean Filter', 'Test Water Parameters', 'Dose Fertilizers', 'Glass Cleaning'];
+const commonTasks = ['Water Change', 'Water Test', 'Clean Filter', 'Add Inhabitants'];
 
 export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   const { user } = useAuth();
