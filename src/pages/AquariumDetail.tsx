@@ -1,10 +1,15 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LivestockTab from "@/components/aquarium/LivestockTab";
+import WaterParametersTab from "@/components/aquarium/WaterParametersTab";
+import EquipmentTab from "@/components/aquarium/EquipmentTab";
+import JournalTab from "@/components/aquarium/JournalTab";
+import WishlistTab from "@/components/aquarium/WishlistTab";
 
 const fetchAquariumById = async (id: string) => {
   const { data, error } = await supabase
@@ -72,11 +77,38 @@ const AquariumDetail = () => {
       <p className="text-muted-foreground mt-2">
         {aquarium.type} - {aquarium.size} Gallons
       </p>
-      <div className="mt-6 p-8 border rounded-lg bg-card">
-        <h2 className="text-lg font-semibold mb-4">Details</h2>
-        <p>Details about the aquarium will go here.</p>
-        <p>This will include water parameters, livestock, equipment, and notes.</p>
-      </div>
+      
+      <Tabs defaultValue="livestock" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="livestock">Livestock</TabsTrigger>
+          <TabsTrigger value="water-parameters">Water Parameters</TabsTrigger>
+          <TabsTrigger value="equipment">Equipment</TabsTrigger>
+          <TabsTrigger value="journal">Journal</TabsTrigger>
+          <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+        </TabsList>
+        <TabsContent value="details">
+          <div className="mt-2 p-8 border rounded-lg bg-card">
+            <h2 className="text-lg font-semibold mb-4">Aquarium Details</h2>
+            <p>Details about the aquarium will go here.</p>
+          </div>
+        </TabsContent>
+        <TabsContent value="livestock">
+          <LivestockTab aquariumId={aquarium.id} />
+        </TabsContent>
+        <TabsContent value="water-parameters">
+          <WaterParametersTab aquariumId={aquarium.id} />
+        </TabsContent>
+        <TabsContent value="equipment">
+          <EquipmentTab aquariumId={aquarium.id} />
+        </TabsContent>
+        <TabsContent value="journal">
+          <JournalTab aquariumId={aquarium.id} />
+        </TabsContent>
+        <TabsContent value="wishlist">
+          <WishlistTab aquariumId={aquarium.id} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -36,6 +36,132 @@ export type Database = {
         }
         Relationships: []
       }
+      equipment: {
+        Row: {
+          aquarium_id: string
+          brand: string | null
+          created_at: string
+          id: string
+          installed_at: string | null
+          model: string | null
+          notes: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          brand?: string | null
+          created_at?: string
+          id?: string
+          installed_at?: string | null
+          model?: string | null
+          notes?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          brand?: string | null
+          created_at?: string
+          id?: string
+          installed_at?: string | null
+          model?: string | null
+          notes?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_entries: {
+        Row: {
+          aquarium_id: string
+          content: string | null
+          created_at: string
+          entry_date: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          content?: string | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          content?: string | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_entries_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      livestock: {
+        Row: {
+          added_at: string
+          aquarium_id: string
+          created_at: string
+          id: string
+          name: string | null
+          notes: string | null
+          quantity: number
+          species: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          aquarium_id: string
+          created_at?: string
+          id?: string
+          name?: string | null
+          notes?: string | null
+          quantity?: number
+          species: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          aquarium_id?: string
+          created_at?: string
+          id?: string
+          name?: string | null
+          notes?: string | null
+          quantity?: number
+          species?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "livestock_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -56,6 +182,97 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      water_parameters: {
+        Row: {
+          ammonia: number | null
+          aquarium_id: string
+          created_at: string
+          id: string
+          nitrate: number | null
+          nitrite: number | null
+          ph: number | null
+          recorded_at: string
+          temperature: number | null
+          user_id: string
+        }
+        Insert: {
+          ammonia?: number | null
+          aquarium_id: string
+          created_at?: string
+          id?: string
+          nitrate?: number | null
+          nitrite?: number | null
+          ph?: number | null
+          recorded_at?: string
+          temperature?: number | null
+          user_id: string
+        }
+        Update: {
+          ammonia?: number | null
+          aquarium_id?: string
+          created_at?: string
+          id?: string
+          nitrate?: number | null
+          nitrite?: number | null
+          ph?: number | null
+          recorded_at?: string
+          temperature?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "water_parameters_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wishlist_items: {
+        Row: {
+          aquarium_id: string
+          created_at: string
+          estimated_price: number | null
+          id: string
+          item_type: string
+          name: string
+          notes: string | null
+          priority: number | null
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          created_at?: string
+          estimated_price?: number | null
+          id?: string
+          item_type: string
+          name: string
+          notes?: string | null
+          priority?: number | null
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          created_at?: string
+          estimated_price?: number | null
+          id?: string
+          item_type?: string
+          name?: string
+          notes?: string | null
+          priority?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
