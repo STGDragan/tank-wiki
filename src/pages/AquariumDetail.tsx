@@ -157,8 +157,8 @@ const AquariumDetail = () => {
       }
   });
 
-  const handleMarkComplete = (taskId: string) => {
-      updateTaskMutation.mutate({ taskId, updates: { completed_date: new Date().toISOString() } });
+  const handleMarkComplete = (taskId: string, completedDate: Date) => {
+      updateTaskMutation.mutate({ taskId, updates: { completed_date: completedDate.toISOString() } });
   };
 
   const handleDeleteTask = (taskId: string) => {

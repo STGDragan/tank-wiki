@@ -1,21 +1,33 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
-import { Check, Trash2, Calendar, Wrench } from "lucide-react";
+import { Check, Trash2, Calendar as CalendarIcon, Wrench } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 
 interface MaintenanceCardProps {
     task: MaintenanceTask;
-    onMarkComplete: (taskId: string) => void;
+    onMarkComplete: (taskId: string, completedDate: Date) => void;
     onDelete: (taskId: string) => void;
 }
 
 export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceCardProps) => {
+    const [open, setOpen] = useState(false);
+    const [completedDate, setCompletedDate] = useState<Date | undefined>(new Date());
     const isCompleted = !!task.completed_date;
     const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !isCompleted;
+
+    const handleSave = () => {
+        if (completedDate) {
+            onMarkComplete(task.id, completedDate);
+            setOpen(false);
+        }
+    };
 
     return (
         <Card className={`h-full flex flex-col ${isCompleted ? 'bg-muted/50 border-dashed' : ''}`}>
@@ -29,7 +41,7 @@ export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceC
                         <span className="text-green-600">Completed on {format(new Date(task.completed_date!), 'PPP')}</span>
                     ) : task.due_date ? (
                         <span className={`flex items-center gap-2 ${isOverdue ? 'text-destructive font-semibold' : ''}`}>
-                            <Calendar className="w-4 h-4" />
+                            <CalendarIcon className="w-4 h-4" />
                             Due on {format(new Date(task.due_date), 'PPP')}
                         </span>
                     ) : (
@@ -49,9 +61,26 @@ export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceC
             )}
             <CardFooter className="mt-auto pt-4 flex justify-end gap-2">
                 {!isCompleted && (
-                    <Button size="sm" onClick={() => onMarkComplete(task.id)}>
-                        <Check className="mr-2 h-4 w-4" /> Mark complete
-                    </Button>
+                     <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <Button size="sm">
+                                <Check className="mr-2 h-4 w-4" /> Mark complete
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                                mode="single"
+                                selected={completedDate}
+                                onSelect={setCompletedDate}
+                                initialFocus
+                            />
+                            <div className="p-2 border-t border-border">
+                                <Button size="sm" className="w-full" onClick={handleSave} disabled={!completedDate}>
+                                    Save Completion Date
+                                </Button>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                 )}
                 <Button size="sm" variant="ghost" onClick={() => onDelete(task.id)} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="h-4 w-4" />

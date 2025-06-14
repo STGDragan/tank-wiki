@@ -13,7 +13,7 @@ type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, bran
 interface MaintenanceSectionProps {
     tasks: MaintenanceTask[];
     aquariumId: string;
-    onMarkComplete: (taskId: string) => void;
+    onMarkComplete: (taskId: string, completedDate: Date) => void;
     onDelete: (taskId: string) => void;
 }
 
