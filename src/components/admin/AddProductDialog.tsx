@@ -72,7 +72,14 @@ const AddProductDialog = () => {
   });
 
   const onSubmit = (data: ProductFormValues) => {
-    addProductMutation.mutate(data);
+    // The `data` object from the form is slightly different from what Supabase expects.
+    // We create a new object here to ensure type compatibility.
+    // Zod validation guarantees `data.name` is a string.
+    addProductMutation.mutate({
+      name: data.name,
+      description: data.description || null,
+      image_url: data.image_url || null,
+    });
   };
 
   return (
