@@ -99,7 +99,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
     }
   }
 
-  const isSaltwater = aquariumType === 'saltwater';
+  const isSaltwater = aquariumType?.toLowerCase() === 'saltwater';
 
   return (
     <Form {...form}>

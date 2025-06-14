@@ -36,7 +36,7 @@ const WaterParametersTab = ({ aquariumId, aquariumType }: { aquariumId: string, 
     queryFn: () => fetchWaterParameters(aquariumId),
   });
 
-  const isSaltwater = aquariumType === 'saltwater';
+  const isSaltwater = aquariumType?.toLowerCase() === 'saltwater';
   
   const commonHeaders = ["Date", "Temp", "pH", "Ammonia", "Nitrite", "Nitrate"];
   const saltwaterHeaders = ["Salinity", "Alkalinity", "Calcium", "Magnesium"];
