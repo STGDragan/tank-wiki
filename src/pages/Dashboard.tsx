@@ -1,3 +1,4 @@
+
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
@@ -8,6 +9,7 @@ import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tables } from "@/integrations/supabase/types";
 import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
+import { Recommendations } from "@/components/dashboard/Recommendations";
 
 type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
 
@@ -67,6 +69,7 @@ const Dashboard = () => {
             ))}
           </div>
           <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name }))} />
+          <Recommendations />
         </div>
       ) : (
          <div className="text-center py-12 border-2 border-dashed rounded-lg">
