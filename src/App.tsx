@@ -8,6 +8,7 @@ import AquariumDetail from "./pages/AquariumDetail";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AuthProvider } from "./providers/AuthProvider";
+import Shopping from "./pages/Shopping";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/aquarium/:id" element={<AquariumDetail />} />
+            <Route path="/shopping" element={<Shopping />} />
             {/* Add other authenticated routes here */}
           </Route>
           

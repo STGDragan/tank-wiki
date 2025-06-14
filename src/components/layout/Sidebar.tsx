@@ -1,11 +1,13 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, UserCircle } from "lucide-react";
+import { LayoutDashboard, Settings, UserCircle, ShoppingCart } from "lucide-react";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Shopping", href: "/shopping", icon: ShoppingCart },
 ];
 
 const secondaryNav = [
