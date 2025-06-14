@@ -23,7 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tables } from "@/integrations/supabase/types";
+import { Tables, TablesInsert } from "@/integrations/supabase/types";
 
 const maintenanceTaskSchema = z.object({
   task: z.string().min(1, "Task description is required."),
@@ -71,13 +71,16 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
             return;
         }
 
-        const { error } = await supabase.from("maintenance").insert({
-            ...values,
+        const newMaintenanceTask: TablesInsert<'maintenance'> = {
             aquarium_id: aquariumId,
             user_id: user.id,
+            task: values.task,
+            notes: values.notes || null,
             due_date: values.due_date ? values.due_date.toISOString() : null,
             equipment_id: values.equipment_id || null,
-        });
+        };
+
+        const { error } = await supabase.from("maintenance").insert(newMaintenanceTask);
 
         if (error) {
             toast({ title: "Error adding maintenance task", description: error.message, variant: "destructive" });
