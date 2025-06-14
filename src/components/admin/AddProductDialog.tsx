@@ -27,12 +27,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
-import { TablesInsert } from "@/integrations/supabase/types";
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
   image_url: z.union([
+    z.string().url({ message: "Please enter a valid URL." }),
+    z.literal('')
+  ]).optional()
+    .transform(e => e === "" ? undefined : e),
+  affiliate_provider: z.string().optional(),
+  affiliate_url: z.union([
     z.string().url({ message: "Please enter a valid URL." }),
     z.literal('')
   ]).optional()
@@ -52,13 +57,41 @@ const AddProductDialog = () => {
       name: "",
       description: "",
       image_url: "",
+      affiliate_provider: "",
+      affiliate_url: "",
     },
   });
 
   const addProductMutation = useMutation({
-    mutationFn: async (newProduct: TablesInsert<"products">) => {
-      const { error } = await supabase.from("products").insert(newProduct);
-      if (error) throw error;
+    mutationFn: async (newProduct: ProductFormValues) => {
+      const { data: productData, error: productError } = await supabase
+        .from("products")
+        .insert({
+          name: newProduct.name,
+          description: newProduct.description || null,
+          image_url: newProduct.image_url || null,
+        })
+        .select()
+        .single();
+
+      if (productError) throw productError;
+      if (!productData) throw new Error("Failed to create product.");
+
+      if (newProduct.affiliate_url) {
+        const { error: affiliateError } = await supabase
+          .from("affiliate_links")
+          .insert({
+            product_id: productData.id,
+            link_url: newProduct.affiliate_url,
+            provider: newProduct.affiliate_provider || null,
+          });
+
+        if (affiliateError) {
+          // In a real app, you might want to roll back the product creation here.
+          // For now, we'll let the user know something went wrong.
+          throw affiliateError;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -72,21 +105,14 @@ const AddProductDialog = () => {
   });
 
   const onSubmit = (data: ProductFormValues) => {
-    // The `data` object from the form is slightly different from what Supabase expects.
-    // We create a new object here to ensure type compatibility.
-    // Zod validation guarantees `data.name` is a string.
-    addProductMutation.mutate({
-      name: data.name,
-      description: data.description || null,
-      image_url: data.image_url || null,
-    });
+    addProductMutation.mutate(data);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusCircle />
+          <PlusCircle className="mr-2 h-4 w-4" />
           Add Product
         </Button>
       </DialogTrigger>
@@ -132,7 +158,33 @@ const AddProductDialog = () => {
                 <FormItem>
                   <FormLabel>Image URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} />
+                    <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} value={field.value ?? ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="affiliate_provider"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Affiliate Provider</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Amazon" {...field} value={field.value ?? ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="affiliate_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Affiliate URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. https://amazon.com/product/123" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
