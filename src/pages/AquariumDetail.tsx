@@ -310,7 +310,7 @@ const AquariumDetail = () => {
         <AquariumRecommendations aquariumType={typedAquarium.type} />
       </section>
 
-      <Tabs defaultValue="journal" className="mt-4">
+      <Tabs defaultValue="log" className="mt-4">
         <TabsList>
           <TabsTrigger value="journal">Journal</TabsTrigger>
           <TabsTrigger value="log">Log</TabsTrigger>
