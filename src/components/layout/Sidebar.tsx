@@ -1,9 +1,11 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
+import { ScrollArea } from "../ui/scroll-area";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -47,18 +49,20 @@ export function Sidebar() {
       <div className="p-4 border-b">
         <Logo />
       </div>
-      <div className="flex-1 p-4 space-y-6">
-        <nav>{renderNav(mainNav)}</nav>
-        {isAdmin && (
-          <div>
-            <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight">
-              Management
-            </h3>
-            <nav>{renderNav(adminNav)}</nav>
-          </div>
-        )}
-        <nav>{renderNav(secondaryNav)}</nav>
-      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-6">
+          <nav>{renderNav(mainNav)}</nav>
+          {isAdmin && (
+            <div>
+              <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight">
+                Management
+              </h3>
+              <nav>{renderNav(adminNav)}</nav>
+            </div>
+          )}
+          <nav>{renderNav(secondaryNav)}</nav>
+        </div>
+      </ScrollArea>
       <div className="p-4 border-t">
         <Button variant="ghost" className="w-full justify-start">
             <UserCircle className="mr-2 h-4 w-4" />
