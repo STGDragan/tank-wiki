@@ -314,7 +314,7 @@ const AquariumDetail = () => {
         <TabsList>
           <TabsTrigger value="journal">Journal</TabsTrigger>
           <TabsTrigger value="log">Log</TabsTrigger>
-          <TabsTrigger value="wishlist">Wishlist</Tabs.Trigger>
+          <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
         </TabsList>
         <TabsContent value="journal">
           <JournalTab aquariumId={aquarium.id} />
