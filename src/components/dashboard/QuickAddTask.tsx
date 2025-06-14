@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type Aquarium = Pick<Tables<'aquariums'>, 'id' | 'name'>;
 
@@ -22,6 +23,7 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedAquariumId, setSelectedAquariumId] = useState<string>('');
+  const navigate = useNavigate();
 
   const addTaskMutation = useMutation({
     mutationFn: async ({ task }: { task: string }) => {
@@ -43,6 +45,9 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
         description: `"${task}" has been added to the schedule.`,
       });
       queryClient.invalidateQueries({ queryKey: ['maintenance', selectedAquariumId] });
+      if (selectedAquariumId) {
+        navigate(`/aquarium/${selectedAquariumId}`);
+      }
     },
     onError: (error) => {
       toast({
