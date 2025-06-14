@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,14 @@ export function Sidebar() {
       </div>
       <div className="flex-1 p-4 space-y-6">
         <nav>{renderNav(mainNav)}</nav>
-        {isAdmin && <nav>{renderNav(adminNav)}</nav>}
+        {isAdmin && (
+          <div>
+            <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight">
+              Management
+            </h3>
+            <nav>{renderNav(adminNav)}</nav>
+          </div>
+        )}
         <nav>{renderNav(secondaryNav)}</nav>
       </div>
       <div className="p-4 border-t">
