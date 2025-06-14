@@ -63,7 +63,7 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
     }
 
     const newEquipment: TablesInsert<"equipment"> = {
-      ...values,
+      type: values.type,
       brand: values.brand || null,
       model: values.model || null,
       notes: values.notes || null,
