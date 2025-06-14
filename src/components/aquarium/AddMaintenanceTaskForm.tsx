@@ -10,19 +10,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
+import React, { useState } from "react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 const maintenanceTaskSchema = z.object({
   task: z.string().min(1, "Task description is required."),
@@ -32,6 +33,34 @@ const maintenanceTaskSchema = z.object({
 });
 
 type Equipment = Pick<Tables<'equipment'>, 'id' | 'type' | 'brand' | 'model'>;
+
+const topMaintenanceTasks = [
+    "Water Change 25%",
+    "Water Change 50%",
+    "Test Water Parameters",
+    "Clean Filter",
+    "Clean Algae from Glass",
+    "Gravel Vacuum",
+    "Trim Plants",
+    "Dose Fertilizers",
+];
+
+const fetchUserMaintenanceTasks = async (userId: string): Promise<string[]> => {
+    const { data, error } = await supabase
+        .from('maintenance')
+        .select('task')
+        .eq('user_id', userId)
+        .limit(100);
+
+    if (error) {
+        console.error("Error fetching user tasks", error);
+        return [];
+    }
+    if (!data) return [];
+    
+    const uniqueTasks = [...new Set(data.map(item => item.task))];
+    return uniqueTasks;
+};
 
 const fetchEquipmentForSelect = async (aquariumId: string): Promise<Equipment[]> => {
     const { data, error } = await supabase
@@ -54,6 +83,24 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
         queryFn: () => fetchEquipmentForSelect(aquariumId),
         enabled: !!aquariumId,
     });
+
+    const { data: userTasks } = useQuery({
+        queryKey: ['userMaintenanceTasks', user?.id],
+        queryFn: () => fetchUserMaintenanceTasks(user!.id),
+        enabled: !!user,
+    });
+
+    const maintenanceTaskOptions = React.useMemo(() => {
+        const baseTasks = topMaintenanceTasks.map(task => ({ value: task, label: task }));
+        if (!userTasks) return baseTasks;
+
+        const combinedTasks = [...topMaintenanceTasks, ...userTasks];
+        const uniqueTasks = [...new Set(combinedTasks)];
+        return uniqueTasks.map(task => ({
+            value: task,
+            label: task,
+        }));
+    }, [userTasks]);
 
     const form = useForm<z.infer<typeof maintenanceTaskSchema>>({
         resolver: zodResolver(maintenanceTaskSchema),
@@ -96,15 +143,64 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
                 <FormField
                     control={form.control}
                     name="task"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Task</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g. Water Change 25%" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
+                    render={({ field }) => {
+                        const [open, setOpen] = useState(false);
+                        return (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>Task</FormLabel>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className={cn(
+                                                    "w-full justify-between",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                            >
+                                                {field.value || "Select a task or type a new one"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command filter={(value, search) => value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0}>
+                                            <CommandInput
+                                                placeholder="Search or add new task..."
+                                                value={field.value || ''}
+                                                onValueChange={field.onChange}
+                                            />
+                                            <CommandList>
+                                                <CommandEmpty>No task found. The new task will be created.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {maintenanceTaskOptions.map((option) => (
+                                                        <CommandItem
+                                                            key={option.value}
+                                                            value={option.value}
+                                                            onSelect={(selectedValue) => {
+                                                                form.setValue("task", selectedValue);
+                                                                setOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    field.value === option.value ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {option.label}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                        )
+                    }}
                 />
                 
                 <FormField
