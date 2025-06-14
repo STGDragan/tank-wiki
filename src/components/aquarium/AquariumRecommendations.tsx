@@ -3,60 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// This would eventually come from an API based on the specific tank
-const recommendations = [
-  {
-    type: 'livestock',
-    name: 'Clownfish',
-    description: 'Great for saltwater tanks.',
-    imageUrl: 'https://placehold.co/300x200/F97316/FFFFFF?text=Clownfish',
-  },
-  {
-    type: 'livestock',
-    name: 'Royal Gramma',
-    description: 'A beautiful and peaceful fish.',
-    imageUrl: 'https://placehold.co/300x200/6D28D9/FFFFFF?text=Royal+Gramma',
-  },
-  {
-    type: 'equipment',
-    name: 'AI Prime 16HD Light',
-    description: 'Popular reef tank lighting.',
-    imageUrl: 'https://placehold.co/300x200/3B82F6/FFFFFF?text=AI+Prime',
-  },
-  {
-    type: 'equipment',
-    name: 'Heater 50W',
-    description: 'Keeps your tank warm.',
-    imageUrl: 'https://placehold.co/300x200/F97316/FFFFFF?text=Heater',
-  },
-  {
-    type: 'consumable',
-    name: 'Seachem Prime',
-    description: 'Essential water conditioner.',
-    imageUrl: 'https://placehold.co/300x200/9333EA/FFFFFF?text=Seachem',
-  },
-  {
-    type: 'consumable',
-    name: 'Red Sea Salt Mix',
-    description: 'High-quality salt for reef tanks.',
-    imageUrl: 'https://placehold.co/300x200/EF4444/FFFFFF?text=Red+Sea+Salt',
-  },
-  {
-    type: 'food',
-    name: 'Hikari Marine-S Pellets',
-    description: 'Nutritious food for marine fish.',
-    imageUrl: 'https://placehold.co/300x200/F59E0B/FFFFFF?text=Hikari+Food',
-  },
-  {
-    type: 'food',
-    name: 'New Life Spectrum Flakes',
-    description: 'Color-enhancing flake food.',
-    imageUrl: 'https://placehold.co/300x200/10B981/FFFFFF?text=NLS+Flakes',
-  },
-];
-
-type Recommendation = typeof recommendations[0];
+import { saltwaterRecommendations, freshwaterRecommendations, Recommendation } from "@/data/recommendations";
 
 const RecommendationCarousel = ({ items }: { items: Recommendation[] }) => {
   if (items.length === 0) {
@@ -99,7 +46,33 @@ const RecommendationCarousel = ({ items }: { items: Recommendation[] }) => {
   );
 }
 
-export function AquariumRecommendations() {
+interface AquariumRecommendationsProps {
+  aquariumType: string | null | undefined;
+}
+
+export function AquariumRecommendations({ aquariumType }: AquariumRecommendationsProps) {
+  let recommendations: Recommendation[] = [];
+  if (aquariumType === 'saltwater') {
+    recommendations = saltwaterRecommendations;
+  } else if (aquariumType === 'freshwater') {
+    recommendations = freshwaterRecommendations;
+  }
+
+  if (recommendations.length === 0) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Recommendations For You</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground text-center py-8">
+                    Set an aquarium type (freshwater or saltwater) to see recommendations.
+                </p>
+            </CardContent>
+        </Card>
+    );
+  }
+
   const inhabitants = recommendations.filter(r => r.type === 'livestock');
   const equipment = recommendations.filter(r => r.type === 'equipment');
   const consumables = recommendations.filter(r => r.type === 'consumable');

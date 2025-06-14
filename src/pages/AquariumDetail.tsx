@@ -228,7 +228,7 @@ const AquariumDetail = () => {
 
       {/* Recommendations Section */}
       <section>
-        <AquariumRecommendations />
+        <AquariumRecommendations aquariumType={typedAquarium.type} />
       </section>
 
       <Tabs defaultValue="journal" className="mt-4">
