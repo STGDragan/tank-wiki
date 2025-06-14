@@ -1,5 +1,4 @@
 
-```tsx
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,7 +32,11 @@ import { TablesInsert } from "@/integrations/supabase/types";
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  image_url: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  image_url: z.union([
+    z.string().url({ message: "Please enter a valid URL." }),
+    z.literal('')
+  ]).optional()
+    .transform(e => e === "" ? undefined : e),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -141,4 +144,3 @@ const AddProductDialog = () => {
 };
 
 export default AddProductDialog;
-```
