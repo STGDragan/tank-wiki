@@ -69,7 +69,7 @@ const Dashboard = () => {
             ))}
           </div>
           <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name }))} />
-          <Recommendations />
+          <Recommendations aquariums={aquariums} />
         </div>
       ) : (
          <div className="text-center py-12 border-2 border-dashed rounded-lg">
