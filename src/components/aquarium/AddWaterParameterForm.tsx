@@ -112,7 +112,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 <FormItem>
                   <FormLabel>Temperature (°F)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.1" {...field} />
+                    <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,7 +125,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 <FormItem>
                   <FormLabel>pH</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.1" {...field} />
+                    <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,7 +138,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 <FormItem>
                   <FormLabel>Ammonia (ppm)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                    <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -151,7 +151,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 <FormItem>
                   <FormLabel>Nitrite (ppm)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                    <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -164,7 +164,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 <FormItem>
                   <FormLabel>Nitrate (ppm)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="1" {...field} />
+                    <Input type="number" step="1" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -180,7 +180,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         <FormItem>
                           <FormLabel>Salinity (ppt)</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.1" {...field} />
+                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -193,7 +193,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         <FormItem>
                           <FormLabel>Alkalinity (dKH)</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.1" {...field} />
+                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -206,7 +206,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         <FormItem>
                           <FormLabel>Calcium (ppm)</FormLabel>
                           <FormControl>
-                            <Input type="number" step="1" {...field} />
+                            <Input type="number" step="1" {...field} value={field.value ?? ""} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -219,7 +219,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         <FormItem>
                           <FormLabel>Magnesium (ppm)</FormLabel>
                           <FormControl>
-                            <Input type="number" step="1" {...field} />
+                            <Input type="number" step="1" {...field} value={field.value ?? ""} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
