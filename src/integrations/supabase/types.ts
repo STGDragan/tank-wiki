@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          image_url: string | null
           name: string
           size: number | null
           type: string | null
@@ -21,6 +22,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          image_url?: string | null
           name: string
           size?: number | null
           type?: string | null
@@ -29,6 +31,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          image_url?: string | null
           name?: string
           size?: number | null
           type?: string | null
@@ -42,6 +45,7 @@ export type Database = {
           brand: string | null
           created_at: string
           id: string
+          image_url: string | null
           installed_at: string | null
           model: string | null
           notes: string | null
@@ -53,6 +57,7 @@ export type Database = {
           brand?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           installed_at?: string | null
           model?: string | null
           notes?: string | null
@@ -64,6 +69,7 @@ export type Database = {
           brand?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           installed_at?: string | null
           model?: string | null
           notes?: string | null
@@ -124,6 +130,7 @@ export type Database = {
           aquarium_id: string
           created_at: string
           id: string
+          image_url: string | null
           name: string | null
           notes: string | null
           quantity: number
@@ -135,6 +142,7 @@ export type Database = {
           aquarium_id: string
           created_at?: string
           id?: string
+          image_url?: string | null
           name?: string | null
           notes?: string | null
           quantity?: number
@@ -146,6 +154,7 @@ export type Database = {
           aquarium_id?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           name?: string | null
           notes?: string | null
           quantity?: number

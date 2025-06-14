@@ -12,7 +12,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { LivestockCard } from "@/components/aquarium/LivestockCard";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { Camera, PlusCircle } from "lucide-react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
 import { EquipmentCard } from "@/components/aquarium/EquipmentCard";
@@ -22,9 +22,11 @@ import { AddWaterParameterForm } from "@/components/aquarium/AddWaterParameterFo
 import { MaintenanceCard } from "@/components/aquarium/MaintenanceCard";
 import { AddMaintenanceTaskForm } from "@/components/aquarium/AddMaintenanceTaskForm";
 import { toast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ImageUploader } from "@/components/aquarium/ImageUploader";
 
-type Livestock = Tables<'livestock'>;
-type Equipment = Tables<'equipment'>;
+type Livestock = Tables<'livestock'> & { image_url?: string | null };
+type Equipment = Tables<'equipment'> & { image_url?: string | null };
 type WaterParameterReading = Tables<'water_parameters'> & {
   salinity?: number | null;
   alkalinity?: number | null;
@@ -32,6 +34,7 @@ type WaterParameterReading = Tables<'water_parameters'> & {
   magnesium?: number | null;
 };
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
+type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
 
 const fetchAquariumById = async (id: string) => {
   const { data, error } = await supabase
@@ -55,7 +58,7 @@ const fetchLivestock = async (aquariumId: string): Promise<Livestock[]> => {
     .order("added_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data || [];
+  return (data as Livestock[]) || [];
 };
 
 const fetchEquipment = async (aquariumId: string): Promise<Equipment[]> => {
@@ -66,7 +69,7 @@ const fetchEquipment = async (aquariumId: string): Promise<Equipment[]> => {
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data || [];
+  return (data as Equipment[]) || [];
 };
 
 const fetchWaterParameters = async (aquariumId: string): Promise<WaterParameterReading[]> => {
@@ -102,6 +105,7 @@ const AquariumDetail = () => {
   const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
   const [isAddWaterParamsOpen, setAddWaterParamsOpen] = useState(false);
   const [isAddTaskOpen, setAddTaskOpen] = useState(false);
+  const [isImagePopoverOpen, setImagePopoverOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -205,16 +209,50 @@ const AquariumDetail = () => {
     );
   }
 
+  const typedAquarium = aquarium as Aquarium;
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">{aquarium.name}</h1>
-        <p className="text-muted-foreground mt-1 text-lg">
-          {aquarium.type} - {aquarium.size} Gallons
-        </p>
+      <div className="relative rounded-lg overflow-hidden">
+        <img 
+            src={typedAquarium.image_url || `https://placehold.co/1200x400/34D399/FFFFFF?text=${encodeURIComponent(typedAquarium.name)}`} 
+            alt={typedAquarium.name} 
+            className="w-full h-48 md:h-64 object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute bottom-0 left-0 p-4 md:p-6">
+            <h1 className="text-2xl md:text-4xl font-bold text-white shadow-lg">{typedAquarium.name}</h1>
+            <p className="text-lg text-gray-200 mt-1 shadow-md">
+                {typedAquarium.type} - {typedAquarium.size} Gallons
+            </p>
+        </div>
+        <div className="absolute top-4 right-4">
+            <Popover open={isImagePopoverOpen} onOpenChange={setImagePopoverOpen}>
+                <PopoverTrigger asChild>
+                    <Button variant="secondary" size="icon">
+                        <Camera className="h-5 w-5" />
+                        <span className="sr-only">Change Image</span>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                    <div className="space-y-4">
+                        <div className="space-y-1">
+                            <h4 className="font-medium leading-none">Tank Image</h4>
+                            <p className="text-sm text-muted-foreground">Upload a new main image for your tank.</p>
+                        </div>
+                        <ImageUploader 
+                            aquariumId={typedAquarium.id}
+                            onUploadSuccess={() => setImagePopoverOpen(false)} 
+                            table="aquariums"
+                            recordId={typedAquarium.id}
+                        />
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
       </div>
       
-      <HealthRanking waterParameters={waterParameters || []} aquariumType={aquarium.type} />
+      <HealthRanking waterParameters={waterParameters || []} aquariumType={typedAquarium.type} />
 
       {/* Water Parameters Section */}
       <section>

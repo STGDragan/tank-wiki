@@ -1,4 +1,3 @@
-
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
@@ -7,11 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tables } from "@/integrations/supabase/types";
 
-const fetchAquariums = async () => {
+type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
+
+const fetchAquariums = async (): Promise<Aquarium[]> => {
     const { data, error } = await supabase.from('aquariums').select('*');
     if (error) throw new Error(error.message);
-    return data;
+    return (data as Aquarium[]) || [];
 };
 
 const Dashboard = () => {
@@ -24,7 +26,7 @@ const Dashboard = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const { data: aquariums, isLoading, error } = useQuery({
+  const { data: aquariums, isLoading, error } = useQuery<Aquarium[]>({
     queryKey: ['aquariums'],
     queryFn: fetchAquariums,
     enabled: !!user,
@@ -59,7 +61,7 @@ const Dashboard = () => {
       {aquariums && aquariums.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {aquariums.map(tank => (
-            <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} />
+            <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} />
           ))}
         </div>
       ) : (
