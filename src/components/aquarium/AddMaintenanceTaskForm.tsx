@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -77,7 +76,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
             task: values.task,
             notes: values.notes || null,
             due_date: values.due_date ? values.due_date.toISOString() : null,
-            equipment_id: values.equipment_id || null,
+            equipment_id: (values.equipment_id && values.equipment_id !== 'none') ? values.equipment_id : null,
         };
 
         const { error } = await supabase.from("maintenance").insert(newMaintenanceTask);
@@ -121,7 +120,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {equipmentList?.map(eq => (
                                         <SelectItem key={eq.id} value={eq.id}>
                                             {`${eq.type} (${eq.brand || ''} ${eq.model || ''})`.trim()}
