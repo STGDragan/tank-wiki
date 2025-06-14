@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -218,7 +217,7 @@ const AddProductDialog = () => {
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a subcategory" />
-                      </T_rigger>
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {watchedCategory && subcategories[watchedCategory]?.map((subcat) => (
