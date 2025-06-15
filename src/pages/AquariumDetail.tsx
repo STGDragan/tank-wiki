@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -338,7 +337,6 @@ const AquariumDetail = () => {
       />
 
       <WaterParametersSection
-        waterParameters={waterParameters || []}
         aquariumId={aquarium.id}
         aquariumType={typedAquarium.type}
       />
