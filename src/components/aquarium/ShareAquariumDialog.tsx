@@ -27,7 +27,8 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
     mutationFn: async ({ email, permission }: { email: string; permission: "viewer" | "editor" }) => {
       if (!user) throw new Error("User not authenticated");
 
-      const { error } = await supabase
+      // First, create the invitation in the database
+      const { error: dbError } = await supabase
         .from("aquarium_share_invitations")
         .insert({
           aquarium_id: aquariumId,
@@ -36,12 +37,37 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
           permission,
         });
 
-      if (error) throw new Error(error.message);
+      if (dbError) throw new Error(dbError.message);
+
+      // Then, send the email invitation
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No session found");
+
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/send-aquarium-invitation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          aquariumId,
+          invitedEmail: email,
+          permission,
+          aquariumName,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to send invitation email');
+      }
+
+      return await response.json();
     },
     onSuccess: () => {
       toast({
         title: "Invitation sent!",
-        description: `An invitation has been sent to ${email}`,
+        description: `An invitation email has been sent to ${email}`,
       });
       setEmail("");
       setOpen(false);
@@ -75,7 +101,7 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
         <DialogHeader>
           <DialogTitle>Share "{aquariumName}"</DialogTitle>
           <DialogDescription>
-            Send an invitation to share your aquarium with someone else.
+            Send an email invitation to share your aquarium with someone else.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
