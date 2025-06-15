@@ -1,9 +1,8 @@
-
 import { useState, useRef } from 'react';
 import ReactCrop, { type Crop, centerCrop, makeAspectCrop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Button } from '@/components/ui/button';
-import { Crop } from 'lucide-react';
+import { Crop as CropIcon } from 'lucide-react';
 
 interface ImageCropperProps {
   src: string;
@@ -75,7 +74,6 @@ export const ImageCropper = ({ src, aspect, onCrop, onCancel }: ImageCropperProp
       height
     );
     setCrop(newCrop);
-    setCompletedCrop(newCrop);
   }
 
   const handleCrop = async () => {
@@ -105,7 +103,7 @@ export const ImageCropper = ({ src, aspect, onCrop, onCancel }: ImageCropperProp
         <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onCancel}>Cancel</Button>
             <Button onClick={handleCrop} disabled={!completedCrop?.width || !completedCrop?.height}>
-                <Crop className="mr-2 h-4 w-4" />
+                <CropIcon className="mr-2 h-4 w-4" />
                 Crop and Use Image
             </Button>
         </div>
