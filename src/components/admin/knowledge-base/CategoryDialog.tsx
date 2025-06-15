@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -44,12 +43,13 @@ export const CategoryDialog = ({ isOpen, setIsOpen, category }: CategoryDialogPr
 
     const mutation = useMutation({
         mutationFn: async (data: CategoryFormData) => {
-            const upsertData = { ...data, description: data.description || null };
             if (category) {
-                const { error } = await supabase.from('knowledge_categories').update(upsertData).eq('id', category.id);
+                const updateData = { ...data, description: data.description || null };
+                const { error } = await supabase.from('knowledge_categories').update(updateData).eq('id', category.id);
                 if (error) throw new Error(error.message);
             } else {
-                const { error } = await supabase.from('knowledge_categories').insert(upsertData);
+                const insertData = { name: data.name, slug: data.slug, description: data.description || null };
+                const { error } = await supabase.from('knowledge_categories').insert(insertData);
                 if (error) throw new Error(error.message);
             }
         },

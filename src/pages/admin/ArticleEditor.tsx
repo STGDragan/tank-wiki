@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -85,19 +84,27 @@ const ArticleEditor = () => {
 
     const mutation = useMutation({
         mutationFn: async (data: ArticleFormData) => {
-            const articleData = {
-                ...data,
-                content: data.content || null,
-                tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
-                author_id: user?.id,
-                updated_at: new Date().toISOString(),
-            };
-            
             if (articleId) {
+                const articleData = {
+                    ...data,
+                    content: data.content || null,
+                    tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
+                    author_id: user?.id,
+                    updated_at: new Date().toISOString(),
+                };
                 const { error } = await supabase.from('knowledge_articles').update(articleData).eq('id', articleId);
                 if (error) throw new Error(error.message);
             } else {
-                const { error } = await supabase.from('knowledge_articles').insert(articleData);
+                const insertData = {
+                    title: data.title,
+                    slug: data.slug,
+                    content: data.content || null,
+                    status: data.status,
+                    category_id: data.category_id,
+                    tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
+                    author_id: user?.id,
+                };
+                const { error } = await supabase.from('knowledge_articles').insert(insertData);
                 if (error) throw new Error(error.message);
             }
         },
