@@ -232,7 +232,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: 
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                         <Command filter={(value, search) => value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0}>
                                             <CommandInput
                                                 placeholder="Search or add new task..."
@@ -296,7 +296,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: 
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
+                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                         <Command filter={(value, search) => {
                                             const option = equipmentOptions.find(opt => opt.value === value);
                                             if (option?.label.toLowerCase().includes(search.toLowerCase())) return 1;
