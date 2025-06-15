@@ -17,6 +17,7 @@ import KnowledgeBase from "./pages/KnowledgeBase";
 import AdminKnowledgeBase from "./pages/admin/KnowledgeBase";
 import ArticleEditor from "./pages/admin/ArticleEditor";
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle";
+import AdminSlideshow from "./pages/admin/Slideshow";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/admin/knowledge-base" element={<AdminKnowledgeBase />} />
                 <Route path="/admin/knowledge-base/article/new" element={<ArticleEditor />} />
                 <Route path="/admin/knowledge-base/article/edit/:articleId" element={<ArticleEditor />} />
+                <Route path="/admin/slideshow" element={<AdminSlideshow />} />
               </Route>
             </Route>
             

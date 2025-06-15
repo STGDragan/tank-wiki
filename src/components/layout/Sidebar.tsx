@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield, LogOut, Book } from "lucide-react";
+import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield, LogOut, Book, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,7 @@ const mainNav = [
 const adminNav = [
     { name: "Products", href: "/admin/products", icon: Shield },
     { name: "Knowledge Base", href: "/admin/knowledge-base", icon: Book },
+    { name: "Slideshow", href: "/admin/slideshow", icon: ImageIcon },
 ];
 
 export function Sidebar() {

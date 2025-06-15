@@ -8,18 +8,26 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
-const images = [
-  "https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=2070&auto=format&fit=crop"
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function SlideshowSection() {
   const plugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
+
+  const { data: images, isLoading } = useQuery({
+    queryKey: ["slideshow_images"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("slideshow_images")
+        .select("id, image_url, alt_text")
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <section className="py-20 bg-muted/50 dark:bg-muted/20">
@@ -38,10 +46,17 @@ export function SlideshowSection() {
           onMouseLeave={plugin.current.reset}
         >
           <CarouselContent>
-            {images.map((src, index) => (
-              <CarouselItem key={index}>
+            {isLoading && (
+              <CarouselItem>
                 <div className="overflow-hidden rounded-lg shadow-lg">
-                  <img src={src} alt={`Aquascape ${index + 1}`} className="w-full aspect-[16/9] object-cover" />
+                  <Skeleton className="w-full aspect-[16/9]" />
+                </div>
+              </CarouselItem>
+            )}
+            {images?.map((image, index) => (
+              <CarouselItem key={image.id}>
+                <div className="overflow-hidden rounded-lg shadow-lg">
+                  <img src={image.image_url} alt={image.alt_text || `Aquascape ${index + 1}`} className="w-full aspect-[16/9] object-cover" />
                 </div>
               </CarouselItem>
             ))}
