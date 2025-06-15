@@ -100,6 +100,7 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
           {selectedAquarium && (
             <AddLivestockForm
               aquariumId={selectedAquarium.id}
+              aquariumType={selectedAquarium.type}
               onSuccess={() => setLivestockDialogOpen(false)}
             />
           )}

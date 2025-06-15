@@ -89,6 +89,7 @@ const AquariumDetail = () => {
             onUpdateQuantity={handleUpdateLivestockQuantity}
             onDelete={handleDeleteLivestock}
             aquariumId={id!}
+            aquariumType={aquarium.type}
             canEdit={isOwner}
           />
           <EquipmentSection 
