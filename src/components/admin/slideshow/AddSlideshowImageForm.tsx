@@ -160,7 +160,8 @@ export function AddSlideshowImageForm() {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="landing-page">Landing Page</SelectItem>
-                      {/* To add more slideshow locations, add a new <SelectItem /> here with a unique value. */}
+                      <SelectItem value="dashboard">Dashboard</SelectItem>
+                      <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>

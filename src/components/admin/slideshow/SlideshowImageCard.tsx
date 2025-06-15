@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -16,6 +15,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SlideshowImageCardProps {
   image: any; // HACK: Using any to bypass stale Supabase types
@@ -23,6 +23,24 @@ interface SlideshowImageCardProps {
 
 export function SlideshowImageCard({ image }: SlideshowImageCardProps) {
   const queryClient = useQueryClient();
+
+  const updateContextMutation = useMutation({
+    mutationFn: async ({ imageId, newContext }: { imageId: string; newContext: string }) => {
+      const { error } = await (supabase as any)
+        .from("slideshow_images")
+        .update({ context: newContext })
+        .eq("id", imageId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(`Image context updated successfully.`);
+      queryClient.invalidateQueries({ queryKey: ["slideshow_images_admin"] });
+      queryClient.invalidateQueries({ queryKey: ["slideshow_images"] });
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update context: ${error.message}`);
+    },
+  });
 
   const deleteMutation = useMutation({
     mutationFn: async (imageToDelete: any) => {
@@ -60,14 +78,36 @@ export function SlideshowImageCard({ image }: SlideshowImageCardProps) {
         alt={image.alt_text || ""}
         className="w-full h-40 object-cover"
       />
-      <CardContent className="p-4 space-y-2">
-        <p className="text-sm font-medium truncate">{image.alt_text}</p>
-        <p className="text-xs text-muted-foreground">Context: <span className="font-mono bg-muted px-1 py-0.5 rounded">{image.context}</span></p>
-        <p className="text-xs text-muted-foreground truncate">{image.image_url}</p>
+      <CardContent className="p-4 space-y-3">
+        <p className="text-sm font-medium truncate" title={image.alt_text}>{image.alt_text}</p>
+        
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Context</label>
+          <Select
+            defaultValue={image.context}
+            onValueChange={(newContext) => {
+              updateContextMutation.mutate({ imageId: image.id, newContext });
+            }}
+            disabled={updateContextMutation.isPending}
+          >
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Select context" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="landing-page">Landing Page</SelectItem>
+              <SelectItem value="dashboard">Dashboard</SelectItem>
+              <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <p className="text-xs text-muted-foreground truncate" title={image.image_url}>{image.image_url}</p>
+        
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" className="w-full">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            <Button variant="destructive" size="sm" className="w-full" disabled={deleteMutation.isPending}>
+              <Trash2 className="mr-2 h-4 w-4" /> 
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
