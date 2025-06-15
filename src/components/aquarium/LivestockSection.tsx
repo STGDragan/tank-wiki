@@ -15,9 +15,10 @@ interface LivestockSectionProps {
     aquariumId: string;
     onUpdateQuantity: (livestockId: string, currentQuantity: number, change: number) => void;
     onDelete: (livestockId: string) => void;
+    canEdit: boolean;
 }
 
-export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDelete }: LivestockSectionProps) => {
+export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDelete, canEdit }: LivestockSectionProps) => {
     const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
 
     return (
@@ -30,15 +31,17 @@ export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDe
                     </CardTitle>
                     <CardDescription className="mt-2">Manage the inhabitants of your aquarium.</CardDescription>
                 </div>
-                <Drawer open={isAddLivestockOpen} onOpenChange={setAddLivestockOpen}>
-                    <DrawerTrigger asChild>
-                        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Livestock</Button>
-                    </DrawerTrigger>
-                    <DrawerContent>
-                        <DrawerHeader><DrawerTitle>Add New Livestock</DrawerTitle></DrawerHeader>
-                        <div className="px-4 pb-4"><AddLivestockForm aquariumId={aquariumId} onSuccess={() => setAddLivestockOpen(false)} /></div>
-                    </DrawerContent>
-                </Drawer>
+                {canEdit && (
+                    <Drawer open={isAddLivestockOpen} onOpenChange={setAddLivestockOpen}>
+                        <DrawerTrigger asChild>
+                            <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Livestock</Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                            <DrawerHeader><DrawerTitle>Add New Livestock</DrawerTitle></DrawerHeader>
+                            <div className="px-4 pb-4"><AddLivestockForm aquariumId={aquariumId} onSuccess={() => setAddLivestockOpen(false)} /></div>
+                        </DrawerContent>
+                    </Drawer>
+                )}
             </CardHeader>
             <CardContent>
                 {livestock && livestock.length > 0 ? (

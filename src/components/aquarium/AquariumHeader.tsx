@@ -44,8 +44,10 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
         {isOwner ? (
           <ImageUploader
             aquariumId={aquarium.id}
-            currentImageUrl={aquarium.image_url}
-            className="w-full h-full"
+            onUploadSuccess={() => {}}
+            table="aquariums"
+            recordId={aquarium.id}
+            aspect={16/9}
           />
         ) : (
           <img

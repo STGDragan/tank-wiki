@@ -15,9 +15,10 @@ interface EquipmentSectionProps {
     equipment: Equipment[];
     aquariumId: string;
     onDelete: (equipmentId: string) => void;
+    canEdit: boolean;
 }
 
-export const EquipmentSection = ({ equipment, aquariumId, onDelete }: EquipmentSectionProps) => {
+export const EquipmentSection = ({ equipment, aquariumId, onDelete, canEdit }: EquipmentSectionProps) => {
     const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
 
     return (
@@ -30,15 +31,17 @@ export const EquipmentSection = ({ equipment, aquariumId, onDelete }: EquipmentS
                     </CardTitle>
                     <CardDescription className="mt-2">Manage all the equipment for your aquarium.</CardDescription>
                 </div>
-                <Drawer open={isAddEquipmentOpen} onOpenChange={setAddEquipmentOpen}>
-                    <DrawerTrigger asChild>
-                        <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Equipment</Button>
-                    </DrawerTrigger>
-                    <DrawerContent>
-                        <DrawerHeader><DrawerTitle>Add New Equipment</DrawerTitle></DrawerHeader>
-                        <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddEquipmentForm aquariumId={aquariumId} onSuccess={() => setAddEquipmentOpen(false)} /></div>
-                    </DrawerContent>
-                </Drawer>
+                {canEdit && (
+                    <Drawer open={isAddEquipmentOpen} onOpenChange={setAddEquipmentOpen}>
+                        <DrawerTrigger asChild>
+                            <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Equipment</Button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                            <DrawerHeader><DrawerTitle>Add New Equipment</DrawerTitle></DrawerHeader>
+                            <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddEquipmentForm aquariumId={aquariumId} onSuccess={() => setAddEquipmentOpen(false)} /></div>
+                        </DrawerContent>
+                    </Drawer>
+                )}
             </CardHeader>
             <CardContent>
                 {equipment && equipment.length > 0 ? (

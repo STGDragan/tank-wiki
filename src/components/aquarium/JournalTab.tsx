@@ -21,7 +21,12 @@ const fetchJournalEntries = async (aquariumId: string) => {
   return data;
 };
 
-const JournalTab = ({ aquariumId }: { aquariumId: string }) => {
+interface JournalTabProps {
+  aquariumId: string;
+  canEdit: boolean;
+}
+
+const JournalTab = ({ aquariumId, canEdit }: JournalTabProps) => {
   const [isAddEntryOpen, setAddEntryOpen] = useState(false);
 
   const { data: entries, isLoading, error } = useQuery<Tables<'journal_entries'>[]>({
@@ -34,17 +39,19 @@ const JournalTab = ({ aquariumId }: { aquariumId: string }) => {
     <div className="mt-2 space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-semibold">Journal Entries</h3>
-        <Drawer open={isAddEntryOpen} onOpenChange={setAddEntryOpen}>
-          <DrawerTrigger asChild>
-            <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader><DrawerTitle>Add New Journal Entry</DrawerTitle></DrawerHeader>
-            <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
-              <AddJournalEntryForm aquariumId={aquariumId} onSuccess={() => setAddEntryOpen(false)} />
-            </div>
-          </DrawerContent>
-        </Drawer>
+        {canEdit && (
+          <Drawer open={isAddEntryOpen} onOpenChange={setAddEntryOpen}>
+            <DrawerTrigger asChild>
+              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Entry</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader><DrawerTitle>Add New Journal Entry</DrawerTitle></DrawerHeader>
+              <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
+                <AddJournalEntryForm aquariumId={aquariumId} onSuccess={() => setAddEntryOpen(false)} />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        )}
       </div>
 
       {isLoading && (

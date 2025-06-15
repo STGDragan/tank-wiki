@@ -24,7 +24,12 @@ const fetchWishlistItems = async (aquariumId: string): Promise<WishlistItem[]> =
     return data || [];
 };
 
-const WishlistTab = ({ aquariumId }: { aquariumId: string }) => {
+interface WishlistTabProps {
+    aquariumId: string;
+    canEdit: boolean;
+}
+
+const WishlistTab = ({ aquariumId, canEdit }: WishlistTabProps) => {
     const queryClient = useQueryClient();
     const { user } = useAuth();
     const formRef = useRef<AddWishlistItemFormRef>(null);
@@ -90,14 +95,16 @@ const WishlistTab = ({ aquariumId }: { aquariumId: string }) => {
 
     return (
         <div className="space-y-4 mt-2">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Add to Wishlist</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <AddWishlistItemForm ref={formRef} onSubmit={addItemMutation.mutate} isSubmitting={addItemMutation.isPending} />
-                </CardContent>
-            </Card>
+            {canEdit && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Add to Wishlist</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <AddWishlistItemForm ref={formRef} onSubmit={addItemMutation.mutate} isSubmitting={addItemMutation.isPending} />
+                    </CardContent>
+                </Card>
+            )}
             <Card>
                 <CardHeader>
                     <CardTitle>Your Wishlist</CardTitle>

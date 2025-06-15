@@ -7,8 +7,8 @@ import { LivestockSection } from "@/components/aquarium/LivestockSection";
 import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
 import { WaterParametersSection } from "@/components/aquarium/WaterParametersSection";
 import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
-import { JournalTab } from "@/components/aquarium/JournalTab";
-import { WishlistTab } from "@/components/aquarium/WishlistTab";
+import JournalTab from "@/components/aquarium/JournalTab";
+import WishlistTab from "@/components/aquarium/WishlistTab";
 import { LogTab } from "@/components/aquarium/LogTab";
 import { InvitationsList } from "@/components/aquarium/InvitationsList";
 import { useAquariumData } from "@/hooks/useAquariumData";
@@ -66,6 +66,7 @@ const AquariumDetail = () => {
   }
 
   const isOwner = user?.id === aquarium.user_id;
+  const latestWaterReading = waterParameters && waterParameters.length > 0 ? waterParameters[0] : undefined;
 
   return (
     <div className="space-y-8">
@@ -103,22 +104,19 @@ const AquariumDetail = () => {
         <TabsContent value="maintenance">
           <MaintenanceSection 
             tasks={tasks}
-            pendingTasks={pendingTasks}
             onMarkComplete={handleMarkComplete}
-            onDeleteTask={handleDeleteTask}
+            onDelete={handleDeleteTask}
             aquariumId={id!}
-            equipment={equipment}
-            canEdit={isOwner}
+            aquariumType={aquarium.type}
+            aquariumSize={aquarium.size}
           />
         </TabsContent>
         
         <TabsContent value="water">
           <WaterParametersSection 
-            waterParameters={waterParameters}
             aquariumId={id!}
-            presets={presets}
-            customSettings={customSettings}
-            canEdit={isOwner}
+            aquariumType={aquarium.type}
+            latestReading={latestWaterReading}
           />
         </TabsContent>
         
