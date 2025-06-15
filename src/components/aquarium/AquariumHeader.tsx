@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tables } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
@@ -48,6 +47,7 @@ export const AquariumHeader = ({ aquarium }: AquariumHeaderProps) => {
                 onUploadSuccess={() => setImagePopoverOpen(false)}
                 table="aquariums"
                 recordId={aquarium.id}
+                aspect={3}
               />
             </div>
           </PopoverContent>
