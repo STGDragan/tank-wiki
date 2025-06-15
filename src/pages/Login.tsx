@@ -1,13 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleToggleForm = () => {
     setIsSignUp(!isSignUp);
@@ -24,6 +25,7 @@ const Login = () => {
     setPassword("");
     setFullName("");
     setSignUpSuccess(false);
+    setAgreedToTerms(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -140,7 +142,18 @@ const Login = () => {
                       autoComplete={isSignUp ? "new-password" : "current-password"}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  {isSignUp && (
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)} />
+                      <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
+                        I agree to the{' '}
+                        <Link to="/legal/terms-of-service" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+                          Terms of Service
+                        </Link>
+                      </Label>
+                    </div>
+                  )}
+                  <Button type="submit" className="w-full" disabled={loading || (isSignUp && !agreedToTerms)}>
                     {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
                   </Button>
                 </form>
