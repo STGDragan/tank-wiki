@@ -11,6 +11,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 import { Recommendations } from "@/components/dashboard/Recommendations";
 import { toast } from "@/hooks/use-toast";
+import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
 
@@ -77,7 +78,10 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="w-full h-[250px] rounded-lg overflow-hidden">
+        <SlideshowSection context="dashboard" />
+      </div>
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <CreateTankDialog />
       </div>

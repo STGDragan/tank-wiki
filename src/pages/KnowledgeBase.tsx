@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 type Article = Pick<Tables<'knowledge_articles'>, 'id' | 'title' | 'slug' | 'status'>;
 type Category = Tables<'knowledge_categories'> & { knowledge_articles: Article[] };
@@ -40,6 +41,9 @@ const KnowledgeBase = () => {
 
   return (
     <div className="space-y-8">
+      <div className="w-full h-[250px] rounded-lg overflow-hidden">
+        <SlideshowSection context="knowledge-base" />
+      </div>
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Knowledge Base</h1>
         <p className="text-muted-foreground">
