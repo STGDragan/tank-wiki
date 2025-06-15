@@ -84,26 +84,37 @@ const AquariumDetail = () => {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <LivestockSection 
-              livestock={livestock}
-              onUpdateQuantity={handleUpdateLivestockQuantity}
-              onDelete={handleDeleteLivestock}
-              aquariumId={id!}
-              canEdit={isOwner}
-            />
-            <EquipmentSection 
-              equipment={equipment}
-              onDelete={handleDeleteEquipment}
-              aquariumId={id!}
-              canEdit={isOwner}
-            />
-          </div>
+          <LivestockSection 
+            livestock={livestock || []}
+            onUpdateQuantity={handleUpdateLivestockQuantity}
+            onDelete={handleDeleteLivestock}
+            aquariumId={id!}
+            canEdit={isOwner}
+          />
+          <EquipmentSection 
+            equipment={equipment || []}
+            onDelete={handleDeleteEquipment}
+            aquariumId={id!}
+            canEdit={isOwner}
+          />
+          <WaterParametersSection 
+            aquariumId={id!}
+            aquariumType={aquarium.type}
+            latestReading={latestWaterReading}
+          />
+          <MaintenanceSection 
+            tasks={tasks || []}
+            onMarkComplete={handleMarkComplete}
+            onDelete={handleDeleteTask}
+            aquariumId={id!}
+            aquariumType={aquarium.type}
+            aquariumSize={aquarium.size}
+          />
         </TabsContent>
         
         <TabsContent value="maintenance">
           <MaintenanceSection 
-            tasks={tasks}
+            tasks={tasks || []}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
             aquariumId={id!}
