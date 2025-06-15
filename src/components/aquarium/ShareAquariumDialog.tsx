@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -43,7 +42,7 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("No session found");
 
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/send-aquarium-invitation`, {
+      const response = await fetch(`https://zlkefvmjdlqewcreqhko.supabase.co/functions/v1/send-aquarium-invitation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
