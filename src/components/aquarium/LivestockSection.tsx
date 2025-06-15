@@ -13,9 +13,10 @@ interface LivestockSectionProps {
     livestock: Livestock[];
     aquariumId: string;
     onUpdateQuantity: (livestockId: string, currentQuantity: number, change: number) => void;
+    onDelete: (livestockId: string) => void;
 }
 
-export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity }: LivestockSectionProps) => {
+export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDelete }: LivestockSectionProps) => {
     const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
 
     return (
@@ -35,7 +36,7 @@ export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity }: Li
             {livestock && livestock.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {livestock.map((item) => (
-                        <LivestockCard livestock={item} key={item.id} onUpdateQuantity={onUpdateQuantity} />
+                        <LivestockCard livestock={item} key={item.id} onUpdateQuantity={onUpdateQuantity} onDelete={onDelete} />
                     ))}
                 </div>
             ) : <p className="text-muted-foreground">No livestock added yet.</p>}

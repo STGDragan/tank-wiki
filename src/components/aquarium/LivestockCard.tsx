@@ -4,18 +4,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tables } from "@/integrations/supabase/types";
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Camera, Plus, Skull } from 'lucide-react';
+import { Camera, Plus, Skull, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ImageUploader } from '@/components/aquarium/ImageUploader';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 
 interface LivestockCardProps {
   livestock: Livestock;
   onUpdateQuantity: (livestockId: string, currentQuantity: number, change: number) => void;
+  onDelete: (livestockId: string) => void;
 }
 
-export const LivestockCard = ({ livestock, onUpdateQuantity }: LivestockCardProps) => {
+export const LivestockCard = ({ livestock, onUpdateQuantity, onDelete }: LivestockCardProps) => {
   const [isUploaderOpen, setUploaderOpen] = useState(false);
   const imageUrl = livestock.image_url || `https://placehold.co/400x300/3B82F6/FFFFFF?text=${livestock.species.replace(/\s/g, '+')}`;
 
@@ -48,6 +50,25 @@ export const LivestockCard = ({ livestock, onUpdateQuantity }: LivestockCardProp
                 <Button variant="destructive" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onUpdateQuantity(livestock.id, livestock.quantity, -1)}}>
                   <Skull className="h-4 w-4" />
                 </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This will permanently remove {livestock.species} from your aquarium. This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(livestock.id)}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </div>
