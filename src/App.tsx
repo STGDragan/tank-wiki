@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
@@ -12,6 +13,7 @@ import { ThemeProvider } from "./providers/ThemeProvider";
 import { AdminRoute } from "./components/admin/AdminRoute";
 import AdminProducts from "./pages/admin/Products";
 import Account from "./pages/Account";
+import KnowledgeBase from "./pages/KnowledgeBase";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/aquarium/:id" element={<AquariumDetail />} />
               <Route path="/shopping" element={<Shopping />} />
+              <Route path="/knowledge-base" element={<KnowledgeBase />} />
               <Route path="/account" element={<Account />} />
               
               <Route element={<AdminRoute />}>

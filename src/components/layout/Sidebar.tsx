@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield, LogOut } from "lucide-react";
+import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield, LogOut, Book } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
+  { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
 ];
 
 const adminNav = [
