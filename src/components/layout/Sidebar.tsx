@@ -16,6 +16,7 @@ const mainNav = [
 
 const adminNav = [
     { name: "Products", href: "/admin/products", icon: Shield },
+    { name: "Knowledge Base", href: "/admin/knowledge-base", icon: Book },
 ];
 
 export function Sidebar() {

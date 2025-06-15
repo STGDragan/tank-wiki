@@ -14,6 +14,9 @@ import { AdminRoute } from "./components/admin/AdminRoute";
 import AdminProducts from "./pages/admin/Products";
 import Account from "./pages/Account";
 import KnowledgeBase from "./pages/KnowledgeBase";
+import AdminKnowledgeBase from "./pages/admin/KnowledgeBase";
+import ArticleEditor from "./pages/admin/ArticleEditor";
+import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle";
 
 const queryClient = new QueryClient();
 
@@ -31,10 +34,14 @@ const App = () => (
               <Route path="/aquarium/:id" element={<AquariumDetail />} />
               <Route path="/shopping" element={<Shopping />} />
               <Route path="/knowledge-base" element={<KnowledgeBase />} />
+              <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
               <Route path="/account" element={<Account />} />
               
               <Route element={<AdminRoute />}>
                 <Route path="/admin/products" element={<AdminProducts />} />
+                <Route path="/admin/knowledge-base" element={<AdminKnowledgeBase />} />
+                <Route path="/admin/knowledge-base/article/new" element={<ArticleEditor />} />
+                <Route path="/admin/knowledge-base/article/edit/:articleId" element={<ArticleEditor />} />
               </Route>
             </Route>
             
