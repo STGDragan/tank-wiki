@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText } from "lucide-react";
 
@@ -10,7 +10,7 @@ const LegalPage = () => {
   const { data: documents, isLoading } = useQuery({
     queryKey: ['legal_documents'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('legal_documents')
         .select('title, document_type')
         .filter('content', 'is not', null);
@@ -31,7 +31,7 @@ const LegalPage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {documents?.map(doc => (
+            {documents?.map((doc: any) => (
               <Link key={doc.document_type} to={`/legal/${doc.document_type}`}>
                 <Card className="hover:bg-muted/50 transition-colors">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

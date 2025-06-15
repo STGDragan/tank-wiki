@@ -12,7 +12,7 @@ const LegalDocumentPage = () => {
     queryKey: ['legal_document', document_type],
     queryFn: async () => {
       if (!document_type) return null;
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('legal_documents')
         .select('title, content')
         .eq('document_type', document_type)

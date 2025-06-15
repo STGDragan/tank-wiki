@@ -31,7 +31,7 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
   const { data: document, isLoading } = useQuery({
     queryKey: ['legal_document', documentType],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('legal_documents')
         .select('*')
         .eq('document_type', documentType)
@@ -55,7 +55,7 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
 
   const upsertMutation = useMutation({
     mutationFn: async (values: LegalDocumentFormValues) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('legal_documents')
         .upsert({
           document_type: documentType,
@@ -70,7 +70,7 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
       queryClient.invalidateQueries({ queryKey: ['legal_document', documentType] });
       queryClient.invalidateQueries({ queryKey: ['legal_documents'] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({ variant: "destructive", title: "Error", description: error.message });
     }
   });
