@@ -1,24 +1,17 @@
+
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tables } from "@/integrations/supabase/types";
 import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 import { Recommendations } from "@/components/dashboard/Recommendations";
 import { toast } from "@/hooks/use-toast";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
-
-type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
-
-const fetchAquariums = async (): Promise<Aquarium[]> => {
-    const { data, error } = await supabase.from('aquariums').select('*');
-    if (error) throw new Error(error.message);
-    return (data as Aquarium[]) || [];
-};
+import { useAquariums, Aquarium } from "@/hooks/useAquariums";
 
 const Dashboard = () => {
   const { user, loading: authLoading, refreshSubscriber } = useAuth();
@@ -45,11 +38,7 @@ const Dashboard = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const { data: aquariums, isLoading, error } = useQuery<Aquarium[]>({
-    queryKey: ['aquariums'],
-    queryFn: fetchAquariums,
-    enabled: !!user,
-  });
+  const { data: aquariums, isLoading, error } = useAquariums(!!user);
 
   const deleteAquariumMutation = useMutation({
     mutationFn: async (aquariumId: string) => {
@@ -89,7 +78,8 @@ const Dashboard = () => {
     return <div>Error: {error.message}</div>;
   }
 
-  const aquariumCount = aquariums?.length || 0;
+  const ownedAquariums = aquariums?.filter(aq => aq.user_id === user?.id) || [];
+  const aquariumCount = ownedAquariums.length;
 
   return (
     <div className="space-y-8">
@@ -97,18 +87,18 @@ const Dashboard = () => {
         <SlideshowSection context="dashboard" />
       </div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <h1 className="text-2xl font-semibold">My Aquariums</h1>
         <CreateTankDialog aquariumCount={aquariumCount} />
       </div>
-      {aquariums && aquariums.length > 0 ? (
+      {ownedAquariums && ownedAquariums.length > 0 ? (
         <div className="space-y-8">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {aquariums.map(tank => (
+            {ownedAquariums.map(tank => (
               <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} onDelete={handleDeleteAquarium} />
             ))}
           </div>
-          <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
-          <Recommendations aquariums={aquariums} />
+          <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
+          <Recommendations aquariums={ownedAquariums} />
         </div>
       ) : (
          <div className="text-center py-12 border-2 border-dashed rounded-lg">

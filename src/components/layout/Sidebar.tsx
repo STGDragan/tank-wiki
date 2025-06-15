@@ -3,13 +3,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, UserCircle, ShoppingCart, Shield, LogOut, Book, Image as ImageIcon, FileText } from "lucide-react";
+import { LayoutDashboard, Settings, ShoppingCart, Shield, LogOut, Book, Image as ImageIcon, FileText, Users } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Shared With Me", href: "/shared-with-me", icon: Users },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
 ];

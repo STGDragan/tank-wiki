@@ -88,6 +88,41 @@ export type Database = {
           },
         ]
       }
+      aquarium_shares: {
+        Row: {
+          aquarium_id: string
+          created_at: string
+          id: string
+          owner_user_id: string
+          permission: Database["public"]["Enums"]["permission_level"]
+          shared_with_user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          created_at?: string
+          id?: string
+          owner_user_id: string
+          permission: Database["public"]["Enums"]["permission_level"]
+          shared_with_user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          created_at?: string
+          id?: string
+          owner_user_id?: string
+          permission?: Database["public"]["Enums"]["permission_level"]
+          shared_with_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aquarium_shares_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aquariums: {
         Row: {
           created_at: string
@@ -747,6 +782,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      check_aquarium_permission: {
+        Args: {
+          _aquarium_id: string
+          _permission_level: Database["public"]["Enums"]["permission_level"]
+        }
+        Returns: boolean
+      }
       get_pending_maintenance_notifications: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -765,6 +807,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      permission_level: "viewer" | "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -881,6 +924,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      permission_level: ["viewer", "editor"],
     },
   },
 } as const

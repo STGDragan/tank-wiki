@@ -23,6 +23,7 @@ import LegalPage from "./pages/LegalPage";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SharedWithMe from "./pages/SharedWithMe";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
             
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/shared-with-me" element={<SharedWithMe />} />
               <Route path="/aquarium/:id" element={<AquariumDetail />} />
               <Route path="/shopping" element={<Shopping />} />
               <Route path="/knowledge-base" element={<KnowledgeBase />} />
