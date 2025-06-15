@@ -63,7 +63,7 @@ serve(async (req) => {
             currency: "usd",
             product_data: { name: "AquaManager Pro" },
             unit_amount: 999, // $9.99
-            recurring: { interval: "month" },
+            recurring: { interval: "year" },
           },
           quantity: 1,
         },

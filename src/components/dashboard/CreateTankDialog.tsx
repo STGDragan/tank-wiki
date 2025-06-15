@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -105,7 +104,7 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
               <DialogHeader>
                 <DialogTitle>Upgrade to AquaManager Pro</DialogTitle>
                 <DialogDescription>
-                  You're on the free plan, which allows up to {freeTierLimit} aquariums. Upgrade to Pro for just $9.99/month to create up to {proTierLimit} aquariums!
+                  You're on the free plan, which allows up to {freeTierLimit} aquariums. Upgrade to Pro for just $9.99/year to create up to {proTierLimit} aquariums!
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -175,4 +174,3 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
     </Dialog>
   );
 }
-
