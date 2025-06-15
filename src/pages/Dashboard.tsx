@@ -25,11 +25,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { toast: shToast } = useToast();
 
   useEffect(() => {
     if (searchParams.get('subscription_success') === 'true') {
-      shToast({
+      toast({
         title: "Subscription Successful!",
         description: "Welcome to Pro! You can now add unlimited aquariums.",
       });
@@ -38,7 +37,7 @@ const Dashboard = () => {
       searchParams.delete('subscription_success');
       setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, shToast, refreshSubscriber, setSearchParams]);
+  }, [searchParams, refreshSubscriber, setSearchParams]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -59,10 +58,10 @@ const Dashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aquariums'] });
-      shToast({ title: 'Aquarium deleted successfully!' });
+      toast({ title: 'Aquarium deleted successfully!' });
     },
     onError: (err: Error) => {
-      shToast({ title: 'Error deleting aquarium', description: err.message, variant: 'destructive' });
+      toast({ title: 'Error deleting aquarium', description: err.message, variant: 'destructive' });
     }
   });
 
