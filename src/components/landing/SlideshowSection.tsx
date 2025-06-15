@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/carousel";
 
 const images = [
-  "https://images.unsplash.com/photo-1535591273668-578e31182c4f?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=1912&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1611851911433-455b7a584323?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1599544990888-d053240887e4?q=80&w=2070&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1616020942474-39a7b9714a67?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1594389520891-d8a435d0e5b7?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1563206767-5b1857a8e64c?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1581451829623-215c1e5508b5?q=80&w=2070&auto=format&fit=crop"
 ];
 
 export function SlideshowSection() {
