@@ -64,7 +64,7 @@ export const AddLegalDocumentDialog = () => {
 
   const createMutation = useMutation({
     mutationFn: async (values: AddLegalDocFormValues) => {
-      const { data, error } = await supabase.from('legal_documents').insert({
+      const { data, error } = await (supabase as any).from('legal_documents').insert({
         ...values,
         content: `# ${values.title}\n\nStart writing your document here.`
       }).select().single();

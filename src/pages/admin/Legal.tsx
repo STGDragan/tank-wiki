@@ -7,11 +7,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AddLegalDocumentDialog } from "@/components/admin/AddLegalDocumentDialog";
 import { FileText } from "lucide-react";
 
+interface LegalDocInfo {
+  document_type: string;
+  title: string;
+}
+
 const AdminLegal = () => {
-  const { data: legalDocs, isLoading } = useQuery({
+  const { data: legalDocs, isLoading } = useQuery<LegalDocInfo[]>({
     queryKey: ['legal_documents'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('legal_documents')
         .select('document_type, title')
         .order('created_at', { ascending: true });
