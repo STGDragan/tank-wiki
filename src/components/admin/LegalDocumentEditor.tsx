@@ -93,7 +93,7 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={upsertMutation.isPending}>
+            <Button type="submit" disabled={!form.formState.isDirty || upsertMutation.isPending}>
               {upsertMutation.isPending ? 'Saving...' : 'Save'}
             </Button>
           </form>
