@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -152,11 +152,19 @@ export function AddSlideshowImageForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Context</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. landing-page" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a context" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="landing-page">Landing Page</SelectItem>
+                      {/* To add more slideshow locations, add a new <SelectItem /> here with a unique value. */}
+                    </SelectContent>
+                  </Select>
                   <FormDescription>
-                    Identifier for where this slideshow will appear.
+                    Select where this slideshow will appear.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
