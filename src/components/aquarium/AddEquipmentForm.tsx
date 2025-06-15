@@ -23,14 +23,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { TablesInsert } from "@/integrations/supabase/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
-  type: z.string().min(2, "Type must be at least 2 characters."),
+  type: z.string().min(2, "Type is required."),
   brand: z.string().optional(),
   model: z.string().optional(),
   installed_at: z.date().optional(),
   notes: z.string().optional(),
 });
+
+const equipmentTypes = [
+  "Filter",
+  "Heater",
+  "Light",
+  "Pump",
+  "CO2 System",
+  "Skimmer",
+  "Doser",
+  "Wave Maker",
+  "UV Sterilizer",
+  "Chiller",
+  "Other",
+];
 
 type AddEquipmentFormProps = {
   aquariumId: string;
@@ -100,9 +115,20 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Filter, Heater, Light" {...field} />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an equipment type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {equipmentTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

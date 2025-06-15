@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -21,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const livestockFormSchema = z.object({
   species: z.string().min(1, "Species is required."),
@@ -29,6 +29,13 @@ const livestockFormSchema = z.object({
   added_at: z.date({ required_error: "Date added is required."}),
   notes: z.string().optional(),
 });
+
+const speciesOptions = [
+    "Clownfish", "Royal Gramma", "Neon Tetra", "Guppy", "Betta", "Angelfish", "Discus",
+    "Amano Shrimp", "Cherry Shrimp", "Nerite Snail", "Mystery Snail",
+    "Zoanthid Coral", "Mushroom Coral", "Hammer Coral",
+    "Other"
+];
 
 type LivestockFormValues = z.infer<typeof livestockFormSchema>;
 
@@ -88,9 +95,18 @@ export function AddLivestockForm({ aquariumId, onSuccess }: AddLivestockFormProp
           render={({ field }) => (
             <FormItem>
               <FormLabel>Species</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Clownfish" {...field} />
-              </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a species" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                      {speciesOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               <FormMessage />
             </FormItem>
           )}
