@@ -50,29 +50,31 @@ export const LivestockCard = ({ livestock, onUpdateQuantity, onDelete }: Livesto
                 <Button variant="destructive" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onUpdateQuantity(livestock.id, livestock.quantity, -1)}}>
                   <Skull className="h-4 w-4" />
                 </Button>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This will permanently remove {livestock.species} from your aquarium. This action cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => onDelete(livestock.id)}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
               </div>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground mt-4">Added on {format(new Date(livestock.added_at), 'PPP')}</p>
+          <div className="flex justify-between items-center mt-4">
+            <p className="text-sm text-muted-foreground">Added on {format(new Date(livestock.added_at), 'PPP')}</p>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently remove {livestock.species} from your aquarium. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(livestock.id)}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </CardContent>
       </Card>
       <DialogContent>
