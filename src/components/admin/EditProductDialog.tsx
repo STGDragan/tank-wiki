@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,13 +36,21 @@ const productFormSchema = z.object({
   ]).optional()
     .transform(e => e === "" ? undefined : e),
   category: z.string().optional().transform(e => e === "" ? undefined : e),
+  custom_category: z.string().optional(),
   subcategory: z.string().optional().transform(e => e === "" ? undefined : e),
+  custom_subcategory: z.string().optional(),
   affiliate_provider: z.string().optional(),
   affiliate_url: z.union([
     z.string().url({ message: "Please enter a valid URL." }),
     z.literal('')
   ]).optional()
     .transform(e => e === "" ? undefined : e),
+}).refine(data => !(data.category === 'Other' && !data.custom_category?.trim()), {
+    message: "Please specify the category name",
+    path: ["custom_category"],
+}).refine(data => !(data.subcategory === 'Other' && !data.custom_subcategory?.trim()), {
+    message: "Please specify the subcategory name",
+    path: ["custom_subcategory"],
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -88,6 +95,17 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      image_url: "",
+      category: "",
+      custom_category: "",
+      subcategory: "",
+      custom_subcategory: "",
+      affiliate_provider: "",
+      affiliate_url: "",
+    }
   });
 
   useEffect(() => {
@@ -100,12 +118,15 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         subcategory: product.subcategory || "",
         affiliate_provider: affiliateLink?.provider || "",
         affiliate_url: affiliateLink?.link_url || "",
+        custom_category: "",
+        custom_subcategory: "",
       });
     }
   }, [product, affiliateLink, form]);
 
-  const watchedCategoryName = form.watch("category");
-  const selectedCategory = categories?.find(c => c.name === watchedCategoryName);
+  const watchedCategory = form.watch("category");
+  const watchedSubcategory = form.watch("subcategory");
+  const selectedCategory = categories?.find(c => c.name === watchedCategory);
 
   const { data: subcategories, isLoading: isLoadingSubcategories } = useQuery({
     queryKey: ['product_subcategories', selectedCategory?.id],
@@ -122,14 +143,34 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     mutationFn: async (updatedValues: ProductFormValues) => {
         if (!product) throw new Error("No product to update");
 
+        let categoryName = updatedValues.category;
+        let subcategoryName = updatedValues.subcategory;
+        let categoryId = categories?.find(c => c.name === updatedValues.category)?.id;
+
+        // Handle custom category
+        if (updatedValues.category === 'Other' && updatedValues.custom_category) {
+            categoryName = updatedValues.custom_category;
+            const { data: newCat, error: catError } = await supabase.from('product_categories').insert({ name: categoryName }).select().single();
+            if (catError) throw catError;
+            categoryId = newCat.id;
+        }
+
+        // Handle custom subcategory
+        if (updatedValues.subcategory === 'Other' && updatedValues.custom_subcategory) {
+            if (!categoryId) throw new Error('A category must be selected or created to add a new subcategory.');
+            subcategoryName = updatedValues.custom_subcategory;
+            const { error: subcatError } = await supabase.from('product_subcategories').insert({ name: subcategoryName, category_id: categoryId });
+            if (subcatError) throw subcatError;
+        }
+
         const { error: productError } = await supabase
           .from("products")
           .update({
             name: updatedValues.name,
             description: updatedValues.description || null,
             image_url: updatedValues.image_url || null,
-            category: updatedValues.category || null,
-            subcategory: updatedValues.subcategory || null,
+            category: categoryName === 'Other' ? undefined : categoryName,
+            subcategory: subcategoryName === 'Other' ? undefined : subcategoryName,
           })
           .eq("id", product.id);
         if (productError) throw productError;
@@ -159,6 +200,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ['affiliateLink', product?.id] });
+      queryClient.invalidateQueries({ queryKey: ["product_categories"] });
+      queryClient.invalidateQueries({ queryKey: ["product_subcategories"] });
       toast({ title: "Product Updated", description: "The product has been updated successfully." });
       onOpenChange(false);
     },
@@ -234,6 +277,10 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                   <Select onValueChange={(value) => {
                     field.onChange(value);
                     form.setValue('subcategory', '');
+                    form.setValue('custom_subcategory', '');
+                     if (value !== 'Other') {
+                      form.setValue('custom_category', '');
+                    }
                   }} value={field.value || ''} disabled={isLoadingCategories}>
                     <FormControl>
                       <SelectTrigger>
@@ -246,22 +293,47 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                           {cat.name}
                         </SelectItem>
                       ))}
+                      <SelectItem value="Other">Other...</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {watchedCategory === 'Other' && (
+              <FormField
+                control={form.control}
+                name="custom_category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Category Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Aquarium Decor" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="subcategory"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subcategory</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ''} disabled={!watchedCategoryName || isLoadingSubcategories}>
+                   <Select onValueChange={(value) => {
+                    field.onChange(value);
+                     if (value !== 'Other') {
+                      form.setValue('custom_subcategory', '');
+                    }
+                  }} value={field.value || ''} disabled={!watchedCategory || watchedCategory === 'Other' || isLoadingSubcategories}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={isLoadingSubcategories ? "Loading..." : "Select a subcategory"} />
+                        <SelectValue placeholder={
+                          isLoadingSubcategories ? "Loading..." 
+                          : watchedCategory === 'Other' ? 'Define new subcategory below'
+                          : "Select a subcategory"
+                        } />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -270,12 +342,28 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                           {subcat.name}
                         </SelectItem>
                       ))}
+                      <SelectItem value="Other">Other...</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {(watchedSubcategory === 'Other' || watchedCategory === 'Other') && (
+              <FormField
+                control={form.control}
+                name="custom_subcategory"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Subcategory Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Ornaments" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="affiliate_provider"
