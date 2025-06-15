@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import ShoppingRecommendations from "@/components/shopping/ShoppingRecommendations";
 
 const Shopping = () => {
   return (
@@ -29,17 +30,11 @@ const Shopping = () => {
         <CardHeader>
           <CardTitle>Recommendations</CardTitle>
           <CardDescription>
-            Personalized product recommendations and shopping lists will appear
-            here soon!
+            Product recommendations and shopping lists based on aquarium type.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 border-2 border-dashed rounded-lg">
-            <h2 className="text-xl font-semibold">Coming Soon</h2>
-            <p className="text-muted-foreground mt-2">
-              We're working on bringing you a great shopping experience.
-            </p>
-          </div>
+          <ShoppingRecommendations />
         </CardContent>
       </Card>
     </div>
