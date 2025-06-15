@@ -45,10 +45,13 @@ export const CategoryDialog = ({ isOpen, setIsOpen, category }: CategoryDialogPr
     const mutation = useMutation({
         mutationFn: async (data: CategoryFormData) => {
             const upsertData = { ...data, description: data.description || null };
-            const { error } = category
-                ? await supabase.from('knowledge_categories').update(upsertData).eq('id', category.id)
-                : await supabase.from('knowledge_categories').insert(upsertData);
-            if (error) throw new Error(error.message);
+            if (category) {
+                const { error } = await supabase.from('knowledge_categories').update(upsertData).eq('id', category.id);
+                if (error) throw new Error(error.message);
+            } else {
+                const { error } = await supabase.from('knowledge_categories').insert(upsertData);
+                if (error) throw new Error(error.message);
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['knowledge_categories'] });

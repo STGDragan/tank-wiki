@@ -68,6 +68,7 @@ const ArticleEditor = () => {
         if (article) {
             reset({
                 ...article,
+                status: article.status as 'draft' | 'published',
                 tags: article.tags?.join(', ') || '',
             });
         } else {
@@ -92,11 +93,13 @@ const ArticleEditor = () => {
                 updated_at: new Date().toISOString(),
             };
             
-            const { error } = articleId
-                ? await supabase.from('knowledge_articles').update(articleData).eq('id', articleId)
-                : await supabase.from('knowledge_articles').insert(articleData);
-
-            if (error) throw new Error(error.message);
+            if (articleId) {
+                const { error } = await supabase.from('knowledge_articles').update(articleData).eq('id', articleId);
+                if (error) throw new Error(error.message);
+            } else {
+                const { error } = await supabase.from('knowledge_articles').insert(articleData);
+                if (error) throw new Error(error.message);
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['knowledge_articles'] });
