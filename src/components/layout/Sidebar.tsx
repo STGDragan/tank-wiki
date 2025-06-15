@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -64,9 +63,15 @@ export function Sidebar() {
         </div>
       </ScrollArea>
       <div className="p-4 border-t">
-        <Button variant="ghost" className="w-full justify-start">
+        <Button
+          variant={location.pathname === "/account" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          asChild
+        >
+          <Link to="/account">
             <UserCircle className="mr-2 h-4 w-4" />
             My Account
+          </Link>
         </Button>
       </div>
     </aside>

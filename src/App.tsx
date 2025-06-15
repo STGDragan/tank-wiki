@@ -13,6 +13,7 @@ import { ThemeProvider } from "./providers/ThemeProvider";
 import Settings from "./pages/Settings";
 import { AdminRoute } from "./components/admin/AdminRoute";
 import AdminProducts from "./pages/admin/Products";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/aquarium/:id" element={<AquariumDetail />} />
               <Route path="/shopping" element={<Shopping />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/account" element={<Account />} />
               
               <Route element={<AdminRoute />}>
                 <Route path="/admin/products" element={<AdminProducts />} />
