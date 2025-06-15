@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -15,6 +16,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/providers/AuthProvider";
+import { ArrowLeft } from "lucide-react";
 
 type Category = Tables<'knowledge_categories'>;
 type Article = Tables<'knowledge_articles'>;
@@ -214,7 +216,10 @@ const ArticleEditor = () => {
                         </div>
                     </div>
                     <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="ghost" onClick={() => navigate('/admin/knowledge-base')}>Cancel</Button>
+                        <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
+                            <ArrowLeft />
+                            Back
+                        </Button>
                         <Button type="submit" disabled={mutation.isPending}>
                             {mutation.isPending ? 'Saving...' : 'Save Article'}
                         </Button>
