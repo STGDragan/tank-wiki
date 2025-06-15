@@ -57,7 +57,27 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
       </div>
       
       <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
-        {isOwner ? (
+        {aquarium.image_url ? (
+          <div className="relative w-full h-full">
+            <img
+              src={aquarium.image_url}
+              alt={aquarium.name}
+              className="object-cover w-full h-full"
+            />
+            {isOwner && (
+              <div className="absolute bottom-4 right-4">
+                <ImageUploader
+                  aquariumId={aquarium.id}
+                  onUploadSuccess={handleImageUploadSuccess}
+                  table="aquariums"
+                  recordId={aquarium.id}
+                  aspect={16/9}
+                  showAsButton={true}
+                />
+              </div>
+            )}
+          </div>
+        ) : isOwner ? (
           <ImageUploader
             aquariumId={aquarium.id}
             onUploadSuccess={handleImageUploadSuccess}
@@ -67,7 +87,7 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
           />
         ) : (
           <img
-            src={aquarium.image_url || '/placeholder.svg'}
+            src="/placeholder.svg"
             alt={aquarium.name}
             className="object-cover w-full h-full"
           />

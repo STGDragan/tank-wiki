@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ImageCropper } from './ImageCropper';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Camera } from 'lucide-react';
 
 interface ImageUploaderProps {
   aquariumId: string;
@@ -15,9 +15,10 @@ interface ImageUploaderProps {
   table: 'aquariums' | 'livestock' | 'equipment';
   recordId: string;
   aspect: number;
+  showAsButton?: boolean;
 }
 
-export const ImageUploader = ({ aquariumId, onUploadSuccess, table, recordId, aspect }: ImageUploaderProps) => {
+export const ImageUploader = ({ aquariumId, onUploadSuccess, table, recordId, aspect, showAsButton = false }: ImageUploaderProps) => {
   const [imageToCrop, setImageToCrop] = useState<{file: File, src: string} | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -90,6 +91,53 @@ export const ImageUploader = ({ aquariumId, onUploadSuccess, table, recordId, as
   const onCrop = (croppedBlob: Blob) => {
     uploadMutation.mutate({ image: croppedBlob, originalFile: imageToCrop!.file });
   };
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  if (showAsButton) {
+    return (
+      <>
+        <Dialog open={!!imageToCrop} onOpenChange={(open) => !open && !uploadMutation.isPending && setImageToCrop(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Crop Image</DialogTitle>
+              <DialogDescription>Adjust the selection to crop the image.</DialogDescription>
+            </DialogHeader>
+            {imageToCrop && (
+              <ImageCropper
+                src={imageToCrop.src}
+                aspect={aspect}
+                onCrop={onCrop}
+                onCancel={() => setImageToCrop(null)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        <Input 
+          type="file" 
+          accept="image/*" 
+          onChange={handleFileChange} 
+          disabled={uploadMutation.isPending} 
+          ref={fileInputRef}
+          className="hidden"
+        />
+        <Button 
+          onClick={handleButtonClick} 
+          disabled={uploadMutation.isPending}
+          className="bg-black/50 hover:bg-black/70 text-white"
+        >
+          {uploadMutation.isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Camera className="mr-2 h-4 w-4" />
+          )}
+          {uploadMutation.isPending ? 'Uploading...' : 'Change Image'}
+        </Button>
+      </>
+    );
+  }
 
   return (
     <>
