@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { Link } from "react-router-dom";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
+import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 const Index = () => {
   return (
@@ -33,6 +34,7 @@ const Index = () => {
             </Button>
           </div>
         </section>
+        <SlideshowSection />
         <FeaturesSection />
       </main>
       <footer className="container mx-auto py-6 px-4 md:px-6 border-t">
