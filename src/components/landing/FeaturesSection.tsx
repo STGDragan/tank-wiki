@@ -1,6 +1,7 @@
 
 import { Droplets, Fish, Bot, CalendarClock } from "lucide-react";
 import { FeatureCard } from "./FeatureCard";
+import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -37,7 +38,9 @@ export const FeaturesSection = () => {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature) => (
-            <FeatureCard key={feature.title} icon={feature.icon} title={feature.title} description={feature.description} />
+            <Link to="/login" key={feature.title}>
+              <FeatureCard icon={feature.icon} title={feature.title} description={feature.description} />
+            </Link>
           ))}
         </div>
       </div>
