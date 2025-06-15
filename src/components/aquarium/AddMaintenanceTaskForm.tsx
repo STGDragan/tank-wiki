@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -37,10 +38,23 @@ type Equipment = Pick<Tables<'equipment'>, 'id' | 'type' | 'brand' | 'model'>;
 
 const commonEquipmentData = {
   freshwater: [
-    "Filter", "Heater", "Air Pump", "Light", "Substrate", "Thermometer", "Water Conditioner", "Fish Net",
+    "Filter",
+    "Heater",
+    "Thermometer",
+    "Lighting",
+    "Air Pump & Air Stone",
+    "Powerhead",
   ],
   saltwater: [
-    "Protein Skimmer", "RO/DI Unit", "Wave Maker", "Sump", "Refugium Light", "Dosing Pump", "Auto Top Off (ATO)", "Reactor",
+    "Protein Skimmer",
+    "Sump/Refugium",
+    "Powerhead/Wavemaker",
+    "RO/DI Unit",
+    "Auto Top-Off (ATO)",
+    "Lighting (Reef-Grade)",
+    "Heater",
+    "UV Sterilizer",
+    "Refractometer",
   ],
 };
 
