@@ -22,12 +22,9 @@ const Index = () => {
         </div>
       </header>
       <main className="flex-1">
-        <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white overflow-hidden">
-          <div className="absolute inset-0 w-full h-full -z-20">
-            <SlideshowSection context="landing-page" />
-          </div>
+        <section className="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden">
           <div className="absolute inset-0 w-full h-full bg-primary/30 -z-10" />
-          <div className="container mx-auto px-4 md:px-6 relative z-10">
+          <div className="container mx-auto px-4 md:px-6 relative z-10 mb-12">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
               The ultimate hub for your aquarium.
             </h1>
@@ -37,6 +34,11 @@ const Index = () => {
             <Button size="lg" asChild>
               <Link to="/login">Get Started for Free</Link>
             </Button>
+          </div>
+          <div className="w-full max-w-4xl mx-auto px-4 md:px-6 relative z-10">
+            <div className="h-[400px] rounded-lg overflow-hidden shadow-2xl">
+              <SlideshowSection context="landing-page" />
+            </div>
           </div>
         </section>
         
