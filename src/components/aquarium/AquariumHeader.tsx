@@ -22,8 +22,17 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
   const isOwner = user?.id === aquarium.user_id;
 
   const handleImageUploadSuccess = () => {
+    console.log('Image upload success callback triggered');
+    console.log('Invalidating queries for aquarium:', aquarium.id);
+    
     // Invalidate and refetch the aquarium data to show the new image
     queryClient.invalidateQueries({ queryKey: ['aquarium', aquarium.id] });
+    
+    // Also invalidate any other related queries that might cache aquarium data
+    queryClient.invalidateQueries({ queryKey: ['aquariums'] });
+    
+    // Force a refetch of the specific aquarium
+    queryClient.refetchQueries({ queryKey: ['aquarium', aquarium.id] });
   };
 
   return (
