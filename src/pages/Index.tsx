@@ -8,25 +8,30 @@ import { SlideshowSection } from "@/components/landing/SlideshowSection";
 const Index = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="container mx-auto py-4 px-4 md:px-6 flex justify-between items-center">
-        <Logo />
-        <nav className="flex items-center gap-4">
-          <Button variant="ghost" asChild>
-            <Link to="/login">Log In</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/login">Get Started</Link>
-          </Button>
-        </nav>
+      <header className="absolute top-0 left-0 right-0 z-20 py-4">
+        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
+          <Logo />
+          <nav className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="text-white hover:bg-white/10 hover:text-white">
+              <Link to="/login">Log In</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/login">Get Started</Link>
+            </Button>
+          </nav>
+        </div>
       </header>
       <main className="flex-1">
-        <section className="py-20 md:py-32 relative">
-           <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] dark:bg-background dark:bg-[radial-gradient(hsl(var(--muted))_1px,transparent_1px)]"></div>
-          <div className="container mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-6">
+        <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white overflow-hidden">
+          <div className="absolute inset-0 w-full h-full -z-20">
+            <SlideshowSection />
+          </div>
+          <div className="absolute inset-0 w-full h-full bg-primary/30 -z-10" />
+          <div className="container mx-auto px-4 md:px-6 relative z-10">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
               The ultimate hub for your aquarium.
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8">
               Track water parameters, manage livestock, schedule maintenance, and collaborate with others. All in one beautiful, modern platform.
             </p>
             <Button size="lg" asChild>
@@ -34,7 +39,7 @@ const Index = () => {
             </Button>
           </div>
         </section>
-        <SlideshowSection />
+        
         <FeaturesSection />
       </main>
       <footer className="container mx-auto py-6 px-4 md:px-6 border-t">
