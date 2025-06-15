@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
@@ -24,6 +23,7 @@ import LegalDocumentPage from "./pages/LegalDocumentPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import SharedWithMe from "./pages/SharedWithMe";
+import AcceptInvitation from "./pages/AcceptInvitation";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +39,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/legal" element={<LegalPage />} />
             <Route path="/legal/:document_type" element={<LegalDocumentPage />} />
+            <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
             
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />

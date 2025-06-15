@@ -88,6 +88,50 @@ export type Database = {
           },
         ]
       }
+      aquarium_share_invitations: {
+        Row: {
+          accepted_at: string | null
+          aquarium_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          invitation_token: string
+          invited_email: string
+          owner_user_id: string
+          permission: Database["public"]["Enums"]["permission_level"]
+        }
+        Insert: {
+          accepted_at?: string | null
+          aquarium_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitation_token?: string
+          invited_email: string
+          owner_user_id: string
+          permission?: Database["public"]["Enums"]["permission_level"]
+        }
+        Update: {
+          accepted_at?: string | null
+          aquarium_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitation_token?: string
+          invited_email?: string
+          owner_user_id?: string
+          permission?: Database["public"]["Enums"]["permission_level"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aquarium_share_invitations_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aquarium_shares: {
         Row: {
           aquarium_id: string
@@ -778,6 +822,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_aquarium_invitation: {
+        Args: { _invitation_token: string }
+        Returns: Json
+      }
       admin_role_exists: {
         Args: Record<PropertyKey, never>
         Returns: boolean
