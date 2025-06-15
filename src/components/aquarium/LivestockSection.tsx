@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { Tables } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { LivestockCard } from '@/components/aquarium/LivestockCard';
 import { AddLivestockForm } from '@/components/aquarium/AddLivestockForm';
 import { PlusCircle } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 
@@ -33,14 +33,18 @@ export const LivestockSection = ({ livestock, aquariumId }: LivestockSectionProp
                 </Drawer>
             </div>
             {livestock && livestock.length > 0 ? (
-                <Carousel opts={{ align: "start" }} className="w-full">
-                    <CarouselContent>
-                        {livestock.map((item) => (
-                            <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><LivestockCard livestock={item} /></CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious /><CarouselNext />
-                </Carousel>
+                <Accordion type="multiple" className="w-full space-y-2">
+                    {livestock.map((item) => (
+                        <AccordionItem value={item.id} key={item.id} className="border rounded-lg border-b-0">
+                            <AccordionTrigger className="p-4 hover:no-underline">
+                                <span className="font-semibold text-lg text-left">{item.species}{item.name ? ` (${item.name})` : ''}</span>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-4 pt-0">
+                                <LivestockCard livestock={item} />
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
             ) : <p className="text-muted-foreground">No livestock added yet.</p>}
         </section>
     );
