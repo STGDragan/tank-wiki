@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "../ui/skeleton";
+import { useEffect } from "react";
 
 const legalDocumentSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -43,15 +44,20 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
 
   const form = useForm<LegalDocumentFormValues>({
     resolver: zodResolver(legalDocumentSchema),
-    values: {
-      title: document?.title || documentTitle,
-      content: document?.content || "",
-    },
     defaultValues: {
       title: documentTitle,
       content: "",
     },
   });
+
+  useEffect(() => {
+    if (document) {
+      form.reset({
+        title: document.title,
+        content: document.content || "",
+      });
+    }
+  }, [document, form]);
 
   const upsertMutation = useMutation({
     mutationFn: async (values: LegalDocumentFormValues) => {
@@ -93,7 +99,7 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{documentTitle}</CardTitle>
+        <CardTitle>{form.watch('title') || documentTitle}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

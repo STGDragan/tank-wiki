@@ -1,33 +1,78 @@
 
 import { LegalDocumentEditor } from "@/components/admin/LegalDocumentEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const legalDocsToManage = [
-  { type: 'terms-of-service', title: 'Terms of Service' },
-  { type: 'privacy-policy', title: 'Privacy Policy' },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AddLegalDocumentDialog } from "@/components/admin/AddLegalDocumentDialog";
+import { FileText } from "lucide-react";
 
 const AdminLegal = () => {
+  const { data: legalDocs, isLoading } = useQuery({
+    queryKey: ['legal_documents'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('legal_documents')
+        .select('document_type, title')
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+            <div>
+                <h1 className="text-2xl font-semibold">Legal Documents</h1>
+                <p className="text-muted-foreground">
+                Manage your legal documents from here.
+                </p>
+            </div>
+            <Skeleton className="h-10 w-36" />
+        </div>
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-[500px] w-full" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Legal Documents</h1>
-        <p className="text-muted-foreground">
-          Manage your legal documents from here.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-semibold">Legal Documents</h1>
+          <p className="text-muted-foreground">
+            Manage your legal documents from here.
+          </p>
+        </div>
+        <AddLegalDocumentDialog />
       </div>
-      <Tabs defaultValue={legalDocsToManage[0].type} className="w-full">
-        <TabsList>
-          {legalDocsToManage.map(doc => (
-            <TabsTrigger key={doc.type} value={doc.type}>{doc.title}</TabsTrigger>
+
+      {legalDocs && legalDocs.length > 0 ? (
+        <Tabs defaultValue={legalDocs[0].document_type} className="w-full">
+          <TabsList>
+            {legalDocs.map(doc => (
+              <TabsTrigger key={doc.document_type} value={doc.document_type}>{doc.title}</TabsTrigger>
+            ))}
+          </TabsList>
+          {legalDocs.map(doc => (
+            <TabsContent key={doc.document_type} value={doc.document_type}>
+              <LegalDocumentEditor documentType={doc.document_type} documentTitle={doc.title} />
+            </TabsContent>
           ))}
-        </TabsList>
-        {legalDocsToManage.map(doc => (
-          <TabsContent key={doc.type} value={doc.type}>
-            <LegalDocumentEditor documentType={doc.type} documentTitle={doc.title} />
-          </TabsContent>
-        ))}
-      </Tabs>
+        </Tabs>
+      ) : (
+        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 text-center">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold">No documents found</h3>
+            <p className="mb-4 mt-2 text-sm text-muted-foreground">
+              You have not created any legal documents yet.
+            </p>
+            <AddLegalDocumentDialog />
+        </div>
+      )}
     </div>
   );
 };
