@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/providers/AuthProvider";
 import { useEffect } from "react";
@@ -108,6 +107,7 @@ const AquariumDetail = () => {
         tasks={pendingTasks}
         aquariumId={aquarium.id}
         aquariumType={typedAquarium.type}
+        aquariumSize={typedAquarium.size}
         onMarkComplete={handleMarkComplete}
         onDelete={handleDeleteTask}
       />

@@ -15,11 +15,12 @@ interface MaintenanceSectionProps {
     tasks: MaintenanceTask[];
     aquariumId: string;
     aquariumType: string | null;
+    aquariumSize: number | null | undefined;
     onMarkComplete: (taskId: string, completedDate: Date) => void;
     onDelete: (taskId: string) => void;
 }
 
-export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, onMarkComplete, onDelete }: MaintenanceSectionProps) => {
+export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, aquariumSize, onMarkComplete, onDelete }: MaintenanceSectionProps) => {
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
 
     return (
@@ -39,7 +40,7 @@ export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, onMarkComp
                     <DrawerContent>
                         <DrawerHeader><DrawerTitle>Add New Maintenance Task</DrawerTitle></DrawerHeader>
                         <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
-                            <AddMaintenanceTaskForm aquariumId={aquariumId} aquariumType={aquariumType} onSuccess={() => setAddTaskOpen(false)} />
+                            <AddMaintenanceTaskForm aquariumId={aquariumId} aquariumType={aquariumType} aquariumSize={aquariumSize} onSuccess={() => setAddTaskOpen(false)} />
                         </div>
                     </DrawerContent>
                 </Drawer>

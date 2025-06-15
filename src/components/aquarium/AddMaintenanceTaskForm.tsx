@@ -25,6 +25,7 @@ import { Tables, TablesInsert } from "@/integrations/supabase/types";
 import React from "react";
 import { TaskCombobox } from "./TaskCombobox";
 import { EquipmentCombobox } from "./EquipmentCombobox";
+import { Input } from "@/components/ui/input";
 
 const maintenanceTaskSchema = z.object({
   task: z.string().min(1, "Task description is required."),
@@ -32,6 +33,7 @@ const maintenanceTaskSchema = z.object({
   due_date: z.date().optional(),
   equipment_id: z.string().optional(),
   frequency: z.string().optional(),
+  volume_changed: z.coerce.number({ invalid_type_error: "Please enter a valid number." }).optional().nullable(),
 });
 
 type Equipment = Pick<Tables<'equipment'>, 'id' | 'type' | 'brand' | 'model'>;
@@ -106,7 +108,7 @@ const fetchEquipmentForSelect = async (aquariumId: string): Promise<Equipment[]>
     return data || [];
 };
 
-export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, initialTask }: { aquariumId: string, onSuccess: () => void, aquariumType: string | null, initialTask?: string }) => {
+export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, initialTask, aquariumSize }: { aquariumId: string, onSuccess: () => void, aquariumType: string | null, initialTask?: string, aquariumSize?: number | null }) => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
     
@@ -161,13 +163,37 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, in
             notes: "",
             equipment_id: "",
             frequency: "once",
+            volume_changed: null,
         },
     });
+
+    const watchedTask = form.watch("task");
+    const [recommendedVolume, setRecommendedVolume] = React.useState<number | null>(null);
+
+    React.useEffect(() => {
+        if (watchedTask && aquariumSize != null && watchedTask.toLowerCase().includes('water change')) {
+            let percentage = 25; // Default percentage
+            const percentageMatch = watchedTask.match(/(\d+)%/);
+            if (percentageMatch) {
+                percentage = parseInt(percentageMatch[1], 10);
+            }
+            
+            const recommendation = (aquariumSize * percentage) / 100;
+            setRecommendedVolume(recommendation);
+        } else {
+            setRecommendedVolume(null);
+        }
+    }, [watchedTask, aquariumSize]);
 
     async function onSubmit(values: z.infer<typeof maintenanceTaskSchema>) {
         if (!user) {
             toast({ title: "Error", description: "You must be logged in to add a task.", variant: "destructive" });
             return;
+        }
+
+        if (values.volume_changed) {
+            console.log("Captured water change volume (gallons):", values.volume_changed);
+            toast({ title: "Info", description: `Water change volume of ${values.volume_changed} gal captured. This is not yet saved to the database.`, duration: 5000 });
         }
 
         let finalEquipmentId: string | null = null;
@@ -253,6 +279,39 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, in
                         </FormItem>
                     )}
                 />
+
+                {watchedTask && watchedTask.toLowerCase().includes('water change') && aquariumSize != null && (
+                    <div className="space-y-2 rounded-md border p-4 bg-accent/50 border-border">
+                        {recommendedVolume !== null ? (
+                            <p className="text-sm text-muted-foreground">
+                                Recommended water change: <strong>{recommendedVolume.toFixed(1)} gallons</strong> (for a {aquariumSize} gallon tank).
+                            </p>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">
+                                This is a {aquariumSize} gallon tank. Consider specifying a percentage for water changes (e.g., "Water Change 25%").
+                            </p>
+                        )}
+                        <FormField
+                            control={form.control}
+                            name="volume_changed"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Actual Water Changed (gallons)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            placeholder="e.g., 5"
+                                            {...field}
+                                            value={field.value ?? ''}
+                                            onChange={e => field.onChange(e.target.value === '' ? null : parseFloat(e.target.value))}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                )}
 
                 <FormField
                     control={form.control}
