@@ -19,6 +19,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -38,7 +39,7 @@ const slugify = (text: string) =>
 
 const addLegalDocSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  document_type: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens.'),
+  document_type: z.string().min(1, 'A slug will be generated from a valid title.'),
 });
 
 type AddLegalDocFormValues = z.infer<typeof addLegalDocSchema>;
@@ -125,8 +126,11 @@ export const AddLegalDocumentDialog = () => {
                 <FormItem>
                   <FormLabel>Slug (URL-friendly version)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g. terms-of-service" />
+                    <Input {...field} placeholder="e.g. terms-of-service" readOnly className="bg-gray-100 dark:bg-gray-800 cursor-not-allowed" />
                   </FormControl>
+                  <FormDescription>
+                    This is automatically generated from the title and cannot be changed directly.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
