@@ -7,7 +7,7 @@ import { LivestockCard } from '@/components/aquarium/LivestockCard';
 import { AddLivestockForm } from '@/components/aquarium/AddLivestockForm';
 import { PlusCircle } from 'lucide-react';
 
-type Livestock = Tables<'livestock'> & { image_url?: string | null };
+type Livestock = Tables<'livestock'>;
 
 interface LivestockSectionProps {
     livestock: Livestock[];
@@ -34,7 +34,7 @@ export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDe
                 </Drawer>
             </div>
             {livestock && livestock.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
                     {livestock.map((item) => (
                         <LivestockCard livestock={item} key={item.id} onUpdateQuantity={onUpdateQuantity} onDelete={onDelete} />
                     ))}
