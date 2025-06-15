@@ -33,7 +33,7 @@ const slugify = (text: string) =>
     .toLowerCase()
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '')
+    .replace(/[^a-z0-9-]+/g, '')
     .replace(/--+/g, '-');
 
 const addLegalDocSchema = z.object({
