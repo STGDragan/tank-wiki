@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import { AdminRoleCard } from "@/components/account/AdminRoleCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { DeleteAccountCard } from "@/components/account/DeleteAccountCard";
 
 const LegalCard = () => (
   <Card>
@@ -104,6 +104,15 @@ const Account = () => {
             {/* Empty content for admin card skeleton */}
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-full max-w-md" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-10 w-36" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -116,6 +125,7 @@ const Account = () => {
       <AppearanceCard />
       <LegalCard />
       <AdminRoleCard />
+      <DeleteAccountCard />
     </div>
   );
 };

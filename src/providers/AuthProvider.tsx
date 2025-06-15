@@ -1,7 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchRoles = useCallback(async (userId: string) => {
     const { data, error } = await supabase
@@ -61,6 +62,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        if (_event === 'SIGNED_OUT') {
+            navigate('/login');
+        }
         if (session?.user) {
           fetchRoles(session.user.id);
         } else {
@@ -70,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     return () => subscription.unsubscribe();
-  }, [fetchRoles]);
+  }, [fetchRoles, navigate]);
 
   const value = { user, session, loading, roles, refreshRoles };
 
