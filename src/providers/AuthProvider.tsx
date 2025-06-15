@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
@@ -48,6 +47,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const fetchSubscriber = useCallback(async (userId: string) => {
+    const { error: syncError } = await supabase.functions.invoke('check-subscription-status');
+    if (syncError) {
+      console.error('Error syncing subscription status with Stripe:', syncError.message);
+      // Not returning here, we can still try to fetch from the DB.
+    }
+
     const { data, error } = await supabase
       .from('subscribers')
       .select('*')

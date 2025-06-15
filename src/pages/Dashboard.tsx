@@ -1,10 +1,9 @@
-
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tables } from "@/integrations/supabase/types";
@@ -22,9 +21,24 @@ const fetchAquariums = async (): Promise<Aquarium[]> => {
 };
 
 const Dashboard = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshSubscriber } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { toast: shToast } = useToast();
+
+  useEffect(() => {
+    if (searchParams.get('subscription_success') === 'true') {
+      shToast({
+        title: "Subscription Successful!",
+        description: "Welcome to Pro! You can now add unlimited aquariums.",
+      });
+      refreshSubscriber();
+      // Clean up URL
+      searchParams.delete('subscription_success');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, shToast, refreshSubscriber, setSearchParams]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -45,10 +59,10 @@ const Dashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aquariums'] });
-      toast({ title: 'Aquarium deleted successfully!' });
+      shToast({ title: 'Aquarium deleted successfully!' });
     },
     onError: (err: Error) => {
-      toast({ title: 'Error deleting aquarium', description: err.message, variant: 'destructive' });
+      shToast({ title: 'Error deleting aquarium', description: err.message, variant: 'destructive' });
     }
   });
 

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -55,6 +54,22 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
     },
   });
 
+  const { mutate: createCheckout, isPending: isCreatingCheckout } = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session');
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+    onError: (error) => {
+      sonnerToast.error("Could not create checkout session", { description: error.message });
+    }
+  });
+
   const onSubmit = (values: TankFormValues) => {
     if (!user) {
       sonnerToast.error("You must be logged in to create an aquarium.");
@@ -68,8 +83,7 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
   const shouldBlockCreation = isFreeTier && atTankLimit;
 
   const handleUpgrade = () => {
-    // This would navigate to a pricing page in a real app
-    console.log("Upgrade now clicked. Should navigate to pricing page.");
+    createCheckout();
     setOpen(false);
   };
 
@@ -92,7 +106,9 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
               </DialogHeader>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setOpen(false)}>Maybe Later</Button>
-                <Button onClick={handleUpgrade}>Upgrade Now</Button>
+                <Button onClick={handleUpgrade} disabled={isCreatingCheckout}>
+                  {isCreatingCheckout ? 'Redirecting...' : 'Upgrade Now'}
+                </Button>
               </DialogFooter>
             </>
           ) : (
