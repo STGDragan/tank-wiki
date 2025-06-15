@@ -4,12 +4,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { format } from 'date-fns';
 import { TestTube2 } from 'lucide-react';
 
-type WaterParameterReading = Tables<'water_parameters'> & {
-    salinity?: number | null;
-    alkalinity?: number | null;
-    calcium?: number | null;
-    magnesium?: number | null;
-};
+type WaterParameterReading = Tables<'water_parameters'>;
 
 interface LastTestSectionProps {
     latestReading: WaterParameterReading | undefined;
@@ -17,7 +12,7 @@ interface LastTestSectionProps {
 }
 
 export const LastTestSection = ({ latestReading, aquariumType }: LastTestSectionProps) => {
-    const isSaltwater = aquariumType?.toLowerCase() === 'saltwater';
+    const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
 
     return (
         <section>
@@ -41,6 +36,13 @@ export const LastTestSection = ({ latestReading, aquariumType }: LastTestSection
                         <div><span className="font-semibold text-muted-foreground mr-1">Ammonia:</span> {latestReading.ammonia != null ? <>{latestReading.ammonia}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
                         <div><span className="font-semibold text-muted-foreground mr-1">Nitrite:</span> {latestReading.nitrite != null ? <>{latestReading.nitrite}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
                         <div><span className="font-semibold text-muted-foreground mr-1">Nitrate:</span> {latestReading.nitrate != null ? <>{latestReading.nitrate}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
+                        
+                        {latestReading.gh != null && <div><span className="font-semibold text-muted-foreground mr-1">GH:</span> {latestReading.gh}<span className="text-muted-foreground text-xs ml-1">dGH</span></div>}
+                        {latestReading.kh != null && <div><span className="font-semibold text-muted-foreground mr-1">KH:</span> {latestReading.kh}<span className="text-muted-foreground text-xs ml-1">dKH</span></div>}
+                        {latestReading.co2 != null && <div><span className="font-semibold text-muted-foreground mr-1">CO2:</span> {latestReading.co2}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
+                        {latestReading.phosphate != null && <div><span className="font-semibold text-muted-foreground mr-1">Phosphate:</span> {latestReading.phosphate}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
+                        {latestReading.copper != null && <div><span className="font-semibold text-muted-foreground mr-1">Copper:</span> {latestReading.copper}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
+                        
                         {isSaltwater && (
                             <>
                                 <div><span className="font-semibold text-muted-foreground mr-1">Salinity:</span> {latestReading.salinity != null ? <>{latestReading.salinity}<span className="text-muted-foreground text-xs ml-1">ppt</span></> : 'N/A'}</div>

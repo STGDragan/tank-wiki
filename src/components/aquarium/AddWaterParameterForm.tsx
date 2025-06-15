@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -37,6 +36,11 @@ const waterParametersFormSchema = z.object({
   alkalinity: numberOrEmptyToUndefined,
   calcium: numberOrEmptyToUndefined,
   magnesium: numberOrEmptyToUndefined,
+  gh: numberOrEmptyToUndefined,
+  kh: numberOrEmptyToUndefined,
+  co2: numberOrEmptyToUndefined,
+  phosphate: numberOrEmptyToUndefined,
+  copper: numberOrEmptyToUndefined,
 });
 
 type WaterParametersFormValues = z.infer<typeof waterParametersFormSchema>;
@@ -64,6 +68,11 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
       alkalinity: null,
       calcium: null,
       magnesium: null,
+      gh: null,
+      kh: null,
+      co2: null,
+      phosphate: null,
+      copper: null,
     },
   });
 
@@ -88,6 +97,11 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
       alkalinity: values.alkalinity ?? null,
       calcium: values.calcium ?? null,
       magnesium: values.magnesium ?? null,
+      gh: values.gh ?? null,
+      kh: values.kh ?? null,
+      co2: values.co2 ?? null,
+      phosphate: values.phosphate ?? null,
+      copper: values.copper ?? null,
     });
 
     if (error) {
@@ -95,11 +109,16 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
     } else {
       toast({ title: "Success", description: "Water parameters added successfully." });
       await queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
+      await queryClient.invalidateQueries({ queryKey: ['health-ranking-data', aquariumId] });
       onSuccess();
     }
   }
 
-  const isSaltwater = aquariumType?.toLowerCase() === 'saltwater';
+  const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
+  const isFreshwater = !isSaltwater;
+  const isPlanted = aquariumType === 'Planted Freshwater Tank';
+  const isInverts = aquariumType === 'Freshwater Inverts';
+  const isReef = ['Saltwater Softy Reef', 'Saltwater Mixed Reef', 'Saltwater SPS Reef'].includes(aquariumType || '');
 
   return (
     <Form {...form}>
@@ -171,6 +190,69 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
               )}
             />
             
+            {isFreshwater && (
+                <>
+                    <FormField
+                      control={form.control}
+                      name="gh"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>General Hardness (dGH)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="kh"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Carbonate Hardness (dKH)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </>
+            )}
+            
+            {isPlanted && (
+                <FormField
+                  control={form.control}
+                  name="co2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CO2 (ppm)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="1" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            )}
+
+            {isInverts && (
+                <FormField
+                  control={form.control}
+                  name="copper"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Copper (ppm)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            )}
+
             {isSaltwater && (
                 <>
                     <FormField
@@ -226,6 +308,22 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                       )}
                     />
                 </>
+            )}
+
+            {isReef && (
+                <FormField
+                  control={form.control}
+                  name="phosphate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phosphate (ppm)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
             )}
         </div>
 

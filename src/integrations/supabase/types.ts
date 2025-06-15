@@ -44,6 +44,50 @@ export type Database = {
           },
         ]
       }
+      aquarium_parameter_settings: {
+        Row: {
+          aquarium_id: string
+          created_at: string
+          id: string
+          max_value: number | null
+          min_value: number | null
+          parameter: string
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          parameter: string
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          parameter?: string
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aquarium_parameter_settings_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aquariums: {
         Row: {
           created_at: string
@@ -317,6 +361,36 @@ export type Database = {
         }
         Relationships: []
       }
+      tank_type_presets: {
+        Row: {
+          created_at: string
+          id: string
+          max_value: number | null
+          min_value: number | null
+          name: string
+          parameter: string
+          unit: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          name: string
+          parameter: string
+          unit?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_value?: number | null
+          min_value?: number | null
+          name?: string
+          parameter?: string
+          unit?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -341,12 +415,17 @@ export type Database = {
           ammonia: number | null
           aquarium_id: string
           calcium: number | null
+          co2: number | null
+          copper: number | null
           created_at: string
+          gh: number | null
           id: string
+          kh: number | null
           magnesium: number | null
           nitrate: number | null
           nitrite: number | null
           ph: number | null
+          phosphate: number | null
           recorded_at: string
           salinity: number | null
           temperature: number | null
@@ -357,12 +436,17 @@ export type Database = {
           ammonia?: number | null
           aquarium_id: string
           calcium?: number | null
+          co2?: number | null
+          copper?: number | null
           created_at?: string
+          gh?: number | null
           id?: string
+          kh?: number | null
           magnesium?: number | null
           nitrate?: number | null
           nitrite?: number | null
           ph?: number | null
+          phosphate?: number | null
           recorded_at?: string
           salinity?: number | null
           temperature?: number | null
@@ -373,12 +457,17 @@ export type Database = {
           ammonia?: number | null
           aquarium_id?: string
           calcium?: number | null
+          co2?: number | null
+          copper?: number | null
           created_at?: string
+          gh?: number | null
           id?: string
+          kh?: number | null
           magnesium?: number | null
           nitrate?: number | null
           nitrite?: number | null
           ph?: number | null
+          phosphate?: number | null
           recorded_at?: string
           salinity?: number | null
           temperature?: number | null

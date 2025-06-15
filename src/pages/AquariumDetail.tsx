@@ -22,14 +22,11 @@ import { format, addDays, addWeeks, addMonths } from "date-fns";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 type Equipment = Tables<'equipment'> & { image_url?: string | null };
-type WaterParameterReading = Tables<'water_parameters'> & {
-  salinity?: number | null;
-  alkalinity?: number | null;
-  calcium?: number | null;
-  magnesium?: number | null;
-};
+type WaterParameterReading = Tables<'water_parameters'>;
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
+type Preset = Tables<'tank_type_presets'>;
+type CustomSetting = Tables<'aquarium_parameter_settings'>;
 
 const fetchAquariumById = async (id: string) => {
   const { data, error } = await supabase
@@ -90,6 +87,27 @@ const fetchMaintenanceTasks = async (aquariumId: string): Promise<MaintenanceTas
     return data as MaintenanceTask[] || [];
 };
 
+const fetchTankTypePresets = async (aquariumType: string | null): Promise<Preset[]> => {
+    if (!aquariumType) return [];
+    const { data, error } = await supabase
+        .from('tank_type_presets')
+        .select('*')
+        .eq('name', aquariumType);
+
+    if (error) throw new Error(error.message);
+    return data || [];
+};
+
+const fetchAquariumParameterSettings = async (aquariumId: string): Promise<CustomSetting[]> => {
+    const { data, error } = await supabase
+        .from('aquarium_parameter_settings')
+        .select('*')
+        .eq('aquarium_id', aquariumId);
+
+    if (error) throw new Error(error.message);
+    return data || [];
+};
+
 const AquariumDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -129,6 +147,18 @@ const AquariumDetail = () => {
   const { data: tasks, isLoading: isMaintenanceLoading, error: maintenanceError } = useQuery({
       queryKey: ['maintenance', id],
       queryFn: () => fetchMaintenanceTasks(id!),
+      enabled: !!id && !!user,
+  });
+
+  const { data: presets, isLoading: presetsLoading, error: presetsError } = useQuery({
+      queryKey: ['tank_type_presets', aquarium?.type],
+      queryFn: () => fetchTankTypePresets(aquarium!.type),
+      enabled: !!aquarium,
+  });
+
+  const { data: customSettings, isLoading: customSettingsLoading, error: customSettingsError } = useQuery({
+      queryKey: ['aquarium_parameter_settings', id],
+      queryFn: () => fetchAquariumParameterSettings(id!),
       enabled: !!id && !!user,
   });
 
@@ -316,6 +346,11 @@ const AquariumDetail = () => {
             reading.nitrate != null ? `Nitrate: ${reading.nitrate} ppm` : null,
             reading.nitrite != null ? `Nitrite: ${reading.nitrite} ppm` : null,
             reading.ammonia != null ? `Ammonia: ${reading.ammonia} ppm` : null,
+            reading.gh != null ? `GH: ${reading.gh} dGH` : null,
+            reading.kh != null ? `KH: ${reading.kh} dKH` : null,
+            reading.co2 != null ? `CO2: ${reading.co2} ppm` : null,
+            reading.phosphate != null ? `Phosphate: ${reading.phosphate} ppm` : null,
+            reading.copper != null ? `Copper: ${reading.copper} ppm` : null,
             reading.salinity != null ? `Salinity: ${reading.salinity} ppt` : null,
             reading.alkalinity != null ? `Alkalinity: ${reading.alkalinity} dKH` : null,
             reading.calcium != null ? `Calcium: ${reading.calcium} ppm` : null,
@@ -355,7 +390,7 @@ const AquariumDetail = () => {
     return (tasks || []).filter(task => !task.completed_date);
   }, [tasks]);
 
-  const isLoading = authLoading || isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading;
+  const isLoading = authLoading || isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading || presetsLoading || customSettingsLoading;
 
   if (isLoading) {
     return (
@@ -369,7 +404,7 @@ const AquariumDetail = () => {
     );
   }
 
-  const queryError = aquariumError || livestockError || equipmentError || waterParamsError || maintenanceError;
+  const queryError = aquariumError || livestockError || equipmentError || waterParamsError || maintenanceError || presetsError || customSettingsError;
   if (queryError) {
     return <div>Error: {queryError.message}</div>;
   }
@@ -394,7 +429,9 @@ const AquariumDetail = () => {
       <HealthRanking 
         waterParameters={waterParameters || []} 
         tasks={tasks || []} 
-        aquariumType={typedAquarium.type} 
+        aquariumType={typedAquarium.type}
+        presets={presets || []}
+        customSettings={customSettings || []}
       />
 
       <WaterParametersSection
