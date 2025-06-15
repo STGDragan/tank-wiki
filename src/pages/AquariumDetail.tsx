@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -250,15 +251,15 @@ const AquariumDetail = () => {
     // 3. Water parameter readings
     (waterParameters || []).forEach(reading => {
         const params = [
-            reading.temperature && `Temp: ${reading.temperature}°`,
-            reading.ph && `pH: ${reading.ph}`,
-            reading.nitrate && `Nitrate: ${reading.nitrate} ppm`,
-            reading.nitrite && `Nitrite: ${reading.nitrite} ppm`,
-            reading.ammonia && `Ammonia: ${reading.ammonia} ppm`,
-            reading.salinity && `Salinity: ${reading.salinity} ppt`,
-            reading.alkalinity && `Alkalinity: ${reading.alkalinity} dKH`,
-            reading.calcium && `Calcium: ${reading.calcium} ppm`,
-            reading.magnesium && `Magnesium: ${reading.magnesium} ppm`,
+            reading.temperature != null ? `Temp: ${reading.temperature}°` : null,
+            reading.ph != null ? `pH: ${reading.ph}` : null,
+            reading.nitrate != null ? `Nitrate: ${reading.nitrate} ppm` : null,
+            reading.nitrite != null ? `Nitrite: ${reading.nitrite} ppm` : null,
+            reading.ammonia != null ? `Ammonia: ${reading.ammonia} ppm` : null,
+            reading.salinity != null ? `Salinity: ${reading.salinity} ppt` : null,
+            reading.alkalinity != null ? `Alkalinity: ${reading.alkalinity} dKH` : null,
+            reading.calcium != null ? `Calcium: ${reading.calcium} ppm` : null,
+            reading.magnesium != null ? `Magnesium: ${reading.magnesium} ppm` : null,
         ].filter(Boolean).join(' | ');
 
         entries.push({

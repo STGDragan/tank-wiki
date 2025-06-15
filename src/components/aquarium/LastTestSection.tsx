@@ -36,17 +36,17 @@ export const LastTestSection = ({ latestReading, aquariumType }: LastTestSection
                         <p className="text-sm text-muted-foreground">{format(new Date(latestReading.recorded_at), 'PPP, p')}</p>
                     </CardHeader>
                     <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-                        <div><span className="font-semibold text-muted-foreground mr-1">Temp:</span> {latestReading.temperature ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">°F</span></div>
+                        <div><span className="font-semibold text-muted-foreground mr-1">Temp:</span> {latestReading.temperature != null ? <>{latestReading.temperature}<span className="text-muted-foreground text-xs ml-1">°F</span></> : 'N/A'}</div>
                         <div><span className="font-semibold text-muted-foreground mr-1">pH:</span> {latestReading.ph ?? 'N/A'}</div>
-                        <div><span className="font-semibold text-muted-foreground mr-1">Ammonia:</span> {latestReading.ammonia ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>
-                        <div><span className="font-semibold text-muted-foreground mr-1">Nitrite:</span> {latestReading.nitrite ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>
-                        <div><span className="font-semibold text-muted-foreground mr-1">Nitrate:</span> {latestReading.nitrate ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>
+                        <div><span className="font-semibold text-muted-foreground mr-1">Ammonia:</span> {latestReading.ammonia != null ? <>{latestReading.ammonia}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
+                        <div><span className="font-semibold text-muted-foreground mr-1">Nitrite:</span> {latestReading.nitrite != null ? <>{latestReading.nitrite}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
+                        <div><span className="font-semibold text-muted-foreground mr-1">Nitrate:</span> {latestReading.nitrate != null ? <>{latestReading.nitrate}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
                         {isSaltwater && (
                             <>
-                                <div><span className="font-semibold text-muted-foreground mr-1">Salinity:</span> {latestReading.salinity ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">ppt</span></div>
-                                <div><span className="font-semibold text-muted-foreground mr-1">Alkalinity:</span> {latestReading.alkalinity ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">dKH</span></div>
-                                <div><span className="font-semibold text-muted-foreground mr-1">Calcium:</span> {latestReading.calcium ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>
-                                <div><span className="font-semibold text-muted-foreground mr-1">Magnesium:</span> {latestReading.magnesium ?? 'N/A'}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>
+                                <div><span className="font-semibold text-muted-foreground mr-1">Salinity:</span> {latestReading.salinity != null ? <>{latestReading.salinity}<span className="text-muted-foreground text-xs ml-1">ppt</span></> : 'N/A'}</div>
+                                <div><span className="font-semibold text-muted-foreground mr-1">Alkalinity:</span> {latestReading.alkalinity != null ? <>{latestReading.alkalinity}<span className="text-muted-foreground text-xs ml-1">dKH</span></> : 'N/A'}</div>
+                                <div><span className="font-semibold text-muted-foreground mr-1">Calcium:</span> {latestReading.calcium != null ? <>{latestReading.calcium}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
+                                <div><span className="font-semibold text-muted-foreground mr-1">Magnesium:</span> {latestReading.magnesium != null ? <>{latestReading.magnesium}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
                             </>
                         )}
                     </CardContent>
