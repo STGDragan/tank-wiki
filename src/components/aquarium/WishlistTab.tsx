@@ -6,8 +6,9 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import AddWishlistItemForm from "./AddWishlistItemForm";
+import AddWishlistItemForm, { AddWishlistItemFormRef } from "./AddWishlistItemForm";
 import WishlistItemCard from "./WishlistItemCard";
+import { useRef } from "react";
 
 type WishlistItem = Tables<'wishlist_items'>;
 
@@ -16,7 +17,7 @@ const fetchWishlistItems = async (aquariumId: string): Promise<WishlistItem[]> =
         .from('wishlist_items')
         .select('*')
         .eq('aquarium_id', aquariumId)
-        .order('priority', { ascending: true, nullsLast: true })
+        .order('priority', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -26,6 +27,7 @@ const fetchWishlistItems = async (aquariumId: string): Promise<WishlistItem[]> =
 const WishlistTab = ({ aquariumId }: { aquariumId: string }) => {
     const queryClient = useQueryClient();
     const { user } = useAuth();
+    const formRef = useRef<AddWishlistItemFormRef>(null);
 
     const { data: items, isLoading, error } = useQuery({
         queryKey: ['wishlist_items', aquariumId],
@@ -46,6 +48,7 @@ const WishlistTab = ({ aquariumId }: { aquariumId: string }) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['wishlist_items', aquariumId] });
             toast({ title: 'Success', description: 'Wishlist item added.' });
+            formRef.current?.reset();
         },
         onError: (err: Error) => {
             toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -92,7 +95,7 @@ const WishlistTab = ({ aquariumId }: { aquariumId: string }) => {
                     <CardTitle>Add to Wishlist</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <AddWishlistItemForm onSubmit={addItemMutation.mutate} isSubmitting={addItemMutation.isPending} />
+                    <AddWishlistItemForm ref={formRef} onSubmit={addItemMutation.mutate} isSubmitting={addItemMutation.isPending} />
                 </CardContent>
             </Card>
             <Card>

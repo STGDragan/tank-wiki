@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TablesInsert } from "@/integrations/supabase/types";
+import { forwardRef, useImperativeHandle } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -32,7 +33,11 @@ interface AddWishlistItemFormProps {
     isSubmitting: boolean;
 }
 
-const AddWishlistItemForm = ({ onSubmit, isSubmitting }: AddWishlistItemFormProps) => {
+export interface AddWishlistItemFormRef {
+    reset: () => void;
+}
+
+const AddWishlistItemForm = forwardRef<AddWishlistItemFormRef, AddWishlistItemFormProps>(({ onSubmit, isSubmitting }, ref) => {
     const form = useForm<AddWishlistItemFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -44,9 +49,12 @@ const AddWishlistItemForm = ({ onSubmit, isSubmitting }: AddWishlistItemFormProp
         },
     });
 
+    useImperativeHandle(ref, () => ({
+        reset: () => form.reset(),
+    }));
+
     const handleFormSubmit = (values: AddWishlistItemFormValues) => {
         onSubmit(values);
-        form.reset();
     };
 
     return (
@@ -134,6 +142,6 @@ const AddWishlistItemForm = ({ onSubmit, isSubmitting }: AddWishlistItemFormProp
             </form>
         </Form>
     );
-};
+});
 
 export default AddWishlistItemForm;
