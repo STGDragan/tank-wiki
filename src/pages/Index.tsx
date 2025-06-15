@@ -46,8 +46,8 @@ const Index = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">&copy; {new Date().getFullYear()} TankWiki. All rights reserved.</p>
             <div className="flex gap-4 mt-4 md:mt-0">
-                <Button variant="link" size="sm" asChild><Link to="/terms">Terms of Service</Link></Button>
-                <Button variant="link" size="sm" asChild><Link to="/privacy">Privacy Policy</Link></Button>
+                <Button variant="link" size="sm" asChild><Link to="/legal/terms-of-service">Terms of Service</Link></Button>
+                <Button variant="link" size="sm" asChild><Link to="/legal/privacy-policy">Privacy Policy</Link></Button>
             </div>
         </div>
       </footer>

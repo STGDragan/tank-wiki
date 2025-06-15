@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { DeleteAccountCard } from "@/components/account/DeleteAccountCard";
+import { PasswordCard } from "@/components/account/PasswordCard";
 
 const LegalCard = () => (
   <Card>
@@ -121,6 +123,7 @@ const Account = () => {
     <div className="space-y-8">
       <h1 className="text-2xl font-semibold">Settings</h1>
       <ProfileCard profile={profile} />
+      <PasswordCard />
       <NotificationsCard profile={profile} isLoading={isLoading} />
       <AppearanceCard />
       <LegalCard />

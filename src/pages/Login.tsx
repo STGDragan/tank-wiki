@@ -142,6 +142,16 @@ const Login = () => {
                       autoComplete={isSignUp ? "new-password" : "current-password"}
                     />
                   </div>
+                  {!isSignUp && (
+                    <div className="flex justify-end -mt-2">
+                       <Link
+                        to="/forgot-password"
+                        className="text-sm font-medium text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+                  )}
                   {isSignUp && (
                     <div className="flex items-center space-x-2">
                       <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)} />

@@ -21,6 +21,8 @@ import AdminSlideshow from "./pages/admin/Slideshow";
 import AdminLegal from "./pages/admin/Legal";
 import LegalPage from "./pages/LegalPage";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/legal" element={<LegalPage />} />
             <Route path="/legal/:document_type" element={<LegalDocumentPage />} />
             
