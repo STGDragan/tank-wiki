@@ -32,9 +32,9 @@ const createAquarium = async ({ name, size, type, userId }: TankFormValues & { u
   return data;
 };
 
-export function CreateTankDialog() {
+export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, subscriber } = useAuth();
   const queryClient = useQueryClient();
 
   const form = useForm<TankFormValues>({
@@ -63,6 +63,16 @@ export function CreateTankDialog() {
     mutate({ ...values, userId: user.id });
   };
 
+  const isFreeTier = !subscriber?.subscribed;
+  const atTankLimit = aquariumCount >= 3;
+  const shouldBlockCreation = isFreeTier && atTankLimit;
+
+  const handleUpgrade = () => {
+    // This would navigate to a pricing page in a real app
+    console.log("Upgrade now clicked. Should navigate to pricing page.");
+    setOpen(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -72,48 +82,63 @@ export function CreateTankDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <DialogHeader>
-              <DialogTitle>Create New Aquarium</DialogTitle>
-              <DialogDescription>Fill in the details for your new tank. You can change these later.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <FormField control={form.control} name="name" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl><Input placeholder="Reef Tank" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}/>
-              <FormField control={form.control} name="size" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Size (Gallons)</FormLabel>
-                  <FormControl><Input type="number" placeholder="75" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}/>
-              <FormField control={form.control} name="type" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Select tank type" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Freshwater">Freshwater</SelectItem>
-                      <SelectItem value="Saltwater">Saltwater</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}/>
-            </div>
-            <DialogFooter>
-              <Button type="submit" disabled={isPending}>{isPending ? "Creating..." : "Create Tank"}</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        {shouldBlockCreation ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Upgrade to Create More Aquariums</DialogTitle>
+                <DialogDescription>
+                  You've reached the free limit of 3 aquariums. Please upgrade your plan to add more.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setOpen(false)}>Maybe Later</Button>
+                <Button onClick={handleUpgrade}>Upgrade Now</Button>
+              </DialogFooter>
+            </>
+          ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <DialogHeader>
+                <DialogTitle>Create New Aquarium</DialogTitle>
+                <DialogDescription>Fill in the details for your new tank. You can change these later.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl><Input placeholder="Reef Tank" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}/>
+                <FormField control={form.control} name="size" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Size (Gallons)</FormLabel>
+                    <FormControl><Input type="number" placeholder="75" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}/>
+                <FormField control={form.control} name="type" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select tank type" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Freshwater">Freshwater</SelectItem>
+                        <SelectItem value="Saltwater">Saltwater</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}/>
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={isPending}>{isPending ? "Creating..." : "Create Tank"}</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

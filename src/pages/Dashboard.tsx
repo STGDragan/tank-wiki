@@ -76,6 +76,8 @@ const Dashboard = () => {
     return <div>Error: {error.message}</div>;
   }
 
+  const aquariumCount = aquariums?.length || 0;
+
   return (
     <div className="space-y-8">
       <div className="w-full h-[250px] rounded-lg overflow-hidden">
@@ -83,7 +85,7 @@ const Dashboard = () => {
       </div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <CreateTankDialog />
+        <CreateTankDialog aquariumCount={aquariumCount} />
       </div>
       {aquariums && aquariums.length > 0 ? (
         <div className="space-y-8">
@@ -100,7 +102,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold">No Aquariums Yet</h2>
           <p className="text-muted-foreground mt-2">Get started by creating your first tank.</p>
           <div className="mt-4">
-            <CreateTankDialog />
+            <CreateTankDialog aquariumCount={aquariumCount} />
           </div>
         </div>
       )}
