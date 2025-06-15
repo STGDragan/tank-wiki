@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const profileFormSchema = z.object({
   full_name: z.string().nullable(),
@@ -99,6 +102,24 @@ const Account = () => {
     },
   });
 
+  const updateNotificationSettingsMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+        if (!user) throw new Error("User not found");
+        const { error } = await supabase
+          .from('profiles')
+          .update({ enable_maintenance_notifications: enabled, updated_at: new Date().toISOString() })
+          .eq('id', user.id);
+        if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Notification settings updated." });
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating settings", description: error.message, variant: "destructive" });
+    },
+  });
+
   const onSubmit = (data: ProfileFormValues) => {
     updateProfileMutation.mutate(data);
   };
@@ -165,6 +186,26 @@ const Account = () => {
               </Button>
             </form>
           </Form>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Notifications</CardTitle>
+          <CardDescription>Manage your email notification preferences.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-4">
+            <Switch
+                id="maintenance-notifications"
+                checked={profile?.enable_maintenance_notifications ?? true}
+                onCheckedChange={(checked) => updateNotificationSettingsMutation.mutate(checked)}
+                disabled={updateNotificationSettingsMutation.isPending || isLoading}
+            />
+            <Label htmlFor="maintenance-notifications" className="cursor-pointer">
+                Receive maintenance reminder emails
+            </Label>
+          </div>
         </CardContent>
       </Card>
 

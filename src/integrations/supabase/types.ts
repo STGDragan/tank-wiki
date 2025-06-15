@@ -296,18 +296,21 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          enable_maintenance_notifications: boolean
           full_name: string | null
           id: string
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          enable_maintenance_notifications?: boolean
           full_name?: string | null
           id: string
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          enable_maintenance_notifications?: boolean
           full_name?: string | null
           id?: string
           updated_at?: string | null
