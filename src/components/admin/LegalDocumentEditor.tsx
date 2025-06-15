@@ -1,10 +1,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -12,13 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { useEffect } from "react";
-
-const legalDocumentSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  content: z.string().optional(),
-});
-
-type LegalDocumentFormValues = z.infer<typeof legalDocumentSchema>;
+import { useLegalDocument, useUpsertLegalDocument, legalDocumentEditorSchema, LegalDocumentEditorFormValues } from "@/hooks/useLegal";
 
 interface LegalDocumentEditorProps {
   documentType: string;
@@ -26,24 +16,11 @@ interface LegalDocumentEditorProps {
 }
 
 export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocumentEditorProps) => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { data: document, isLoading } = useLegalDocument(documentType);
+  const upsertMutation = useUpsertLegalDocument();
 
-  const { data: document, isLoading } = useQuery({
-    queryKey: ['legal_document', documentType],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from('legal_documents')
-        .select('*')
-        .eq('document_type', documentType)
-        .single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    }
-  });
-
-  const form = useForm<LegalDocumentFormValues>({
-    resolver: zodResolver(legalDocumentSchema),
+  const form = useForm<LegalDocumentEditorFormValues>({
+    resolver: zodResolver(legalDocumentEditorSchema),
     defaultValues: {
       title: documentTitle,
       content: "",
@@ -59,27 +36,12 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
     }
   }, [document, form]);
 
-  const upsertMutation = useMutation({
-    mutationFn: async (values: LegalDocumentFormValues) => {
-      const { error } = await (supabase as any)
-        .from('legal_documents')
-        .upsert({
-          document_type: documentType,
-          title: values.title,
-          content: values.content
-        }, { onConflict: 'document_type' });
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({ title: "Success", description: "Document saved successfully." });
-      queryClient.invalidateQueries({ queryKey: ['legal_document', documentType] });
-      queryClient.invalidateQueries({ queryKey: ['legal_documents'] });
-    },
-    onError: (error: any) => {
-      toast({ variant: "destructive", title: "Error", description: error.message });
-    }
-  });
+  const onSubmit = (data: LegalDocumentEditorFormValues) => {
+    upsertMutation.mutate({
+      ...data,
+      document_type: documentType,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -103,7 +65,7 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => upsertMutation.mutate(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="title"

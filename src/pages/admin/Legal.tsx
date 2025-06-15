@@ -1,29 +1,13 @@
 
 import { LegalDocumentEditor } from "@/components/admin/LegalDocumentEditor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AddLegalDocumentDialog } from "@/components/admin/AddLegalDocumentDialog";
 import { FileText } from "lucide-react";
-
-interface LegalDocInfo {
-  document_type: string;
-  title: string;
-}
+import { useLegalDocuments } from "@/hooks/useLegal";
 
 const AdminLegal = () => {
-  const { data: legalDocs, isLoading } = useQuery<LegalDocInfo[]>({
-    queryKey: ['legal_documents'],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from('legal_documents')
-        .select('document_type, title')
-        .order('created_at', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: legalDocs, isLoading } = useLegalDocuments();
 
   if (isLoading) {
     return (

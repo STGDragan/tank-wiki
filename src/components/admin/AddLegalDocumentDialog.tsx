@@ -2,10 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -27,6 +23,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { PlusCircle } from 'lucide-react';
+import { useUpsertLegalDocument, addLegalDocSchema, AddLegalDocFormValues } from '@/hooks/useLegal';
 
 const slugify = (text: string) =>
   text
@@ -37,17 +34,9 @@ const slugify = (text: string) =>
     .replace(/[^a-z0-9-]+/g, '')
     .replace(/--+/g, '-');
 
-const addLegalDocSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  document_type: z.string().min(1, 'A slug will be generated from a valid title.'),
-});
-
-type AddLegalDocFormValues = z.infer<typeof addLegalDocSchema>;
-
 export const AddLegalDocumentDialog = () => {
   const [open, setOpen] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const upsertMutation = useUpsertLegalDocument();
 
   const form = useForm<AddLegalDocFormValues>({
     resolver: zodResolver(addLegalDocSchema),
@@ -63,31 +52,20 @@ export const AddLegalDocumentDialog = () => {
     form.setValue('document_type', slugify(titleValue), { shouldValidate: true });
   }, [titleValue, form]);
 
-  const createMutation = useMutation({
-    mutationFn: async (values: AddLegalDocFormValues) => {
-      const { data, error } = await (supabase as any).from('legal_documents').insert({
+  const onSubmit = (values: AddLegalDocFormValues) => {
+    upsertMutation.mutate(
+      {
         ...values,
-        content: `# ${values.title}\n\nStart writing your document here.`
-      }).select().single();
-      
-      if (error) {
-        if (error.code === '23505') { // unique constraint violation
-            throw new Error('A document with this slug already exists.');
-        }
-        throw error;
+        content: `# ${values.title}\n\nStart writing your document here.`,
+      },
+      {
+        onSuccess: () => {
+          setOpen(false);
+          form.reset();
+        },
       }
-      return data;
-    },
-    onSuccess: () => {
-      toast({ title: 'Success', description: 'New legal document created.' });
-      queryClient.invalidateQueries({ queryKey: ['legal_documents'] });
-      setOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({ variant: "destructive", title: 'Error', description: error.message });
-    },
-  });
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -105,7 +83,7 @@ export const AddLegalDocumentDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(data => createMutation.mutate(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="title"
@@ -137,8 +115,8 @@ export const AddLegalDocumentDialog = () => {
             />
             <DialogFooter>
                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? 'Creating...' : 'Create Document'}
+              <Button type="submit" disabled={upsertMutation.isPending}>
+                {upsertMutation.isPending ? 'Creating...' : 'Create Document'}
               </Button>
             </DialogFooter>
           </form>
