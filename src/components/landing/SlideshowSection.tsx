@@ -43,16 +43,16 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
         opts={{ loop: true }}
         plugins={[plugin.current]}
       >
-        <CarouselContent className="h-full">
+        <CarouselContent className="h-full -ml-4">
           {isLoading && (
-            <CarouselItem className="basis-full">
+            <CarouselItem className="pl-4 basis-full">
               <div className="relative w-full h-full min-h-[400px]">
                 <Skeleton className="w-full h-full" />
               </div>
             </CarouselItem>
           )}
           {images && images.length > 0 && images.map((image: any) => (
-            <CarouselItem key={image.id} className="basis-full">
+            <CarouselItem key={image.id} className="pl-4 basis-full">
               <div className="relative w-full h-full min-h-[400px] bg-gray-200">
                 <img 
                   src={image.image_url} 
@@ -68,7 +68,7 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
             </CarouselItem>
           ))}
           {!isLoading && (!images || images.length === 0) && (
-            <CarouselItem className="basis-full">
+            <CarouselItem className="pl-4 basis-full">
               <div className="w-full h-full min-h-[400px] bg-muted flex items-center justify-center">
                 <p className="text-muted-foreground">No slideshow images available.</p>
               </div>
