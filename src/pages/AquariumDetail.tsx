@@ -328,6 +328,7 @@ const AquariumDetail = () => {
       <MaintenanceSection
         tasks={pendingTasks}
         aquariumId={aquarium.id}
+        aquariumType={typedAquarium.type}
         onMarkComplete={handleMarkComplete}
         onDelete={handleDeleteTask}
       />

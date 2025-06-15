@@ -35,6 +35,15 @@ const maintenanceTaskSchema = z.object({
 
 type Equipment = Pick<Tables<'equipment'>, 'id' | 'type' | 'brand' | 'model'>;
 
+const commonEquipmentData = {
+  freshwater: [
+    "Filter", "Heater", "Air Pump", "Light", "Substrate", "Thermometer", "Water Conditioner", "Fish Net",
+  ],
+  saltwater: [
+    "Protein Skimmer", "RO/DI Unit", "Wave Maker", "Sump", "Refugium Light", "Dosing Pump", "Auto Top Off (ATO)", "Reactor",
+  ],
+};
+
 const topMaintenanceTasks = [
     "Water Change 25%",
     "Water Change 50%",
@@ -83,7 +92,7 @@ const fetchEquipmentForSelect = async (aquariumId: string): Promise<Equipment[]>
     return data || [];
 };
 
-export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: string, onSuccess: () => void }) => {
+export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: { aquariumId: string, onSuccess: () => void, aquariumType: string | null }) => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
     
@@ -111,6 +120,26 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
         }));
     }, [userTasks]);
 
+    const equipmentOptions = React.useMemo(() => {
+        const existing = equipmentList?.map(eq => ({
+            value: eq.id,
+            label: `${eq.type} (${eq.brand || ''} ${eq.model || ''})`.trim()
+        })) || [];
+
+        const tankTypeKey = aquariumType === 'saltwater' ? 'saltwater' : 'freshwater';
+        const commonForType = commonEquipmentData[tankTypeKey] || [];
+        
+        const common = commonForType.map(eq => ({
+            value: eq,
+            label: eq,
+        }));
+
+        const existingTypes = new Set(equipmentList?.map(eq => eq.type.toLowerCase()));
+        const filteredCommon = common.filter(c => !existingTypes.has(c.label.toLowerCase()));
+
+        return [...existing, ...filteredCommon];
+    }, [equipmentList, aquariumType]);
+
     const form = useForm<z.infer<typeof maintenanceTaskSchema>>({
         resolver: zodResolver(maintenanceTaskSchema),
         defaultValues: {
@@ -127,13 +156,41 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
             return;
         }
 
+        let finalEquipmentId: string | null = null;
+        if (values.equipment_id) {
+            const isExisting = equipmentList?.some(eq => eq.id === values.equipment_id);
+            if (isExisting) {
+                finalEquipmentId = values.equipment_id;
+            } else {
+                try {
+                    const { data: newEquipment, error: insertError } = await supabase
+                        .from('equipment')
+                        .insert({
+                            aquarium_id: aquariumId,
+                            user_id: user.id,
+                            type: values.equipment_id,
+                        })
+                        .select('id')
+                        .single();
+                    
+                    if (insertError) throw insertError;
+                    
+                    finalEquipmentId = newEquipment.id;
+                    queryClient.invalidateQueries({ queryKey: ['equipmentForSelect', aquariumId] });
+                } catch (error: any) {
+                    toast({ title: "Error adding new equipment", description: error.message, variant: "destructive" });
+                    return;
+                }
+            }
+        }
+
         const newMaintenanceTask: TablesInsert<'maintenance'> = {
             aquarium_id: aquariumId,
             user_id: user.id,
             task: values.task,
             notes: values.notes || null,
             due_date: values.due_date ? values.due_date.toISOString() : null,
-            equipment_id: (values.equipment_id && values.equipment_id !== 'none') ? values.equipment_id : null,
+            equipment_id: finalEquipmentId,
             frequency: values.frequency === 'once' ? null : values.frequency,
         };
 
@@ -217,27 +274,76 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess }: { aquariumId: 
                 <FormField
                     control={form.control}
                     name="equipment_id"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Related Equipment (Optional)</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select equipment" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="none">None</SelectItem>
-                                    {equipmentList?.map(eq => (
-                                        <SelectItem key={eq.id} value={eq.id}>
-                                            {`${eq.type} (${eq.brand || ''} ${eq.model || ''})`.trim()}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
+                    render={({ field }) => {
+                        const [open, setOpen] = useState(false);
+                        const selectedValue = equipmentOptions.find(option => option.value === field.value);
+                        return (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>Related Equipment (Optional)</FormLabel>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className={cn(
+                                                    "w-full justify-between",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                            >
+                                                {selectedValue?.label || field.value || "Select or type equipment"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command filter={(value, search) => {
+                                            const option = equipmentOptions.find(opt => opt.value === value);
+                                            if (option?.label.toLowerCase().includes(search.toLowerCase())) return 1;
+                                            return 0;
+                                        }}>
+                                            <CommandInput
+                                                placeholder="Search or add new equipment..."
+                                                value={field.value}
+                                                onValueChange={(search) => {
+                                                   const match = equipmentOptions.find(opt => opt.value === search);
+                                                   if (match) {
+                                                       field.onChange(search);
+                                                   } else {
+                                                       field.onChange(search);
+                                                   }
+                                                }}
+                                            />
+                                            <CommandList>
+                                                <CommandEmpty>No equipment found. A new one will be created.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {equipmentOptions.map((option) => (
+                                                        <CommandItem
+                                                            key={option.value}
+                                                            value={option.value}
+                                                            onSelect={(currentValue) => {
+                                                                form.setValue("equipment_id", currentValue === field.value ? "" : currentValue);
+                                                                setOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4",
+                                                                    field.value === option.value ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                            {option.label}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                        )
+                    }}
                 />
 
                 <FormField

@@ -13,11 +13,12 @@ type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, bran
 interface MaintenanceSectionProps {
     tasks: MaintenanceTask[];
     aquariumId: string;
+    aquariumType: string | null;
     onMarkComplete: (taskId: string, completedDate: Date) => void;
     onDelete: (taskId: string) => void;
 }
 
-export const MaintenanceSection = ({ tasks, aquariumId, onMarkComplete, onDelete }: MaintenanceSectionProps) => {
+export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, onMarkComplete, onDelete }: MaintenanceSectionProps) => {
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
 
     return (
@@ -31,7 +32,7 @@ export const MaintenanceSection = ({ tasks, aquariumId, onMarkComplete, onDelete
                     <DrawerContent>
                         <DrawerHeader><DrawerTitle>Add New Maintenance Task</DrawerTitle></DrawerHeader>
                         <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
-                            <AddMaintenanceTaskForm aquariumId={aquariumId} onSuccess={() => setAddTaskOpen(false)} />
+                            <AddMaintenanceTaskForm aquariumId={aquariumId} aquariumType={aquariumType} onSuccess={() => setAddTaskOpen(false)} />
                         </div>
                     </DrawerContent>
                 </Drawer>
