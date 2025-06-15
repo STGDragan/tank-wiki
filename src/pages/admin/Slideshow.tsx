@@ -11,7 +11,7 @@ export default function AdminSlideshow() {
   const { data: images, isLoading, error } = useQuery({
     queryKey: ["slideshow_images_admin"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("slideshow_images")
         .select("*")
         .order("display_order", { ascending: true });
@@ -46,7 +46,7 @@ export default function AdminSlideshow() {
             </Alert>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {images?.map((image) => (
+          {images?.map((image: any) => (
             <SlideshowImageCard key={image.id} image={image} />
           ))}
         </div>

@@ -34,8 +34,21 @@ export function AddSlideshowImageForm() {
 
   const addImageMutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const { error } = await supabase.from("slideshow_images").insert([
-        { image_url: values.image_url, alt_text: values.alt_text },
+      const { data: maxOrderImage, error: maxOrderError } = await (supabase as any)
+          .from('slideshow_images')
+          .select('display_order')
+          .order('display_order', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+      if (maxOrderError) {
+          throw maxOrderError;
+      }
+
+      const nextOrder = (maxOrderImage?.display_order ?? -1) + 1;
+
+      const { error } = await (supabase as any).from("slideshow_images").insert([
+          { image_url: values.image_url, alt_text: values.alt_text, display_order: nextOrder },
       ]);
       if (error) throw error;
     },
@@ -45,7 +58,7 @@ export function AddSlideshowImageForm() {
       queryClient.invalidateQueries({ queryKey: ["slideshow_images"] });
       form.reset();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(`Failed to add image: ${error.message}`);
     },
   });

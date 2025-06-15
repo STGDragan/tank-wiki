@@ -20,7 +20,7 @@ export function SlideshowSection() {
   const { data: images, isLoading } = useQuery({
     queryKey: ["slideshow_images"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("slideshow_images")
         .select("id, image_url, alt_text")
         .order("display_order", { ascending: true });
@@ -53,7 +53,7 @@ export function SlideshowSection() {
                 </div>
               </CarouselItem>
             )}
-            {images?.map((image, index) => (
+            {images?.map((image: any, index: number) => (
               <CarouselItem key={image.id}>
                 <div className="overflow-hidden rounded-lg shadow-lg">
                   <img src={image.image_url} alt={image.alt_text || `Aquascape ${index + 1}`} className="w-full aspect-[16/9] object-cover" />
