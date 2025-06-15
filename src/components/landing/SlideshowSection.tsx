@@ -37,21 +37,23 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
   console.log("Slideshow error:", error);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full min-h-[400px]">
       <Carousel
         className="w-full h-full"
         opts={{ loop: true }}
         plugins={[plugin.current]}
       >
-        <CarouselContent className="h-full -ml-4">
+        <CarouselContent className="h-full">
           {isLoading && (
-            <CarouselItem className="pl-4 h-full">
-              <Skeleton className="w-full h-full" />
+            <CarouselItem className="h-full">
+              <div className="relative w-full h-full min-h-[400px]">
+                <Skeleton className="w-full h-full" />
+              </div>
             </CarouselItem>
           )}
           {images && images.length > 0 && images.map((image: any) => (
-            <CarouselItem key={image.id} className="pl-4 h-full">
-              <div className="relative w-full h-full">
+            <CarouselItem key={image.id} className="h-full">
+              <div className="relative w-full h-full min-h-[400px]">
                 <img 
                   src={image.image_url} 
                   alt={image.alt_text || ""} 
@@ -63,8 +65,8 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
             </CarouselItem>
           ))}
           {!isLoading && (!images || images.length === 0) && (
-            <CarouselItem className="pl-4 h-full">
-              <div className="w-full h-full bg-muted flex items-center justify-center">
+            <CarouselItem className="h-full">
+              <div className="w-full h-full min-h-[400px] bg-muted flex items-center justify-center">
                 <p className="text-muted-foreground">No slideshow images available.</p>
               </div>
             </CarouselItem>
