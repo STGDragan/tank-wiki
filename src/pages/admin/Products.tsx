@@ -30,6 +30,8 @@ import { MoreHorizontal, Pencil, Trash2, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
+import { useState } from "react";
+import EditProductDialog from "@/components/admin/EditProductDialog";
 
 const fetchProducts = async () => {
   const { data, error } = await supabase
@@ -45,6 +47,9 @@ const fetchProducts = async () => {
 };
 
 const AdminProducts = () => {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Tables<'products'> | null>(null);
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -93,6 +98,11 @@ const AdminProducts = () => {
   
   const handleFeatureToggle = (product: Tables<'products'>) => {
     updateFeatureStatusMutation.mutate({ productId: product.id, is_featured: !product.is_featured });
+  };
+  
+  const handleEdit = (product: Tables<'products'>) => {
+    setSelectedProduct(product);
+    setIsEditDialogOpen(true);
   };
 
   if (error) {
@@ -182,7 +192,7 @@ const AdminProducts = () => {
                               <Star className="mr-2 h-4 w-4" />
                               <span>{product.is_featured ? 'Unfeature' : 'Feature'}</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem disabled>
+                            <DropdownMenuItem onClick={() => handleEdit(product)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
@@ -208,6 +218,11 @@ const AdminProducts = () => {
           )}
         </CardContent>
       </Card>
+      <EditProductDialog 
+        product={selectedProduct}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
     </div>
   );
 };
