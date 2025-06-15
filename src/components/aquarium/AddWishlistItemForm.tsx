@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,7 +19,7 @@ import { forwardRef, useImperativeHandle } from "react";
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   item_type: z.enum(["Livestock", "Equipment", "Other"]),
-  notes: z.string().optional(),
+  notes: z.string().optional().nullable(),
   priority: z.coerce.number().int().min(1).optional().nullable(),
   estimated_price: z.coerce.number().min(0).optional().nullable(),
 });
@@ -54,7 +53,12 @@ const AddWishlistItemForm = forwardRef<AddWishlistItemFormRef, AddWishlistItemFo
     }));
 
     const handleFormSubmit = (values: AddWishlistItemFormValues) => {
-        onSubmit(values);
+        onSubmit({
+            ...values,
+            notes: values.notes || null,
+            priority: values.priority ?? null,
+            estimated_price: values.estimated_price ?? null,
+        });
     };
 
     return (
@@ -130,7 +134,7 @@ const AddWishlistItemForm = forwardRef<AddWishlistItemFormRef, AddWishlistItemFo
                         <FormItem>
                             <FormLabel>Notes</FormLabel>
                             <FormControl>
-                                <Textarea placeholder="Any specific details..." {...field} />
+                                <Textarea placeholder="Any specific details..." {...field} value={field.value ?? ''} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
