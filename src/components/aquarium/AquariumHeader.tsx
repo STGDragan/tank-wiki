@@ -1,5 +1,6 @@
 
 import { useAuth } from "@/providers/AuthProvider";
+import { useQueryClient } from "@tanstack/react-query";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { ImageUploader } from "./ImageUploader";
 import { ShareAquariumDialog } from "./ShareAquariumDialog";
@@ -17,7 +18,13 @@ interface AquariumHeaderProps {
 
 export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const isOwner = user?.id === aquarium.user_id;
+
+  const handleImageUploadSuccess = () => {
+    // Invalidate and refetch the aquarium data to show the new image
+    queryClient.invalidateQueries({ queryKey: ['aquarium', aquarium.id] });
+  };
 
   return (
     <div className="space-y-6">
@@ -44,7 +51,7 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
         {isOwner ? (
           <ImageUploader
             aquariumId={aquarium.id}
-            onUploadSuccess={() => {}}
+            onUploadSuccess={handleImageUploadSuccess}
             table="aquariums"
             recordId={aquarium.id}
             aspect={16/9}
