@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -48,18 +49,21 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
-const categories = ["Equipment", "Livestock", "Food", "Consumables"];
-const subcategories: { [key: string]: string[] } = {
-  Equipment: ["Filter", "Heater", "Lighting", "Pump", "Tank", "Other"],
-  Livestock: ["Freshwater Fish", "Saltwater Fish", "Invertebrate", "Coral", "Plant"],
-  Food: ["Flakes", "Pellets", "Frozen", "Live", "Other"],
-  Consumables: ["Water Treatment", "Test Kits", "Substrate", "Fertilizer", "Other"],
-};
+// The hardcoded category data is now fetched from the database.
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['product_categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('product_categories').select('id, name').order('name');
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -74,7 +78,19 @@ const AddProductDialog = () => {
     },
   });
 
-  const watchedCategory = form.watch("category");
+  const watchedCategoryName = form.watch("category");
+  const selectedCategory = categories?.find(c => c.name === watchedCategoryName);
+
+  const { data: subcategories, isLoading: isLoadingSubcategories } = useQuery({
+    queryKey: ['product_subcategories', selectedCategory?.id],
+    queryFn: async () => {
+      if (!selectedCategory?.id) return [];
+      const { data, error } = await supabase.from('product_subcategories').select('name').eq('category_id', selectedCategory.id).order('name');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedCategory?.id,
+  });
 
   const addProductMutation = useMutation({
     mutationFn: async (newProduct: ProductFormValues) => {
@@ -189,16 +205,16 @@ const AddProductDialog = () => {
                   <Select onValueChange={(value) => {
                     field.onChange(value);
                     form.setValue('subcategory', '');
-                  }} defaultValue={field.value}>
+                  }} value={field.value || ''} disabled={isLoadingCategories}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder={isLoadingCategories ? "Loading..." : "Select a category"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
+                      {categories?.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.name}>
+                          {cat.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -213,16 +229,16 @@ const AddProductDialog = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subcategory</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!watchedCategory}>
+                  <Select onValueChange={field.onChange} value={field.value || ''} disabled={!watchedCategoryName || isLoadingSubcategories}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a subcategory" />
+                        <SelectValue placeholder={isLoadingSubcategories ? "Loading..." : "Select a subcategory"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {watchedCategory && subcategories[watchedCategory]?.map((subcat) => (
-                        <SelectItem key={subcat} value={subcat}>
-                          {subcat}
+                      {subcategories?.map((subcat) => (
+                        <SelectItem key={subcat.name} value={subcat.name}>
+                          {subcat.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
