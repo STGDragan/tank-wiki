@@ -190,12 +190,15 @@ const ArticleEditor = () => {
                                     name="category_id"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select onValueChange={field.onChange} value={field.value || ''}>
+                                        <Select
+                                            onValueChange={(value) => field.onChange(value === 'none' ? null : value)}
+                                            value={field.value ?? ''}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select a category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">No Category</SelectItem>
+                                                <SelectItem value="none">No Category</SelectItem>
                                                 {categories?.map(cat => (
                                                     <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                                                 ))}
