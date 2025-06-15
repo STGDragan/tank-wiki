@@ -25,9 +25,23 @@ export function SlideshowImageCard({ image }: SlideshowImageCardProps) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await (supabase as any).from("slideshow_images").delete().eq("id", id);
-      if (error) throw error;
+    mutationFn: async (imageToDelete: any) => {
+      const { error: dbError } = await (supabase as any).from("slideshow_images").delete().eq("id", imageToDelete.id);
+      if (dbError) throw dbError;
+
+      const storageUrlPart = `/storage/v1/object/public/slideshow_images/`;
+      if (imageToDelete.image_url.includes(storageUrlPart)) {
+        const filePath = imageToDelete.image_url.split(storageUrlPart)[1];
+        const { error: storageError } = await (supabase as any)
+          .storage
+          .from('slideshow_images')
+          .remove([filePath]);
+        
+        if (storageError) {
+          console.error("Failed to delete from storage, but DB entry was removed:", storageError);
+          toast.warning(`Image deleted from slideshow, but failed to remove file from storage: ${storageError.message}`);
+        }
+      }
     },
     onSuccess: () => {
       toast.success("Image deleted successfully.");
@@ -60,12 +74,12 @@ export function SlideshowImageCard({ image }: SlideshowImageCardProps) {
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete the
-                image from the slideshow.
+                image from the slideshow and storage.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => deleteMutation.mutate(image.id)}>
+              <AlertDialogAction onClick={() => deleteMutation.mutate(image)}>
                 Continue
               </AlertDialogAction>
             </AlertDialogFooter>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,8 +18,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 const formSchema = z.object({
-  image_url: z.string().url({ message: "Please enter a valid URL." }),
+  image_file: z
+    .custom<FileList>()
+    .refine((files) => files && files.length === 1, "An image file is required.")
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      ".jpg, .png, .webp, and .gif files are accepted."
+    ),
   alt_text: z.string().min(1, { message: "Alt text is required." }),
 });
 
@@ -27,33 +38,55 @@ export function AddSlideshowImageForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      image_url: "",
       alt_text: "",
     },
   });
 
   const addImageMutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const { data: maxOrderImage, error: maxOrderError } = await (supabase as any)
-          .from('slideshow_images')
-          .select('display_order')
-          .order('display_order', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+      const file = values.image_file[0];
+      const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
 
-      if (maxOrderError) {
-          throw maxOrderError;
+      const { data: uploadData, error: uploadError } = await (supabase as any).storage
+        .from('slideshow_images')
+        .upload(fileName, file);
+      
+      if (uploadError) {
+        throw new Error(`Storage error: ${uploadError.message}`);
       }
 
-      const nextOrder = (maxOrderImage?.display_order ?? -1) + 1;
+      const { data: { publicUrl } } = (supabase as any).storage
+        .from('slideshow_images')
+        .getPublicUrl(uploadData.path);
+      
+      if (!publicUrl) {
+        await (supabase as any).storage.from('slideshow_images').remove([uploadData.path]);
+        throw new Error("Could not retrieve public URL for the uploaded image.");
+      }
+      
+      try {
+        const { data: maxOrderImage, error: maxOrderError } = await (supabase as any)
+            .from('slideshow_images')
+            .select('display_order')
+            .order('display_order', { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
-      const { error } = await (supabase as any).from("slideshow_images").insert([
-          { image_url: values.image_url, alt_text: values.alt_text, display_order: nextOrder },
-      ]);
-      if (error) throw error;
+        if (maxOrderError) throw maxOrderError;
+
+        const nextOrder = (maxOrderImage?.display_order ?? -1) + 1;
+
+        const { error: insertError } = await (supabase as any).from("slideshow_images").insert([
+            { image_url: publicUrl, alt_text: values.alt_text, display_order: nextOrder },
+        ]);
+        if (insertError) throw insertError;
+      } catch (dbError) {
+        await (supabase as any).storage.from('slideshow_images').remove([uploadData.path]);
+        throw dbError;
+      }
     },
     onSuccess: () => {
-      toast.success("Image added successfully!");
+      toast.success("Image uploaded successfully!");
       queryClient.invalidateQueries({ queryKey: ["slideshow_images_admin"] });
       queryClient.invalidateQueries({ queryKey: ["slideshow_images"] });
       form.reset();
@@ -77,13 +110,23 @@ export function AddSlideshowImageForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="image_url"
+              name="image_file"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image URL</FormLabel>
+                  <FormLabel>Image</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://images.unsplash.com/..." {...field} />
+                    <Input
+                      type="file"
+                      accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                      ref={field.ref}
+                      name={field.name}
+                      onBlur={field.onBlur}
+                      onChange={(e) => field.onChange(e.target.files)}
+                    />
                   </FormControl>
+                  <FormDescription>
+                    Upload an image from your computer (max 5MB).
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -102,7 +145,7 @@ export function AddSlideshowImageForm() {
               )}
             />
             <Button type="submit" disabled={addImageMutation.isPending}>
-              {addImageMutation.isPending ? "Adding..." : "Add Image"}
+              {addImageMutation.isPending ? "Uploading..." : "Add Image"}
             </Button>
           </form>
         </Form>
