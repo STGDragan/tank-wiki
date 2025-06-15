@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,7 +21,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
 const livestockFormSchema = z.object({
   species: z.string().min(1, "Species is required."),
@@ -30,23 +33,38 @@ const livestockFormSchema = z.object({
   notes: z.string().optional(),
 });
 
-const speciesOptions = [
-    "Clownfish", "Royal Gramma", "Neon Tetra", "Guppy", "Betta", "Angelfish", "Discus",
-    "Amano Shrimp", "Cherry Shrimp", "Nerite Snail", "Mystery Snail",
-    "Zoanthid Coral", "Mushroom Coral", "Hammer Coral",
-    "Other"
+const freshwaterSpecies = [
+    "Neon Tetra", "Cardinal Tetra", "Guppy", "Molly", "Platy", "Swordtail", "Betta", 
+    "Angelfish", "Discus", "Corydoras Catfish", "Otocinclus", "Bristlenose Pleco",
+    "Cherry Barb", "Tiger Barb", "Zebra Danio", "White Cloud Mountain Minnow",
+    "Harlequin Rasbora", "Cherry Shrimp", "Amano Shrimp", "Ghost Shrimp",
+    "Nerite Snail", "Mystery Snail", "Ramshorn Snail", "Java Moss", "Anubias",
+    "Amazon Sword", "Vallisneria", "Cryptocoryne", "Other"
+];
+
+const saltwaterSpecies = [
+    "Clownfish", "Blue Tang", "Yellow Tang", "Royal Gramma", "Cardinalfish",
+    "Goby", "Wrasse", "Anthias", "Dottyback", "Blenny", "Mandarin Fish",
+    "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail",
+    "Zoanthid Coral", "Mushroom Coral", "Hammer Coral", "Torch Coral",
+    "Brain Coral", "Acan Coral", "Chalice Coral", "Montipora", "Acropora", "Other"
 ];
 
 type LivestockFormValues = z.infer<typeof livestockFormSchema>;
 
 interface AddLivestockFormProps {
   aquariumId: string;
+  aquariumType: string | null;
   onSuccess: () => void;
 }
 
-export function AddLivestockForm({ aquariumId, onSuccess }: AddLivestockFormProps) {
+export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLivestockFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
+  const speciesOptions = isSaltwater ? saltwaterSpecies : freshwaterSpecies;
 
   const form = useForm<LivestockFormValues>({
     resolver: zodResolver(livestockFormSchema),
@@ -93,20 +111,54 @@ export function AddLivestockForm({ aquariumId, onSuccess }: AddLivestockFormProp
           control={form.control}
           name="species"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Species</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a species" />
-                    </SelectTrigger>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className={cn(
+                        "w-full justify-between",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value || "Select a species..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
                   </FormControl>
-                  <SelectContent>
-                      {speciesOptions.map(option => (
-                          <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search species..." />
+                    <CommandList>
+                      <CommandEmpty>No species found.</CommandEmpty>
+                      <CommandGroup>
+                        {speciesOptions.map((species) => (
+                          <CommandItem
+                            key={species}
+                            value={species}
+                            onSelect={() => {
+                              form.setValue("species", species);
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                field.value === species ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {species}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <FormMessage />
             </FormItem>
           )}

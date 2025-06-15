@@ -13,12 +13,13 @@ type Livestock = Tables<'livestock'>;
 interface LivestockSectionProps {
     livestock: Livestock[];
     aquariumId: string;
+    aquariumType: string | null;
     onUpdateQuantity: (livestockId: string, currentQuantity: number, change: number) => void;
     onDelete: (livestockId: string) => void;
     canEdit: boolean;
 }
 
-export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDelete, canEdit }: LivestockSectionProps) => {
+export const LivestockSection = ({ livestock, aquariumId, aquariumType, onUpdateQuantity, onDelete, canEdit }: LivestockSectionProps) => {
     const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
 
     return (
@@ -38,7 +39,7 @@ export const LivestockSection = ({ livestock, aquariumId, onUpdateQuantity, onDe
                         </DrawerTrigger>
                         <DrawerContent>
                             <DrawerHeader><DrawerTitle>Add New Livestock</DrawerTitle></DrawerHeader>
-                            <div className="px-4 pb-4"><AddLivestockForm aquariumId={aquariumId} onSuccess={() => setAddLivestockOpen(false)} /></div>
+                            <div className="px-4 pb-4"><AddLivestockForm aquariumId={aquariumId} aquariumType={aquariumType} onSuccess={() => setAddLivestockOpen(false)} /></div>
                         </DrawerContent>
                     </Drawer>
                 )}

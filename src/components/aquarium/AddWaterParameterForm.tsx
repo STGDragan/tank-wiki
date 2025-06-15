@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,28 +20,29 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const numberOrEmptyToUndefined = z.preprocess(
-    (v) => (v === "" || v === null ? undefined : v),
-    z.coerce.number().optional().nullable()
+const numberOrEmptyToDefault = z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? 0 : v),
+    z.coerce.number().min(0).default(0)
 );
 
 const waterParametersFormSchema = z.object({
   recorded_at: z.date({ required_error: "Date is required." }),
-  temperature: numberOrEmptyToUndefined,
-  ph: numberOrEmptyToUndefined,
-  ammonia: numberOrEmptyToUndefined,
-  nitrite: numberOrEmptyToUndefined,
-  nitrate: numberOrEmptyToUndefined,
-  salinity: numberOrEmptyToUndefined,
-  alkalinity: numberOrEmptyToUndefined,
-  calcium: numberOrEmptyToUndefined,
-  magnesium: numberOrEmptyToUndefined,
-  gh: numberOrEmptyToUndefined,
-  kh: numberOrEmptyToUndefined,
-  co2: numberOrEmptyToUndefined,
-  phosphate: numberOrEmptyToUndefined,
-  copper: numberOrEmptyToUndefined,
+  temperature: numberOrEmptyToDefault,
+  ph: numberOrEmptyToDefault,
+  ammonia: numberOrEmptyToDefault,
+  nitrite: numberOrEmptyToDefault,
+  nitrate: numberOrEmptyToDefault,
+  salinity: numberOrEmptyToDefault,
+  alkalinity: numberOrEmptyToDefault,
+  calcium: numberOrEmptyToDefault,
+  magnesium: numberOrEmptyToDefault,
+  gh: numberOrEmptyToDefault,
+  kh: numberOrEmptyToDefault,
+  co2: numberOrEmptyToDefault,
+  phosphate: numberOrEmptyToDefault,
+  copper: numberOrEmptyToDefault,
 });
 
 type WaterParametersFormValues = z.infer<typeof waterParametersFormSchema>;
@@ -59,20 +61,20 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
     resolver: zodResolver(waterParametersFormSchema),
     defaultValues: {
       recorded_at: new Date(),
-      temperature: null,
-      ph: null,
-      ammonia: null,
-      nitrite: null,
-      nitrate: null,
-      salinity: null,
-      alkalinity: null,
-      calcium: null,
-      magnesium: null,
-      gh: null,
-      kh: null,
-      co2: null,
-      phosphate: null,
-      copper: null,
+      temperature: 0,
+      ph: 0,
+      ammonia: 0,
+      nitrite: 0,
+      nitrate: 0,
+      salinity: 0,
+      alkalinity: 0,
+      calcium: 0,
+      magnesium: 0,
+      gh: 0,
+      kh: 0,
+      co2: 0,
+      phosphate: 0,
+      copper: 0,
     },
   });
 
@@ -88,20 +90,20 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
       aquarium_id: aquariumId,
       user_id: user.id,
       recorded_at: values.recorded_at.toISOString(),
-      temperature: values.temperature ?? null,
-      ph: values.ph ?? null,
-      ammonia: values.ammonia ?? null,
-      nitrite: values.nitrite ?? null,
-      nitrate: values.nitrate ?? null,
-      salinity: values.salinity ?? null,
-      alkalinity: values.alkalinity ?? null,
-      calcium: values.calcium ?? null,
-      magnesium: values.magnesium ?? null,
-      gh: values.gh ?? null,
-      kh: values.kh ?? null,
-      co2: values.co2 ?? null,
-      phosphate: values.phosphate ?? null,
-      copper: values.copper ?? null,
+      temperature: values.temperature || null,
+      ph: values.ph || null,
+      ammonia: values.ammonia || null,
+      nitrite: values.nitrite || null,
+      nitrate: values.nitrate || null,
+      salinity: values.salinity || null,
+      alkalinity: values.alkalinity || null,
+      calcium: values.calcium || null,
+      magnesium: values.magnesium || null,
+      gh: values.gh || null,
+      kh: values.kh || null,
+      co2: values.co2 || null,
+      phosphate: values.phosphate || null,
+      copper: values.copper || null,
     });
 
     if (error) {
@@ -121,257 +123,259 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
   const isReef = ['Saltwater Softy Reef', 'Saltwater Mixed Reef', 'Saltwater SPS Reef'].includes(aquariumType || '');
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="temperature"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Temperature (°F)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ph"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>pH</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="ammonia"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ammonia (ppm)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="nitrite"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nitrite (ppm)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="nitrate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nitrate (ppm)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="1" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            {isFreshwater && (
-                <>
-                    <FormField
-                      control={form.control}
-                      name="gh"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>General Hardness (dGH)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="kh"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Carbonate Hardness (dKH)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                </>
-            )}
-            
-            {isPlanted && (
-                <FormField
-                  control={form.control}
-                  name="co2"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CO2 (ppm)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="1" {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            )}
-
-            {isInverts && (
-                <FormField
-                  control={form.control}
-                  name="copper"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Copper (ppm)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            )}
-
-            {isSaltwater && (
-                <>
-                    <FormField
-                      control={form.control}
-                      name="salinity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Salinity (ppt)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="alkalinity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Alkalinity (dKH)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.1" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="calcium"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Calcium (ppm)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="1" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="magnesium"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Magnesium (ppm)</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="1" {...field} value={field.value ?? ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                </>
-            )}
-
-            {isReef && (
-                <FormField
-                  control={form.control}
-                  name="phosphate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phosphate (ppm)</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            )}
-        </div>
-
-        <FormField
-            control={form.control}
-            name="recorded_at"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Date Recorded</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+    <ScrollArea className="h-[70vh] pr-4">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="temperature"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Temperature (°F)</FormLabel>
                     <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal justify-start",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
+                      <Input type="number" step="0.1" {...field} value={field.value} />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ph"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>pH</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.1" {...field} value={field.value} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ammonia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ammonia (ppm)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" {...field} value={field.value} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="nitrite"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nitrite (ppm)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" {...field} value={field.value} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="nitrate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nitrate (ppm)</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="1" {...field} value={field.value} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {isFreshwater && (
+                  <>
+                      <FormField
+                        control={form.control}
+                        name="gh"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>General Hardness (dGH)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.1" {...field} value={field.value} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="kh"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Carbonate Hardness (dKH)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.1" {...field} value={field.value} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                  </>
+              )}
+              
+              {isPlanted && (
+                  <FormField
+                    control={form.control}
+                    name="co2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CO2 (ppm)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="1" {...field} value={field.value} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Adding..." : "Add Reading"}
-        </Button>
-      </form>
-    </Form>
+              {isInverts && (
+                  <FormField
+                    control={form.control}
+                    name="copper"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Copper (ppm)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} value={field.value} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
+
+              {isSaltwater && (
+                  <>
+                      <FormField
+                        control={form.control}
+                        name="salinity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Salinity (ppt)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.1" {...field} value={field.value} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="alkalinity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Alkalinity (dKH)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.1" {...field} value={field.value} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="calcium"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Calcium (ppm)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="1" {...field} value={field.value} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="magnesium"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Magnesium (ppm)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="1" {...field} value={field.value} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                  </>
+              )}
+
+              {isReef && (
+                  <FormField
+                    control={form.control}
+                    name="phosphate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phosphate (ppm)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" {...field} value={field.value} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
+          </div>
+
+          <FormField
+              control={form.control}
+              name="recorded_at"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Date Recorded</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal justify-start",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Adding..." : "Add Reading"}
+          </Button>
+        </form>
+      </Form>
+    </ScrollArea>
   );
 }

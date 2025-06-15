@@ -34,9 +34,9 @@ export const WaterParametersSection = ({ aquariumId, aquariumType, latestReading
           <DrawerTrigger asChild>
             <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Reading</Button>
           </DrawerTrigger>
-          <DrawerContent>
+          <DrawerContent className="max-h-[90vh]">
             <DrawerHeader><DrawerTitle>Add New Water Parameter Reading</DrawerTitle></DrawerHeader>
-            <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
+            <div className="px-4 pb-4">
                 <AddWaterParameterForm aquariumId={aquariumId} aquariumType={aquariumType} onSuccess={() => setAddWaterParamsOpen(false)} />
             </div>
           </DrawerContent>
