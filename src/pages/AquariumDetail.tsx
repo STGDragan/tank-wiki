@@ -193,6 +193,20 @@ const AquariumDetail = () => {
       }
   });
 
+  const deleteEquipmentMutation = useMutation({
+      mutationFn: async (equipmentId: string) => {
+          const { error } = await supabase.from('equipment').delete().eq('id', equipmentId);
+          if (error) throw new Error(error.message);
+      },
+      onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['equipment', id] });
+          toast({ title: 'Equipment removed' });
+      },
+      onError: (err: Error) => {
+          toast({ title: 'Error removing equipment', description: err.message, variant: 'destructive' });
+      }
+  });
+
   const updateLivestockQuantityMutation = useMutation({
       mutationFn: async ({ livestockId, newQuantity }: { livestockId: string, newQuantity: number }) => {
           if (newQuantity <= 0) {
@@ -224,6 +238,10 @@ const AquariumDetail = () => {
 
   const handleDeleteTask = (taskId: string) => {
       deleteTaskMutation.mutate(taskId);
+  };
+
+  const handleDeleteEquipment = (equipmentId: string) => {
+    deleteEquipmentMutation.mutate(equipmentId);
   };
 
   const logEntries = useMemo(() => {
@@ -383,6 +401,7 @@ const AquariumDetail = () => {
       <EquipmentSection
         equipment={equipment || []}
         aquariumId={aquarium.id}
+        onDelete={handleDeleteEquipment}
       />
 
       <LastTestSection 

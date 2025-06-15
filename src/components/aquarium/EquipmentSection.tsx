@@ -13,9 +13,10 @@ type Equipment = Tables<'equipment'> & { image_url?: string | null };
 interface EquipmentSectionProps {
     equipment: Equipment[];
     aquariumId: string;
+    onDelete: (equipmentId: string) => void;
 }
 
-export const EquipmentSection = ({ equipment, aquariumId }: EquipmentSectionProps) => {
+export const EquipmentSection = ({ equipment, aquariumId, onDelete }: EquipmentSectionProps) => {
     const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
 
     return (
@@ -36,7 +37,9 @@ export const EquipmentSection = ({ equipment, aquariumId }: EquipmentSectionProp
                 <Carousel opts={{ align: "start" }} className="w-full">
                     <CarouselContent>
                         {equipment.map((item) => (
-                            <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4"><EquipmentCard equipment={item} /></CarouselItem>
+                            <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                                <EquipmentCard equipment={item} onDelete={onDelete} />
+                            </CarouselItem>
                         ))}
                     </CarouselContent>
                     <CarouselPrevious /><CarouselNext />

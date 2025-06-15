@@ -1,7 +1,8 @@
+
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -9,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tables } from "@/integrations/supabase/types";
 import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 import { Recommendations } from "@/components/dashboard/Recommendations";
+import { toast } from "@/hooks/use-toast";
 
 type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
 
@@ -21,6 +23,7 @@ const fetchAquariums = async (): Promise<Aquarium[]> => {
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -33,6 +36,24 @@ const Dashboard = () => {
     queryFn: fetchAquariums,
     enabled: !!user,
   });
+
+  const deleteAquariumMutation = useMutation({
+    mutationFn: async (aquariumId: string) => {
+      const { error } = await supabase.from('aquariums').delete().eq('id', aquariumId);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aquariums'] });
+      toast({ title: 'Aquarium deleted successfully!' });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error deleting aquarium', description: err.message, variant: 'destructive' });
+    }
+  });
+
+  const handleDeleteAquarium = (aquariumId: string) => {
+    deleteAquariumMutation.mutate(aquariumId);
+  };
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
@@ -64,7 +85,7 @@ const Dashboard = () => {
         <div className="space-y-8">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {aquariums.map(tank => (
-              <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} />
+              <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} onDelete={handleDeleteAquarium} />
             ))}
           </div>
           <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
