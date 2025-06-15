@@ -1,17 +1,36 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import FeaturedProducts from "@/components/shopping/FeaturedProducts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Shopping = () => {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">Shopping</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Shopping</h1>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Featured Items</CardTitle>
+          <CardDescription>
+            Hand-picked products you might like.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FeaturedProducts />
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Recommendations</CardTitle>
           <CardDescription>
-            Personalized product recommendations and shopping lists will appear here soon!
+            Personalized product recommendations and shopping lists will appear
+            here soon!
           </CardDescription>
         </CardHeader>
         <CardContent>

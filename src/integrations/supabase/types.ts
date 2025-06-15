@@ -385,6 +385,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_featured: boolean
           name: string
           subcategory: string | null
           updated_at: string
@@ -395,6 +396,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean
           name: string
           subcategory?: string | null
           updated_at?: string
@@ -405,6 +407,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean
           name?: string
           subcategory?: string | null
           updated_at?: string

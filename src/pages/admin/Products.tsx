@@ -23,9 +23,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
@@ -70,11 +71,30 @@ const AdminProducts = () => {
     }
   });
 
+  const updateFeatureStatusMutation = useMutation({
+    mutationFn: async ({ productId, is_featured }: { productId: string; is_featured: boolean }) => {
+      const { error } = await supabase.from('products').update({ is_featured }).eq('id', productId).select();
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: (_, { is_featured }) => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      toast({ title: 'Product Updated', description: `Product has been ${is_featured ? 'featured' : 'unfeatured'}.` });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error updating product', description: error.message, variant: 'destructive' });
+    }
+  });
+
   const handleDelete = (productId: string) => {
     // Optional: Add a confirmation dialog here
     deleteProductMutation.mutate(productId);
   };
   
+  const handleFeatureToggle = (product: Tables<'products'>) => {
+    updateFeatureStatusMutation.mutate({ productId: product.id, is_featured: !product.is_featured });
+  };
+
   if (error) {
     return <div>Error: {error.message}</div>;
   }
@@ -133,7 +153,12 @@ const AdminProducts = () => {
                           width="64"
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                           {product.is_featured && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
+                           {product.name}
+                        </div>
+                      </TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>{product.subcategory}</TableCell>
                       <TableCell className="hidden md:table-cell max-w-sm truncate">
@@ -153,12 +178,17 @@ const AdminProducts = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleFeatureToggle(product)}>
+                              <Star className="mr-2 h-4 w-4" />
+                              <span>{product.is_featured ? 'Unfeature' : 'Feature'}</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem disabled>
-                              <Pencil />
+                              <Pencil className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleDelete(product.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                              <Trash2 />
+                              <Trash2 className="mr-2 h-4 w-4" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
