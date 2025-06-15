@@ -17,7 +17,6 @@ import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
 import { LivestockSection } from "@/components/aquarium/LivestockSection";
 import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
 import { LogTab } from "@/components/aquarium/LogTab";
-import { LastTestSection } from "@/components/aquarium/LastTestSection";
 import { format, addDays, addWeeks, addMonths } from "date-fns";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
@@ -437,6 +436,7 @@ const AquariumDetail = () => {
       <WaterParametersSection
         aquariumId={aquarium.id}
         aquariumType={typedAquarium.type}
+        latestReading={waterParameters?.[0]}
       />
 
       <MaintenanceSection
@@ -458,11 +458,6 @@ const AquariumDetail = () => {
         equipment={equipment || []}
         aquariumId={aquarium.id}
         onDelete={handleDeleteEquipment}
-      />
-
-      <LastTestSection 
-        latestReading={waterParameters?.[0]}
-        aquariumType={typedAquarium.type}
       />
 
       {/* Recommendations Section */}

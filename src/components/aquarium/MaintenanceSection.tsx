@@ -6,7 +6,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { MaintenanceCard } from '@/components/aquarium/MaintenanceCard';
 import { AddMaintenanceTaskForm } from '@/components/aquarium/AddMaintenanceTaskForm';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 
@@ -22,9 +23,15 @@ export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, onMarkComp
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
 
     return (
-        <section>
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">Maintenance Schedule</h2>
+        <Card>
+            <CardHeader className="flex flex-row items-start justify-between">
+                <div>
+                    <CardTitle className="flex items-center text-2xl">
+                        <Calendar className="mr-3 h-6 w-6" />
+                        Maintenance Schedule
+                    </CardTitle>
+                    <CardDescription className="mt-2">Keep track of your upcoming and overdue maintenance tasks.</CardDescription>
+                </div>
                 <Drawer open={isAddTaskOpen} onOpenChange={setAddTaskOpen}>
                     <DrawerTrigger asChild>
                         <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Task</Button>
@@ -36,19 +43,21 @@ export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, onMarkComp
                         </div>
                     </DrawerContent>
                 </Drawer>
-            </div>
-            {tasks && tasks.length > 0 ? (
-                <Carousel opts={{ align: "start" }} className="w-full">
-                    <CarouselContent>
-                        {tasks.map((task) => (
-                            <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                                <MaintenanceCard task={task} onMarkComplete={onMarkComplete} onDelete={onDelete} />
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious /><CarouselNext />
-                </Carousel>
-            ) : <p className="text-muted-foreground">No maintenance tasks added yet.</p>}
-        </section>
+            </CardHeader>
+            <CardContent>
+                {tasks && tasks.length > 0 ? (
+                    <Carousel opts={{ align: "start" }} className="w-full">
+                        <CarouselContent>
+                            {tasks.map((task) => (
+                                <CarouselItem key={task.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                                    <MaintenanceCard task={task} onMarkComplete={onMarkComplete} onDelete={onDelete} />
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <CarouselPrevious className="ml-12" /><CarouselNext className="mr-12" />
+                    </Carousel>
+                ) : <p className="text-muted-foreground text-center py-8">No maintenance tasks scheduled yet.</p>}
+            </CardContent>
+        </Card>
     );
 }
