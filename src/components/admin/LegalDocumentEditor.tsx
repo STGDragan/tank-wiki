@@ -38,7 +38,8 @@ export const LegalDocumentEditor = ({ documentType, documentTitle }: LegalDocume
 
   const onSubmit = (data: LegalDocumentEditorFormValues) => {
     upsertMutation.mutate({
-      ...data,
+      title: data.title,
+      content: data.content,
       document_type: documentType,
     });
   };

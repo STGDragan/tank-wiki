@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -55,7 +54,8 @@ export const AddLegalDocumentDialog = () => {
   const onSubmit = (values: AddLegalDocFormValues) => {
     upsertMutation.mutate(
       {
-        ...values,
+        title: values.title,
+        document_type: values.document_type,
         content: `# ${values.title}\n\nStart writing your document here.`,
       },
       {
