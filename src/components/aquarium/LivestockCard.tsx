@@ -21,31 +21,37 @@ export const LivestockCard = ({ livestock, onUpdateQuantity }: LivestockCardProp
 
   return (
     <Dialog open={isUploaderOpen} onOpenChange={setUploaderOpen}>
-      <Card className="h-full group">
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>{livestock.species}</CardTitle>
           <CardDescription>{livestock.name || 'No nickname'}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <img src={imageUrl} alt={livestock.species} className="rounded-md mb-4 aspect-video object-cover" />
-            <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="outline" size="icon" onClick={(e) => { e.stopPropagation(); onUpdateQuantity(livestock.id, livestock.quantity, 1)}}>
-                <Plus />
-              </Button>
-              <Button variant="destructive" size="icon" onClick={(e) => { e.stopPropagation(); onUpdateQuantity(livestock.id, livestock.quantity, -1)}}>
-                <Skull />
-              </Button>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Camera />
-                  <span className="sr-only">Update image</span>
+        <CardContent className="flex flex-col flex-grow justify-between">
+          <div>
+            <div className="relative mb-4">
+              <img src={imageUrl} alt={livestock.species} className="rounded-md aspect-video object-cover" />
+              <div className="absolute top-2 right-2">
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8">
+                    <Camera className="h-4 w-4" />
+                    <span className="sr-only">Update image</span>
+                  </Button>
+                </DialogTrigger>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-sm font-medium">Quantity: {livestock.quantity}</p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onUpdateQuantity(livestock.id, livestock.quantity, 1)}}>
+                  <Plus className="h-4 w-4" />
                 </Button>
-              </DialogTrigger>
+                <Button variant="destructive" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onUpdateQuantity(livestock.id, livestock.quantity, -1)}}>
+                  <Skull className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-          <p>Quantity: {livestock.quantity}</p>
-          <p className="text-sm text-muted-foreground mt-2">Added on {format(new Date(livestock.added_at), 'PPP')}</p>
+          <p className="text-sm text-muted-foreground mt-4">Added on {format(new Date(livestock.added_at), 'PPP')}</p>
         </CardContent>
       </Card>
       <DialogContent>
