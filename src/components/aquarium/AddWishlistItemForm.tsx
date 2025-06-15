@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -54,7 +55,8 @@ const AddWishlistItemForm = forwardRef<AddWishlistItemFormRef, AddWishlistItemFo
 
     const handleFormSubmit = (values: AddWishlistItemFormValues) => {
         onSubmit({
-            ...values,
+            name: values.name,
+            item_type: values.item_type,
             notes: values.notes || null,
             priority: values.priority ?? null,
             estimated_price: values.estimated_price ?? null,
