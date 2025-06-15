@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import * as z from 'zod';
 
 export const addLegalDocSchema = z.object({
@@ -56,7 +56,6 @@ export const useLegalDocument = (documentType: string) => {
 // Hook to create or update a legal document
 export const useUpsertLegalDocument = () => {
     const queryClient = useQueryClient();
-    const { toast } = useToast();
 
     return useMutation({
         mutationFn: async (values: { document_type: string, title: string, content?: string }) => {
@@ -75,12 +74,12 @@ export const useUpsertLegalDocument = () => {
             return data;
         },
         onSuccess: (_data, variables) => {
-            toast({ title: "Success", description: "Document saved successfully." });
+            toast.success("Document saved successfully.");
             queryClient.invalidateQueries({ queryKey: ['legal_documents'] });
             queryClient.invalidateQueries({ queryKey: ['legal_document', variables.document_type] });
         },
         onError: (error: any) => {
-            toast({ variant: "destructive", title: "Error", description: error.message || 'An unknown error occurred.' });
+            toast.error(error.message || 'An unknown error occurred.');
         }
     });
 };
