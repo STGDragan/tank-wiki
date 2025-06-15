@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -37,17 +36,54 @@ const freshwaterSpecies = [
     "Neon Tetra", "Cardinal Tetra", "Guppy", "Molly", "Platy", "Swordtail", "Betta", 
     "Angelfish", "Discus", "Corydoras Catfish", "Otocinclus", "Bristlenose Pleco",
     "Cherry Barb", "Tiger Barb", "Zebra Danio", "White Cloud Mountain Minnow",
-    "Harlequin Rasbora", "Cherry Shrimp", "Amano Shrimp", "Ghost Shrimp",
-    "Nerite Snail", "Mystery Snail", "Ramshorn Snail", "Java Moss", "Anubias",
-    "Amazon Sword", "Vallisneria", "Cryptocoryne", "Other"
+    "Harlequin Rasbora", "Other"
 ];
 
-const saltwaterSpecies = [
+const plantedFreshwaterSpecies = [
+    "Neon Tetra", "Cardinal Tetra", "Rummy Nose Tetra", "Harlequin Rasbora", 
+    "Otocinclus", "Siamese Algae Eater", "Corydoras Catfish", "Cherry Shrimp", 
+    "Amano Shrimp", "Crystal Red Shrimp", "Java Moss", "Anubias", "Amazon Sword", 
+    "Vallisneria", "Cryptocoryne", "Rotala", "Ludwigia", "Other"
+];
+
+const freshwaterInvertSpecies = [
+    "Cherry Shrimp", "Crystal Red Shrimp", "Crystal Black Shrimp", "Amano Shrimp", 
+    "Ghost Shrimp", "Bamboo Shrimp", "Vampire Shrimp", "Nerite Snail", "Mystery Snail", 
+    "Ramshorn Snail", "Malaysian Trumpet Snail", "Assassin Snail", "Other"
+];
+
+const saltwaterFishOnlySpecies = [
+    "Clownfish", "Blue Tang", "Yellow Tang", "Royal Gramma", "Cardinalfish",
+    "Goby", "Wrasse", "Anthias", "Dottyback", "Blenny", "Mandarin Fish",
+    "Triggerfish", "Angelfish", "Butterflyfish", "Grouper", "Other"
+];
+
+const fowlrSpecies = [
     "Clownfish", "Blue Tang", "Yellow Tang", "Royal Gramma", "Cardinalfish",
     "Goby", "Wrasse", "Anthias", "Dottyback", "Blenny", "Mandarin Fish",
     "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail",
+    "Nassarius Snail", "Conch", "Sea Urchin", "Other"
+];
+
+const softCoralReefSpecies = [
+    "Clownfish", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias",
+    "Dottyback", "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail",
+    "Zoanthid Coral", "Mushroom Coral", "Kenya Tree Coral", "Toadstool Coral",
+    "Star Polyp", "Xenia", "Other"
+];
+
+const mixedReefSpecies = [
+    "Clownfish", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias",
+    "Dottyback", "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail",
     "Zoanthid Coral", "Mushroom Coral", "Hammer Coral", "Torch Coral",
-    "Brain Coral", "Acan Coral", "Chalice Coral", "Montipora", "Acropora", "Other"
+    "Frogspawn", "Brain Coral", "Acan Coral", "Chalice Coral", "Other"
+];
+
+const spsReefSpecies = [
+    "Clownfish", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias",
+    "Dottyback", "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail",
+    "Acropora", "Montipora", "Staghorn Coral", "Table Coral", "Bird's Nest Coral",
+    "Millepora", "Stylophora", "Seriatopora", "Other"
 ];
 
 type LivestockFormValues = z.infer<typeof livestockFormSchema>;
@@ -63,8 +99,30 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
-  const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
-  const speciesOptions = isSaltwater ? saltwaterSpecies : freshwaterSpecies;
+  const getSpeciesOptions = () => {
+    switch (aquariumType) {
+      case "Freshwater":
+        return freshwaterSpecies;
+      case "Planted Freshwater":
+        return plantedFreshwaterSpecies;
+      case "Freshwater Invertebrates":
+        return freshwaterInvertSpecies;
+      case "Saltwater Fish-Only (FO)":
+        return saltwaterFishOnlySpecies;
+      case "Fish-Only with Live Rock (FOWLR)":
+        return fowlrSpecies;
+      case "Soft Coral Reef":
+        return softCoralReefSpecies;
+      case "Mixed Reef (LPS + Soft)":
+        return mixedReefSpecies;
+      case "SPS Reef (Hard Coral)":
+        return spsReefSpecies;
+      default:
+        return [...freshwaterSpecies, ...saltwaterFishOnlySpecies];
+    }
+  };
+
+  const speciesOptions = getSpeciesOptions();
 
   const form = useForm<LivestockFormValues>({
     resolver: zodResolver(livestockFormSchema),

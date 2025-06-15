@@ -16,6 +16,19 @@ interface SharedTankCardProps {
 export function SharedTankCard({ id, name, type, size, image_url, ownerName }: SharedTankCardProps) {
   const defaultImageUrl = '/placeholder.svg';
 
+  // Determine badge variant based on tank type
+  const getBadgeVariant = () => {
+    const freshwaterTypes = ["Freshwater", "Planted Freshwater", "Freshwater Invertebrates"];
+    const saltwaterTypes = ["Saltwater Fish-Only (FO)", "Fish-Only with Live Rock (FOWLR)", "Soft Coral Reef", "Mixed Reef (LPS + Soft)", "SPS Reef (Hard Coral)"];
+    
+    if (freshwaterTypes.includes(type)) {
+      return "secondary";
+    } else if (saltwaterTypes.includes(type)) {
+      return "default";
+    }
+    return "outline";
+  };
+
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
@@ -37,7 +50,7 @@ export function SharedTankCard({ id, name, type, size, image_url, ownerName }: S
         </Link>
       </CardContent>
       <CardFooter>
-        <Badge variant={type === "Freshwater" ? "secondary" : "default"}>{type}</Badge>
+        <Badge variant={getBadgeVariant()}>{type}</Badge>
       </CardFooter>
     </Card>
   );

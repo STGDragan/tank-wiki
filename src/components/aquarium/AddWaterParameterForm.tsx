@@ -116,11 +116,17 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
     }
   }
 
-  const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
-  const isFreshwater = !isSaltwater;
-  const isPlanted = aquariumType === 'Planted Freshwater Tank';
-  const isInverts = aquariumType === 'Freshwater Inverts';
-  const isReef = ['Saltwater Softy Reef', 'Saltwater Mixed Reef', 'Saltwater SPS Reef'].includes(aquariumType || '');
+  const isFreshwater = aquariumType === "Freshwater";
+  const isPlantedFreshwater = aquariumType === "Planted Freshwater";
+  const isFreshwaterInverts = aquariumType === "Freshwater Invertebrates";
+  const isSaltwaterFO = aquariumType === "Saltwater Fish-Only (FO)";
+  const isFOWLR = aquariumType === "Fish-Only with Live Rock (FOWLR)";
+  const isSoftReef = aquariumType === "Soft Coral Reef";
+  const isMixedReef = aquariumType === "Mixed Reef (LPS + Soft)";
+  const isSPSReef = aquariumType === "SPS Reef (Hard Coral)";
+  
+  const isSaltwater = isSaltwaterFO || isFOWLR || isSoftReef || isMixedReef || isSPSReef;
+  const isReef = isSoftReef || isMixedReef || isSPSReef;
 
   return (
     <ScrollArea className="h-[70vh] pr-4">
@@ -193,7 +199,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 )}
               />
               
-              {isFreshwater && (
+              {(isFreshwater || isPlantedFreshwater || isFreshwaterInverts) && (
                   <>
                       <FormField
                         control={form.control}
@@ -224,7 +230,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                   </>
               )}
               
-              {isPlanted && (
+              {isPlantedFreshwater && (
                   <FormField
                     control={form.control}
                     name="co2"
@@ -240,7 +246,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                   />
               )}
 
-              {isInverts && (
+              {isFreshwaterInverts && (
                   <FormField
                     control={form.control}
                     name="copper"
@@ -284,6 +290,11 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                           </FormItem>
                         )}
                       />
+                  </>
+              )}
+              
+              {(isFOWLR || isReef) && (
+                  <>
                       <FormField
                         control={form.control}
                         name="calcium"

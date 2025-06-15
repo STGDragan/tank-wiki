@@ -9,11 +9,21 @@ interface AquariumRecommendationsProps {
 
 export function AquariumRecommendations({ aquariumType }: AquariumRecommendationsProps) {
   let recommendations: Recommendation[] = [];
-  const lowercasedType = aquariumType?.toLowerCase();
+  
+  // Determine if tank type is freshwater or saltwater based
+  const isFreshwaterType = aquariumType === "Freshwater" || 
+                          aquariumType === "Planted Freshwater" || 
+                          aquariumType === "Freshwater Invertebrates";
+  
+  const isSaltwaterType = aquariumType === "Saltwater Fish-Only (FO)" ||
+                         aquariumType === "Fish-Only with Live Rock (FOWLR)" ||
+                         aquariumType === "Soft Coral Reef" ||
+                         aquariumType === "Mixed Reef (LPS + Soft)" ||
+                         aquariumType === "SPS Reef (Hard Coral)";
 
-  if (lowercasedType === 'saltwater') {
+  if (isSaltwaterType) {
     recommendations = saltwaterRecommendations;
-  } else if (lowercasedType === 'freshwater') {
+  } else if (isFreshwaterType) {
     recommendations = freshwaterRecommendations;
   }
 
@@ -25,7 +35,7 @@ export function AquariumRecommendations({ aquariumType }: AquariumRecommendation
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground text-center py-8">
-                    Set an aquarium type (freshwater or saltwater) to see recommendations.
+                    Set an aquarium type to see recommendations.
                 </p>
             </CardContent>
         </Card>

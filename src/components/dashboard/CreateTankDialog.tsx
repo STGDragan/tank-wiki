@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,7 +17,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const tankSchema = z.object({
   name: z.string().min(1, "Name is required"),
   size: z.coerce.number().min(1, "Size must be at least 1 gallon"),
-  type: z.enum(["Freshwater", "Saltwater"]),
+  type: z.enum([
+    "Freshwater",
+    "Planted Freshwater",
+    "Freshwater Invertebrates",
+    "Saltwater Fish-Only (FO)",
+    "Fish-Only with Live Rock (FOWLR)",
+    "Soft Coral Reef",
+    "Mixed Reef (LPS + Soft)",
+    "SPS Reef (Hard Coral)"
+  ]),
 });
 
 type TankFormValues = z.infer<typeof tankSchema>;
@@ -157,7 +167,13 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="Freshwater">Freshwater</SelectItem>
-                        <SelectItem value="Saltwater">Saltwater</SelectItem>
+                        <SelectItem value="Planted Freshwater">Planted Freshwater</SelectItem>
+                        <SelectItem value="Freshwater Invertebrates">Freshwater Invertebrates</SelectItem>
+                        <SelectItem value="Saltwater Fish-Only (FO)">Saltwater Fish-Only (FO)</SelectItem>
+                        <SelectItem value="Fish-Only with Live Rock (FOWLR)">Fish-Only with Live Rock (FOWLR)</SelectItem>
+                        <SelectItem value="Soft Coral Reef">Soft Coral Reef</SelectItem>
+                        <SelectItem value="Mixed Reef (LPS + Soft)">Mixed Reef (LPS + Soft)</SelectItem>
+                        <SelectItem value="SPS Reef (Hard Coral)">SPS Reef (Hard Coral)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
