@@ -204,7 +204,7 @@ const AquariumDetail = () => {
   const logEntries = useMemo(() => {
     type LogEntry = {
         id: string;
-        type: 'maintenance' | 'livestock' | 'water_parameter';
+        type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment';
         date: Date;
         title: string;
         description: React.ReactNode;
@@ -270,9 +270,25 @@ const AquariumDetail = () => {
         });
     });
 
+    // 4. Equipment additions
+    (equipment || []).forEach(item => {
+        entries.push({
+            id: `eq-${item.id}`,
+            type: 'equipment',
+            date: new Date(item.installed_at || item.created_at),
+            title: 'Equipment Added',
+            description: (
+                <div>
+                    <p className="font-semibold">{item.type}{item.brand || item.model ? ` - ${[item.brand, item.model].filter(Boolean).join(' ')}` : ''}</p>
+                    {item.notes && <p className="text-xs mt-1">Notes: {item.notes}</p>}
+                </div>
+            )
+        });
+    });
+
     // Sort all entries by date, descending
     return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [tasks, livestock, waterParameters]);
+  }, [tasks, livestock, waterParameters, equipment]);
 
   const pendingTasks = useMemo(() => {
     return (tasks || []).filter(task => !task.completed_date);
