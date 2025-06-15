@@ -1,10 +1,11 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { useNavigate, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,18 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('saved_email');
+    const savedPassword = localStorage.getItem('saved_password');
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleToggleForm = () => {
     setIsSignUp(!isSignUp);
@@ -26,6 +39,7 @@ const Login = () => {
     setFullName("");
     setSignUpSuccess(false);
     setAgreedToTerms(false);
+    setRememberMe(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +77,15 @@ const Login = () => {
       if (error) {
         toast.error(error.message);
       } else if (data.user) {
+        // Handle remember me functionality
+        if (rememberMe) {
+          localStorage.setItem('saved_email', email);
+          localStorage.setItem('saved_password', password);
+        } else {
+          localStorage.removeItem('saved_email');
+          localStorage.removeItem('saved_password');
+        }
+        
         toast.success("Welcome back!");
         navigate("/dashboard");
       }
@@ -143,14 +166,26 @@ const Login = () => {
                     />
                   </div>
                   {!isSignUp && (
-                    <div className="flex justify-end -mt-2">
-                       <Link
-                        to="/forgot-password"
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox 
+                            id="remember" 
+                            checked={rememberMe} 
+                            onCheckedChange={(checked) => setRememberMe(checked as boolean)} 
+                          />
+                          <Label htmlFor="remember" className="text-sm font-normal">
+                            Remember me
+                          </Label>
+                        </div>
+                        <Link
+                          to="/forgot-password"
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
+                    </>
                   )}
                   {isSignUp && (
                     <div className="flex items-center space-x-2">
