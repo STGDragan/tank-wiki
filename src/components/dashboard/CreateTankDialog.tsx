@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -79,8 +80,11 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
   };
 
   const isFreeTier = !subscriber?.subscribed;
-  const atTankLimit = aquariumCount >= 3;
-  const shouldBlockCreation = isFreeTier && atTankLimit;
+  const freeTierLimit = 3;
+  const proTierLimit = 10;
+  
+  const atFreeTierLimit = isFreeTier && aquariumCount >= freeTierLimit;
+  const atProTierLimit = subscriber?.subscribed && aquariumCount >= proTierLimit;
 
   const handleUpgrade = () => {
     createCheckout();
@@ -96,12 +100,12 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        {shouldBlockCreation ? (
+        {atFreeTierLimit ? (
             <>
               <DialogHeader>
-                <DialogTitle>Upgrade to Create More Aquariums</DialogTitle>
+                <DialogTitle>Upgrade to AquaManager Pro</DialogTitle>
                 <DialogDescription>
-                  You've reached the free limit of 3 aquariums. Please upgrade your plan to add more.
+                  You're on the free plan, which allows up to {freeTierLimit} aquariums. Upgrade to Pro for just $9.99/month to create up to {proTierLimit} aquariums!
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -109,6 +113,18 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
                 <Button onClick={handleUpgrade} disabled={isCreatingCheckout}>
                   {isCreatingCheckout ? 'Redirecting...' : 'Upgrade Now'}
                 </Button>
+              </DialogFooter>
+            </>
+          ) : atProTierLimit ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Pro Tier Limit Reached</DialogTitle>
+                <DialogDescription>
+                  You've reached the limit of {proTierLimit} aquariums for the Pro plan. To add more, please contact support about our enterprise options.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button onClick={() => setOpen(false)}>OK</Button>
               </DialogFooter>
             </>
           ) : (
@@ -159,3 +175,4 @@ export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
     </Dialog>
   );
 }
+

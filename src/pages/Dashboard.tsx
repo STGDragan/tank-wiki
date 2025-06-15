@@ -30,7 +30,7 @@ const Dashboard = () => {
     if (searchParams.get('subscription_success') === 'true') {
       toast({
         title: "Subscription Successful!",
-        description: "Welcome to Pro! You can now add unlimited aquariums.",
+        description: "Welcome to Pro! You can now add up to 10 aquariums.",
       });
       refreshSubscriber();
       // Clean up URL
