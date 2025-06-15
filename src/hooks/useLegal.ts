@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -63,7 +62,9 @@ export const useUpsertLegalDocument = () => {
         mutationFn: async (values: { document_type: string, title: string, content?: string }) => {
             const { data, error } = await (supabase as any)
                 .from('legal_documents')
-                .upsert(values, { onConflict: 'document_type' });
+                .upsert(values, { onConflict: 'document_type' })
+                .select()
+                .single();
 
             if (error) {
                  if (error.code === '23505') {
@@ -79,7 +80,7 @@ export const useUpsertLegalDocument = () => {
             queryClient.invalidateQueries({ queryKey: ['legal_document', variables.document_type] });
         },
         onError: (error: any) => {
-            toast({ variant: "destructive", title: "Error", description: error.message });
+            toast({ variant: "destructive", title: "Error", description: error.message || 'An unknown error occurred.' });
         }
     });
 };

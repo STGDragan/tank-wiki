@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,20 +52,19 @@ export const AddLegalDocumentDialog = () => {
     form.setValue('document_type', slugify(titleValue), { shouldValidate: true });
   }, [titleValue, form]);
 
-  const onSubmit = (values: AddLegalDocFormValues) => {
-    upsertMutation.mutate(
-      {
+  const onSubmit = async (values: AddLegalDocFormValues) => {
+    try {
+      await upsertMutation.mutateAsync({
         title: values.title,
         document_type: values.document_type,
         content: `# ${values.title}\n\nStart writing your document here.`,
-      },
-      {
-        onSuccess: () => {
-          setOpen(false);
-          form.reset();
-        },
-      }
-    );
+      });
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      // The hook's onError will show a toast.
+      console.error("Failed to create document:", error);
+    }
   };
 
   return (
