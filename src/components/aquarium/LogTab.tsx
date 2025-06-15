@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { Wrench, Fish, Droplets } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { useLogEntries } from '@/hooks/useLogEntries';
+import { useAquariumData } from '@/hooks/useAquariumData';
+import { useAuth } from '@/providers/AuthProvider';
 
 type LogEntry = {
   id: string;
@@ -13,7 +16,7 @@ type LogEntry = {
 };
 
 interface LogTabProps {
-  logEntries: LogEntry[];
+  aquariumId: string;
 }
 
 const getIcon = (type: LogEntry['type']) => {
@@ -39,8 +42,18 @@ const filterOptions: { value: LogEntry['type'] | 'all'; label: string }[] = [
   { value: 'equipment', label: 'Equipment' },
 ];
 
-export const LogTab = ({ logEntries }: LogTabProps) => {
+export const LogTab = ({ aquariumId }: LogTabProps) => {
   const [filter, setFilter] = useState<LogEntry['type'] | 'all'>('all');
+  const { user } = useAuth();
+  
+  const {
+    tasks,
+    livestock,
+    waterParameters,
+    equipment,
+  } = useAquariumData(aquariumId, user?.id);
+
+  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment);
 
   if (logEntries.length === 0) {
     return <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, and water tests.</p>;
