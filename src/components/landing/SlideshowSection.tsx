@@ -19,7 +19,7 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
 
-  const { data: images, isLoading } = useQuery({
+  const { data: images, isLoading, error } = useQuery({
     queryKey: ["slideshow_images", context],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
@@ -32,35 +32,45 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
     },
   });
 
+  console.log("Slideshow images data:", images);
+  console.log("Slideshow loading state:", isLoading);
+  console.log("Slideshow error:", error);
+
   return (
-    <Carousel
-      className="w-full h-full"
-      opts={{ loop: true }}
-      plugins={[plugin.current]}
-    >
-      <CarouselContent className="h-full ml-0">
-        {isLoading && (
-          <CarouselItem className="pl-0 h-full">
-            <Skeleton className="w-full h-full" />
-          </CarouselItem>
-        )}
-        {images?.map((image: any) => (
-          <CarouselItem key={image.id} className="pl-0 h-full">
-            <img 
-              src={image.image_url} 
-              alt={image.alt_text || ""} 
-              className="w-full h-full object-cover" 
-            />
-          </CarouselItem>
-        ))}
-        {!isLoading && (!images || images.length === 0) && (
+    <div className="w-full h-full">
+      <Carousel
+        className="w-full h-full"
+        opts={{ loop: true }}
+        plugins={[plugin.current]}
+      >
+        <CarouselContent className="h-full ml-0">
+          {isLoading && (
             <CarouselItem className="pl-0 h-full">
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <p className="text-muted-foreground">No slideshow images available.</p>
-                </div>
+              <Skeleton className="w-full h-full" />
             </CarouselItem>
-        )}
-      </CarouselContent>
-    </Carousel>
+          )}
+          {images && images.length > 0 && images.map((image: any) => (
+            <CarouselItem key={image.id} className="pl-0 h-full">
+              <div className="relative w-full h-full">
+                <img 
+                  src={image.image_url} 
+                  alt={image.alt_text || ""} 
+                  className="w-full h-full object-cover"
+                  onLoad={() => console.log(`Image loaded: ${image.image_url}`)}
+                  onError={(e) => console.error(`Image failed to load: ${image.image_url}`, e)}
+                />
+              </div>
+            </CarouselItem>
+          ))}
+          {!isLoading && (!images || images.length === 0) && (
+            <CarouselItem className="pl-0 h-full">
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <p className="text-muted-foreground">No slideshow images available.</p>
+              </div>
+            </CarouselItem>
+          )}
+        </CarouselContent>
+      </Carousel>
+    </div>
   );
 }
