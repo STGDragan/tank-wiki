@@ -6,7 +6,6 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from 
 import { LivestockCard } from '@/components/aquarium/LivestockCard';
 import { AddLivestockForm } from '@/components/aquarium/AddLivestockForm';
 import { PlusCircle } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 type Livestock = Tables<'livestock'> & { image_url?: string | null };
 
@@ -33,18 +32,11 @@ export const LivestockSection = ({ livestock, aquariumId }: LivestockSectionProp
                 </Drawer>
             </div>
             {livestock && livestock.length > 0 ? (
-                <Accordion type="multiple" className="w-full space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {livestock.map((item) => (
-                        <AccordionItem value={item.id} key={item.id} className="border rounded-lg border-b-0">
-                            <AccordionTrigger className="p-4 hover:no-underline">
-                                <span className="font-semibold text-lg text-left">{item.species}{item.name ? ` (${item.name})` : ''}</span>
-                            </AccordionTrigger>
-                            <AccordionContent className="p-4 pt-0">
-                                <LivestockCard livestock={item} />
-                            </AccordionContent>
-                        </AccordionItem>
+                        <LivestockCard livestock={item} key={item.id} />
                     ))}
-                </Accordion>
+                </div>
             ) : <p className="text-muted-foreground">No livestock added yet.</p>}
         </section>
     );
