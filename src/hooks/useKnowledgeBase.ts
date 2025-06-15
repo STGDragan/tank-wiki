@@ -68,7 +68,7 @@ export const useUpsertArticle = (articleId?: string) => {
     const { user } = useAuth();
 
     return useMutation({
-        mutationFn: async (data: ArticleFormData) => {
+        mutationFn: async (data: ArticleFormData & { image_url?: string | null }) => {
             const payload = {
                 title: data.title,
                 slug: data.slug,
@@ -76,6 +76,7 @@ export const useUpsertArticle = (articleId?: string) => {
                 category_id: data.category_id,
                 content: data.content || null,
                 tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
+                image_url: data.image_url,
             };
 
             if (articleId) {

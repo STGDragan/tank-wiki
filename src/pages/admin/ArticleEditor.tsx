@@ -7,11 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft } from "lucide-react";
 import { useArticle, useCategories, useUpsertArticle } from "@/hooks/useKnowledgeBase";
 import { articleSchema, ArticleFormData } from "@/lib/schemas/knowledgeBaseSchemas";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const ArticleEditor = () => {
     const { articleId } = useParams<{ articleId: string }>();
@@ -20,6 +22,9 @@ const ArticleEditor = () => {
     const { data: categories, isLoading: isLoadingCategories } = useCategories();
     const { data: article, isLoading: isLoadingArticle } = useArticle(articleId);
     const mutation = useUpsertArticle(articleId);
+
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
@@ -42,11 +47,47 @@ const ArticleEditor = () => {
                 content: article.content ?? '',
                 category_id: article.category_id ?? null,
             });
+            setImageUrl(article.image_url);
         }
     }, [article, reset]);
 
     const onSubmit = (data: ArticleFormData) => {
-        mutation.mutate(data);
+        mutation.mutate({ ...data, image_url: imageUrl });
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) {
+            toast.error("You must select an image to upload.");
+            return;
+        }
+
+        const file = e.target.files[0];
+        const fileName = `${Date.now()}_${file.name}`;
+        const filePath = `${fileName}`;
+
+        setIsUploading(true);
+        try {
+            // Here we could delete the old image if it exists to save space.
+            // For now, we will just upload the new one.
+            const { error: uploadError } = await supabase.storage
+                .from('knowledge_base_images')
+                .upload(filePath, file);
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('knowledge_base_images')
+                .getPublicUrl(filePath);
+            
+            setImageUrl(publicUrl);
+            toast.success("Image uploaded successfully.");
+        } catch (error: any) {
+            toast.error("Image upload failed.", { description: error.message });
+        } finally {
+            setIsUploading(false);
+        }
     };
     
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,6 +201,25 @@ const ArticleEditor = () => {
                                 <Label htmlFor="tags">Tags (comma-separated)</Label>
                                 <Input id="tags" {...register("tags")} />
                             </div>
+                            <div>
+                                <Label htmlFor="image">Main Image</Label>
+                                {imageUrl && (
+                                    <div className="my-2 relative group">
+                                        <img src={imageUrl} alt="Article main image" className="w-full h-auto rounded-md object-cover" />
+                                        <Button 
+                                            variant="destructive" 
+                                            size="sm" 
+                                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" 
+                                            onClick={() => setImageUrl(null)}
+                                            type="button"
+                                        >
+                                            Remove
+                                        </Button>
+                                    </div>
+                                )}
+                                <Input id="image" type="file" onChange={handleImageUpload} disabled={isUploading} accept="image/*" />
+                                {isUploading && <p className="text-sm text-muted-foreground mt-1">Uploading...</p>}
+                            </div>
                         </div>
                     </div>
                     <div className="flex justify-end space-x-2">
@@ -167,8 +227,8 @@ const ArticleEditor = () => {
                             <ArrowLeft />
                             Back
                         </Button>
-                        <Button type="submit" disabled={mutation.isPending}>
-                            {mutation.isPending ? 'Saving...' : 'Save Article'}
+                        <Button type="submit" disabled={mutation.isPending || isUploading}>
+                            {isUploading ? 'Uploading...' : (mutation.isPending ? 'Saving...' : 'Save Article')}
                         </Button>
                     </div>
                 </form>

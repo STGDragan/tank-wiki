@@ -210,6 +210,7 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          image_url: string | null
           slug: string
           status: string
           tags: string[] | null
@@ -222,6 +223,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           slug: string
           status?: string
           tags?: string[] | null
@@ -234,6 +236,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          image_url?: string | null
           slug?: string
           status?: string
           tags?: string[] | null

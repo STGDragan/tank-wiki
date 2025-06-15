@@ -90,6 +90,15 @@ const KnowledgeBaseArticle = () => {
                         ))}
                     </div>
                 </header>
+                {article.image_url && (
+                    <div className="mb-8 overflow-hidden rounded-lg">
+                        <img 
+                            src={article.image_url} 
+                            alt={article.title} 
+                            className="w-full h-auto max-h-[450px] object-cover" 
+                        />
+                    </div>
+                )}
                 <div 
                     className="prose dark:prose-invert max-w-none" 
                     dangerouslySetInnerHTML={{ __html: article.content?.replace(/\n/g, '<br />') || '' }} 
