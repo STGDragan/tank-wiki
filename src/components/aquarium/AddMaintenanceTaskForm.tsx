@@ -140,7 +140,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: 
             label: `${eq.type} (${eq.brand || ''} ${eq.model || ''})`.trim()
         })) || [];
 
-        const tankTypeKey = aquariumType === 'saltwater' ? 'saltwater' : 'freshwater';
+        const tankTypeKey = aquariumType?.toLowerCase() === 'saltwater' ? 'saltwater' : 'freshwater';
         const commonForType = commonEquipmentData[tankTypeKey] || [];
         
         const common = commonForType.map(eq => ({
