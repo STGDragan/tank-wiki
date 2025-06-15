@@ -1,1 +1,6 @@
+
+# The first line must be the project_id.
 project_id = "zlkefvmjdlqewcreqhko"
+
+[functions.maintenance-reminder]
+verify_jwt = true

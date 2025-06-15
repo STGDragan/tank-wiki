@@ -444,6 +444,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      get_pending_maintenance_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_role: {
         Args: {
           _user_id: string
