@@ -334,38 +334,50 @@ export type Database = {
       }
       water_parameters: {
         Row: {
+          alkalinity: number | null
           ammonia: number | null
           aquarium_id: string
+          calcium: number | null
           created_at: string
           id: string
+          magnesium: number | null
           nitrate: number | null
           nitrite: number | null
           ph: number | null
           recorded_at: string
+          salinity: number | null
           temperature: number | null
           user_id: string
         }
         Insert: {
+          alkalinity?: number | null
           ammonia?: number | null
           aquarium_id: string
+          calcium?: number | null
           created_at?: string
           id?: string
+          magnesium?: number | null
           nitrate?: number | null
           nitrite?: number | null
           ph?: number | null
           recorded_at?: string
+          salinity?: number | null
           temperature?: number | null
           user_id: string
         }
         Update: {
+          alkalinity?: number | null
           ammonia?: number | null
           aquarium_id?: string
+          calcium?: number | null
           created_at?: string
           id?: string
+          magnesium?: number | null
           nitrate?: number | null
           nitrite?: number | null
           ph?: number | null
           recorded_at?: string
+          salinity?: number | null
           temperature?: number | null
           user_id?: string
         }
