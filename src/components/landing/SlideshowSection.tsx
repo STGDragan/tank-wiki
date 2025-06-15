@@ -37,35 +37,38 @@ export function SlideshowSection({ context }: SlideshowSectionProps) {
   console.log("Slideshow error:", error);
 
   return (
-    <div className="w-full h-full min-h-[400px]">
+    <div className="w-full h-full min-h-[400px] relative overflow-hidden">
       <Carousel
         className="w-full h-full"
         opts={{ loop: true }}
         plugins={[plugin.current]}
       >
-        <CarouselContent className="h-full -ml-4">
+        <CarouselContent className="h-full">
           {isLoading && (
-            <CarouselItem className="pl-4 basis-full">
+            <CarouselItem className="basis-full">
               <div className="relative w-full h-full min-h-[400px]">
                 <Skeleton className="w-full h-full" />
               </div>
             </CarouselItem>
           )}
           {images && images.length > 0 && images.map((image: any) => (
-            <CarouselItem key={image.id} className="pl-4 basis-full">
-              <div className="relative w-full h-full min-h-[400px]">
+            <CarouselItem key={image.id} className="basis-full">
+              <div className="relative w-full h-full min-h-[400px] bg-gray-200">
                 <img 
                   src={image.image_url} 
                   alt={image.alt_text || ""} 
-                  className="w-full h-full object-cover"
-                  onLoad={() => console.log(`Image loaded: ${image.image_url}`)}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onLoad={() => {
+                    console.log(`Image loaded: ${image.image_url}`);
+                    console.log("Image element:", document.querySelector(`img[src="${image.image_url}"]`));
+                  }}
                   onError={(e) => console.error(`Image failed to load: ${image.image_url}`, e)}
                 />
               </div>
             </CarouselItem>
           ))}
           {!isLoading && (!images || images.length === 0) && (
-            <CarouselItem className="pl-4 basis-full">
+            <CarouselItem className="basis-full">
               <div className="w-full h-full min-h-[400px] bg-muted flex items-center justify-center">
                 <p className="text-muted-foreground">No slideshow images available.</p>
               </div>
