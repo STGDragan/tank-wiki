@@ -1,7 +1,4 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,58 +7,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/providers/AuthProvider";
 import { ArrowLeft } from "lucide-react";
-
-type Category = Tables<'knowledge_categories'>;
-type Article = Tables<'knowledge_articles'>;
-
-const articleSchema = z.object({
-    title: z.string().min(1, "Title is required"),
-    slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
-    content: z.string().optional(),
-    status: z.enum(['draft', 'published']),
-    category_id: z.string().uuid().nullable(),
-    tags: z.string().optional(),
-});
-
-type ArticleFormData = z.infer<typeof articleSchema>;
-
-const fetchCategories = async (): Promise<Category[]> => {
-    const { data, error } = await supabase.from('knowledge_categories').select('*');
-    if (error) throw new Error(error.message);
-    return data;
-};
-
-const fetchArticle = async (id: string): Promise<Article | null> => {
-    const { data, error } = await supabase.from('knowledge_articles').select('*').eq('id', id).single();
-    if (error) throw new Error(error.message);
-    return data;
-};
+import { useArticle, useCategories, useUpsertArticle } from "@/hooks/useKnowledgeBase";
+import { articleSchema, ArticleFormData } from "@/lib/schemas/knowledgeBaseSchemas";
 
 const ArticleEditor = () => {
     const { articleId } = useParams<{ articleId: string }>();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
-    const { user } = useAuth();
     
-    const { data: categories, isLoading: isLoadingCategories } = useQuery({ queryKey: ['knowledge_categories'], queryFn: fetchCategories });
-    const { data: article, isLoading: isLoadingArticle } = useQuery({ 
-        queryKey: ['knowledge_article', articleId], 
-        queryFn: () => fetchArticle(articleId!),
-        enabled: !!articleId 
-    });
+    const { data: categories, isLoading: isLoadingCategories } = useCategories();
+    const { data: article, isLoading: isLoadingArticle } = useArticle(articleId);
+    const mutation = useUpsertArticle(articleId);
 
     const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
         defaultValues: {
+            title: '',
+            slug: '',
+            content: '',
             status: 'draft',
             category_id: null,
+            tags: '',
         }
     });
 
@@ -71,54 +40,11 @@ const ArticleEditor = () => {
                 ...article,
                 status: article.status as 'draft' | 'published',
                 tags: article.tags?.join(', ') || '',
-            });
-        } else {
-            reset({
-                title: '',
-                slug: '',
-                content: '',
-                status: 'draft',
-                category_id: null,
-                tags: '',
+                content: article.content ?? '',
+                category_id: article.category_id ?? null,
             });
         }
     }, [article, reset]);
-
-    const mutation = useMutation({
-        mutationFn: async (data: ArticleFormData) => {
-            if (articleId) {
-                const articleData = {
-                    ...data,
-                    content: data.content || null,
-                    tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
-                    author_id: user?.id,
-                    updated_at: new Date().toISOString(),
-                };
-                const { error } = await supabase.from('knowledge_articles').update(articleData).eq('id', articleId);
-                if (error) throw new Error(error.message);
-            } else {
-                const insertData = {
-                    title: data.title,
-                    slug: data.slug,
-                    content: data.content || null,
-                    status: data.status,
-                    category_id: data.category_id,
-                    tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
-                    author_id: user?.id,
-                };
-                const { error } = await supabase.from('knowledge_articles').insert(insertData);
-                if (error) throw new Error(error.message);
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['knowledge_articles'] });
-            toast.success(`Article ${articleId ? 'updated' : 'created'} successfully.`);
-            navigate('/admin/knowledge-base');
-        },
-        onError: (error) => {
-            toast.error(`Failed to ${articleId ? 'update' : 'create'} article: ${error.message}`);
-        }
-    });
 
     const onSubmit = (data: ArticleFormData) => {
         mutation.mutate(data);
@@ -133,10 +59,32 @@ const ArticleEditor = () => {
     
     if (isLoadingCategories || (articleId && isLoadingArticle)) {
         return (
-            <div className="space-y-4">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-96 w-full" />
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle><Skeleton className="h-8 w-48" /></CardTitle>
+                    <CardDescription><Skeleton className="h-4 w-72" /></CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="md:col-span-2 space-y-6">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-[340px] w-full" />
+                            </div>
+                            <div className="space-y-6">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </div>
+                         <div className="flex justify-end space-x-2 mt-6">
+                            <Skeleton className="h-10 w-24" />
+                            <Skeleton className="h-10 w-32" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         );
     }
 

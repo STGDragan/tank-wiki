@@ -1,5 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useEffect } from "react";
-import { toast } from "sonner";
+import { useUpsertCategory } from "@/hooks/useKnowledgeBase";
+import { categorySchema, CategoryFormData } from "@/lib/schemas/knowledgeBaseSchemas";
 
 type Category = Tables<'knowledge_categories'>;
 
@@ -19,18 +18,14 @@ interface CategoryDialogProps {
     category: Category | null;
 }
 
-const categorySchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format"),
-    description: z.string().optional(),
-});
-
-type CategoryFormData = z.infer<typeof categorySchema>;
-
 export const CategoryDialog = ({ isOpen, setIsOpen, category }: CategoryDialogProps) => {
-    const queryClient = useQueryClient();
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CategoryFormData>({
         resolver: zodResolver(categorySchema),
+        defaultValues: {
+            name: '',
+            slug: '',
+            description: ''
+        }
     });
 
     useEffect(() => {
@@ -41,30 +36,14 @@ export const CategoryDialog = ({ isOpen, setIsOpen, category }: CategoryDialogPr
         }
     }, [category, reset]);
 
-    const mutation = useMutation({
-        mutationFn: async (data: CategoryFormData) => {
-            if (category) {
-                const updateData = { ...data, description: data.description || null };
-                const { error } = await supabase.from('knowledge_categories').update(updateData).eq('id', category.id);
-                if (error) throw new Error(error.message);
-            } else {
-                const insertData = { name: data.name, slug: data.slug, description: data.description || null };
-                const { error } = await supabase.from('knowledge_categories').insert(insertData);
-                if (error) throw new Error(error.message);
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['knowledge_categories'] });
-            toast.success(`Category ${category ? 'updated' : 'created'} successfully.`);
-            setIsOpen(false);
-        },
-        onError: (error) => {
-            toast.error(`Failed to ${category ? 'update' : 'create'} category: ${error.message}`);
-        }
-    });
+    const mutation = useUpsertCategory(category);
 
     const onSubmit = (data: CategoryFormData) => {
-        mutation.mutate(data);
+        mutation.mutate(data, {
+            onSuccess: () => {
+                setIsOpen(false);
+            }
+        });
     };
     
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
