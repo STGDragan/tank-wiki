@@ -1,4 +1,3 @@
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
@@ -10,7 +9,6 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { AuthProvider } from "./providers/AuthProvider";
 import Shopping from "./pages/Shopping";
 import { ThemeProvider } from "./providers/ThemeProvider";
-import Settings from "./pages/Settings";
 import { AdminRoute } from "./components/admin/AdminRoute";
 import AdminProducts from "./pages/admin/Products";
 import Account from "./pages/Account";
@@ -30,7 +28,6 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/aquarium/:id" element={<AquariumDetail />} />
               <Route path="/shopping" element={<Shopping />} />
-              <Route path="/settings" element={<Settings />} />
               <Route path="/account" element={<Account />} />
               
               <Route element={<AdminRoute />}>

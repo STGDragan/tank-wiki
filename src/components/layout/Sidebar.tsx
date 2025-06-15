@@ -15,10 +15,6 @@ const adminNav = [
     { name: "Products", href: "/admin/products", icon: Shield },
 ];
 
-const secondaryNav = [
-  { name: "Settings", href: "/settings", icon: Settings },
-];
-
 export function Sidebar() {
   const location = useLocation();
   const { roles } = useAuth();
@@ -59,18 +55,17 @@ export function Sidebar() {
               <nav>{renderNav(adminNav)}</nav>
             </div>
           )}
-          <nav>{renderNav(secondaryNav)}</nav>
         </div>
       </ScrollArea>
       <div className="p-4 border-t">
         <Button
-          variant={location.pathname === "/account" ? "secondary" : "ghost"}
+          variant={location.pathname.startsWith("/account") ? "secondary" : "ghost"}
           className="w-full justify-start"
           asChild
         >
           <Link to="/account">
-            <UserCircle className="mr-2 h-4 w-4" />
-            My Account
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
           </Link>
         </Button>
       </div>
