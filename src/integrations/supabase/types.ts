@@ -435,6 +435,7 @@ export type Database = {
       slideshow_images: {
         Row: {
           alt_text: string | null
+          context: string
           created_at: string
           display_order: number
           id: string
@@ -442,6 +443,7 @@ export type Database = {
         }
         Insert: {
           alt_text?: string | null
+          context?: string
           created_at?: string
           display_order?: number
           id?: string
@@ -449,6 +451,7 @@ export type Database = {
         }
         Update: {
           alt_text?: string | null
+          context?: string
           created_at?: string
           display_order?: number
           id?: string

@@ -10,17 +10,22 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function SlideshowSection() {
+interface SlideshowSectionProps {
+  context: string;
+}
+
+export function SlideshowSection({ context }: SlideshowSectionProps) {
   const plugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
 
   const { data: images, isLoading } = useQuery({
-    queryKey: ["slideshow_images"],
+    queryKey: ["slideshow_images", context],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("slideshow_images")
         .select("id, image_url, alt_text")
+        .eq("context", context)
         .order("display_order", { ascending: true });
       if (error) throw error;
       return data;

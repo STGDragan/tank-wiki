@@ -31,6 +31,7 @@ const formSchema = z.object({
       ".jpg, .png, .webp, and .gif files are accepted."
     ),
   alt_text: z.string().min(1, { message: "Alt text is required." }),
+  context: z.string().min(1, { message: "Context is required." }),
 });
 
 export function AddSlideshowImageForm() {
@@ -39,6 +40,7 @@ export function AddSlideshowImageForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       alt_text: "",
+      context: "landing-page",
     },
   });
 
@@ -77,7 +79,7 @@ export function AddSlideshowImageForm() {
         const nextOrder = (maxOrderImage?.display_order ?? -1) + 1;
 
         const { error: insertError } = await (supabase as any).from("slideshow_images").insert([
-            { image_url: publicUrl, alt_text: values.alt_text, display_order: nextOrder },
+            { image_url: publicUrl, alt_text: values.alt_text, display_order: nextOrder, context: values.context },
         ]);
         if (insertError) throw insertError;
       } catch (dbError) {
@@ -140,6 +142,22 @@ export function AddSlideshowImageForm() {
                   <FormControl>
                     <Input placeholder="A beautiful coral reef" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="context"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Context</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. landing-page" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Identifier for where this slideshow will appear.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

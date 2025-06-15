@@ -62,6 +62,7 @@ export function SlideshowImageCard({ image }: SlideshowImageCardProps) {
       />
       <CardContent className="p-4 space-y-2">
         <p className="text-sm font-medium truncate">{image.alt_text}</p>
+        <p className="text-xs text-muted-foreground">Context: <span className="font-mono bg-muted px-1 py-0.5 rounded">{image.context}</span></p>
         <p className="text-xs text-muted-foreground truncate">{image.image_url}</p>
         <AlertDialog>
           <AlertDialogTrigger asChild>

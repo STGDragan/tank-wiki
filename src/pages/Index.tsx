@@ -24,7 +24,7 @@ const Index = () => {
       <main className="flex-1">
         <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center text-center text-white overflow-hidden">
           <div className="absolute inset-0 w-full h-full -z-20">
-            <SlideshowSection />
+            <SlideshowSection context="landing-page" />
           </div>
           <div className="absolute inset-0 w-full h-full bg-primary/30 -z-10" />
           <div className="container mx-auto px-4 md:px-6 relative z-10">
