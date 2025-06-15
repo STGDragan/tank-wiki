@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,14 +16,15 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
-import React, { useState } from "react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import React from "react";
+import { TaskCombobox } from "./TaskCombobox";
+import { EquipmentCombobox } from "./EquipmentCombobox";
 
 const maintenanceTaskSchema = z.object({
   task: z.string().min(1, "Task description is required."),
@@ -225,139 +225,33 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: 
                 <FormField
                     control={form.control}
                     name="task"
-                    render={({ field }) => {
-                        const [open, setOpen] = useState(false);
-                        return (
-                            <FormItem className="flex flex-col">
-                                <FormLabel>Task</FormLabel>
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant="outline"
-                                                role="combobox"
-                                                className={cn(
-                                                    "w-full justify-between",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {field.value || "Select a task or type a new one"}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                        <Command filter={(value, search) => value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0}>
-                                            <CommandInput
-                                                placeholder="Search or add new task..."
-                                                value={field.value || ''}
-                                                onValueChange={field.onChange}
-                                            />
-                                            <CommandList>
-                                                <CommandEmpty>No task found. The new task will be created.</CommandEmpty>
-                                                <CommandGroup>
-                                                    {maintenanceTaskOptions.map((option) => (
-                                                        <CommandItem
-                                                            key={option.value}
-                                                            value={option.value}
-                                                            onSelect={(selectedValue) => {
-                                                                form.setValue("task", selectedValue);
-                                                                setOpen(false);
-                                                            }}
-                                                        >
-                                                            <Check
-                                                                className={cn(
-                                                                    "mr-2 h-4 w-4",
-                                                                    field.value === option.value ? "opacity-100" : "opacity-0"
-                                                                )}
-                                                            />
-                                                            {option.label}
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Task</FormLabel>
+                            <TaskCombobox
+                                field={field}
+                                form={form}
+                                options={maintenanceTaskOptions}
+                            />
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
                 
                 <FormField
                     control={form.control}
                     name="equipment_id"
-                    render={({ field }) => {
-                        const [open, setOpen] = useState(false);
-                        const selectedValue = equipmentOptions.find(option => option.value === field.value);
-                        return (
-                            <FormItem className="flex flex-col">
-                                <FormLabel>Related Equipment (Optional)</FormLabel>
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant="outline"
-                                                role="combobox"
-                                                className={cn(
-                                                    "w-full justify-between",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {selectedValue?.label || field.value || "Select or type equipment"}
-                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                        <Command filter={(value, search) => {
-                                            const option = equipmentOptions.find(opt => opt.value === value);
-                                            if (option?.label.toLowerCase().includes(search.toLowerCase())) return 1;
-                                            return 0;
-                                        }}>
-                                            <CommandInput
-                                                placeholder="Search or add new equipment..."
-                                                value={field.value}
-                                                onValueChange={(search) => {
-                                                   const match = equipmentOptions.find(opt => opt.value === search);
-                                                   if (match) {
-                                                       field.onChange(search);
-                                                   } else {
-                                                       field.onChange(search);
-                                                   }
-                                                }}
-                                            />
-                                            <CommandList>
-                                                <CommandEmpty>No equipment found. A new one will be created.</CommandEmpty>
-                                                <CommandGroup>
-                                                    {equipmentOptions.map((option) => (
-                                                        <CommandItem
-                                                            key={option.value}
-                                                            value={option.value}
-                                                            onSelect={(currentValue) => {
-                                                                form.setValue("equipment_id", currentValue === field.value ? "" : currentValue);
-                                                                setOpen(false);
-                                                            }}
-                                                        >
-                                                            <Check
-                                                                className={cn(
-                                                                    "mr-2 h-4 w-4",
-                                                                    field.value === option.value ? "opacity-100" : "opacity-0"
-                                                                )}
-                                                            />
-                                                            {option.label}
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
+                    render={({ field }) => (
+                         <FormItem className="flex flex-col">
+                            <FormLabel>Related Equipment (Optional)</FormLabel>
+                            <EquipmentCombobox
+                                field={field}
+                                form={form}
+                                options={equipmentOptions}
+                            />
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
 
                 <FormField
