@@ -106,7 +106,7 @@ const fetchEquipmentForSelect = async (aquariumId: string): Promise<Equipment[]>
     return data || [];
 };
 
-export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: { aquariumId: string, onSuccess: () => void, aquariumType: string | null }) => {
+export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, initialTask }: { aquariumId: string, onSuccess: () => void, aquariumType: string | null, initialTask?: string }) => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
     
@@ -157,7 +157,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType }: 
     const form = useForm<z.infer<typeof maintenanceTaskSchema>>({
         resolver: zodResolver(maintenanceTaskSchema),
         defaultValues: {
-            task: "",
+            task: initialTask || "",
             notes: "",
             equipment_id: "",
             frequency: "once",

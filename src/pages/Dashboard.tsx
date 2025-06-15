@@ -1,4 +1,3 @@
-
 import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
@@ -68,7 +67,7 @@ const Dashboard = () => {
               <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} />
             ))}
           </div>
-          <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name }))} />
+          <QuickAddTask aquariums={aquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
           <Recommendations aquariums={aquariums} />
         </div>
       ) : (
