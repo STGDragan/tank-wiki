@@ -69,19 +69,22 @@ export const useUpsertArticle = (articleId?: string) => {
 
     return useMutation({
         mutationFn: async (data: ArticleFormData) => {
-            const processedData = {
-                ...data,
+            const payload = {
+                title: data.title,
+                slug: data.slug,
+                status: data.status,
+                category_id: data.category_id,
                 content: data.content || null,
                 tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
             };
 
             if (articleId) {
-                const { error } = await supabase.from('knowledge_articles').update(processedData).eq('id', articleId);
+                const { error } = await supabase.from('knowledge_articles').update(payload).eq('id', articleId);
                 if (error) throw new Error(error.message);
             } else {
                 const insertData = {
-                    ...processedData,
-                    author_id: user?.id,
+                    ...payload,
+                    author_id: user?.id ?? null,
                 };
                 const { error } = await supabase.from('knowledge_articles').insert(insertData);
                 if (error) throw new Error(error.message);
