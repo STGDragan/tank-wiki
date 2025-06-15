@@ -2,13 +2,34 @@
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tables } from "@/integrations/supabase/types";
 import { ProfileCard } from "@/components/account/ProfileCard";
 import { NotificationsCard } from "@/components/account/NotificationsCard";
 import { AppearanceCard } from "@/components/account/AppearanceCard";
 import { AdminRoleCard } from "@/components/account/AdminRoleCard";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+
+const LegalCard = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle>Legal</CardTitle>
+      <CardDescription>
+        View our terms of service and privacy policy.
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <Button asChild>
+        <Link to="/legal">
+          View Documents <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    </CardContent>
+  </Card>
+);
 
 const Account = () => {
   const { user } = useAuth();
@@ -93,6 +114,7 @@ const Account = () => {
       <ProfileCard profile={profile} />
       <NotificationsCard profile={profile} isLoading={isLoading} />
       <AppearanceCard />
+      <LegalCard />
       <AdminRoleCard />
     </div>
   );

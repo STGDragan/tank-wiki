@@ -18,6 +18,9 @@ import AdminKnowledgeBase from "./pages/admin/KnowledgeBase";
 import ArticleEditor from "./pages/admin/ArticleEditor";
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle";
 import AdminSlideshow from "./pages/admin/Slideshow";
+import AdminLegal from "./pages/admin/Legal";
+import LegalPage from "./pages/LegalPage";
+import LegalDocumentPage from "./pages/LegalDocumentPage";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/legal" element={<LegalPage />} />
+            <Route path="/legal/:document_type" element={<LegalDocumentPage />} />
             
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
@@ -44,6 +49,7 @@ const App = () => (
                 <Route path="/admin/knowledge-base/article/new" element={<ArticleEditor />} />
                 <Route path="/admin/knowledge-base/article/edit/:articleId" element={<ArticleEditor />} />
                 <Route path="/admin/slideshow" element={<AdminSlideshow />} />
+                <Route path="/admin/legal" element={<AdminLegal />} />
               </Route>
             </Route>
             
