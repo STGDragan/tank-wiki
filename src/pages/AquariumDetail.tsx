@@ -193,8 +193,33 @@ const AquariumDetail = () => {
       }
   });
 
+  const updateLivestockQuantityMutation = useMutation({
+      mutationFn: async ({ livestockId, newQuantity }: { livestockId: string, newQuantity: number }) => {
+          if (newQuantity <= 0) {
+              const { error } = await supabase.from('livestock').delete().eq('id', livestockId);
+              if (error) throw new Error(error.message);
+          } else {
+              const { error } = await supabase.from('livestock').update({ quantity: newQuantity }).eq('id', livestockId);
+              if (error) throw new Error(error.message);
+          }
+      },
+      onSuccess: (data, variables) => {
+          queryClient.invalidateQueries({ queryKey: ['livestock', id] });
+          const message = variables.newQuantity <= 0 ? 'Livestock removed' : 'Livestock quantity updated';
+          toast({ title: message });
+      },
+      onError: (err: Error) => {
+          toast({ title: 'Error updating livestock quantity', description: err.message, variant: 'destructive' });
+      }
+  });
+
   const handleMarkComplete = (taskId: string, completedDate: Date) => {
       completeTaskMutation.mutate({ taskId, completedDate });
+  };
+
+  const handleUpdateLivestockQuantity = (livestockId: string, currentQuantity: number, change: number) => {
+    const newQuantity = currentQuantity + change;
+    updateLivestockQuantityMutation.mutate({ livestockId, newQuantity });
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -352,6 +377,7 @@ const AquariumDetail = () => {
       <LivestockSection
         livestock={livestock || []}
         aquariumId={aquarium.id}
+        onUpdateQuantity={handleUpdateLivestockQuantity}
       />
       
       <EquipmentSection
