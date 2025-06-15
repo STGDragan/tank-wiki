@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -164,7 +163,7 @@ const ArticleEditor = () => {
                         </div>
                     </div>
                     <div className="flex justify-end space-x-2">
-                        <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
+                        <Button type="button" variant="ghost" onClick={() => navigate('/admin/knowledge-base')}>
                             <ArrowLeft />
                             Back
                         </Button>
