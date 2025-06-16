@@ -60,7 +60,7 @@ const Dashboard = () => {
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
-      <div className="min-h-screen w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-6">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-28" />
@@ -75,30 +75,32 @@ const Dashboard = () => {
   }
 
   if (error) {
-    return <div className="min-h-screen w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">Error: {error.message}</div>;
+    return <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">Error: {error.message}</div>;
   }
 
   const ownedAquariums = aquariums?.filter(aq => aq.user_id === user?.id) || [];
   const aquariumCount = ownedAquariums.length;
 
   return (
-    <div className="min-h-screen w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      <div className="w-full h-[160px] sm:h-[200px] rounded-lg overflow-hidden">
-        <SlideshowSection context="dashboard" />
-      </div>
-      
-      <AquariumGroups 
-        aquariums={ownedAquariums}
-        onDeleteAquarium={handleDeleteAquarium}
-        aquariumCount={aquariumCount}
-      />
-      
-      {ownedAquariums && ownedAquariums.length > 0 && (
-        <div className="space-y-6">
-          <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
-          <Recommendations aquariums={ownedAquariums} />
+    <div className="h-full w-full overflow-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="w-full h-[160px] sm:h-[200px] rounded-lg overflow-hidden">
+          <SlideshowSection context="dashboard" />
         </div>
-      )}
+        
+        <AquariumGroups 
+          aquariums={ownedAquariums}
+          onDeleteAquarium={handleDeleteAquarium}
+          aquariumCount={aquariumCount}
+        />
+        
+        {ownedAquariums && ownedAquariums.length > 0 && (
+          <div className="space-y-6">
+            <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
+            <Recommendations aquariums={ownedAquariums} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

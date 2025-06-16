@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,7 +110,7 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
                 <Settings className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Aquarium Management Settings</DialogTitle>
               </DialogHeader>
@@ -151,13 +150,13 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
                   
                   <div className="space-y-2">
                     <Label>Existing Groups</Label>
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
                       {groups.map(group => (
                         <div key={group.id} className="flex items-center justify-between p-2 border rounded">
-                          <div>
-                            <span className="font-medium">{group.name}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="font-medium truncate block">{group.name}</span>
                             {group.description && (
-                              <p className="text-sm text-muted-foreground">{group.description}</p>
+                              <p className="text-sm text-muted-foreground truncate">{group.description}</p>
                             )}
                             <p className="text-xs text-muted-foreground">
                               {getAquariumsForGroup(group.id).length} aquarium(s)
@@ -168,6 +167,7 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
                               variant="destructive"
                               size="sm"
                               onClick={() => handleDeleteGroup(group.id)}
+                              className="ml-2 shrink-0"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -202,36 +202,40 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
             )}
             
             {groupAquariums.length > 0 ? (
-              <div className="w-full grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-                {groupAquariums.map(tank => (
-                  <div key={tank.id} className="w-full space-y-2">
-                    <TankCard
-                      id={tank.id}
-                      name={tank.name}
-                      type={tank.type || 'N/A'}
-                      size={tank.size || 0}
-                      image_url={tank.image_url}
-                      onDelete={onDeleteAquarium}
-                    />
-                    {groups.length > 1 && (
-                      <Select
-                        value={group.id}
-                        onValueChange={(newGroupId) => handleMoveAquarium(tank.id, group.id, newGroupId)}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {groups.map(g => (
-                            <SelectItem key={g.id} value={g.id}>
-                              {g.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-                ))}
+              <div className="w-full">
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr">
+                  {groupAquariums.map(tank => (
+                    <div key={tank.id} className="w-full space-y-2">
+                      <div className="h-full">
+                        <TankCard
+                          id={tank.id}
+                          name={tank.name}
+                          type={tank.type || 'N/A'}
+                          size={tank.size || 0}
+                          image_url={tank.image_url}
+                          onDelete={onDeleteAquarium}
+                        />
+                      </div>
+                      {groups.length > 1 && (
+                        <Select
+                          value={group.id}
+                          onValueChange={(newGroupId) => handleMoveAquarium(tank.id, group.id, newGroupId)}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {groups.map(g => (
+                              <SelectItem key={g.id} value={g.id}>
+                                {g.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : group.id === "default" && aquariums.length === 0 ? (
               <div className="w-full text-center py-12 border-2 border-dashed rounded-lg">

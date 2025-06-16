@@ -10,11 +10,11 @@ export const AppLayout = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1 flex flex-col overflow-hidden">
           <header className="flex h-16 shrink-0 items-center gap-2 px-4 md:hidden">
             <SidebarTrigger className="-ml-1" />
           </header>
-          <main className="flex-1 pb-16 md:pb-0 w-full">
+          <main className="flex-1 overflow-auto pb-16 md:pb-0">
             <Outlet />
           </main>
           <MobileBottomNav />
