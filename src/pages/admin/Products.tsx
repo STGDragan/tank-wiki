@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/router";
+
 
 type Product = {
   id: number;
@@ -16,7 +16,7 @@ type Product = {
 export default function ProductsListPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+
 
   useEffect(() => {
     fetchProducts();
