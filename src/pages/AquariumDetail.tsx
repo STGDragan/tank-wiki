@@ -1,3 +1,4 @@
+
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,11 +10,10 @@ import { LivestockSection } from "@/components/aquarium/LivestockSection";
 import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
 import { WaterParametersSection } from "@/components/aquarium/WaterParametersSection";
 import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
-import { LogTab } from "@/components/aquarium/LogTab";
 import WishlistTab from "@/components/aquarium/WishlistTab";
-import NotesTab from "@/components/aquarium/NotesTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
 import { AquariumRecommendationsContainer } from "@/components/aquarium/AquariumRecommendationsContainer";
+import { JournalTab } from "@/components/aquarium/JournalTab";
 
 const AquariumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -74,7 +74,7 @@ const AquariumDetail = () => {
       <AquariumHeader aquarium={aquarium} />
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="livestock">Livestock</TabsTrigger>
           <TabsTrigger value="equipment">Equipment</TabsTrigger>
@@ -82,8 +82,7 @@ const AquariumDetail = () => {
           <TabsTrigger value="water">Water Tests</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-          <TabsTrigger value="notes">Notes</TabsTrigger>
-          <TabsTrigger value="log">Log</TabsTrigger>
+          <TabsTrigger value="journal">Journal</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -169,12 +168,16 @@ const AquariumDetail = () => {
           <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
         </TabsContent>
 
-        <TabsContent value="notes">
-          <NotesTab aquariumId={aquarium.id} canEdit={canEdit} />
-        </TabsContent>
-
-        <TabsContent value="log">
-          <LogTab aquariumId={aquarium.id} />
+        <TabsContent value="journal">
+          <JournalTab
+            aquariumId={aquarium.id}
+            canEdit={canEdit}
+            userId={user.id}
+            tasks={tasks}
+            livestock={livestock}
+            waterParameters={waterParameters}
+            equipment={equipment}
+          />
         </TabsContent>
       </Tabs>
     </div>
