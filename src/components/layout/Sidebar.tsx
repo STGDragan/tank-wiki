@@ -53,10 +53,10 @@ export function Sidebar() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex-shrink-0">
         <Logo />
       </div>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0">
         <ScrollArea className="h-full">
           <div className="p-4 space-y-6">
             <nav>{renderNav(mainNav)}</nav>
@@ -71,7 +71,7 @@ export function Sidebar() {
           </div>
         </ScrollArea>
       </div>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t flex-shrink-0">
         <Button
           variant={location.pathname.startsWith("/account") ? "secondary" : "ghost"}
           className="w-full justify-start"
@@ -107,7 +107,7 @@ export function Sidebar() {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 border-r bg-background">
+      <aside className="hidden md:flex flex-col w-64 border-r bg-background h-screen">
         <SidebarContent />
       </aside>
     </>
