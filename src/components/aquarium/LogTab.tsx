@@ -1,14 +1,20 @@
+
 import { useState } from 'react';
-import { Wrench, Fish, Droplets, FileText } from 'lucide-react';
+import { Wrench, Fish, Droplets, FileText, Pill } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useLogEntries } from '@/hooks/useLogEntries';
 import { useAquariumData } from '@/hooks/useAquariumData';
 import { useAuth } from '@/providers/AuthProvider';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
+
+type Medication = Tables<'medications'>;
 
 type LogEntry = {
   id: string;
-  type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note';
+  type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note' | 'medication';
   date: Date;
   title: string;
   description: React.ReactNode;
@@ -30,6 +36,8 @@ const getIcon = (type: LogEntry['type']) => {
       return <Wrench className="h-5 w-5 text-purple-500" />;
     case 'note':
       return <FileText className="h-5 w-5 text-orange-500" />;
+    case 'medication':
+      return <Pill className="h-5 w-5 text-pink-500" />;
     default:
       return null;
   }
@@ -41,8 +49,20 @@ const filterOptions: { value: LogEntry['type'] | 'all'; label: string }[] = [
   { value: 'livestock', label: 'Livestock' },
   { value: 'water_parameter', label: 'Water Tests' },
   { value: 'equipment', label: 'Equipment' },
+  { value: 'medication', label: 'Medications' },
   { value: 'note', label: 'Notes' },
 ];
+
+const fetchMedications = async (aquariumId: string): Promise<Medication[]> => {
+  const { data, error } = await supabase
+    .from('medications')
+    .select('*')
+    .eq('aquarium_id', aquariumId)
+    .order('start_date', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
 
 export const LogTab = ({ aquariumId }: LogTabProps) => {
   const [filter, setFilter] = useState<LogEntry['type'] | 'all'>('all');
@@ -56,10 +76,16 @@ export const LogTab = ({ aquariumId }: LogTabProps) => {
     equipment,
   } = useAquariumData(aquariumId, user?.id);
 
-  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment, undefined, aquarium?.type);
+  const { data: medications } = useQuery({
+    queryKey: ['medications', aquariumId],
+    queryFn: () => fetchMedications(aquariumId),
+    enabled: !!aquariumId && !!user?.id,
+  });
+
+  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment, undefined, aquarium?.type, medications);
 
   if (logEntries.length === 0) {
-    return <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, water tests, and notes.</p>;
+    return <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, water tests, medications, and notes.</p>;
   }
 
   const filteredEntries =

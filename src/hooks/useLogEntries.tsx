@@ -8,10 +8,11 @@ type Equipment = Tables<'equipment'>;
 type WaterParameterReading = Tables<'water_parameters'>;
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 type JournalEntry = Tables<'journal_entries'>;
+type Medication = Tables<'medications'>;
 
 type LogEntry = {
     id: string;
-    type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note';
+    type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note' | 'medication';
     date: Date;
     title: string;
     description: React.ReactNode;
@@ -23,7 +24,8 @@ export const useLogEntries = (
     waterParameters: WaterParameterReading[] | undefined,
     equipment: Equipment[] | undefined,
     journalEntries?: JournalEntry[] | undefined,
-    aquariumType?: string | null
+    aquariumType?: string | null,
+    medications?: Medication[] | undefined
 ) => {
     return useMemo(() => {
         const entries: LogEntry[] = [];
@@ -125,6 +127,27 @@ export const useLogEntries = (
             });
         });
 
+        (medications || []).forEach(medication => {
+            entries.push({
+                id: `med-${medication.id}`,
+                type: 'medication',
+                date: new Date(medication.start_date),
+                title: 'Medication Started',
+                description: (
+                    <div>
+                        <p className="font-semibold">{medication.name}</p>
+                        {medication.dosage && <p className="text-xs mt-1">Dosage: {medication.dosage}</p>}
+                        {medication.frequency && <p className="text-xs mt-1">Frequency: {medication.frequency}</p>}
+                        {medication.end_date && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Treatment period: {format(new Date(medication.start_date), 'PP')} - {format(new Date(medication.end_date), 'PP')}
+                            </p>
+                        )}
+                    </div>
+                )
+            });
+        });
+
         return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
-    }, [tasks, livestock, waterParameters, equipment, journalEntries, aquariumType]);
+    }, [tasks, livestock, waterParameters, equipment, journalEntries, aquariumType, medications]);
 };
