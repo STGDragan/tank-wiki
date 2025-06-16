@@ -1,4 +1,5 @@
 
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -172,7 +173,7 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
+                <PopoverContent className="w-[--radix-popover-trigger-width] max-w-none p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Search species..." />
                     <CommandList 
@@ -202,25 +203,24 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                               {speciesName}
                             </CommandItem>
                           ))}
+                          <CommandItem
+                            key={`${category}-other`}
+                            value={`Other ${category}`}
+                            onSelect={() => {
+                              form.setValue("species", `Other ${category}`);
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                field.value === `Other ${category}` ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Other {category}
+                          </CommandItem>
                         </CommandGroup>
                       ))}
-                      <CommandGroup heading="Other">
-                        <CommandItem
-                          value="Other"
-                          onSelect={() => {
-                            form.setValue("species", "Other");
-                            setOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              field.value === "Other" ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          Other
-                        </CommandItem>
-                      </CommandGroup>
                     </CommandList>
                   </Command>
                 </PopoverContent>
@@ -315,3 +315,4 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
     </Form>
   );
 }
+
