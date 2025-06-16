@@ -2,22 +2,19 @@
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
-import { Toaster } from "@/components/ui/sonner";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { InstallBanner } from "../mobile/InstallBanner";
 
-export function AppLayout() {
+export const AppLayout = () => {
   return (
-    <div className="h-screen w-full flex bg-background">
+    <div className="min-h-screen flex bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 bg-background">
-        <ScrollArea className="flex-1 bg-background">
-          <main className="p-4 sm:p-6 pt-16 md:pt-4 pb-20 md:pb-4 bg-background min-h-full">
-            <Outlet />
-          </main>
-        </ScrollArea>
-      </div>
-      <MobileBottomNav />
-      <Toaster />
+      <main className="flex-1 flex flex-col">
+        <div className="flex-1 pb-16 md:pb-0">
+          <Outlet />
+        </div>
+        <MobileBottomNav />
+        <InstallBanner />
+      </main>
     </div>
   );
-}
+};
