@@ -1,182 +1,147 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/router";
 
-function extractASIN(url: string) {
-  // Matches Amazon product URLs for ASIN extraction
-  // Example URLs:
-  // https://www.amazon.com/dp/B08N5WRWNW/
-  // https://www.amazon.com/gp/product/B08N5WRWNW/
-  const regex = /\/(?:dp|gp\/product)\/([A-Z0-9]{10})/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
-}
+type Product = {
+  id: number;
+  name: string;
+  visible: boolean;
+  featured: boolean;
+  onSale: boolean;
+  category: string | null;
+  subcategory: string | null;
+  // Add any other fields you want to display/edit here
+};
 
-export default function ProductAdminPage() {
-  const [formData, setFormData] = useState({
-    amazonUrl: "",
-    name: "",
-    description: "",
-    imageUrl: "",
-    category: "",
-    subcategory: "",
-    affiliateProvider: "",
-    affiliateUrl: "",
-  });
+export default function ProductsListPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const { error } = await supabase.from("products").insert([formData]);
+  async function fetchProducts() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, name, visible, featured, onSale, category, subcategory")
+      .order("id", { ascending: true });
+
     if (error) {
-      alert("Error saving product: " + error.message);
+      alert("Error fetching products: " + error.message);
     } else {
-      alert("Product saved successfully!");
-      setFormData({
-        amazonUrl: "",
-        name: "",
-        description: "",
-        imageUrl: "",
-        category: "",
-        subcategory: "",
-        affiliateProvider: "",
-        affiliateUrl: "",
-      });
+      setProducts(data || []);
     }
-  };
+    setLoading(false);
+  }
 
-  const handleAutoFill = () => {
-    const asin = extractASIN(formData.amazonUrl);
-    if (!asin) {
-      alert("Could not find ASIN in the Amazon URL. Please check your link.");
-      return;
+  async function toggleFlag(productId: number, flag: keyof Product, currentValue: boolean) {
+    const { error } = await supabase
+      .from("products")
+      .update({ [flag]: !currentValue })
+      .eq("id", productId);
+
+    if (error) {
+      alert("Error updating product: " + error.message);
+    } else {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, [flag]: !currentValue } : p))
+      );
     }
-
-    // Placeholder auto-fill data
-    setFormData((prev) => ({
-      ...prev,
-      name: `Sample Product Title for ASIN ${asin}`,
-      description: "This is a placeholder description. Real data will be fetched here soon.",
-      imageUrl: `https://images-na.ssl-images-amazon.com/images/I/${asin}.jpg`,
-      category: "Example Category",
-      subcategory: "Example Subcategory",
-      affiliateProvider: "Amazon",
-      affiliateUrl: formData.amazonUrl,
-    }));
-  };
+  }
 
   return (
-    <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ textAlign: "center" }}>Add Product</h1>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "1rem" }}>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <input
-            type="text"
-            name="amazonUrl"
-            placeholder="Paste Amazon URL"
-            value={formData.amazonUrl}
-            onChange={handleChange}
-            style={{ flexGrow: 1, padding: "0.5rem", fontSize: "1rem" }}
-          />
-          <button
-            type="button"
-            onClick={handleAutoFill}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: "#ff9900",
-              border: "none",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Auto-fill
-          </button>
-        </div>
+    <div style={{ padding: "2rem" }}>
+      <h1>Products</h1>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          style={{ padding: "0.5rem", fontSize: "1rem" }}
-          required
-        />
+      <button
+        style={{
+          marginBottom: "1rem",
+          padding: "0.5rem 1rem",
+          cursor: "pointer",
+          backgroundColor: "#0070f3",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          fontWeight: "bold",
+        }}
+        onClick={() => router.push("/admin/products/new")}
+      >
+        + Add Product
+      </button>
 
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          rows={4}
-          style={{ padding: "0.5rem", fontSize: "1rem", resize: "vertical" }}
-        />
-
-        <input
-          type="text"
-          name="imageUrl"
-          placeholder="Main Image URL"
-          value={formData.imageUrl}
-          onChange={handleChange}
-          style={{ padding: "0.5rem", fontSize: "1rem" }}
-        />
-
-        <input
-          type="text"
-          name="category"
-          placeholder="Category"
-          value={formData.category}
-          onChange={handleChange}
-          style={{ padding: "0.5rem", fontSize: "1rem" }}
-        />
-
-        <input
-          type="text"
-          name="subcategory"
-          placeholder="Subcategory"
-          value={formData.subcategory}
-          onChange={handleChange}
-          style={{ padding: "0.5rem", fontSize: "1rem" }}
-        />
-
-        <input
-          type="text"
-          name="affiliateProvider"
-          placeholder="Affiliate Provider"
-          value={formData.affiliateProvider}
-          onChange={handleChange}
-          style={{ padding: "0.5rem", fontSize: "1rem" }}
-        />
-
-        <input
-          type="text"
-          name="affiliateUrl"
-          placeholder="Affiliate URL"
-          value={formData.affiliateUrl}
-          onChange={handleChange}
-          style={{ padding: "0.5rem", fontSize: "1rem" }}
-        />
-
-        <button
-          type="submit"
+      {loading ? (
+        <p>Loading products...</p>
+      ) : products.length === 0 ? (
+        <p>No products found.</p>
+      ) : (
+        <table
           style={{
-            padding: "0.75rem",
-            backgroundColor: "#0070f3",
-            border: "none",
-            color: "white",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            cursor: "pointer",
-            borderRadius: 4,
+            width: "100%",
+            borderCollapse: "collapse",
+            textAlign: "left",
           }}
         >
-          Save Product
-        </button>
-      </form>
+          <thead>
+            <tr>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Name</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Category</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Subcategory</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Visible</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Featured</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>On Sale</th>
+              <th style={{ borderBottom: "1px solid #ddd", padding: "0.5rem" }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={{ padding: "0.5rem" }}>{product.name}</td>
+                <td style={{ padding: "0.5rem" }}>{product.category || "-"}</td>
+                <td style={{ padding: "0.5rem" }}>{product.subcategory || "-"}</td>
+                <td style={{ padding: "0.5rem", textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={product.visible}
+                    onChange={() => toggleFlag(product.id, "visible", product.visible)}
+                  />
+                </td>
+                <td style={{ padding: "0.5rem", textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={product.featured}
+                    onChange={() => toggleFlag(product.id, "featured", product.featured)}
+                  />
+                </td>
+                <td style={{ padding: "0.5rem", textAlign: "center" }}>
+                  <input
+                    type="checkbox"
+                    checked={product.onSale}
+                    onChange={() => toggleFlag(product.id, "onSale", product.onSale)}
+                  />
+                </td>
+                <td style={{ padding: "0.5rem" }}>
+                  <button
+                    onClick={() => router.push(`/admin/products/${product.id}`)}
+                    style={{
+                      padding: "0.25rem 0.5rem",
+                      cursor: "pointer",
+                      backgroundColor: "#0070f3",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
