@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -15,17 +16,41 @@ interface SlideshowSectionProps {
 }
 
 export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSectionProps) {
+  const [carouselApi, setCarouselApi] = React.useState<any>(null);
+  
+  // Query for slideshow settings
+  const { data: settings } = useQuery({
+    queryKey: ["slideshow_settings"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("slideshow_settings")
+        .select("*")
+        .single();
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+  });
+
+  // Use settings delay if available, otherwise use prop
+  const effectiveDelay = settings?.autoplay_delay || autoplayDelay;
+
   const plugin = React.useRef(
-    Autoplay({ delay: autoplayDelay, stopOnInteraction: false })
+    Autoplay({ delay: effectiveDelay, stopOnInteraction: false })
   );
 
-  // Update the plugin delay when autoplayDelay changes
+  // Update the plugin and restart carousel when delay changes
   React.useEffect(() => {
-    if (plugin.current) {
-      plugin.current.reset();
-      plugin.current = Autoplay({ delay: autoplayDelay, stopOnInteraction: false });
+    if (carouselApi && plugin.current) {
+      console.log("Updating slideshow delay to:", effectiveDelay);
+      // Stop current autoplay
+      plugin.current.stop();
+      // Create new plugin with updated delay
+      plugin.current = Autoplay({ delay: effectiveDelay, stopOnInteraction: false });
+      // Restart with new settings
+      plugin.current.init(carouselApi);
+      plugin.current.play();
     }
-  }, [autoplayDelay]);
+  }, [effectiveDelay, carouselApi]);
 
   const { data: images, isLoading, error } = useQuery({
     queryKey: ["slideshow_images", context],
@@ -43,6 +68,7 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
   console.log("Slideshow images data:", images);
   console.log("Slideshow loading state:", isLoading);
   console.log("Slideshow error:", error);
+  console.log("Effective delay:", effectiveDelay);
 
   return (
     <div className="w-full h-full min-h-[400px] relative overflow-hidden">
@@ -50,6 +76,7 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
         className="w-full h-full"
         opts={{ loop: true }}
         plugins={[plugin.current]}
+        setApi={setCarouselApi}
       >
         <CarouselContent className="h-full -ml-4">
           {isLoading && (
@@ -68,7 +95,6 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
                   className="absolute inset-0 w-full h-full object-cover"
                   onLoad={() => {
                     console.log(`Image loaded: ${image.image_url}`);
-                    console.log("Image element:", document.querySelector(`img[src="${image.image_url}"]`));
                   }}
                   onError={(e) => console.error(`Image failed to load: ${image.image_url}`, e)}
                 />
