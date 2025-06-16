@@ -1,3 +1,4 @@
+
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -74,8 +75,10 @@ const AquariumDetail = () => {
       <AquariumHeader aquarium={aquarium} />
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="livestock">Livestock</TabsTrigger>
+          <TabsTrigger value="equipment">Equipment</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           <TabsTrigger value="water">Water Tests</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
@@ -111,6 +114,26 @@ const AquariumDetail = () => {
             aquariumId={aquarium.id}
             aquariumType={aquarium.type}
             userId={user.id}
+          />
+        </TabsContent>
+
+        <TabsContent value="livestock" className="space-y-6">
+          <LivestockSection
+            livestock={livestock || []}
+            aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
+            canEdit={canEdit}
+            onUpdateQuantity={handleUpdateLivestockQuantity}
+            onDelete={handleDeleteLivestock}
+          />
+        </TabsContent>
+
+        <TabsContent value="equipment" className="space-y-6">
+          <EquipmentSection
+            equipment={equipment || []}
+            aquariumId={aquarium.id}
+            canEdit={canEdit}
+            onDelete={handleDeleteEquipment}
           />
         </TabsContent>
 
