@@ -167,6 +167,50 @@ export type Database = {
           },
         ]
       }
+      aquarium_timeline: {
+        Row: {
+          aquarium_id: string
+          created_at: string
+          description: string | null
+          entry_date: string
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aquarium_timeline_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aquariums: {
         Row: {
           created_at: string

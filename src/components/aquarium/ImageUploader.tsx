@@ -11,8 +11,8 @@ import { Loader2, Camera } from 'lucide-react';
 
 interface ImageUploaderProps {
   aquariumId: string;
-  onUploadSuccess: () => void;
-  table: 'aquariums' | 'livestock' | 'equipment';
+  onUploadSuccess: (imageUrl?: string) => void;
+  table: 'aquariums' | 'livestock' | 'equipment' | 'aquarium_timeline';
   recordId: string;
   aspect: number;
   showAsButton?: boolean;
@@ -54,6 +54,12 @@ export const ImageUploader = ({ aquariumId, onUploadSuccess, table, recordId, as
         .from('aquarium_images')
         .getPublicUrl(filePath);
 
+      // For timeline entries, we don't update the database record here
+      // The form will handle setting the image_url when submitting
+      if (table === 'aquarium_timeline') {
+        return publicUrl;
+      }
+
       const { error: dbError } = await supabase
         .from(table)
         .update({ image_url: publicUrl })
@@ -66,15 +72,15 @@ export const ImageUploader = ({ aquariumId, onUploadSuccess, table, recordId, as
 
       return publicUrl;
     },
-    onSuccess: () => {
+    onSuccess: (imageUrl) => {
       toast({ title: 'Image uploaded successfully!' });
       if (table === 'aquariums') {
           queryClient.invalidateQueries({ queryKey: ['aquarium', recordId] });
           queryClient.invalidateQueries({ queryKey: ['aquariums'] });
-      } else {
+      } else if (table !== 'aquarium_timeline') {
           queryClient.invalidateQueries({ queryKey: [table, aquariumId] });
       }
-      onUploadSuccess();
+      onUploadSuccess(imageUrl);
     },
     onError: (error: Error) => {
       toast({
