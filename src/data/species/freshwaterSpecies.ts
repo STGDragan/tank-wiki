@@ -1,10 +1,11 @@
+import { detailedFreshwaterFishNames } from './detailedFreshwaterFishData';
 
 export const freshwaterFish = [
-  "Neon Tetra", "Cardinal Tetra", "Guppy", "Molly", "Platy", "Swordtail", 
-  "Betta", "Angelfish", "Discus", "Corydoras Catfish", "Otocinclus", 
-  "Bristlenose Pleco", "Cherry Barb", "Tiger Barb", "Zebra Danio", 
-  "White Cloud Mountain Minnow", "Harlequin Rasbora", "Rummy Nose Tetra", 
-  "Siamese Algae Eater"
+  // Add all the detailed freshwater fish species
+  ...detailedFreshwaterFishNames,
+  
+  // Keep any existing species that might not be in the detailed data
+  "White Cloud Mountain Minnow", "Siamese Algae Eater"
 ];
 
 export const freshwaterInvertebrates = [

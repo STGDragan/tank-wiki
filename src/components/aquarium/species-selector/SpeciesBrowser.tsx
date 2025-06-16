@@ -4,15 +4,20 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { SpeciesInfoCard } from './SpeciesInfoCard';
-import { detailedMarineFish, DetailedFishInfo } from '@/data/species/detailedFishData';
+import { detailedMarineFish } from '@/data/species/detailedFishData';
+import { detailedFreshwaterFish } from '@/data/species/detailedFreshwaterFishData';
 import { Search, Filter } from 'lucide-react';
 
 export function SpeciesBrowser() {
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [familyFilter, setFamilyFilter] = useState<string>('all');
+  const [environmentFilter, setEnvironmentFilter] = useState<string>('all');
 
-  const filteredSpecies = detailedMarineFish.filter((fish) => {
+  // Combine both saltwater and freshwater species
+  const allSpecies = [...detailedMarineFish, ...detailedFreshwaterFish];
+
+  const filteredSpecies = allSpecies.filter((fish) => {
     const matchesSearch = fish.species_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          fish.family_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          fish.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -20,10 +25,17 @@ export function SpeciesBrowser() {
     const matchesDifficulty = difficultyFilter === 'all' || fish.difficulty === difficultyFilter;
     const matchesFamily = familyFilter === 'all' || fish.family_name === familyFilter;
     
-    return matchesSearch && matchesDifficulty && matchesFamily;
+    let matchesEnvironment = true;
+    if (environmentFilter === 'saltwater') {
+      matchesEnvironment = fish.tank_type.includes('saltwater') || fish.tank_type.includes('reef');
+    } else if (environmentFilter === 'freshwater') {
+      matchesEnvironment = fish.tank_type.includes('freshwater');
+    }
+    
+    return matchesSearch && matchesDifficulty && matchesFamily && matchesEnvironment;
   });
 
-  const uniqueFamilies = Array.from(new Set(detailedMarineFish.map(fish => fish.family_name))).sort();
+  const uniqueFamilies = Array.from(new Set(allSpecies.map(fish => fish.family_name))).sort();
   const difficulties = ['Easy', 'Intermediate', 'Advanced', 'Expert'];
 
   return (
@@ -40,9 +52,20 @@ export function SpeciesBrowser() {
         </div>
         
         <div className="flex gap-2">
-          <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+          <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
             <SelectTrigger className="w-[140px]">
               <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Environment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Environments</SelectItem>
+              <SelectItem value="freshwater">Freshwater</SelectItem>
+              <SelectItem value="saltwater">Saltwater/Marine</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+            <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
@@ -78,6 +101,11 @@ export function SpeciesBrowser() {
         {searchTerm && (
           <Badge variant="secondary">
             Search: "{searchTerm}"
+          </Badge>
+        )}
+        {environmentFilter !== 'all' && (
+          <Badge variant="secondary">
+            Environment: {environmentFilter}
           </Badge>
         )}
         {difficultyFilter !== 'all' && (

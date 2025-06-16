@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, AlertTriangle, Fish } from 'lucide-react';
 import { getDetailedFishInfo, DetailedFishInfo } from '@/data/species/detailedFishData';
+import { getDetailedFreshwaterFishInfo, DetailedFreshwaterFishInfo } from '@/data/species/detailedFreshwaterFishData';
 
 interface SpeciesInfoCardProps {
   speciesName: string;
@@ -23,7 +24,11 @@ const getDifficultyColor = (difficulty: string) => {
 
 export function SpeciesInfoCard({ speciesName }: SpeciesInfoCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const detailedInfo = getDetailedFishInfo(speciesName);
+  
+  // Try to get detailed info from both saltwater and freshwater data
+  const marineInfo = getDetailedFishInfo(speciesName);
+  const freshwaterInfo = getDetailedFreshwaterFishInfo(speciesName);
+  const detailedInfo = marineInfo || freshwaterInfo;
 
   if (!detailedInfo) {
     return (
