@@ -1,5 +1,4 @@
 
-import { TankCard } from "@/components/dashboard/TankCard";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import { Recommendations } from "@/components/dashboard/Recommendations";
 import { toast } from "@/hooks/use-toast";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 import { useAquariums, Aquarium } from "@/hooks/useAquariums";
+import { AquariumGroups } from "@/components/dashboard/AquariumGroups";
 
 const Dashboard = () => {
   const { user, loading: authLoading, refreshSubscriber } = useAuth();
@@ -86,27 +86,17 @@ const Dashboard = () => {
       <div className="w-full h-[250px] rounded-lg overflow-hidden">
         <SlideshowSection context="dashboard" />
       </div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Aquariums</h1>
-        <CreateTankDialog aquariumCount={aquariumCount} />
-      </div>
-      {ownedAquariums && ownedAquariums.length > 0 ? (
+      
+      <AquariumGroups 
+        aquariums={ownedAquariums}
+        onDeleteAquarium={handleDeleteAquarium}
+        aquariumCount={aquariumCount}
+      />
+      
+      {ownedAquariums && ownedAquariums.length > 0 && (
         <div className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {ownedAquariums.map(tank => (
-              <TankCard key={tank.id} id={tank.id} name={tank.name} type={tank.type || 'N/A'} size={tank.size || 0} image_url={tank.image_url} onDelete={handleDeleteAquarium} />
-            ))}
-          </div>
           <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
           <Recommendations aquariums={ownedAquariums} />
-        </div>
-      ) : (
-         <div className="text-center py-12 border-2 border-dashed rounded-lg">
-          <h2 className="text-xl font-semibold">No Aquariums Yet</h2>
-          <p className="text-muted-foreground mt-2">Get started by creating your first tank.</p>
-          <div className="mt-4">
-            <CreateTankDialog aquariumCount={aquariumCount} />
-          </div>
         </div>
       )}
     </div>
