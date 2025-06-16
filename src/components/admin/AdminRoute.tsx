@@ -1,9 +1,13 @@
 
 import { useAuth } from "@/providers/AuthProvider";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const AdminRoute = () => {
+interface AdminRouteProps {
+    children: React.ReactNode;
+}
+
+export const AdminRoute = ({ children }: AdminRouteProps) => {
     const { roles, loading } = useAuth();
 
     if (loading) {
@@ -19,5 +23,5 @@ export const AdminRoute = () => {
         return <Navigate to="/dashboard" replace />;
     }
 
-    return <Outlet />;
+    return <>{children}</>;
 }
