@@ -47,40 +47,47 @@ export const livestockCategories = [
     name: "Marine Invertebrates",
     environments: ["saltwater", "reef"],
     species: [
-      // Original species
-      "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail", 
-      "Nassarius Snail", "Conch", "Sea Urchin",
+      // Shrimp Species
+      "Skunk Cleaner Shrimp", "Peppermint Shrimp", "Fire Shrimp", "Banded Coral Shrimp",
+      "Sexy Shrimp", "Anemone Shrimp", "Camel Shrimp", "Glass Shrimp", "Yellow Line Shrimp",
+      "Dwarf Coral Shrimp", "Red Skunk Cleaner Shrimp", "Tiger Pistol Shrimp",
+      "Glass Anemone Shrimp", "Red Banded Pistol Shrimp", "Harlequin Shrimp",
+      "Blood Shrimp", "Tiger Shrimp",
       
-      // New Shrimp Species
-      "Scarlet Skunk Cleaner Shrimp", "Peppermint Shrimp", "Blood Red Fire Shrimp",
-      "Pistol Shrimp", "Coral Banded Shrimp", "Sexy Anemone Shrimp", "Camel Shrimp",
-      
-      // New Crab Species
-      "Trapezia Coral Crab", "Emerald Crab", "Scarlet Reef Hermit Crab",
-      "Electric Blue Hermit Crab", "Dwarf Blue Leg Hermit Crab", "Halloween Hermit Crab",
-      "Pom Pom Crab", "Anemone Crab", "Sponge Crab", "Porcelain Crab",
-      
-      // Starfish Species
-      "Brittle Star", "Serpent Star", "Blue Linckia Starfish", "Fromia Starfish",
-      "Red Linckia Starfish", "Asterina Starfish", "Tile Starfish", "Sand Sifting Starfish",
-      "Serpent Starfish", "Brittle Starfish",
+      // Crab Species
+      "Blue Leg Hermit Crab", "Emerald Crab", "Porcelain Crab", "Halloween Hermit Crab",
+      "White Claw Hermit Crab", "Scarlet Reef Hermit Crab", "Electric Blue Hermit Crab",
+      "Zebra Hermit Crab", "Pom Pom Crab", "Mithrax Crab", "Porcelain Anemone Crab",
       
       // Snail Species
-      "Tectus Snail", "Trochus Snail", "Cerith Snail", "Astraea Snail",
-      "Stomatella Snail", "Limpet",
+      "Nassarius Snail", "Turbo Snail", "Cerith Snail", "Trochus Snail", "Astrea Snail",
+      "Bumblebee Snail", "Margarita Snail", "Limpet", "Collonista Snail", "Stomatella Snail",
+      "Tectus Snail", "Conch", "Olive Snail", "Dove Snail", "Chestnut Cowrie",
+      "Keyhole Limpet", "Spiny Astrea Snail", "Nassarius Vibex Snail",
+      
+      // Starfish Species
+      "Fromia Starfish", "Sand Sifting Starfish", "Red Knob Sea Star",
       
       // Urchin Species
-      "Tuxedo Urchin", "Long-Spined Urchin", "Pencil Urchin", "Blue Tuxedo Urchin",
-      "Longspine Urchin", "Variegated Urchin", "Pin Cushion Urchin", "Heart Urchin",
+      "Tuxedo Urchin", "Long-Spined Urchin", "Pencil Urchin", "Purple Short Spine Urchin",
+      "White Pencil Urchin", "Blue Tuxedo Urchin", "Long Spine Urchin",
       
       // Sea Cucumbers
-      "Tiger Tail Cucumber", "Pink and Black Sea Cucumber", "Leopard Sea Cucumber",
+      "Tiger Tail Cucumber", "Pink & Black Cucumber",
       
       // Worms and Filter Feeders
       "Feather Duster Worm", "Christmas Tree Worm", "Bristle Worm", "Spaghetti Worm",
+      "Hawaiian Feather Duster", "Coco Worm", "Fan Worm", "Fireworm",
       
-      // Other Invertebrates
-      "Chiton", "Amphipod", "Copepod"
+      // Anemones
+      "Rock Flower Anemone", "Mini Maxi Carpet Anemone", "Ball Anemone",
+      "Beaded Anemone", "Condylactis Anemone",
+      
+      // Clams
+      "Maxima Clam", "Crocea Clam", "Derasa Clam", "Squamosa Clam",
+      
+      // Sponges
+      "Yellow Ball Sponge", "Red Tree Sponge", "Purple Tube Sponge", "Blue Sponge"
     ]
   },
   {
