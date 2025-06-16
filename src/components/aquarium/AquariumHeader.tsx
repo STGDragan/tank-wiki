@@ -56,44 +56,41 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
         </div>
       </div>
       
-      {/* Only show image section if there's an image or if the user is the owner */}
-      {(aquarium.image_url || isOwner) && (
+      {/* Only render the image section if there's an image OR if user is owner (to show upload option) */}
+      {aquarium.image_url && (
         <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
-          {aquarium.image_url ? (
-            <div className="relative w-full h-full">
-              <img
-                src={aquarium.image_url}
-                alt={aquarium.name}
-                className="object-cover w-full h-full"
-              />
-              {isOwner && (
-                <div className="absolute bottom-4 right-4">
-                  <ImageUploader
-                    aquariumId={aquarium.id}
-                    onUploadSuccess={handleImageUploadSuccess}
-                    table="aquariums"
-                    recordId={aquarium.id}
-                    aspect={16/9}
-                    showAsButton={true}
-                  />
-                </div>
-              )}
-            </div>
-          ) : isOwner ? (
-            <ImageUploader
-              aquariumId={aquarium.id}
-              onUploadSuccess={handleImageUploadSuccess}
-              table="aquariums"
-              recordId={aquarium.id}
-              aspect={16/9}
-            />
-          ) : (
+          <div className="relative w-full h-full">
             <img
-              src="/placeholder.svg"
+              src={aquarium.image_url}
               alt={aquarium.name}
               className="object-cover w-full h-full"
             />
-          )}
+            {isOwner && (
+              <div className="absolute bottom-4 right-4">
+                <ImageUploader
+                  aquariumId={aquarium.id}
+                  onUploadSuccess={handleImageUploadSuccess}
+                  table="aquariums"
+                  recordId={aquarium.id}
+                  aspect={16/9}
+                  showAsButton={true}
+                />
+              </div>
+            )}
+          </div>
+        </AspectRatio>
+      )}
+
+      {/* Show upload option only when no image exists and user is owner */}
+      {!aquarium.image_url && isOwner && (
+        <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
+          <ImageUploader
+            aquariumId={aquarium.id}
+            onUploadSuccess={handleImageUploadSuccess}
+            table="aquariums"
+            recordId={aquarium.id}
+            aspect={16/9}
+          />
         </AspectRatio>
       )}
     </div>
