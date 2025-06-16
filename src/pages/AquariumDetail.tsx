@@ -1,4 +1,3 @@
-
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +13,7 @@ import { LogTab } from "@/components/aquarium/LogTab";
 import WishlistTab from "@/components/aquarium/WishlistTab";
 import JournalTab from "@/components/aquarium/JournalTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
+import { AquariumRecommendationsContainer } from "@/components/aquarium/AquariumRecommendationsContainer";
 
 const AquariumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -108,6 +108,11 @@ const AquariumDetail = () => {
             aquariumSize={aquarium.size}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
+          />
+          <AquariumRecommendationsContainer
+            aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
+            userId={user.id}
           />
         </TabsContent>
 
