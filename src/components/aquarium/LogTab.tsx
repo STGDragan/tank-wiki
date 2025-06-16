@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Wrench, Fish, Droplets } from 'lucide-react';
+import { Wrench, Fish, Droplets, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useLogEntries } from '@/hooks/useLogEntries';
@@ -9,7 +9,7 @@ import { useAuth } from '@/providers/AuthProvider';
 
 type LogEntry = {
   id: string;
-  type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment';
+  type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note';
   date: Date;
   title: string;
   description: React.ReactNode;
@@ -29,6 +29,8 @@ const getIcon = (type: LogEntry['type']) => {
       return <Droplets className="h-5 w-5 text-cyan-500" />;
     case 'equipment':
       return <Wrench className="h-5 w-5 text-purple-500" />;
+    case 'note':
+      return <FileText className="h-5 w-5 text-orange-500" />;
     default:
       return null;
   }
@@ -40,6 +42,7 @@ const filterOptions: { value: LogEntry['type'] | 'all'; label: string }[] = [
   { value: 'livestock', label: 'Livestock' },
   { value: 'water_parameter', label: 'Water Tests' },
   { value: 'equipment', label: 'Equipment' },
+  { value: 'note', label: 'Notes' },
 ];
 
 export const LogTab = ({ aquariumId }: LogTabProps) => {
@@ -56,7 +59,7 @@ export const LogTab = ({ aquariumId }: LogTabProps) => {
   const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment);
 
   if (logEntries.length === 0) {
-    return <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, and water tests.</p>;
+    return <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, water tests, and notes.</p>;
   }
 
   const filteredEntries =
