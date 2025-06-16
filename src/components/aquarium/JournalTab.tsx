@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { AddNotesEntryForm } from '@/components/aquarium/AddNotesEntryForm';
 import { NotesEntryCard } from '@/components/aquarium/NotesEntryCard';
-import { PlusCircle, Wrench, Fish, Droplets } from 'lucide-react';
+import { PlusCircle, Wrench, Fish, Droplets, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { useLogEntries } from '@/hooks/useLogEntries';
@@ -19,7 +19,7 @@ type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, bran
 
 type LogEntry = {
   id: string;
-  type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment';
+  type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note';
   date: Date;
   title: string;
   description: React.ReactNode;
@@ -46,6 +46,8 @@ const getIcon = (type: LogEntry['type']) => {
       return <Droplets className="h-5 w-5 text-cyan-500" />;
     case 'equipment':
       return <Wrench className="h-5 w-5 text-purple-500" />;
+    case 'note':
+      return <FileText className="h-5 w-5 text-orange-500" />;
     default:
       return null;
   }
@@ -57,6 +59,7 @@ const filterOptions: { value: LogEntry['type'] | 'all'; label: string }[] = [
   { value: 'livestock', label: 'Livestock' },
   { value: 'water_parameter', label: 'Water Tests' },
   { value: 'equipment', label: 'Equipment' },
+  { value: 'note', label: 'Notes' },
 ];
 
 interface JournalTabProps {
@@ -85,10 +88,10 @@ export const JournalTab = ({
   const { data: entries, isLoading: notesLoading, error: notesError } = useQuery<Tables<'journal_entries'>[]>({
     queryKey: ['journal_entries', aquariumId],
     queryFn: () => fetchNotesEntries(aquariumId),
-    enabled: !!aquariumId && activeView === 'notes',
+    enabled: !!aquariumId,
   });
 
-  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment);
+  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment, entries);
 
   const filteredLogEntries = logFilter === 'all'
     ? logEntries
@@ -185,7 +188,7 @@ export const JournalTab = ({
           </div>
 
           {logEntries.length === 0 ? (
-            <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, and water tests.</p>
+            <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, water tests, and notes.</p>
           ) : filteredLogEntries.length === 0 ? (
             <p className="text-muted-foreground mt-4 text-center">No entries found for this filter.</p>
           ) : (

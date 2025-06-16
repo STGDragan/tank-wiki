@@ -7,10 +7,11 @@ type Livestock = Tables<'livestock'>;
 type Equipment = Tables<'equipment'>;
 type WaterParameterReading = Tables<'water_parameters'>;
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
+type JournalEntry = Tables<'journal_entries'>;
 
 type LogEntry = {
     id: string;
-    type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment';
+    type: 'maintenance' | 'livestock' | 'water_parameter' | 'equipment' | 'note';
     date: Date;
     title: string;
     description: React.ReactNode;
@@ -20,7 +21,8 @@ export const useLogEntries = (
     tasks: MaintenanceTask[] | undefined,
     livestock: Livestock[] | undefined,
     waterParameters: WaterParameterReading[] | undefined,
-    equipment: Equipment[] | undefined
+    equipment: Equipment[] | undefined,
+    journalEntries?: JournalEntry[] | undefined
 ) => {
     return useMemo(() => {
         const entries: LogEntry[] = [];
@@ -101,7 +103,24 @@ export const useLogEntries = (
             });
         });
 
-        return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
-    }, [tasks, livestock, waterParameters, equipment]);
-};
+        (journalEntries || []).forEach(entry => {
+            entries.push({
+                id: `note-${entry.id}`,
+                type: 'note',
+                date: new Date(entry.created_at),
+                title: 'Note Added',
+                description: (
+                    <div>
+                        <p className="font-semibold">{entry.title}</p>
+                        {entry.content && <p className="text-xs mt-1">{entry.content}</p>}
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Note date: {format(new Date(entry.entry_date), 'PP')}
+                        </p>
+                    </div>
+                )
+            });
+        });
 
+        return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+    }, [tasks, livestock, waterParameters, equipment, journalEntries]);
+};
