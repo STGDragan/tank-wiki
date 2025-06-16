@@ -1,4 +1,3 @@
-
 // Organized by categories with environment compatibility
 export const livestockCategories = [
   {
@@ -47,24 +46,68 @@ export const livestockCategories = [
     name: "Marine Invertebrates",
     environments: ["saltwater", "reef"],
     species: [
+      // Original species
       "Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail", 
-      "Nassarius Snail", "Conch", "Sea Urchin"
+      "Nassarius Snail", "Conch", "Sea Urchin",
+      
+      // New Shrimp Species
+      "Scarlet Skunk Cleaner Shrimp", "Peppermint Shrimp", "Blood Red Fire Shrimp",
+      "Pistol Shrimp", "Coral Banded Shrimp", "Sexy Anemone Shrimp", "Camel Shrimp",
+      
+      // New Crab Species
+      "Trapezia Coral Crab", "Emerald Crab", "Scarlet Reef Hermit Crab",
+      "Electric Blue Hermit Crab", "Dwarf Blue Leg Hermit Crab", "Halloween Hermit Crab",
+      "Pom Pom Crab", "Anemone Crab", "Sponge Crab", "Porcelain Crab",
+      
+      // Starfish Species
+      "Brittle Star", "Serpent Star", "Blue Linckia Starfish", "Fromia Starfish",
+      "Red Linckia Starfish", "Asterina Starfish", "Tile Starfish", "Sand Sifting Starfish",
+      "Serpent Starfish", "Brittle Starfish",
+      
+      // Snail Species
+      "Tectus Snail", "Trochus Snail", "Cerith Snail", "Astraea Snail",
+      "Stomatella Snail", "Limpet",
+      
+      // Urchin Species
+      "Tuxedo Urchin", "Long-Spined Urchin", "Pencil Urchin", "Blue Tuxedo Urchin",
+      "Longspine Urchin", "Variegated Urchin", "Pin Cushion Urchin", "Heart Urchin",
+      
+      // Sea Cucumbers
+      "Tiger Tail Cucumber", "Pink and Black Sea Cucumber", "Leopard Sea Cucumber",
+      
+      // Worms and Filter Feeders
+      "Feather Duster Worm", "Christmas Tree Worm", "Bristle Worm", "Spaghetti Worm",
+      
+      // Other Invertebrates
+      "Chiton", "Amphipod", "Copepod"
     ]
   },
   {
     name: "Soft Corals",
     environments: ["reef"],
     species: [
+      // Original species
       "Zoanthid Coral", "Mushroom Coral", "Kenya Tree Coral", "Toadstool Coral", 
-      "Star Polyp", "Xenia"
+      "Star Polyp", "Xenia",
+      
+      // New Soft Coral Species
+      "Green Button Polyps", "Zoanthids", "Clove Polyps", "Ricordea Mushroom",
+      "Yuma Mushroom", "Elephant Ear Mushroom", "Anthelia Coral",
+      "Long Polyp Leather Coral", "Finger Leather Coral", "Cabbage Leather Coral",
+      "Devil's Hand Coral"
     ]
   },
   {
     name: "LPS Corals",
     environments: ["reef"],
     species: [
+      // Original species
       "Hammer Coral", "Torch Coral", "Frogspawn", "Brain Coral", "Acan Coral", 
-      "Chalice Coral"
+      "Chalice Coral",
+      
+      // New LPS Coral Species
+      "Plate Coral", "Acan Lord Coral", "Goniopora Coral", "Open Brain Coral",
+      "Plate Fungia Coral"
     ]
   },
   {
@@ -73,6 +116,42 @@ export const livestockCategories = [
     species: [
       "Acropora", "Montipora", "Staghorn Coral", "Table Coral", "Bird's Nest Coral", 
       "Millepora", "Stylophora", "Seriatopora"
+    ]
+  },
+  {
+    name: "Non-Photosynthetic Corals",
+    environments: ["reef"],
+    species: [
+      "Sun Coral", "Carnation Coral", "Bamboo Coral"
+    ]
+  },
+  {
+    name: "Gorgonians and Sea Fans",
+    environments: ["reef"],
+    species: [
+      "Purple Sea Whip", "Yellow Gorgonian", "Red Sea Fan"
+    ]
+  },
+  {
+    name: "Anemones",
+    environments: ["reef"],
+    species: [
+      "Colonial Anemone", "Mini Carpet Anemone", "Rock Flower Anemone",
+      "Sebae Anemone", "Bubble Tip Anemone", "Carpet Anemone"
+    ]
+  },
+  {
+    name: "Clams",
+    environments: ["reef"],
+    species: [
+      "Maxima Clam", "Crocea Clam", "Derasa Clam"
+    ]
+  },
+  {
+    name: "Jellyfish",
+    environments: ["saltwater", "reef"],
+    species: [
+      "Staurocladia Jelly", "Upside-Down Jellyfish", "Lagoon Jellyfish"
     ]
   },
   {
