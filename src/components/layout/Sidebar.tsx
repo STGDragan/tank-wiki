@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Shared With Me", href: "/shared-with-me", icon: Users },
+  { name: "Shared Tanks", href: "/shared-with-me", icon: Users },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
   { name: "Feedback", href: "/feedback", icon: MessageSquare },
