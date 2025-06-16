@@ -24,9 +24,11 @@ interface UserRole {
   };
 }
 
+type RoleType = "admin" | "user";
+
 export function AdminManagementSection() {
   const [selectedUserId, setSelectedUserId] = useState("");
-  const [selectedRole, setSelectedRole] = useState("user");
+  const [selectedRole, setSelectedRole] = useState<RoleType>("user");
   const queryClient = useQueryClient();
 
   const { data: profiles, isLoading: profilesLoading } = useQuery({
@@ -75,7 +77,7 @@ export function AdminManagementSection() {
   });
 
   const assignRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+    mutationFn: async ({ userId, role }: { userId: string; role: RoleType }) => {
       // First check if user already has a role
       const { data: existingRole } = await supabase
         .from('user_roles')
@@ -180,7 +182,7 @@ export function AdminManagementSection() {
 
             <div className="space-y-2">
               <Label htmlFor="role-select">Role</Label>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <Select value={selectedRole} onValueChange={(value: RoleType) => setSelectedRole(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
