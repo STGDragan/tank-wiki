@@ -1,3 +1,4 @@
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -51,23 +52,25 @@ export function Sidebar() {
   );
 
   const SidebarContent = () => (
-    <>
+    <div className="flex flex-col h-full">
       <div className="p-4 border-b">
         <Logo />
       </div>
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-6">
-          <nav>{renderNav(mainNav)}</nav>
-          {isAdmin && (
-            <div>
-              <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight">
-                Management
-              </h3>
-              <nav>{renderNav(adminNav)}</nav>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-6">
+            <nav>{renderNav(mainNav)}</nav>
+            {isAdmin && (
+              <div>
+                <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight">
+                  Management
+                </h3>
+                <nav>{renderNav(adminNav)}</nav>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
       <div className="p-4 border-t">
         <Button
           variant={location.pathname.startsWith("/account") ? "secondary" : "ghost"}
@@ -81,7 +84,7 @@ export function Sidebar() {
           </Link>
         </Button>
       </div>
-    </>
+    </div>
   );
 
   return (

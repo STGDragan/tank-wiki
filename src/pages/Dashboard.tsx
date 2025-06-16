@@ -60,30 +60,30 @@ const Dashboard = () => {
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-10 w-28" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full" />
-            </div>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-28" />
         </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </div>
     );
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return <div className="p-6">Error: {error.message}</div>;
   }
 
   const ownedAquariums = aquariums?.filter(aq => aq.user_id === user?.id) || [];
   const aquariumCount = ownedAquariums.length;
 
   return (
-    <div className="space-y-8">
-      <div className="w-full h-[250px] rounded-lg overflow-hidden">
+    <div className="p-6 space-y-8 max-w-7xl mx-auto">
+      <div className="w-full h-[200px] rounded-lg overflow-hidden">
         <SlideshowSection context="dashboard" />
       </div>
       
