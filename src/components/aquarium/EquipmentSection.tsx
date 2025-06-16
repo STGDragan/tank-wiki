@@ -18,9 +18,17 @@ interface EquipmentSectionProps {
     aquariumType: string | null;
     onDelete: (equipmentId: string) => void;
     canEdit: boolean;
+    showRecommendations?: boolean;
 }
 
-export const EquipmentSection = ({ equipment, aquariumId, aquariumType, onDelete, canEdit }: EquipmentSectionProps) => {
+export const EquipmentSection = ({ 
+    equipment, 
+    aquariumId, 
+    aquariumType, 
+    onDelete, 
+    canEdit, 
+    showRecommendations = true 
+}: EquipmentSectionProps) => {
     const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
 
     const existingEquipment = equipment?.map(item => ({
@@ -68,10 +76,12 @@ export const EquipmentSection = ({ equipment, aquariumId, aquariumType, onDelete
                 </CardContent>
             </Card>
             
-            <EquipmentRecommendations 
-                aquariumType={aquariumType} 
-                existingEquipment={existingEquipment}
-            />
+            {showRecommendations && (
+                <EquipmentRecommendations 
+                    aquariumType={aquariumType} 
+                    existingEquipment={existingEquipment}
+                />
+            )}
         </div>
     );
 };

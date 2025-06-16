@@ -18,9 +18,18 @@ interface LivestockSectionProps {
     onUpdateQuantity: (livestockId: string, currentQuantity: number, change: number) => void;
     onDelete: (livestockId: string) => void;
     canEdit: boolean;
+    showRecommendations?: boolean;
 }
 
-export const LivestockSection = ({ livestock, aquariumId, aquariumType, onUpdateQuantity, onDelete, canEdit }: LivestockSectionProps) => {
+export const LivestockSection = ({ 
+    livestock, 
+    aquariumId, 
+    aquariumType, 
+    onUpdateQuantity, 
+    onDelete, 
+    canEdit, 
+    showRecommendations = true 
+}: LivestockSectionProps) => {
     const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
 
     return (
@@ -57,7 +66,7 @@ export const LivestockSection = ({ livestock, aquariumId, aquariumType, onUpdate
                 </CardContent>
             </Card>
             
-            <LivestockRecommendations aquariumType={aquariumType} />
+            {showRecommendations && <LivestockRecommendations aquariumType={aquariumType} />}
         </div>
     );
 };

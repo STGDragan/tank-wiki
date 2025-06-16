@@ -93,6 +93,7 @@ const AquariumDetail = () => {
             canEdit={canEdit}
             onUpdateQuantity={handleUpdateLivestockQuantity}
             onDelete={handleDeleteLivestock}
+            showRecommendations={false}
           />
           <EquipmentSection
             equipment={equipment || []}
@@ -100,6 +101,7 @@ const AquariumDetail = () => {
             aquariumType={aquarium.type}
             canEdit={canEdit}
             onDelete={handleDeleteEquipment}
+            showRecommendations={false}
           />
           <MaintenanceSection
             tasks={pendingTasks || []}
@@ -108,6 +110,7 @@ const AquariumDetail = () => {
             aquariumSize={aquarium.size}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
+            showRecommendations={false}
           />
           <AquariumRecommendationsContainer
             aquariumId={aquarium.id}

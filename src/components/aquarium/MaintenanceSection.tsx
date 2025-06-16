@@ -19,9 +19,18 @@ interface MaintenanceSectionProps {
     aquariumSize: number | null | undefined;
     onMarkComplete: (taskId: string, completedDate: Date) => void;
     onDelete: (taskId: string) => void;
+    showRecommendations?: boolean;
 }
 
-export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, aquariumSize, onMarkComplete, onDelete }: MaintenanceSectionProps) => {
+export const MaintenanceSection = ({ 
+    tasks, 
+    aquariumId, 
+    aquariumType, 
+    aquariumSize, 
+    onMarkComplete, 
+    onDelete, 
+    showRecommendations = true 
+}: MaintenanceSectionProps) => {
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
 
     return (
@@ -63,7 +72,7 @@ export const MaintenanceSection = ({ tasks, aquariumId, aquariumType, aquariumSi
                 </CardContent>
             </Card>
             
-            <ConsumablesRecommendations aquariumType={aquariumType} />
+            {showRecommendations && <ConsumablesRecommendations aquariumType={aquariumType} />}
         </div>
     );
 }
