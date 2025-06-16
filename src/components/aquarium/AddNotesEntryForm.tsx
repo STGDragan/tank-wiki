@@ -17,25 +17,25 @@ import { useAuth } from "@/providers/AuthProvider";
 import { toast } from "@/hooks/use-toast";
 import { Tables } from "@/integrations/supabase/types";
 
-const journalEntrySchema = z.object({
+const notesEntrySchema = z.object({
   title: z.string().min(1, "Title is required."),
   entry_date: z.date(),
   content: z.string().optional(),
 });
 
-type JournalEntryFormValues = z.infer<typeof journalEntrySchema>;
+type NotesEntryFormValues = z.infer<typeof notesEntrySchema>;
 
-interface AddJournalEntryFormProps {
+interface AddNotesEntryFormProps {
   aquariumId: string;
   onSuccess: () => void;
 }
 
-export const AddJournalEntryForm = ({ aquariumId, onSuccess }: AddJournalEntryFormProps) => {
+export const AddNotesEntryForm = ({ aquariumId, onSuccess }: AddNotesEntryFormProps) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
-  const form = useForm<JournalEntryFormValues>({
-    resolver: zodResolver(journalEntrySchema),
+  const form = useForm<NotesEntryFormValues>({
+    resolver: zodResolver(notesEntrySchema),
     defaultValues: {
       title: "",
       entry_date: new Date(),
@@ -50,21 +50,21 @@ export const AddJournalEntryForm = ({ aquariumId, onSuccess }: AddJournalEntryFo
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: "Journal entry added!" });
+      toast({ title: "Note added!" });
       queryClient.invalidateQueries({ queryKey: ["journal_entries", aquariumId] });
       onSuccess();
       form.reset();
     },
     onError: (error) => {
       toast({
-        title: "Error adding entry",
+        title: "Error adding note",
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  function onSubmit(values: JournalEntryFormValues) {
+  function onSubmit(values: NotesEntryFormValues) {
     addEntryMutation.mutate({
       aquarium_id: aquariumId,
       title: values.title,
@@ -148,7 +148,7 @@ export const AddJournalEntryForm = ({ aquariumId, onSuccess }: AddJournalEntryFo
           )}
         />
         <Button type="submit" disabled={addEntryMutation.isPending}>
-          {addEntryMutation.isPending ? "Adding..." : "Add Entry"}
+          {addEntryMutation.isPending ? "Adding..." : "Add Note"}
         </Button>
       </form>
     </Form>

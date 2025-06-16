@@ -1,4 +1,3 @@
-
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +11,7 @@ import { WaterParametersSection } from "@/components/aquarium/WaterParametersSec
 import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
 import { LogTab } from "@/components/aquarium/LogTab";
 import WishlistTab from "@/components/aquarium/WishlistTab";
-import JournalTab from "@/components/aquarium/JournalTab";
+import NotesTab from "@/components/aquarium/NotesTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
 import { AquariumRecommendationsContainer } from "@/components/aquarium/AquariumRecommendationsContainer";
 
@@ -83,7 +82,7 @@ const AquariumDetail = () => {
           <TabsTrigger value="water">Water Tests</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-          <TabsTrigger value="journal">Notes</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="log">Log</TabsTrigger>
         </TabsList>
 
@@ -168,8 +167,8 @@ const AquariumDetail = () => {
           <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
         </TabsContent>
 
-        <TabsContent value="journal">
-          <JournalTab aquariumId={aquarium.id} canEdit={canEdit} />
+        <TabsContent value="notes">
+          <NotesTab aquariumId={aquarium.id} canEdit={canEdit} />
         </TabsContent>
 
         <TabsContent value="log">

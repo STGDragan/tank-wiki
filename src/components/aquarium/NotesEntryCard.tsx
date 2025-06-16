@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tables } from "@/integrations/supabase/types";
 import { format } from 'date-fns';
 
-interface JournalEntryCardProps {
+interface NotesEntryCardProps {
     entry: Tables<'journal_entries'>;
 }
 
-export const JournalEntryCard = ({ entry }: JournalEntryCardProps) => {
+export const NotesEntryCard = ({ entry }: NotesEntryCardProps) => {
     return (
         <Card>
             <CardHeader>
