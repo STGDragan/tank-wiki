@@ -3,10 +3,9 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, ShoppingCart, Shield, LogOut, Book, Image as ImageIcon, FileText, Users, Menu } from "lucide-react";
+import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, Menu } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { ScrollArea } from "../ui/scroll-area";
-import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -28,14 +27,7 @@ export function Sidebar() {
   const location = useLocation();
   const { roles } = useAuth();
   const isAdmin = roles?.includes("admin");
-  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-    setIsMobileOpen(false);
-  };
 
   const renderNav = (items: typeof mainNav) => (
     <ul className="space-y-1">
@@ -86,14 +78,6 @@ export function Sidebar() {
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </Link>
-        </Button>
-        <Button
-          variant="ghost"
-          className="w-full justify-start"
-          onClick={handleLogout}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
         </Button>
       </div>
     </>

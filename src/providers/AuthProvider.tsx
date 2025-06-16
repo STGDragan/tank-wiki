@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
@@ -33,37 +34,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const fetchRoles = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId);
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
 
-    if (error) {
-      console.error('Error fetching user roles:', error);
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        setRoles(null);
+      } else {
+        setRoles(data.map(r => r.role));
+      }
+    } catch (error) {
+      console.error('Error in fetchRoles:', error);
       setRoles(null);
-    } else {
-      setRoles(data.map(r => r.role));
     }
   }, []);
 
   const fetchSubscriber = useCallback(async (userId: string) => {
-    const { error: syncError } = await supabase.functions.invoke('check-subscription-status');
-    if (syncError) {
-      console.error('Error syncing subscription status with Stripe:', syncError.message);
-      // Not returning here, we can still try to fetch from the DB.
-    }
+    try {
+      const { error: syncError } = await supabase.functions.invoke('check-subscription-status');
+      if (syncError) {
+        console.error('Error syncing subscription status with Stripe:', syncError.message);
+      }
 
-    const { data, error } = await supabase
-      .from('subscribers')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+      const { data, error } = await supabase
+        .from('subscribers')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
 
-    if (error) {
-      console.error('Error fetching subscriber info:', error);
+      if (error) {
+        console.error('Error fetching subscriber info:', error);
+        setSubscriber(null);
+      } else {
+        setSubscriber(data);
+      }
+    } catch (error) {
+      console.error('Error in fetchSubscriber:', error);
       setSubscriber(null);
-    } else {
-      setSubscriber(data);
     }
   }, []);
   
@@ -80,30 +90,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user, fetchSubscriber]);
 
   useEffect(() => {
-    setLoading(true);
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        Promise.all([
-            fetchRoles(session.user.id),
-            fetchSubscriber(session.user.id),
-        ]).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
+    let mounted = true;
+    
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+        }
+        
+        if (mounted) {
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
+          
+          if (initialSession?.user) {
+            // Fetch additional data for authenticated user
+            await Promise.all([
+              fetchRoles(initialSession.user.id),
+              fetchSubscriber(initialSession.user.id),
+            ]);
+          }
+          
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
-    });
+    };
 
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id);
+        
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
-        if (_event === 'SIGNED_OUT') {
-            navigate('/login');
-        }
-        if (session?.user) {
-          fetchRoles(session.user.id);
-          fetchSubscriber(session.user.id);
+        
+        if (event === 'SIGNED_OUT') {
+          setRoles(null);
+          setSubscriber(null);
+          navigate('/login');
+        } else if (session?.user) {
+          // Use setTimeout to avoid blocking the auth state change
+          setTimeout(() => {
+            if (mounted) {
+              fetchRoles(session.user.id);
+              fetchSubscriber(session.user.id);
+            }
+          }, 0);
         } else {
           setRoles(null);
           setSubscriber(null);
@@ -111,8 +152,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    return () => subscription.unsubscribe();
-  }, [fetchRoles, navigate, fetchSubscriber]);
+    // Initialize auth state
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchRoles, fetchSubscriber, navigate]);
 
   const value = { user, session, loading, roles, subscriber, refreshRoles, refreshSubscriber };
 

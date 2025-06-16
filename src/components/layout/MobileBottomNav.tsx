@@ -1,8 +1,10 @@
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ShoppingCart, Book, Users, Settings } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Book, Users, Settings, LogOut } from "lucide-react";
+import { useAuth } from "@/providers/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -14,28 +16,47 @@ const navItems = [
 
 export function MobileBottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  if (!user) return null;
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
-      <div className="flex justify-around items-center py-2 px-4">
-        {navItems.map((item) => (
+      <div className="overflow-x-auto">
+        <div className="flex min-w-max justify-around items-center py-2 px-4">
+          {navItems.map((item) => (
+            <Button
+              key={item.name}
+              variant="ghost"
+              className={cn(
+                "flex flex-col items-center justify-center h-12 min-w-16 px-2 text-xs",
+                location.pathname.startsWith(item.href) 
+                  ? "text-primary" 
+                  : "text-muted-foreground"
+              )}
+              asChild
+            >
+              <Link to={item.href}>
+                <item.icon className="h-5 w-5 mb-1" />
+                <span className="text-xs leading-none whitespace-nowrap">{item.name}</span>
+              </Link>
+            </Button>
+          ))}
           <Button
-            key={item.name}
             variant="ghost"
-            className={cn(
-              "flex flex-col items-center justify-center h-12 w-16 p-1 text-xs",
-              location.pathname.startsWith(item.href) 
-                ? "text-primary" 
-                : "text-muted-foreground"
-            )}
-            asChild
+            className="flex flex-col items-center justify-center h-12 min-w-16 px-2 text-xs text-muted-foreground"
+            onClick={handleLogout}
           >
-            <Link to={item.href}>
-              <item.icon className="h-5 w-5 mb-1" />
-              <span className="text-xs leading-none">{item.name}</span>
-            </Link>
+            <LogOut className="h-5 w-5 mb-1" />
+            <span className="text-xs leading-none whitespace-nowrap">Logout</span>
           </Button>
-        ))}
+        </div>
       </div>
     </div>
   );
