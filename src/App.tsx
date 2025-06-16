@@ -21,6 +21,7 @@ import AcceptInvitation from "./pages/AcceptInvitation";
 import Shopping from "./pages/Shopping";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle";
+import SpeciesBrowserPage from "./pages/SpeciesBrowser";
 import Account from "./pages/Account";
 import Feedback from "./pages/Feedback";
 import LegalPage from "./pages/LegalPage";
@@ -66,6 +67,7 @@ function App() {
                   <Route path="/shopping" element={<Shopping />} />
                   <Route path="/knowledge-base" element={<KnowledgeBase />} />
                   <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
+                  <Route path="/species-browser" element={<SpeciesBrowserPage />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/feedback" element={<Feedback />} />
                   <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
