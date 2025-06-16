@@ -10,8 +10,8 @@ import { NotificationsCard } from "@/components/account/NotificationsCard";
 import { AppearanceCard } from "@/components/account/AppearanceCard";
 import { AdminRoleCard } from "@/components/account/AdminRoleCard";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, LogOut } from "lucide-react";
 import { DeleteAccountCard } from "@/components/account/DeleteAccountCard";
 import { PasswordCard } from "@/components/account/PasswordCard";
 
@@ -35,6 +35,12 @@ const LegalCard = () => (
 
 const Account = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', user?.id],
@@ -56,7 +62,10 @@ const Account = () => {
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <h1 className="text-2xl font-semibold">Settings</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">Settings</h1>
+          <Skeleton className="h-10 w-24" />
+        </div>
         <Card>
           <CardHeader>
             <Skeleton className="h-6 w-32" />
@@ -121,7 +130,13 @@ const Account = () => {
   
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Settings</h1>
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
+      </div>
       <ProfileCard profile={profile} />
       <PasswordCard />
       <NotificationsCard profile={profile} isLoading={isLoading} />

@@ -1,10 +1,9 @@
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ShoppingCart, Book, Users, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Book, Users, Settings } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -16,13 +15,7 @@ const navItems = [
 
 export function MobileBottomNav() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user } = useAuth();
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
 
   if (!user) return null;
 
@@ -48,14 +41,6 @@ export function MobileBottomNav() {
               </Link>
             </Button>
           ))}
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center justify-center h-12 min-w-16 px-2 text-xs text-muted-foreground"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-5 w-5 mb-1" />
-            <span className="text-xs leading-none whitespace-nowrap">Logout</span>
-          </Button>
         </div>
       </div>
     </div>
