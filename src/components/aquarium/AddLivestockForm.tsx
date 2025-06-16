@@ -17,13 +17,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { SpeciesSelector } from "./SpeciesSelector";
+import { DateSelector } from "./DateSelector";
 
 const livestockFormSchema = z.object({
   species: z.string().min(1, "Species is required."),
@@ -32,61 +27,6 @@ const livestockFormSchema = z.object({
   added_at: z.date({ required_error: "Date added is required."}),
   notes: z.string().optional(),
 });
-
-// Organized by categories for different tank types
-const livestockCategories = {
-  "Freshwater": {
-    "Fish": ["Neon Tetra", "Cardinal Tetra", "Guppy", "Molly", "Platy", "Swordtail", "Betta", "Angelfish", "Discus", "Corydoras Catfish", "Otocinclus", "Bristlenose Pleco", "Cherry Barb", "Tiger Barb", "Zebra Danio", "White Cloud Mountain Minnow", "Harlequin Rasbora"],
-    "Invertebrates": ["Cherry Shrimp", "Amano Shrimp", "Ghost Shrimp", "Nerite Snail", "Mystery Snail", "Ramshorn Snail"],
-  },
-  "Planted Freshwater": {
-    "Fish": ["Neon Tetra", "Cardinal Tetra", "Rummy Nose Tetra", "Harlequin Rasbora", "Otocinclus", "Siamese Algae Eater", "Corydoras Catfish"],
-    "Invertebrates": ["Cherry Shrimp", "Amano Shrimp", "Crystal Red Shrimp"],
-    "Plants": ["Java Moss", "Anubias", "Amazon Sword", "Vallisneria", "Cryptocoryne", "Rotala", "Ludwigia"],
-  },
-  "Freshwater Invertebrates": {
-    "Shrimp": ["Cherry Shrimp", "Crystal Red Shrimp", "Crystal Black Shrimp", "Amano Shrimp", "Ghost Shrimp", "Bamboo Shrimp", "Vampire Shrimp"],
-    "Snails": ["Nerite Snail", "Mystery Snail", "Ramshorn Snail", "Malaysian Trumpet Snail", "Assassin Snail"],
-    "Crayfish": ["Electric Blue Crayfish", "Red Swamp Crayfish", "Orange CPO Crayfish"],
-  },
-  "Saltwater Fish-Only (FO)": {
-    "Clownfish": ["Ocellaris Clownfish", "Percula Clownfish", "Maroon Clownfish", "Tomato Clownfish"],
-    "Tangs": ["Blue Tang", "Yellow Tang", "Purple Tang", "Sailfin Tang", "Powder Blue Tang"],
-    "Angelfish": ["Queen Angelfish", "French Angelfish", "Gray Angelfish", "Emperor Angelfish"],
-    "Wrasses": ["Six Line Wrasse", "Yellow Coris Wrasse", "Fairy Wrasse", "Cleaner Wrasse"],
-    "Gobies": ["Mandarin Goby", "Yellow Watchman Goby", "Diamond Goby", "Firefish Goby"],
-    "Other Fish": ["Royal Gramma", "Cardinalfish", "Anthias", "Dottyback", "Blenny", "Triggerfish", "Butterflyfish", "Grouper"],
-  },
-  "Fish-Only with Live Rock (FOWLR)": {
-    "Fish": ["Clownfish", "Blue Tang", "Yellow Tang", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias", "Dottyback", "Blenny", "Mandarin Fish"],
-    "Invertebrates": ["Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail", "Nassarius Snail", "Conch", "Sea Urchin"],
-    "Live Rock": ["Fiji Live Rock", "Caribbean Live Rock", "Aquacultured Live Rock"],
-  },
-  "Soft Coral Reef": {
-    "Fish": ["Clownfish", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias", "Dottyback"],
-    "Invertebrates": ["Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail"],
-    "Soft Corals": ["Zoanthid Coral", "Mushroom Coral", "Kenya Tree Coral", "Toadstool Coral", "Star Polyp", "Xenia"],
-  },
-  "Mixed Reef (LPS + Soft)": {
-    "Fish": ["Clownfish", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias", "Dottyback"],
-    "Invertebrates": ["Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail"],
-    "Soft Corals": ["Zoanthid Coral", "Mushroom Coral", "Kenya Tree Coral", "Toadstool Coral", "Star Polyp", "Xenia"],
-    "LPS Corals": ["Hammer Coral", "Torch Coral", "Frogspawn", "Brain Coral", "Acan Coral", "Chalice Coral"],
-  },
-  "SPS Reef (Hard Coral)": {
-    "Fish": ["Clownfish", "Royal Gramma", "Cardinalfish", "Goby", "Wrasse", "Anthias", "Dottyback"],
-    "Invertebrates": ["Cleaner Shrimp", "Fire Shrimp", "Hermit Crab", "Turbo Snail"],
-    "SPS Corals": ["Acropora", "Montipora", "Staghorn Coral", "Table Coral", "Bird's Nest Coral", "Millepora", "Stylophora", "Seriatopora"],
-  },
-  "Brackish": {
-    "Fish": ["Mollies", "Guppies", "Figure 8 Puffer", "Green Spotted Puffer", "Archer Fish", "Mono Argentus"],
-    "Invertebrates": ["Nerite Snails", "Amano Shrimp"],
-  },
-  "Coldwater": {
-    "Fish": ["Goldfish", "White Cloud Mountain Minnow", "Weather Loach", "Hillstream Loach"],
-    "Plants": ["Elodea", "Cabomba", "Hornwort"],
-  },
-};
 
 type LivestockFormValues = z.infer<typeof livestockFormSchema>;
 
@@ -99,14 +39,6 @@ interface AddLivestockFormProps {
 export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLivestockFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-
-  const getSpeciesOptions = () => {
-    const tankTypeKey = aquariumType as keyof typeof livestockCategories;
-    return livestockCategories[tankTypeKey] || livestockCategories["Freshwater"];
-  };
-
-  const speciesCategories = getSpeciesOptions();
 
   const form = useForm<LivestockFormValues>({
     resolver: zodResolver(livestockFormSchema),
@@ -153,87 +85,14 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
           control={form.control}
           name="species"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Species</FormLabel>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      className={cn(
-                        "w-full justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value || "Select a species..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[95vw] max-w-none p-0" align="start">
-                  <Command>
-                    <CommandInput placeholder="Search species..." />
-                    <CommandList 
-                      className="max-h-[400px] overflow-y-auto"
-                      onWheel={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <CommandEmpty>No species found.</CommandEmpty>
-                      <div className="grid grid-cols-3 gap-0">
-                        {Object.entries(speciesCategories).map(([category, species]) => (
-                          <div key={category} className="min-w-0">
-                            <CommandGroup heading={category}>
-                              {species.map((speciesName) => (
-                                <CommandItem
-                                  key={speciesName}
-                                  value={speciesName}
-                                  onSelect={() => {
-                                    form.setValue("species", speciesName);
-                                    setOpen(false);
-                                  }}
-                                  className="text-sm"
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      field.value === speciesName ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
-                                  {speciesName}
-                                </CommandItem>
-                              ))}
-                              <CommandItem
-                                key={`${category}-other`}
-                                value={`Other ${category}`}
-                                onSelect={() => {
-                                  form.setValue("species", `Other ${category}`);
-                                  setOpen(false);
-                                }}
-                                className="text-sm font-medium text-muted-foreground"
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === `Other ${category}` ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                Other {category}
-                              </CommandItem>
-                            </CommandGroup>
-                          </div>
-                        ))}
-                      </div>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
+            <SpeciesSelector
+              value={field.value}
+              onChange={field.onChange}
+              aquariumType={aquariumType}
+            />
           )}
         />
+        
         <FormField
           control={form.control}
           name="name"
@@ -247,6 +106,7 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
             </FormItem>
           )}
         />
+        
         <FormField
           control={form.control}
           name="quantity"
@@ -260,46 +120,19 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
             </FormItem>
           )}
         />
+        
         <FormField
-            control={form.control}
-            name="added_at"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Date Added</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal justify-start",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          control={form.control}
+          name="added_at"
+          render={({ field }) => (
+            <DateSelector
+              value={field.value}
+              onChange={field.onChange}
+              label="Date Added"
+            />
+          )}
+        />
+        
         <FormField
           control={form.control}
           name="notes"
@@ -313,6 +146,7 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
             </FormItem>
           )}
         />
+        
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Adding..." : "Add Livestock"}
         </Button>
