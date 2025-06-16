@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -26,6 +27,8 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
     mutationFn: async ({ email, permission }: { email: string; permission: "viewer" | "editor" }) => {
       if (!user) throw new Error("User not authenticated");
 
+      console.log("Starting invitation process for:", email);
+
       // First, create the invitation in the database
       const { error: dbError } = await supabase
         .from("aquarium_share_invitations")
@@ -36,32 +39,30 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
           permission,
         });
 
-      if (dbError) throw new Error(dbError.message);
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error(dbError.message);
+      }
 
-      // Then, send the email invitation
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("No session found");
+      console.log("Invitation created in database, now sending email...");
 
-      const response = await fetch(`https://zlkefvmjdlqewcreqhko.supabase.co/functions/v1/send-aquarium-invitation`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
+      // Then, send the email invitation using the Supabase client
+      const { data, error } = await supabase.functions.invoke('send-aquarium-invitation', {
+        body: {
           aquariumId,
           invitedEmail: email,
           permission,
           aquariumName,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to send invitation email');
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || 'Failed to send invitation email');
       }
 
-      return await response.json();
+      console.log("Email sent successfully:", data);
+      return data;
     },
     onSuccess: () => {
       toast({
@@ -73,6 +74,7 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
       queryClient.invalidateQueries({ queryKey: ["aquarium_invitations", aquariumId] });
     },
     onError: (error: Error) => {
+      console.error("Invitation error:", error);
       toast({
         title: "Error sending invitation",
         description: error.message,
@@ -85,6 +87,7 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
     e.preventDefault();
     if (!email.trim()) return;
 
+    console.log("Submitting invitation for:", email.trim());
     sendInvitationMutation.mutate({ email: email.trim(), permission });
   };
 

@@ -27,6 +27,14 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log("Starting invitation email process...");
+
+    // Check if RESEND_API_KEY is available
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -44,12 +52,13 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     if (authError || !user) {
+      console.error("Auth error:", authError);
       throw new Error("Unauthorized");
     }
 
     const { aquariumId, invitedEmail, permission, aquariumName }: InvitationRequest = await req.json();
 
-    console.log(`Sending invitation for aquarium ${aquariumName} to ${invitedEmail}`);
+    console.log(`Processing invitation for aquarium ${aquariumName} to ${invitedEmail}`);
 
     // Get the invitation details from the database
     const { data: invitation, error: invitationError } = await supabase
@@ -61,8 +70,11 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (invitationError || !invitation) {
-      throw new Error("Invitation not found");
+      console.error("Invitation not found:", invitationError);
+      throw new Error("Invitation not found in database");
     }
+
+    console.log("Found invitation token:", invitation.invitation_token);
 
     // Get the owner's profile for the email
     const { data: profile, error: profileError } = await supabase
@@ -72,7 +84,18 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     const ownerName = profile?.full_name || user.email || "Someone";
-    const acceptUrl = `${Deno.env.get("SUPABASE_URL")?.replace('//', '//').replace('supabase.co', 'lovable.app')}/accept-invitation/${invitation.invitation_token}`;
+    
+    // Create the accept URL - use the current domain instead of hardcoded URL
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    if (!supabaseUrl) {
+      throw new Error("SUPABASE_URL environment variable not found");
+    }
+    
+    // Extract the project domain from the Supabase URL and construct the app URL
+    const projectId = supabaseUrl.split('//')[1].split('.')[0];
+    const acceptUrl = `https://${projectId}.lovableproject.com/accept-invitation/${invitation.invitation_token}`;
+
+    console.log("Accept URL:", acceptUrl);
 
     // Render the email template
     const emailHtml = await renderAsync(
@@ -85,6 +108,8 @@ const handler = async (req: Request): Promise<Response> => {
       })
     );
 
+    console.log("Email template rendered successfully");
+
     // Send the email
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: "AquaManager <onboarding@resend.dev>",
@@ -94,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailError) {
-      console.error("Error sending email:", emailError);
+      console.error("Resend error:", emailError);
       throw new Error(`Email sending failed: ${emailError.message}`);
     }
 
