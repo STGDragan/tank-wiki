@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TestTube2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 interface TestingKitRecommendationsProps {
   aquariumType: string | null;
@@ -112,32 +113,38 @@ export function TestingKitRecommendations({ aquariumType }: TestingKitRecommenda
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {recommendations.map((kit, index) => (
-            <div key={index} className="border rounded-lg p-4 space-y-3">
-              <img 
-                src={kit.image} 
-                alt={kit.name}
-                className="w-full h-32 object-cover rounded"
-              />
-              <div>
-                <h4 className="font-semibold text-sm">{kit.name}</h4>
-                <p className="text-xs text-muted-foreground mt-1">{kit.description}</p>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {kit.tests.map((test) => (
-                  <Badge key={test} variant="secondary" className="text-xs">
-                    {test}
-                  </Badge>
-                ))}
-              </div>
-              <Button size="sm" variant="outline" className="w-full">
-                <ExternalLink className="h-3 w-3 mr-1" />
-                View Details
-              </Button>
-            </div>
-          ))}
-        </div>
+        <Carousel opts={{ align: "start" }} className="w-full">
+          <CarouselContent>
+            {recommendations.map((kit, index) => (
+              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                <div className="border rounded-lg p-4 space-y-3 h-full">
+                  <img 
+                    src={kit.image} 
+                    alt={kit.name}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-sm">{kit.name}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{kit.description}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {kit.tests.map((test) => (
+                      <Badge key={test} variant="secondary" className="text-xs">
+                        {test}
+                      </Badge>
+                    ))}
+                  </div>
+                  <Button size="sm" variant="outline" className="w-full">
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    View Details
+                  </Button>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="ml-12" />
+          <CarouselNext className="mr-12" />
+        </Carousel>
       </CardContent>
     </Card>
   );

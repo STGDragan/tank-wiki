@@ -1,7 +1,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { saltwaterRecommendations, freshwaterRecommendations, Recommendation } from "@/data/recommendations";
-import RecommendationCarousel from "../recommendations/RecommendationCarousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 interface ConsumablesRecommendationsProps {
   aquariumType: string | null | undefined;
@@ -46,7 +49,31 @@ export function ConsumablesRecommendations({ aquariumType }: ConsumablesRecommen
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <RecommendationCarousel items={consumableRecommendations} />
+        <Carousel opts={{ align: "start" }} className="w-full">
+          <CarouselContent>
+            {consumableRecommendations.map((item, index) => (
+              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                <div className="border rounded-lg p-4 space-y-3 h-full flex flex-col">
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm">{item.name}</h4>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-3">{item.description}</p>
+                  </div>
+                  <Button size="sm" variant="outline" className="w-full mt-auto">
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    View Details
+                  </Button>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="ml-12" />
+          <CarouselNext className="mr-12" />
+        </Carousel>
       </CardContent>
     </Card>
   );
