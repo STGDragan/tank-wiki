@@ -1,4 +1,3 @@
-
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,22 +85,20 @@ const AquariumDetail = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <LivestockSection
-              livestock={livestock || []}
-              aquariumId={aquarium.id}
-              aquariumType={aquarium.type}
-              canEdit={canEdit}
-              onUpdateQuantity={handleUpdateLivestockQuantity}
-              onDelete={handleDeleteLivestock}
-            />
-            <EquipmentSection
-              equipment={equipment || []}
-              aquariumId={aquarium.id}
-              canEdit={canEdit}
-              onDelete={handleDeleteEquipment}
-            />
-          </div>
+          <LivestockSection
+            livestock={livestock || []}
+            aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
+            canEdit={canEdit}
+            onUpdateQuantity={handleUpdateLivestockQuantity}
+            onDelete={handleDeleteLivestock}
+          />
+          <EquipmentSection
+            equipment={equipment || []}
+            aquariumId={aquarium.id}
+            canEdit={canEdit}
+            onDelete={handleDeleteEquipment}
+          />
           <MaintenanceSection
             tasks={pendingTasks || []}
             aquariumId={aquarium.id}
