@@ -172,7 +172,7 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] max-w-none p-0" align="start">
+                <PopoverContent className="w-[95vw] max-w-none p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Search species..." />
                     <CommandList 
@@ -182,7 +182,7 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                       }}
                     >
                       <CommandEmpty>No species found.</CommandEmpty>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0">
+                      <div className="grid grid-cols-3 gap-0">
                         {Object.entries(speciesCategories).map(([category, species]) => (
                           <div key={category} className="min-w-0">
                             <CommandGroup heading={category}>
