@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { saltwaterRecommendations, freshwaterRecommendations, Recommendation } f
 type Aquarium = Pick<Tables<'aquariums'>, 'type'>;
 
 const RecommendationCarousel = ({ title, items }: { title: string; items: Recommendation[] }) => {
-  const truncateDescription = (description: string, maxLength: number = 80) => {
+  const truncateDescription = (description: string, maxLength: number = 100) => {
     if (description.length <= maxLength) return description;
     return description.slice(0, maxLength) + '...';
   };
@@ -26,18 +27,20 @@ const RecommendationCarousel = ({ title, items }: { title: string; items: Recomm
           {items.map((item, index) => (
             <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
               <div className="p-1">
-                <Card className="h-[280px] flex flex-col">
+                <Card className="h-[300px] flex flex-col">
                   <CardHeader className="p-0 flex-shrink-0">
                     <img src={item.imageUrl} alt={item.name} className="rounded-t-lg h-32 object-cover w-full" />
                   </CardHeader>
-                  <CardContent className="p-4 space-y-2 flex-1 flex flex-col">
-                    <h4 className="font-semibold line-clamp-2">{item.name}</h4>
-                    <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
-                      {truncateDescription(item.description)}
-                    </p>
+                  <CardContent className="p-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold line-clamp-2 text-sm">{item.name}</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-4">
+                        {truncateDescription(item.description)}
+                      </p>
+                    </div>
                   </CardContent>
-                  <CardFooter className="p-4 pt-0 flex-shrink-0">
-                    <Button variant="outline" className="w-full">
+                  <CardFooter className="p-4 pt-2 flex-shrink-0">
+                    <Button variant="outline" className="w-full text-xs h-8">
                       View Item
                     </Button>
                   </CardFooter>
