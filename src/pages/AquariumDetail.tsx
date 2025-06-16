@@ -98,6 +98,7 @@ const AquariumDetail = () => {
           <EquipmentSection
             equipment={equipment || []}
             aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
             canEdit={canEdit}
             onDelete={handleDeleteEquipment}
           />
@@ -131,6 +132,7 @@ const AquariumDetail = () => {
           <EquipmentSection
             equipment={equipment || []}
             aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
             canEdit={canEdit}
             onDelete={handleDeleteEquipment}
           />
