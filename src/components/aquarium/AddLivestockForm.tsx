@@ -1,5 +1,4 @@
 
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -177,50 +176,56 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                   <Command>
                     <CommandInput placeholder="Search species..." />
                     <CommandList 
-                      className="max-h-[300px] overflow-y-auto"
+                      className="max-h-[400px] overflow-y-auto"
                       onWheel={(e) => {
                         e.stopPropagation();
                       }}
                     >
                       <CommandEmpty>No species found.</CommandEmpty>
-                      {Object.entries(speciesCategories).map(([category, species]) => (
-                        <CommandGroup key={category} heading={category}>
-                          {species.map((speciesName) => (
-                            <CommandItem
-                              key={speciesName}
-                              value={speciesName}
-                              onSelect={() => {
-                                form.setValue("species", speciesName);
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  field.value === speciesName ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {speciesName}
-                            </CommandItem>
-                          ))}
-                          <CommandItem
-                            key={`${category}-other`}
-                            value={`Other ${category}`}
-                            onSelect={() => {
-                              form.setValue("species", `Other ${category}`);
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                field.value === `Other ${category}` ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            Other {category}
-                          </CommandItem>
-                        </CommandGroup>
-                      ))}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-0">
+                        {Object.entries(speciesCategories).map(([category, species]) => (
+                          <div key={category} className="min-w-0">
+                            <CommandGroup heading={category}>
+                              {species.map((speciesName) => (
+                                <CommandItem
+                                  key={speciesName}
+                                  value={speciesName}
+                                  onSelect={() => {
+                                    form.setValue("species", speciesName);
+                                    setOpen(false);
+                                  }}
+                                  className="text-sm"
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      field.value === speciesName ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {speciesName}
+                                </CommandItem>
+                              ))}
+                              <CommandItem
+                                key={`${category}-other`}
+                                value={`Other ${category}`}
+                                onSelect={() => {
+                                  form.setValue("species", `Other ${category}`);
+                                  setOpen(false);
+                                }}
+                                className="text-sm font-medium text-muted-foreground"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === `Other ${category}` ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                Other {category}
+                              </CommandItem>
+                            </CommandGroup>
+                          </div>
+                        ))}
+                      </div>
                     </CommandList>
                   </Command>
                 </PopoverContent>
@@ -315,4 +320,3 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
     </Form>
   );
 }
-
