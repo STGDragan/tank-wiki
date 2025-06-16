@@ -81,7 +81,7 @@ const AquariumDetail = () => {
           <TabsTrigger value="water">Water Tests</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-          <TabsTrigger value="journal">Journal</TabsTrigger>
+          <TabsTrigger value="journal">Notes</TabsTrigger>
           <TabsTrigger value="log">Log</TabsTrigger>
         </TabsList>
 
