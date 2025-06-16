@@ -125,7 +125,7 @@ export function CompleteTaskDialog({ task, isOpen, onOpenChange, onComplete }: C
           </div>
 
           {isWaterTest && (
-            <div className="space-y-3 border rounded-lg p-3 bg-blue-50">
+            <div className="space-y-3 rounded-lg border p-3 bg-muted/50">
               <Label className="text-sm font-semibold">Water Test Results</Label>
               <div className="grid grid-cols-2 gap-2">
                 <div>
@@ -188,7 +188,7 @@ export function CompleteTaskDialog({ task, isOpen, onOpenChange, onComplete }: C
           )}
 
           {isWaterChange && (
-            <div className="space-y-2 border rounded-lg p-3 bg-blue-50">
+            <div className="space-y-2 rounded-lg border p-3 bg-muted/50">
               <Label htmlFor="volume" className="text-sm font-semibold">Water Change Details</Label>
               <div>
                 <Label htmlFor="volume" className="text-xs">Volume Changed (gallons)</Label>
@@ -205,7 +205,7 @@ export function CompleteTaskDialog({ task, isOpen, onOpenChange, onComplete }: C
           )}
 
           {isFilterReplace && (
-            <div className="space-y-2 border rounded-lg p-3 bg-yellow-50">
+            <div className="space-y-2 rounded-lg border p-3 bg-muted/50">
               <Label className="text-sm font-semibold">Filter Replacement</Label>
               <div>
                 <Label htmlFor="filters" className="text-xs">Filters Remaining (optional)</Label>
