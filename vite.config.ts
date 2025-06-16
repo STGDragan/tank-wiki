@@ -8,11 +8,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    fs: {
+      strict: false,
+    },
+    middlewareMode: false,
+    // 🔽 This is the key fix to allow deep link reloads
+    historyApiFallback: true,
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
