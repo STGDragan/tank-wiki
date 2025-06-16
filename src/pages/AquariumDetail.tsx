@@ -1,3 +1,4 @@
+
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -76,12 +77,12 @@ const AquariumDetail = () => {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+          <TabsTrigger value="water">Water Tests</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="journal">Journal</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
+          <TabsTrigger value="journal">Journal</TabsTrigger>
           <TabsTrigger value="log">Log</TabsTrigger>
-          <TabsTrigger value="maintenance">Tasks</TabsTrigger>
-          <TabsTrigger value="water">Water</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -116,26 +117,6 @@ const AquariumDetail = () => {
           />
         </TabsContent>
 
-        <TabsContent value="timeline">
-          <TimelineTab
-            aquariumId={aquarium.id}
-            userId={user.id}
-            canEdit={canEdit}
-          />
-        </TabsContent>
-
-        <TabsContent value="journal">
-          <JournalTab aquariumId={aquarium.id} canEdit={canEdit} />
-        </TabsContent>
-
-        <TabsContent value="wishlist">
-          <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
-        </TabsContent>
-
-        <TabsContent value="log">
-          <LogTab aquariumId={aquarium.id} />
-        </TabsContent>
-
         <TabsContent value="maintenance" className="space-y-6">
           <MaintenanceSection
             tasks={tasks || []}
@@ -153,6 +134,26 @@ const AquariumDetail = () => {
             aquariumType={aquarium.type}
             latestReading={latestWaterReading}
           />
+        </TabsContent>
+
+        <TabsContent value="timeline">
+          <TimelineTab
+            aquariumId={aquarium.id}
+            userId={user.id}
+            canEdit={canEdit}
+          />
+        </TabsContent>
+
+        <TabsContent value="wishlist">
+          <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
+        </TabsContent>
+
+        <TabsContent value="journal">
+          <JournalTab aquariumId={aquarium.id} canEdit={canEdit} />
+        </TabsContent>
+
+        <TabsContent value="log">
+          <LogTab aquariumId={aquarium.id} />
         </TabsContent>
       </Tabs>
     </div>
