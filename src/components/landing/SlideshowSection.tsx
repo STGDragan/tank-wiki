@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -12,12 +11,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 interface SlideshowSectionProps {
   context: string;
+  autoplayDelay?: number; // in milliseconds, defaults to 3000
 }
 
-export function SlideshowSection({ context }: SlideshowSectionProps) {
+export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSectionProps) {
   const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false })
+    Autoplay({ delay: autoplayDelay, stopOnInteraction: false })
   );
+
+  // Update the plugin delay when autoplayDelay changes
+  React.useEffect(() => {
+    if (plugin.current) {
+      plugin.current.reset();
+      plugin.current = Autoplay({ delay: autoplayDelay, stopOnInteraction: false });
+    }
+  }, [autoplayDelay]);
 
   const { data: images, isLoading, error } = useQuery({
     queryKey: ["slideshow_images", context],

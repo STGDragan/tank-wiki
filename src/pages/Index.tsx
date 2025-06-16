@@ -6,6 +6,9 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 const Index = () => {
+  // You can customize the slideshow speed here
+  const slideshowDelay = 4000; // 4 seconds - customize as needed
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -37,7 +40,7 @@ const Index = () => {
           </div>
           <div className="w-full max-w-4xl mx-auto px-4 md:px-6 relative z-10">
             <div className="h-[350px] md:h-[400px] rounded-lg overflow-hidden shadow-2xl">
-              <SlideshowSection context="landing-page" />
+              <SlideshowSection context="landing-page" autoplayDelay={slideshowDelay} />
             </div>
           </div>
         </section>
