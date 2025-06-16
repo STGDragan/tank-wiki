@@ -41,10 +41,16 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
 
       if (dbError) {
         console.error("Database error:", dbError);
-        throw new Error(dbError.message);
+        // If it's a duplicate key error, that's fine - invitation already exists
+        if (!dbError.message.includes('duplicate key')) {
+          throw new Error(dbError.message);
+        }
+        console.log("Invitation already exists, proceeding with email send...");
+      } else {
+        console.log("Invitation created in database successfully");
       }
 
-      console.log("Invitation created in database, now sending email...");
+      console.log("Now sending email...");
 
       // Then, send the email invitation using the Supabase client
       const { data, error } = await supabase.functions.invoke('send-aquarium-invitation', {

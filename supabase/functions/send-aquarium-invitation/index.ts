@@ -6,8 +6,6 @@ import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { InvitationEmail } from "./_templates/InvitationEmail.tsx";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY")!);
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -32,8 +30,12 @@ const handler = async (req: Request): Promise<Response> => {
     // Check if RESEND_API_KEY is available
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
+      console.error("RESEND_API_KEY is not configured");
       throw new Error("RESEND_API_KEY is not configured");
     }
+    console.log("RESEND_API_KEY found");
+
+    const resend = new Resend(resendApiKey);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -43,6 +45,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Get the authorization header
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
+      console.error("No authorization header");
       throw new Error("No authorization header");
     }
 
@@ -55,6 +58,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Auth error:", authError);
       throw new Error("Unauthorized");
     }
+
+    console.log("User authenticated:", user.id);
 
     const { aquariumId, invitedEmail, permission, aquariumName }: InvitationRequest = await req.json();
 
