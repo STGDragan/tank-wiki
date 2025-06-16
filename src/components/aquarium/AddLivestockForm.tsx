@@ -175,49 +175,47 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                 <PopoverContent className="w-full p-0">
                   <Command>
                     <CommandInput placeholder="Search species..." />
-                    <CommandList>
+                    <CommandList className="max-h-[300px]">
                       <CommandEmpty>No species found.</CommandEmpty>
-                      <ScrollArea className="h-[300px]">
-                        {Object.entries(speciesCategories).map(([category, species]) => (
-                          <CommandGroup key={category} heading={category}>
-                            {species.map((speciesName) => (
-                              <CommandItem
-                                key={speciesName}
-                                value={speciesName}
-                                onSelect={() => {
-                                  form.setValue("species", speciesName);
-                                  setOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === speciesName ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {speciesName}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        ))}
-                        <CommandGroup heading="Other">
-                          <CommandItem
-                            value="Other"
-                            onSelect={() => {
-                              form.setValue("species", "Other");
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                field.value === "Other" ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            Other
-                          </CommandItem>
+                      {Object.entries(speciesCategories).map(([category, species]) => (
+                        <CommandGroup key={category} heading={category}>
+                          {species.map((speciesName) => (
+                            <CommandItem
+                              key={speciesName}
+                              value={speciesName}
+                              onSelect={() => {
+                                form.setValue("species", speciesName);
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === speciesName ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {speciesName}
+                            </CommandItem>
+                          ))}
                         </CommandGroup>
-                      </ScrollArea>
+                      ))}
+                      <CommandGroup heading="Other">
+                        <CommandItem
+                          value="Other"
+                          onSelect={() => {
+                            form.setValue("species", "Other");
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              field.value === "Other" ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          Other
+                        </CommandItem>
+                      </CommandGroup>
                     </CommandList>
                   </Command>
                 </PopoverContent>
