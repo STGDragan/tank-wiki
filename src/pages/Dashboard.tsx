@@ -84,7 +84,7 @@ const Dashboard = () => {
   return (
     <div className="h-full w-full overflow-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <div className="w-full h-[160px] sm:h-[200px] rounded-lg overflow-hidden">
+        <div className="w-full h-[200px] rounded-lg overflow-hidden">
           <SlideshowSection context="dashboard" />
         </div>
         

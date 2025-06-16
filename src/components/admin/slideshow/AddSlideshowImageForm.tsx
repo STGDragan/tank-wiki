@@ -20,6 +20,7 @@ export function AddSlideshowImageForm() {
   } = useSlideshowForm();
 
   const selectedFile = form.watch("image_file");
+  const selectedContext = form.watch("context");
 
   return (
     <>
@@ -27,6 +28,7 @@ export function AddSlideshowImageForm() {
         imageToCrop={imageToCrop}
         onCrop={handleCrop}
         onClose={() => setImageToCrop(null)}
+        context={selectedContext}
       />
       <Card>
         <CardHeader>
@@ -35,17 +37,18 @@ export function AddSlideshowImageForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <ContextSelectField
+                control={form.control}
+                isDisabled={addImageMutation.isPending}
+              />
               <ImageUploadField
                 onFileSelect={handleFileSelect}
                 selectedFile={selectedFile}
                 isDisabled={addImageMutation.isPending}
                 error={form.formState.errors.image_file?.message}
+                context={selectedContext}
               />
               <AltTextField
-                control={form.control}
-                isDisabled={addImageMutation.isPending}
-              />
-              <ContextSelectField
                 control={form.control}
                 isDisabled={addImageMutation.isPending}
               />

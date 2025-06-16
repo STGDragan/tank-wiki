@@ -10,10 +10,22 @@ interface ImageUploadFieldProps {
   selectedFile: File | undefined;
   isDisabled: boolean;
   error?: string;
+  context?: string;
 }
 
-export function ImageUploadField({ onFileSelect, selectedFile, isDisabled, error }: ImageUploadFieldProps) {
+export function ImageUploadField({ onFileSelect, selectedFile, isDisabled, error, context = 'landing-page' }: ImageUploadFieldProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getOptimalDimensions = () => {
+    switch (context) {
+      case 'dashboard':
+        return '1200 × 200px (6:1 aspect ratio)';
+      case 'landing-page':
+        return '1200 × 400px (3:1 aspect ratio)';
+      default:
+        return '1200 × 400px (3:1 aspect ratio)';
+    }
+  };
 
   return (
     <FormItem>
@@ -27,8 +39,14 @@ export function ImageUploadField({ onFileSelect, selectedFile, isDisabled, error
           disabled={isDisabled}
         />
       </FormControl>
-      <FormDescription>
-        Upload an image from your computer (max 5MB). It will be cropped to a 3:2 aspect ratio.
+      <FormDescription className="space-y-1">
+        <div>Upload an image from your computer (max 5MB).</div>
+        <div className="font-medium text-sm">
+          For best results, use images with dimensions: {getOptimalDimensions()}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Images will be cropped to the correct aspect ratio during upload.
+        </div>
       </FormDescription>
       {selectedFile && (
         <div className="mt-2 p-2 border rounded-md">
