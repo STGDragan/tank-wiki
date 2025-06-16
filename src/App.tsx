@@ -25,6 +25,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import SharedWithMe from "./pages/SharedWithMe";
 import AcceptInvitation from "./pages/AcceptInvitation";
+import Feedback from "./pages/Feedback";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/shopping" element={<Shopping />} />
                 <Route path="/knowledge-base" element={<KnowledgeBase />} />
                 <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
+                <Route path="/feedback" element={<Feedback />} />
                 <Route path="/account" element={<Account />} />
                 
                 <Route element={<AdminRoute />}>
