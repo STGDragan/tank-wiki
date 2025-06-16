@@ -21,6 +21,7 @@ const adminNav = [
     { name: "Knowledge Base", href: "/admin/knowledge-base", icon: Book },
     { name: "Slideshow", href: "/admin/slideshow", icon: ImageIcon },
     { name: "Legal", href: "/admin/legal", icon: FileText },
+    { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
 ];
 
 export function Sidebar() {

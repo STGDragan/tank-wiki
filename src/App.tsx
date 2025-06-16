@@ -26,6 +26,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SharedWithMe from "./pages/SharedWithMe";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import Feedback from "./pages/Feedback";
+import AdminFeedback from "./pages/admin/Feedback";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => (
                   <Route path="/admin/knowledge-base/article/edit/:articleId" element={<ArticleEditor />} />
                   <Route path="/admin/slideshow" element={<AdminSlideshow />} />
                   <Route path="/admin/legal" element={<AdminLegal />} />
+                  <Route path="/admin/feedback" element={<AdminFeedback />} />
                 </Route>
               </Route>
               
