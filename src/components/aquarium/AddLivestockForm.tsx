@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -171,10 +172,15 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
-                  <Command shouldFilter={false}>
+                <PopoverContent className="w-full p-0">
+                  <Command>
                     <CommandInput placeholder="Search species..." />
-                    <CommandList className="max-h-[300px] overflow-y-auto">
+                    <CommandList 
+                      className="max-h-[300px] overflow-y-auto"
+                      onWheel={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
                       <CommandEmpty>No species found.</CommandEmpty>
                       {Object.entries(speciesCategories).map(([category, species]) => (
                         <CommandGroup key={category} heading={category}>
