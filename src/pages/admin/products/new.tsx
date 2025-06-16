@@ -1,4 +1,4 @@
-// File: /pages/admin/products/new.tsx
+// /src/pages/admin/products/new.tsx
 
 import React from "react";
 import { useRouter } from "next/router";
@@ -13,13 +13,14 @@ export default function NewProductPage() {
       .insert([
         {
           name: "New Product",
-          is_featured: false, // Adjust fields to your actual schema
-          featured: false,
-          price: null,
-          category: null,
-          subcategory: null,
           description: "",
-          image_url: null,
+          category: "",
+          subcategory: "",
+          is_featured: false,
+          price: 0,
+          images: [],
+          imageurls: [],
+          featured: false,
         },
       ])
       .select()
