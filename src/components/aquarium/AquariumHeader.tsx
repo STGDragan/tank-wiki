@@ -4,6 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { ImageUploader } from "./ImageUploader";
 import { ShareAquariumDialog } from "./ShareAquariumDialog";
+import { Button } from "../ui/button";
+import { Camera } from "lucide-react";
 
 interface AquariumHeaderProps {
   aquarium: {
@@ -54,9 +56,23 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
             )}
           </div>
         </div>
+        
+        {/* Show compact upload button when no image exists and user is owner */}
+        {!aquarium.image_url && isOwner && (
+          <div className="flex items-center">
+            <ImageUploader
+              aquariumId={aquarium.id}
+              onUploadSuccess={handleImageUploadSuccess}
+              table="aquariums"
+              recordId={aquarium.id}
+              aspect={16/9}
+              showAsButton={true}
+            />
+          </div>
+        )}
       </div>
       
-      {/* Only render the image section if there's an image OR if user is owner (to show upload option) */}
+      {/* Only render the image section if there's an image */}
       {aquarium.image_url && (
         <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
           <div className="relative w-full h-full">
@@ -78,19 +94,6 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
               </div>
             )}
           </div>
-        </AspectRatio>
-      )}
-
-      {/* Show upload option only when no image exists and user is owner */}
-      {!aquarium.image_url && isOwner && (
-        <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
-          <ImageUploader
-            aquariumId={aquarium.id}
-            onUploadSuccess={handleImageUploadSuccess}
-            table="aquariums"
-            recordId={aquarium.id}
-            aspect={16/9}
-          />
         </AspectRatio>
       )}
     </div>
