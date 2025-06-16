@@ -1,3 +1,5 @@
+// File: /pages/admin/products/new.tsx
+
 import React from "react";
 import { useRouter } from "next/router";
 import { supabase } from "@/lib/supabaseClient";
@@ -8,7 +10,18 @@ export default function NewProductPage() {
   async function createProduct() {
     const { data, error } = await supabase
       .from("products")
-      .insert([{ name: "New Product", visible: false, featured: false, onSale: false }])
+      .insert([
+        {
+          name: "New Product",
+          is_featured: false, // Adjust fields to your actual schema
+          featured: false,
+          price: null,
+          category: null,
+          subcategory: null,
+          description: "",
+          image_url: null,
+        },
+      ])
       .select()
       .single();
 
