@@ -1,5 +1,5 @@
 
-import { livestockCategories } from "@/data/livestockCategories";
+import { livestockCategories } from "@/data/species";
 
 interface CategoryFilterProps {
   aquariumType: string | null;
