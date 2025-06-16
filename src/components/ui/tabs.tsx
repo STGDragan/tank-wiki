@@ -10,7 +10,7 @@ const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => {
-  const isMobile = useIsMobile()
+  const { isMobile } = useIsMobile()
   
   return (
     <div className={cn(isMobile && "overflow-x-auto")}>
@@ -32,7 +32,7 @@ const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => {
-  const isMobile = useIsMobile()
+  const { isMobile } = useIsMobile()
   
   return (
     <TabsPrimitive.Trigger
