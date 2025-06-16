@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -97,6 +98,7 @@ export function SlideshowImageCard({ image }: SlideshowImageCardProps) {
               <SelectItem value="landing-page">Landing Page</SelectItem>
               <SelectItem value="dashboard">Dashboard</SelectItem>
               <SelectItem value="knowledge-base">Knowledge Base</SelectItem>
+              <SelectItem value="not-used">Not Used</SelectItem>
             </SelectContent>
           </Select>
         </div>
