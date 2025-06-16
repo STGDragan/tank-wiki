@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-
+import { useNavigate } from "react-router-dom";
 
 type Product = {
   id: number;
@@ -16,7 +16,7 @@ type Product = {
 export default function ProductsListPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -67,7 +67,7 @@ export default function ProductsListPage() {
           borderRadius: "4px",
           fontWeight: "bold",
         }}
-        onClick={() => router.push("/admin/products/new")}
+        onClick={() => navigate("/admin/products/new")}
       >
         + Add Product
       </button>
@@ -124,7 +124,7 @@ export default function ProductsListPage() {
                 </td>
                 <td style={{ padding: "0.5rem" }}>
                   <button
-                    onClick={() => router.push(`/admin/products/${product.id}`)}
+                    onClick={() => navigate(`/admin/products/${product.id}`)}
                     style={{
                       padding: "0.25rem 0.5rem",
                       cursor: "pointer",
