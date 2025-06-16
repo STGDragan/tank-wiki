@@ -398,7 +398,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
           </div>
 
           {/* Other Tests Section */}
-          <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+          <div className="mt-6 p-4 border rounded-lg bg-muted">
             <h3 className="text-lg font-semibold mb-4">Additional Tests</h3>
             
             {/* Predefined Other Tests Dropdown */}
