@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Wrench, Fish, Droplets, FileText } from 'lucide-react';
 import { format } from 'date-fns';
@@ -50,13 +49,14 @@ export const LogTab = ({ aquariumId }: LogTabProps) => {
   const { user } = useAuth();
   
   const {
+    aquarium,
     tasks,
     livestock,
     waterParameters,
     equipment,
   } = useAquariumData(aquariumId, user?.id);
 
-  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment);
+  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment, undefined, aquarium?.type);
 
   if (logEntries.length === 0) {
     return <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, water tests, and notes.</p>;

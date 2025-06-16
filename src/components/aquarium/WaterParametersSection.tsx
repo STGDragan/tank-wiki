@@ -19,6 +19,7 @@ interface WaterParametersSectionProps {
 export const WaterParametersSection = ({ aquariumId, aquariumType, latestReading }: WaterParametersSectionProps) => {
   const [isAddWaterParamsOpen, setAddWaterParamsOpen] = useState(false);
   const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
+  const isFreshwater = aquariumType === "Freshwater";
 
   return (
     <Card>
@@ -55,8 +56,8 @@ export const WaterParametersSection = ({ aquariumId, aquariumType, latestReading
                         <div><span className="font-semibold text-muted-foreground mr-1">Nitrite:</span> {latestReading.nitrite != null ? <>{latestReading.nitrite}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
                         <div><span className="font-semibold text-muted-foreground mr-1">Nitrate:</span> {latestReading.nitrate != null ? <>{latestReading.nitrate}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
                         
-                        {latestReading.gh != null && <div><span className="font-semibold text-muted-foreground mr-1">GH:</span> {latestReading.gh}<span className="text-muted-foreground text-xs ml-1">dGH</span></div>}
-                        {latestReading.kh != null && <div><span className="font-semibold text-muted-foreground mr-1">KH:</span> {latestReading.kh}<span className="text-muted-foreground text-xs ml-1">dKH</span></div>}
+                        {!isFreshwater && latestReading.gh != null && <div><span className="font-semibold text-muted-foreground mr-1">GH:</span> {latestReading.gh}<span className="text-muted-foreground text-xs ml-1">dGH</span></div>}
+                        {!isFreshwater && latestReading.kh != null && <div><span className="font-semibold text-muted-foreground mr-1">KH:</span> {latestReading.kh}<span className="text-muted-foreground text-xs ml-1">dKH</span></div>}
                         {latestReading.co2 != null && <div><span className="font-semibold text-muted-foreground mr-1">CO2:</span> {latestReading.co2}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
                         {latestReading.phosphate != null && <div><span className="font-semibold text-muted-foreground mr-1">Phosphate:</span> {latestReading.phosphate}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
                         {latestReading.copper != null && <div><span className="font-semibold text-muted-foreground mr-1">Copper:</span> {latestReading.copper}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}

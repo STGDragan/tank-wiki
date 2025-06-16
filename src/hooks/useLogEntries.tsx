@@ -22,7 +22,8 @@ export const useLogEntries = (
     livestock: Livestock[] | undefined,
     waterParameters: WaterParameterReading[] | undefined,
     equipment: Equipment[] | undefined,
-    journalEntries?: JournalEntry[] | undefined
+    journalEntries?: JournalEntry[] | undefined,
+    aquariumType?: string | null
 ) => {
     return useMemo(() => {
         const entries: LogEntry[] = [];
@@ -62,14 +63,17 @@ export const useLogEntries = (
         });
 
         (waterParameters || []).forEach(reading => {
+            const isFreshwater = aquariumType === "Freshwater";
+            
             const params = [
                 reading.temperature != null ? `Temp: ${reading.temperature}°` : null,
                 reading.ph != null ? `pH: ${reading.ph}` : null,
                 reading.nitrate != null ? `Nitrate: ${reading.nitrate} ppm` : null,
                 reading.nitrite != null ? `Nitrite: ${reading.nitrite} ppm` : null,
                 reading.ammonia != null ? `Ammonia: ${reading.ammonia} ppm` : null,
-                reading.gh != null ? `GH: ${reading.gh} dGH` : null,
-                reading.kh != null ? `KH: ${reading.kh} dKH` : null,
+                // Only show GH and KH for non-freshwater tanks
+                !isFreshwater && reading.gh != null ? `GH: ${reading.gh} dGH` : null,
+                !isFreshwater && reading.kh != null ? `KH: ${reading.kh} dKH` : null,
                 reading.co2 != null ? `CO2: ${reading.co2} ppm` : null,
                 reading.phosphate != null ? `Phosphate: ${reading.phosphate} ppm` : null,
                 reading.copper != null ? `Copper: ${reading.copper} ppm` : null,
@@ -122,5 +126,5 @@ export const useLogEntries = (
         });
 
         return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
-    }, [tasks, livestock, waterParameters, equipment, journalEntries]);
+    }, [tasks, livestock, waterParameters, equipment, journalEntries, aquariumType]);
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,6 +69,7 @@ interface JournalTabProps {
   livestock?: Livestock[];
   waterParameters?: WaterParameterReading[];
   equipment?: Equipment[];
+  aquariumType?: string | null;
 }
 
 export const JournalTab = ({ 
@@ -79,7 +79,8 @@ export const JournalTab = ({
   tasks,
   livestock,
   waterParameters,
-  equipment
+  equipment,
+  aquariumType
 }: JournalTabProps) => {
   const [activeView, setActiveView] = useState<'notes' | 'log'>('notes');
   const [isAddEntryOpen, setAddEntryOpen] = useState(false);
@@ -91,7 +92,7 @@ export const JournalTab = ({
     enabled: !!aquariumId,
   });
 
-  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment, entries);
+  const logEntries = useLogEntries(tasks, livestock, waterParameters, equipment, entries, aquariumType);
 
   const filteredLogEntries = logFilter === 'all'
     ? logEntries
