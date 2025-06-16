@@ -59,4 +59,10 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+  html {
+    @apply bg-background;
+  }
+  #root {
+    @apply bg-background min-h-screen;
+  }
 }
