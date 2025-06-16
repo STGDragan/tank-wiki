@@ -101,7 +101,7 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
   };
 
   return (
-    <div className="space-y-8">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{sectionTitle}</h1>
         <div className="flex gap-2">
@@ -189,7 +189,7 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
         if (groupAquariums.length === 0 && group.id !== "default") return null;
         
         return (
-          <div key={group.id} className="space-y-4">
+          <div key={group.id} className="w-full space-y-4">
             {groups.length > 1 && (
               <div className="flex items-center justify-between">
                 <div>
@@ -202,9 +202,9 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
             )}
             
             {groupAquariums.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="w-full grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                 {groupAquariums.map(tank => (
-                  <div key={tank.id} className="space-y-2">
+                  <div key={tank.id} className="w-full space-y-2">
                     <TankCard
                       id={tank.id}
                       name={tank.name}
@@ -234,7 +234,7 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
                 ))}
               </div>
             ) : group.id === "default" && aquariums.length === 0 ? (
-              <div className="text-center py-12 border-2 border-dashed rounded-lg">
+              <div className="w-full text-center py-12 border-2 border-dashed rounded-lg">
                 <h2 className="text-xl font-semibold">No Aquariums Yet</h2>
                 <p className="text-muted-foreground mt-2">Get started by creating your first tank.</p>
                 <div className="mt-4">

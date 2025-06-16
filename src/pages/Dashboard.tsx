@@ -60,12 +60,12 @@ const Dashboard = () => {
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
-      <div className="p-6">
+      <div className="min-h-screen w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-6">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-10 w-28" />
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-48 w-full" />
@@ -75,15 +75,15 @@ const Dashboard = () => {
   }
 
   if (error) {
-    return <div className="p-6">Error: {error.message}</div>;
+    return <div className="min-h-screen w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6">Error: {error.message}</div>;
   }
 
   const ownedAquariums = aquariums?.filter(aq => aq.user_id === user?.id) || [];
   const aquariumCount = ownedAquariums.length;
 
   return (
-    <div className="p-6 space-y-8 max-w-7xl mx-auto">
-      <div className="w-full h-[200px] rounded-lg overflow-hidden">
+    <div className="min-h-screen w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="w-full h-[160px] sm:h-[200px] rounded-lg overflow-hidden">
         <SlideshowSection context="dashboard" />
       </div>
       
@@ -94,7 +94,7 @@ const Dashboard = () => {
       />
       
       {ownedAquariums && ownedAquariums.length > 0 && (
-        <div className="space-y-8">
+        <div className="space-y-6">
           <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
           <Recommendations aquariums={ownedAquariums} />
         </div>
