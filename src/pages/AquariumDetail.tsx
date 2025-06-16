@@ -102,6 +102,9 @@ const AquariumDetail = () => {
           </div>
           <MaintenanceSection
             tasks={pendingTasks || []}
+            aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
+            aquariumSize={aquarium.size}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
           />
@@ -116,11 +119,11 @@ const AquariumDetail = () => {
         </TabsContent>
 
         <TabsContent value="journal">
-          <JournalTab aquariumId={aquarium.id} userId={user.id} canEdit={canEdit} />
+          <JournalTab aquariumId={aquarium.id} canEdit={canEdit} />
         </TabsContent>
 
         <TabsContent value="wishlist">
-          <WishlistTab aquariumId={aquarium.id} userId={user.id} canEdit={canEdit} />
+          <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
         </TabsContent>
 
         <TabsContent value="log">
@@ -130,16 +133,18 @@ const AquariumDetail = () => {
         <TabsContent value="maintenance" className="space-y-6">
           <MaintenanceSection
             tasks={tasks || []}
+            aquariumId={aquarium.id}
+            aquariumType={aquarium.type}
+            aquariumSize={aquarium.size}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
-            showAll={true}
           />
         </TabsContent>
 
         <TabsContent value="water" className="space-y-6">
           <WaterParametersSection
             aquariumId={aquarium.id}
-            canEdit={canEdit}
+            waterParameters={waterParameters || []}
           />
         </TabsContent>
       </Tabs>
