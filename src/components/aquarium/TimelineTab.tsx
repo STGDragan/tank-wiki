@@ -8,18 +8,12 @@ import { AddTimelineEntryForm } from "./AddTimelineEntryForm";
 import { TimelineCard } from "./TimelineCard";
 import { useTimelineData } from "@/hooks/useTimelineData";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TimelineFormData } from "@/types/timeline";
 
 interface TimelineTabProps {
   aquariumId: string;
   userId: string;
   canEdit?: boolean;
-}
-
-interface TimelineFormData {
-  title: string;
-  description?: string;
-  entry_date: Date;
-  image_url?: string;
 }
 
 export function TimelineTab({ aquariumId, userId, canEdit = true }: TimelineTabProps) {
@@ -37,7 +31,7 @@ export function TimelineTab({ aquariumId, userId, canEdit = true }: TimelineTabP
     addTimelineEntry({
       title: data.title,
       description: data.description || null,
-      entry_date: data.entry_date.toISOString().split('T')[0], // Convert Date to string
+      entry_date: data.entry_date.toISOString().split('T')[0],
       image_url: data.image_url || null,
       aquarium_id: aquariumId,
       user_id: userId,

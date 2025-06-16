@@ -4,9 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useSlideshowSettings } from "@/hooks/useSlideshowSettings";
 
 interface SlideshowConfigProps {
   onDelayChange: (delay: number) => void;
@@ -20,24 +21,12 @@ const PRESET_DELAYS = [
   { label: "Slow (5 seconds)", value: 5000 },
   { label: "Very Slow (8 seconds)", value: 8000 },
   { label: "Custom", value: 0 },
-];
+] as const;
 
 export function SlideshowConfig({ onDelayChange, currentDelay = 3000 }: SlideshowConfigProps) {
   const queryClient = useQueryClient();
+  const { data: settings } = useSlideshowSettings();
   
-  // Query for current settings
-  const { data: settings } = useQuery({
-    queryKey: ["slideshow_settings"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("slideshow_settings")
-        .select("*")
-        .single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    },
-  });
-
   const [selectedPreset, setSelectedPreset] = useState(() => {
     const delay = settings?.autoplay_delay || currentDelay;
     const preset = PRESET_DELAYS.find(p => p.value === delay);
@@ -59,15 +48,16 @@ export function SlideshowConfig({ onDelayChange, currentDelay = 3000 }: Slidesho
   // Mutation to save settings
   const saveMutation = useMutation({
     mutationFn: async (delay: number) => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("slideshow_settings")
         .upsert({ 
-          id: 1, // Use a fixed ID for singleton settings
+          id: 1,
           autoplay_delay: delay,
           updated_at: new Date().toISOString()
         })
         .select()
         .single();
+      
       if (error) throw error;
       return data;
     },

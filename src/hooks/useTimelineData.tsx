@@ -1,10 +1,9 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { TablesInsert } from "@/integrations/supabase/types";
 import { toast } from "@/hooks/use-toast";
-
-type TimelineEntry = Tables<'aquarium_timeline'>;
+import { TimelineEntry } from "@/types/timeline";
 
 const fetchTimelineEntries = async (aquariumId: string): Promise<TimelineEntry[]> => {
   const { data, error } = await supabase

@@ -6,28 +6,14 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface SlideshowSectionProps {
-  context: string;
-  autoplayDelay?: number; // in milliseconds, defaults to 3000
-}
+import { useSlideshowSettings } from "@/hooks/useSlideshowSettings";
+import { useSlideshowImages } from "@/hooks/useSlideshowImages";
+import { SlideshowSectionProps } from "@/types/slideshow";
 
 export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSectionProps) {
-  // Query for slideshow settings
-  const { data: settings } = useQuery({
-    queryKey: ["slideshow_settings"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("slideshow_settings")
-        .select("*")
-        .single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    },
-  });
+  const { data: settings } = useSlideshowSettings();
+  const { data: images, isLoading, error } = useSlideshowImages(context);
 
   // Use settings delay if available, otherwise use prop
   const effectiveDelay = settings?.autoplay_delay || autoplayDelay;
@@ -38,23 +24,13 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
     [effectiveDelay]
   );
 
-  const { data: images, isLoading, error } = useQuery({
-    queryKey: ["slideshow_images", context],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("slideshow_images")
-        .select("id, image_url, alt_text")
-        .eq("context", context)
-        .order("display_order", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  console.log("Slideshow images data:", images);
-  console.log("Slideshow loading state:", isLoading);
-  console.log("Slideshow error:", error);
-  console.log("Effective delay:", effectiveDelay);
+  if (error) {
+    return (
+      <div className="w-full h-full min-h-[400px] bg-muted flex items-center justify-center">
+        <p className="text-muted-foreground">Failed to load slideshow.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full min-h-[400px] relative overflow-hidden">
@@ -72,17 +48,13 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
               </div>
             </CarouselItem>
           )}
-          {images && images.length > 0 && images.map((image: any) => (
+          {images && images.length > 0 && images.map((image) => (
             <CarouselItem key={image.id} className="pl-4 basis-full">
               <div className="relative w-full h-full min-h-[400px] bg-gray-200">
                 <img 
                   src={image.image_url} 
                   alt={image.alt_text || ""} 
                   className="absolute inset-0 w-full h-full object-cover"
-                  onLoad={() => {
-                    console.log(`Image loaded: ${image.image_url}`);
-                  }}
-                  onError={(e) => console.error(`Image failed to load: ${image.image_url}`, e)}
                 />
               </div>
             </CarouselItem>

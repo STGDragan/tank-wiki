@@ -1,11 +1,10 @@
 
-import { useState } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Edit, Trash2 } from "lucide-react";
-import { Tables } from "@/integrations/supabase/types";
+import { TimelineEntry } from "@/types/timeline";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,8 +16,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-type TimelineEntry = Tables<'aquarium_timeline'>;
 
 interface TimelineCardProps {
   entry: TimelineEntry;
