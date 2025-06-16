@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -21,6 +20,15 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+import { Plus, X } from "lucide-react";
 
 const numberOrEmptyToDefault = z.preprocess(
     (v) => (v === "" || v === null || v === undefined ? 0 : v),
@@ -47,15 +55,37 @@ const waterParametersFormSchema = z.object({
 
 type WaterParametersFormValues = z.infer<typeof waterParametersFormSchema>;
 
+interface CustomTest {
+  name: string;
+  value: string;
+  unit: string;
+}
+
 interface AddWaterParameterFormProps {
   aquariumId: string;
   aquariumType: string | null;
   onSuccess: () => void;
 }
 
+const otherTestOptions = [
+  { value: "iron", label: "Iron", unit: "ppm" },
+  { value: "silicate", label: "Silicate", unit: "ppm" },
+  { value: "iodine", label: "Iodine", unit: "ppm" },
+  { value: "strontium", label: "Strontium", unit: "ppm" },
+  { value: "boron", label: "Boron", unit: "ppm" },
+  { value: "fluoride", label: "Fluoride", unit: "ppm" },
+  { value: "bromide", label: "Bromide", unit: "ppm" },
+  { value: "potassium", label: "Potassium", unit: "ppm" },
+  { value: "redox", label: "Redox (ORP)", unit: "mV" },
+  { value: "tds", label: "Total Dissolved Solids", unit: "ppm" },
+  { value: "conductivity", label: "Conductivity", unit: "μS/cm" },
+];
+
 export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: AddWaterParameterFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [customTests, setCustomTests] = useState<CustomTest[]>([]);
+  const [selectedOtherTest, setSelectedOtherTest] = useState<string>("");
 
   const form = useForm<WaterParametersFormValues>({
     resolver: zodResolver(waterParametersFormSchema),
@@ -79,6 +109,31 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
   });
 
   const { isSubmitting } = form.formState;
+
+  const addOtherTest = () => {
+    if (selectedOtherTest) {
+      const testOption = otherTestOptions.find(option => option.value === selectedOtherTest);
+      if (testOption) {
+        setCustomTests([...customTests, { name: testOption.label, value: "", unit: testOption.unit }]);
+        setSelectedOtherTest("");
+      }
+    }
+  };
+
+  const addCustomTest = () => {
+    setCustomTests([...customTests, { name: "", value: "", unit: "ppm" }]);
+  };
+
+  const removeCustomTest = (index: number) => {
+    setCustomTests(customTests.filter((_, i) => i !== index));
+  };
+
+  const updateCustomTest = (index: number, field: keyof CustomTest, value: string) => {
+    const updated = customTests.map((test, i) => 
+      i === index ? { ...test, [field]: value } : test
+    );
+    setCustomTests(updated);
+  };
 
   async function onSubmit(values: WaterParametersFormValues) {
     if (!user) {
@@ -199,7 +254,8 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 )}
               />
               
-              {!isFreshwater && !isPlantedFreshwater && !isFreshwaterInverts && (
+              {/* Hide GH and KH for freshwater AND saltwater fish-only tanks */}
+              {!isFreshwater && !isPlantedFreshwater && !isFreshwaterInverts && !isSaltwaterFO && (
                   <>
                       <FormField
                         control={form.control}
@@ -339,6 +395,74 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     )}
                   />
               )}
+          </div>
+
+          {/* Other Tests Section */}
+          <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+            <h3 className="text-lg font-semibold mb-4">Additional Tests</h3>
+            
+            {/* Predefined Other Tests Dropdown */}
+            <div className="flex gap-2 mb-4">
+              <Select value={selectedOtherTest} onValueChange={setSelectedOtherTest}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Select additional test..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {otherTestOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label} ({option.unit})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" onClick={addOtherTest} disabled={!selectedOtherTest}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Custom Test Button */}
+            <Button type="button" variant="outline" onClick={addCustomTest} className="mb-4">
+              <Plus className="h-4 w-4 mr-2" /> Add Custom Test
+            </Button>
+
+            {/* Display Added Tests */}
+            {customTests.map((test, index) => (
+              <div key={index} className="grid grid-cols-12 gap-2 mb-2">
+                <div className="col-span-4">
+                  <Input
+                    placeholder="Test name"
+                    value={test.name}
+                    onChange={(e) => updateCustomTest(index, 'name', e.target.value)}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="Value"
+                    value={test.value}
+                    onChange={(e) => updateCustomTest(index, 'value', e.target.value)}
+                  />
+                </div>
+                <div className="col-span-4">
+                  <Input
+                    placeholder="Unit (e.g., ppm, mg/L)"
+                    value={test.unit}
+                    onChange={(e) => updateCustomTest(index, 'unit', e.target.value)}
+                  />
+                </div>
+                <div className="col-span-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeCustomTest(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
           <FormField

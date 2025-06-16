@@ -66,6 +66,7 @@ export const useLogEntries = (
 
         (waterParameters || []).forEach(reading => {
             const isFreshwater = aquariumType === "Freshwater";
+            const isSaltwaterFO = aquariumType === "Saltwater Fish-Only (FO)";
             
             const params = [
                 reading.temperature != null ? `Temp: ${reading.temperature}°` : null,
@@ -73,9 +74,9 @@ export const useLogEntries = (
                 reading.nitrate != null ? `Nitrate: ${reading.nitrate} ppm` : null,
                 reading.nitrite != null ? `Nitrite: ${reading.nitrite} ppm` : null,
                 reading.ammonia != null ? `Ammonia: ${reading.ammonia} ppm` : null,
-                // Only show GH and KH for non-freshwater tanks
-                !isFreshwater && reading.gh != null ? `GH: ${reading.gh} dGH` : null,
-                !isFreshwater && reading.kh != null ? `KH: ${reading.kh} dKH` : null,
+                // Hide GH and KH for freshwater AND saltwater fish-only tanks
+                !isFreshwater && !isSaltwaterFO && reading.gh != null ? `GH: ${reading.gh} dGH` : null,
+                !isFreshwater && !isSaltwaterFO && reading.kh != null ? `KH: ${reading.kh} dKH` : null,
                 reading.co2 != null ? `CO2: ${reading.co2} ppm` : null,
                 reading.phosphate != null ? `Phosphate: ${reading.phosphate} ppm` : null,
                 reading.copper != null ? `Copper: ${reading.copper} ppm` : null,
