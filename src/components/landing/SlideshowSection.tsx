@@ -16,8 +16,6 @@ interface SlideshowSectionProps {
 }
 
 export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSectionProps) {
-  const [carouselApi, setCarouselApi] = React.useState<any>(null);
-  
   // Query for slideshow settings
   const { data: settings } = useQuery({
     queryKey: ["slideshow_settings"],
@@ -34,23 +32,11 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
   // Use settings delay if available, otherwise use prop
   const effectiveDelay = settings?.autoplay_delay || autoplayDelay;
 
-  const plugin = React.useRef(
-    Autoplay({ delay: effectiveDelay, stopOnInteraction: false })
+  // Create a new plugin instance whenever the delay changes
+  const plugin = React.useMemo(
+    () => Autoplay({ delay: effectiveDelay, stopOnInteraction: false }),
+    [effectiveDelay]
   );
-
-  // Update the plugin and restart carousel when delay changes
-  React.useEffect(() => {
-    if (carouselApi && plugin.current) {
-      console.log("Updating slideshow delay to:", effectiveDelay);
-      // Stop current autoplay
-      plugin.current.stop();
-      // Create new plugin with updated delay
-      plugin.current = Autoplay({ delay: effectiveDelay, stopOnInteraction: false });
-      // Restart with new settings
-      plugin.current.init(carouselApi);
-      plugin.current.play();
-    }
-  }, [effectiveDelay, carouselApi]);
 
   const { data: images, isLoading, error } = useQuery({
     queryKey: ["slideshow_images", context],
@@ -73,10 +59,10 @@ export function SlideshowSection({ context, autoplayDelay = 3000 }: SlideshowSec
   return (
     <div className="w-full h-full min-h-[400px] relative overflow-hidden">
       <Carousel
+        key={effectiveDelay} // Force re-render when delay changes
         className="w-full h-full"
         opts={{ loop: true }}
-        plugins={[plugin.current]}
-        setApi={setCarouselApi}
+        plugins={[plugin]}
       >
         <CarouselContent className="h-full -ml-4">
           {isLoading && (
