@@ -288,6 +288,54 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          browser_info: Json | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          page_url: string | null
+          priority: string | null
+          resolved_at: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          browser_info?: Json | null
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          page_url?: string | null
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          browser_info?: Json | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          page_url?: string | null
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           aquarium_id: string
