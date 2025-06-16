@@ -67,6 +67,7 @@ const AquariumDetail = () => {
   }
 
   const canEdit = aquarium.user_id === user.id;
+  const latestWaterReading = waterParameters && waterParameters.length > 0 ? waterParameters[0] : undefined;
 
   return (
     <div className="space-y-6">
@@ -144,7 +145,8 @@ const AquariumDetail = () => {
         <TabsContent value="water" className="space-y-6">
           <WaterParametersSection
             aquariumId={aquarium.id}
-            waterParameters={waterParameters || []}
+            aquariumType={aquarium.type}
+            latestReading={latestWaterReading}
           />
         </TabsContent>
       </Tabs>
