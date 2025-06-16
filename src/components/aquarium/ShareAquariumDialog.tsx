@@ -5,11 +5,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Share2 } from "lucide-react";
+import { Share2, CheckCircle, AlertCircle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/providers/AuthProvider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ShareAquariumDialogProps {
   aquariumId: string;
@@ -20,6 +21,9 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [permission, setPermission] = useState<"viewer" | "editor">("viewer");
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -71,16 +75,20 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
       return data;
     },
     onSuccess: () => {
+      setIsSuccess(true);
+      setConfirmationMessage(`Invitation sent successfully to ${email}! They will receive an email with instructions to access your aquarium.`);
+      setShowConfirmation(true);
       toast({
         title: "Invitation sent!",
         description: `An invitation email has been sent to ${email}`,
       });
-      setEmail("");
-      setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["aquarium_invitations", aquariumId] });
     },
     onError: (error: Error) => {
       console.error("Invitation error:", error);
+      setIsSuccess(false);
+      setConfirmationMessage(`Failed to send invitation: ${error.message}. Please try again or contact support if the problem persists.`);
+      setShowConfirmation(true);
       toast({
         title: "Error sending invitation",
         description: error.message,
@@ -93,12 +101,27 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
     e.preventDefault();
     if (!email.trim()) return;
 
+    setShowConfirmation(false);
     console.log("Submitting invitation for:", email.trim());
     sendInvitationMutation.mutate({ email: email.trim(), permission });
   };
 
+  const handleClose = () => {
+    setOpen(false);
+    setEmail("");
+    setShowConfirmation(false);
+    setConfirmationMessage("");
+    setIsSuccess(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        handleClose();
+      } else {
+        setOpen(true);
+      }
+    }}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Share2 className="h-4 w-4 mr-2" />
@@ -112,6 +135,20 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
             Send an email invitation to share your aquarium with someone else.
           </DialogDescription>
         </DialogHeader>
+        
+        {showConfirmation && (
+          <Alert className={isSuccess ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
+            {isSuccess ? (
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-red-600" />
+            )}
+            <AlertDescription className={isSuccess ? "text-green-800" : "text-red-800"}>
+              {confirmationMessage}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email address</Label>
@@ -144,8 +181,8 @@ export function ShareAquariumDialog({ aquariumId, aquariumName }: ShareAquariumD
             >
               {sendInvitationMutation.isPending ? "Sending..." : "Send Invitation"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+            <Button type="button" variant="outline" onClick={handleClose}>
+              {showConfirmation ? "Close" : "Cancel"}
             </Button>
           </div>
         </form>
