@@ -48,7 +48,7 @@ export function SlideshowConfig({ onDelayChange, currentDelay = 3000 }: Slidesho
   // Mutation to save settings
   const saveMutation = useMutation({
     mutationFn: async (delay: number) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("slideshow_settings")
         .upsert({ 
           id: 1,

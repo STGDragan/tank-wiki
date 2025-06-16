@@ -7,7 +7,7 @@ export function useSlideshowSettings() {
   return useQuery({
     queryKey: ["slideshow_settings"],
     queryFn: async (): Promise<SlideshowSettings | null> => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("slideshow_settings")
         .select("*")
         .single();

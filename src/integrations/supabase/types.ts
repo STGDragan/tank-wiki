@@ -643,6 +643,7 @@ export type Database = {
           display_order: number
           id: string
           image_url: string
+          updated_at: string
         }
         Insert: {
           alt_text?: string | null
@@ -651,6 +652,7 @@ export type Database = {
           display_order?: number
           id?: string
           image_url: string
+          updated_at?: string
         }
         Update: {
           alt_text?: string | null
@@ -659,6 +661,28 @@ export type Database = {
           display_order?: number
           id?: string
           image_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      slideshow_settings: {
+        Row: {
+          autoplay_delay: number
+          created_at: string
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          autoplay_delay?: number
+          created_at?: string
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          autoplay_delay?: number
+          created_at?: string
+          id?: number
+          updated_at?: string
         }
         Relationships: []
       }
