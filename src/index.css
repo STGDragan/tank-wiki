@@ -72,6 +72,13 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    @apply bg-background;
+    /* Prevent zooming on mobile */
+    touch-action: manipulation;
+  }
+  
   body {
     @apply bg-background text-foreground font-sans antialiased;
     /* Mobile app optimizations */
@@ -81,11 +88,7 @@
     user-select: none;
     overscroll-behavior: none;
   }
-  html {
-    @apply bg-background;
-    /* Prevent zooming on mobile */
-    touch-action: manipulation;
-  }
+  
   #root {
     @apply bg-background min-h-screen;
     /* Mobile safe area support */
