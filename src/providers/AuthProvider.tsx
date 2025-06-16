@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   roles: string[] | null;
   subscriber: Tables<'subscribers'> | null;
+  hasActiveSubscription: boolean;
   refreshRoles: () => Promise<void>;
   refreshSubscriber: () => Promise<void>;
 }
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   roles: null,
   subscriber: null,
+  hasActiveSubscription: false,
   refreshRoles: async () => {},
   refreshSubscriber: async () => {},
 });
@@ -31,6 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [roles, setRoles] = useState<string[] | null>(null);
   const [subscriber, setSubscriber] = useState<Tables<'subscribers'> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
   const navigate = useNavigate();
 
   const fetchRoles = useCallback(async (userId: string) => {
@@ -49,6 +52,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Error in fetchRoles:', error);
       setRoles(null);
+    }
+  }, []);
+
+  const checkAdminSubscriptionOverride = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('admin_subscription_override')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error checking admin override:', error);
+        return false;
+      }
+
+      return data?.admin_subscription_override || false;
+    } catch (error) {
+      console.error('Error in checkAdminSubscriptionOverride:', error);
+      return false;
+    }
+  }, []);
+
+  const checkAdminGrantedSubscription = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('has_admin_granted_subscription', { _user_id: userId });
+
+      if (error) {
+        console.error('Error checking admin granted subscription:', error);
+        return false;
+      }
+
+      return data || false;
+    } catch (error) {
+      console.error('Error in checkAdminGrantedSubscription:', error);
+      return false;
     }
   }, []);
 
@@ -71,11 +110,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         setSubscriber(data);
       }
+
+      // Check for admin overrides and granted subscriptions
+      const [hasAdminOverride, hasGrantedSub] = await Promise.all([
+        checkAdminSubscriptionOverride(userId),
+        checkAdminGrantedSubscription(userId)
+      ]);
+
+      // User has active subscription if:
+      // 1. They have a paid subscription, OR
+      // 2. They have admin subscription override, OR  
+      // 3. They have an active admin-granted subscription
+      const hasPaidSubscription = data?.subscribed || false;
+      setHasActiveSubscription(hasPaidSubscription || hasAdminOverride || hasGrantedSub);
+
     } catch (error) {
       console.error('Error in fetchSubscriber:', error);
       setSubscriber(null);
+      setHasActiveSubscription(false);
     }
-  }, []);
+  }, [checkAdminSubscriptionOverride, checkAdminGrantedSubscription]);
   
   const refreshRoles = useCallback(async () => {
     if (user) {
@@ -136,6 +190,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (event === 'SIGNED_OUT') {
           setRoles(null);
           setSubscriber(null);
+          setHasActiveSubscription(false);
           navigate('/login');
         } else if (session?.user) {
           // Use setTimeout to avoid blocking the auth state change
@@ -148,6 +203,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           setRoles(null);
           setSubscriber(null);
+          setHasActiveSubscription(false);
         }
       }
     );
@@ -161,7 +217,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [fetchRoles, fetchSubscriber, navigate]);
 
-  const value = { user, session, loading, roles, subscriber, refreshRoles, refreshSubscriber };
+  const value = { user, session, loading, roles, subscriber, hasActiveSubscription, refreshRoles, refreshSubscriber };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

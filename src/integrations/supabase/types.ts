@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_granted_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_at: string
+          granted_by_admin_id: string
+          granted_to_user_id: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          subscription_tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          granted_by_admin_id: string
+          granted_to_user_id: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          subscription_tier?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          granted_by_admin_id?: string
+          granted_to_user_id?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          subscription_tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       affiliate_links: {
         Row: {
           created_at: string
@@ -711,6 +750,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_can_grant_subscriptions: boolean | null
+          admin_subscription_override: boolean | null
           avatar_url: string | null
           enable_maintenance_notifications: boolean
           full_name: string | null
@@ -718,6 +759,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          admin_can_grant_subscriptions?: boolean | null
+          admin_subscription_override?: boolean | null
           avatar_url?: string | null
           enable_maintenance_notifications?: boolean
           full_name?: string | null
@@ -725,6 +768,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          admin_can_grant_subscriptions?: boolean | null
+          admin_subscription_override?: boolean | null
           avatar_url?: string | null
           enable_maintenance_notifications?: boolean
           full_name?: string | null
@@ -1006,6 +1051,10 @@ export type Database = {
       get_pending_maintenance_notifications: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      has_admin_granted_subscription: {
+        Args: { _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {
