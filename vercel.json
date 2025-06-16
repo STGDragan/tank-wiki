@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/admin/**", "destination": "/index.html" },
+    { "source": "/dashboard/**", "destination": "/index.html" },
+    { "source": "/aquarium/**", "destination": "/index.html" },
+    { "source": "/product/**", "destination": "/index.html" }
+  ]
+}
