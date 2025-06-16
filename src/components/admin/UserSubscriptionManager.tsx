@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Crown, Users, Gift } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface Profile {
   id: string;
@@ -23,12 +24,13 @@ interface Profile {
 interface AdminGrantedSubscription {
   id: string;
   granted_to_user_id: string;
+  granted_by_admin_id: string;
   subscription_tier: string;
   granted_at: string;
   expires_at?: string;
   is_active: boolean;
   notes?: string;
-  profiles?: {
+  user_profile?: {
     full_name?: string;
   };
 }
@@ -44,16 +46,34 @@ const fetchProfiles = async (): Promise<Profile[]> => {
 };
 
 const fetchGrantedSubscriptions = async (): Promise<AdminGrantedSubscription[]> => {
-  const { data, error } = await supabase
+  // First get the subscriptions
+  const { data: subscriptions, error: subscriptionsError } = await supabase
     .from('admin_granted_subscriptions')
-    .select(`
-      *,
-      profiles!granted_to_user_id (full_name)
-    `)
+    .select('*')
     .order('granted_at', { ascending: false });
 
-  if (error) throw error;
-  return data || [];
+  if (subscriptionsError) throw subscriptionsError;
+
+  if (!subscriptions || subscriptions.length === 0) {
+    return [];
+  }
+
+  // Then get the profiles for the granted users
+  const userIds = subscriptions.map(sub => sub.granted_to_user_id);
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .in('id', userIds);
+
+  if (profilesError) throw profilesError;
+
+  // Combine the data
+  const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+  
+  return subscriptions.map(subscription => ({
+    ...subscription,
+    user_profile: profilesMap.get(subscription.granted_to_user_id)
+  }));
 };
 
 export function UserSubscriptionManager() {
@@ -62,6 +82,7 @@ export function UserSubscriptionManager() {
   const [expiresAt, setExpiresAt] = useState("");
   const [notes, setNotes] = useState("");
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: profiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['admin-profiles'],
@@ -107,10 +128,15 @@ export function UserSubscriptionManager() {
       expires?: string;
       notes?: string;
     }) => {
+      if (!user?.id) {
+        throw new Error("Admin user ID not found");
+      }
+
       const { error } = await supabase
         .from('admin_granted_subscriptions')
         .insert({
           granted_to_user_id: userId,
+          granted_by_admin_id: user.id,
           subscription_tier: tier,
           expires_at: expires || null,
           notes: grantNotes || null,
@@ -303,7 +329,7 @@ export function UserSubscriptionManager() {
               <div key={subscription.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex-1">
                   <p className="font-medium">
-                    {subscription.profiles?.full_name || 'Unnamed User'}
+                    {subscription.user_profile?.full_name || 'Unnamed User'}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant={subscription.is_active ? "default" : "secondary"}>
