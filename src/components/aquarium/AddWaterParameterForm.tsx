@@ -199,7 +199,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 )}
               />
               
-              {(isFreshwater || isPlantedFreshwater || isFreshwaterInverts) && (
+              {!isFreshwater && !isPlantedFreshwater && !isFreshwaterInverts && (
                   <>
                       <FormField
                         control={form.control}
