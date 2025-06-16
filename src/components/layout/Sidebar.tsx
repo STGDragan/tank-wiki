@@ -1,9 +1,8 @@
-
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, Menu, MessageSquare, Crown } from "lucide-react";
+import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, Menu, MessageSquare, Crown, UserCog } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { useState } from "react";
@@ -24,6 +23,7 @@ const adminNav = [
     { name: "Legal", href: "/admin/legal", icon: FileText },
     { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
     { name: "Subscriptions", href: "/admin/subscriptions", icon: Crown },
+    { name: "Admin Management", href: "/admin/management", icon: UserCog },
 ];
 
 export function Sidebar() {
