@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -175,48 +175,50 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
                 <PopoverContent className="w-full p-0">
                   <Command>
                     <CommandInput placeholder="Search species..." />
-                    <CommandList className="max-h-[300px]">
-                      <CommandEmpty>No species found.</CommandEmpty>
-                      {Object.entries(speciesCategories).map(([category, species]) => (
-                        <CommandGroup key={category} heading={category}>
-                          {species.map((speciesName) => (
-                            <CommandItem
-                              key={speciesName}
-                              value={speciesName}
-                              onSelect={() => {
-                                form.setValue("species", speciesName);
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  field.value === speciesName ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {speciesName}
-                            </CommandItem>
-                          ))}
+                    <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                      <CommandList>
+                        <CommandEmpty>No species found.</CommandEmpty>
+                        {Object.entries(speciesCategories).map(([category, species]) => (
+                          <CommandGroup key={category} heading={category}>
+                            {species.map((speciesName) => (
+                              <CommandItem
+                                key={speciesName}
+                                value={speciesName}
+                                onSelect={() => {
+                                  form.setValue("species", speciesName);
+                                  setOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === speciesName ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {speciesName}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        ))}
+                        <CommandGroup heading="Other">
+                          <CommandItem
+                            value="Other"
+                            onSelect={() => {
+                              form.setValue("species", "Other");
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                field.value === "Other" ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Other
+                          </CommandItem>
                         </CommandGroup>
-                      ))}
-                      <CommandGroup heading="Other">
-                        <CommandItem
-                          value="Other"
-                          onSelect={() => {
-                            form.setValue("species", "Other");
-                            setOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              field.value === "Other" ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          Other
-                        </CommandItem>
-                      </CommandGroup>
-                    </CommandList>
+                      </CommandList>
+                    </div>
                   </Command>
                 </PopoverContent>
               </Popover>
