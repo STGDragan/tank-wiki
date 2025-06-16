@@ -11,8 +11,8 @@ import { EquipmentSection } from "@/components/aquarium/EquipmentSection";
 import { WaterParametersSection } from "@/components/aquarium/WaterParametersSection";
 import { MaintenanceSection } from "@/components/aquarium/MaintenanceSection";
 import { LogTab } from "@/components/aquarium/LogTab";
-import { WishlistTab } from "@/components/aquarium/WishlistTab";
-import { JournalTab } from "@/components/aquarium/JournalTab";
+import WishlistTab from "@/components/aquarium/WishlistTab";
+import JournalTab from "@/components/aquarium/JournalTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
 
 const AquariumDetail = () => {
@@ -70,7 +70,7 @@ const AquariumDetail = () => {
 
   return (
     <div className="space-y-6">
-      <AquariumHeader aquarium={aquarium} canEdit={canEdit} />
+      <AquariumHeader aquarium={aquarium} />
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-7">
@@ -87,12 +87,15 @@ const AquariumDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <LivestockSection
               livestock={livestock || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
               canEdit={canEdit}
               onUpdateQuantity={handleUpdateLivestockQuantity}
               onDelete={handleDeleteLivestock}
             />
             <EquipmentSection
               equipment={equipment || []}
+              aquariumId={aquarium.id}
               canEdit={canEdit}
               onDelete={handleDeleteEquipment}
             />
@@ -101,7 +104,6 @@ const AquariumDetail = () => {
             tasks={pendingTasks || []}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
-            canEdit={canEdit}
           />
         </TabsContent>
 
@@ -130,7 +132,6 @@ const AquariumDetail = () => {
             tasks={tasks || []}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
-            canEdit={canEdit}
             showAll={true}
           />
         </TabsContent>
@@ -138,7 +139,6 @@ const AquariumDetail = () => {
         <TabsContent value="water" className="space-y-6">
           <WaterParametersSection
             aquariumId={aquarium.id}
-            waterParameters={waterParameters || []}
             canEdit={canEdit}
           />
         </TabsContent>
