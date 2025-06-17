@@ -5,30 +5,6 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-<<<<<<< HEAD
-    "target": "ESNext",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-<<<<<<< HEAD
-    "types": ["node", "jest", "react", "react-dom"]
-=======
-    "types": ["node", "react", "react-dom"]
->>>>>>> parent of 6619e13 (Update tsconfig.json)
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
-=======
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
@@ -40,5 +16,4 @@
     "noUnusedLocals": false,
     "strictNullChecks": false
   }
->>>>>>> parent of caf82d3 (Update tsconfig.json)
 }
