@@ -5,6 +5,11 @@ import { FeaturesSection } from "../components/landing/FeaturesSection";
 import { SlideshowSection } from "../components/landing/SlideshowSection";
 
 export default function Inced() {
+<<<<<<< HEAD
+=======
+  const contextValue = {}; // <-- Adjust this to your actual context data
+
+>>>>>>> parent of 59c5078 (Update inced.tsx)
   return (
     <>
       <header>
