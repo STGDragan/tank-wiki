@@ -14,7 +14,11 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+<<<<<<< HEAD
     "types": ["node", "jest", "react", "react-dom"]
+=======
+    "types": ["node", "react", "react-dom"]
+>>>>>>> parent of 6619e13 (Update tsconfig.json)
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
