@@ -10,6 +10,7 @@ export default function Inced() {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const contextValue = {}; // <-- Adjust this to your actual context data
 =======
@@ -21,6 +22,9 @@ export default function Inced() {
 =======
   const contextValue = {}; // <-- Adjust this to your actual context data
 >>>>>>> parent of 59c5078 (Update inced.tsx)
+=======
+  const contextValue = ""; // placeholder string
+>>>>>>> parent of 16584ac (Update inced.tsx)
 
 >>>>>>> parent of 59c5078 (Update inced.tsx)
 =======
