@@ -1,7 +1,4 @@
-
-import { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
+const config = {
   appId: 'app.lovable.206d40b3c61340b8b74092ad42e373ed',
   appName: 'tank-wiki',
   webDir: 'dist',
