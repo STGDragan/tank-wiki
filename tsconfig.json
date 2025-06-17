@@ -14,12 +14,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["node", "react", "react-dom"],
-
-    "baseUrl": ".", 
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "types": ["node", "react", "react-dom"]
   },
   "exclude": ["node_modules", ".next", "out", "build"]
 }
