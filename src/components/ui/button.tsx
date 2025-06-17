@@ -1,8 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 // /src/components/ui/button.tsx
 
 >>>>>>> parent of d697c20 (Update button.tsx)
+=======
+// /src/components/ui/button.tsx
+
+>>>>>>> parent of 749adf6 (Revert "Update button.tsx")
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -25,7 +30,7 @@ const buttonVariants = cva(
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        icon: "h-10 w-10 p-0",
       },
     },
     defaultVariants: {
@@ -46,14 +51,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        className={cn(buttonVariants({ variant, size }), className)}
         {...props}
       />
     )
   }
 )
-
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
