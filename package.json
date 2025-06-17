@@ -18,7 +18,7 @@
     "clsx": "^1.2.1"
 =======
     "clsx": "^1.2.1",
-    "lucide-react": "^0.276.0",
+    "lucide-react": "^0.276.0"
     "@tanstack/react-query": "^4.30.0",
     "react-router-dom": "^6.14.1"
 >>>>>>> parent of 039debc (Update package.json)
