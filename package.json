@@ -18,9 +18,13 @@
     "clsx": "^1.2.1"
 =======
     "clsx": "^1.2.1",
+<<<<<<< HEAD
     "@tanstack/react-query": "^4.30.0",
     "react-router-dom": "^6.14.1"
 >>>>>>> parent of 039debc (Update package.json)
+=======
+    "@tanstack/react-query": "^4.30.0"
+>>>>>>> parent of c215961 (Update package.json)
   },
   "devDependencies": {
     "@types/node": "20.2.5",
