@@ -1,19 +1,17 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/Logo";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { SlideshowSection } from "@/components/landing/SlideshowSection";
+import { Button } from "../src/components/ui/button";
+import { Logo } from "../src/components/Logo";
+import { FeaturesSection } from "../src/components/landing/FeaturesSection";
+import { SlideshowSection } from "../src/components/landing/SlideshowSection";
 
 export default function Inced() {
-  const contextValue = {}; // <-- Adjust this to your actual context data
-
   return (
     <>
       <header>
         <Logo />
       </header>
       <main>
-        <SlideshowSection context={contextValue} />
+        <SlideshowSection />
         <FeaturesSection />
         <Link href="/">
           <Button>Back to Home</Button>
