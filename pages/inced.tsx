@@ -1,5 +1,6 @@
 import Link from "next/link";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Button } from "../components/ui/button";
 import { Logo } from "../components/Logo";
 import { FeaturesSection } from "../components/landing/FeaturesSection";
@@ -35,6 +36,14 @@ export default function Inced() {
 >>>>>>> parent of 59c5078 (Update inced.tsx)
 
 >>>>>>> parent of 59c5078 (Update inced.tsx)
+=======
+import { Button } from "../src/components/ui/button";
+import { Logo } from "../src/components/Logo";
+import { FeaturesSection } from "../src/components/landing/FeaturesSection";
+import { SlideshowSection } from "../src/components/landing/SlideshowSection";
+
+export default function Inced() {
+>>>>>>> parent of 02b18e2 (Update inced.tsx)
 =======
 import { Button } from "../src/components/ui/button";
 import { Logo } from "../src/components/Logo";
