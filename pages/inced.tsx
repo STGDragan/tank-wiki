@@ -5,7 +5,7 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 export default function Inced() {
-  const contextValue = ""; // placeholder string
+  const contextValue = {}; // <-- Adjust this to your actual context data
 
   return (
     <>
