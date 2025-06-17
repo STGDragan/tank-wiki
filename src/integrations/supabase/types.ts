@@ -753,34 +753,58 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          featured: boolean | null
           id: string
           image_url: string | null
+          images: string[] | null
+          imageurls: Json | null
           is_featured: boolean
+          is_recommended: boolean
           name: string
+          onsale: boolean | null
+          onSale: boolean
+          price: number | null
           subcategory: string | null
           updated_at: string
+          visible: boolean
         }
         Insert: {
           category?: string | null
           created_at?: string
           description?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          imageurls?: Json | null
           is_featured?: boolean
+          is_recommended?: boolean
           name: string
+          onsale?: boolean | null
+          onSale?: boolean
+          price?: number | null
           subcategory?: string | null
           updated_at?: string
+          visible?: boolean
         }
         Update: {
           category?: string | null
           created_at?: string
           description?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          imageurls?: Json | null
           is_featured?: boolean
+          is_recommended?: boolean
           name?: string
+          onsale?: boolean | null
+          onSale?: boolean
+          price?: number | null
           subcategory?: string | null
           updated_at?: string
+          visible?: boolean
         }
         Relationships: []
       }

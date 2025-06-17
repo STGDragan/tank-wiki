@@ -26,7 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2, Star } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Star, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
@@ -91,6 +91,21 @@ const AdminProducts = () => {
     }
   });
 
+  const updateRecommendedStatusMutation = useMutation({
+    mutationFn: async ({ productId, is_recommended }: { productId: string; is_recommended: boolean }) => {
+      const { error } = await supabase.from('products').update({ is_recommended }).eq('id', productId).select();
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: (_, { is_recommended }) => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['recommended-products'] });
+      toast({ title: 'Product Updated', description: `Product has been ${is_recommended ? 'marked as recommended' : 'unmarked as recommended'}.` });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error updating product', description: error.message, variant: 'destructive' });
+    }
+  });
+
   const handleDelete = (productId: string) => {
     // Optional: Add a confirmation dialog here
     deleteProductMutation.mutate(productId);
@@ -98,6 +113,10 @@ const AdminProducts = () => {
   
   const handleFeatureToggle = (product: Tables<'products'>) => {
     updateFeatureStatusMutation.mutate({ productId: product.id, is_featured: !product.is_featured });
+  };
+
+  const handleRecommendedToggle = (product: Tables<'products'>) => {
+    updateRecommendedStatusMutation.mutate({ productId: product.id, is_recommended: !product.is_recommended });
   };
   
   const handleEdit = (product: Tables<'products'>) => {
@@ -166,6 +185,7 @@ const AdminProducts = () => {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                            {product.is_featured && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
+                           {product.is_recommended && <ThumbsUp className="h-4 w-4 text-green-400 fill-green-400" />}
                            {product.name}
                         </div>
                       </TableCell>
@@ -191,6 +211,10 @@ const AdminProducts = () => {
                             <DropdownMenuItem onClick={() => handleFeatureToggle(product)}>
                               <Star className="mr-2 h-4 w-4" />
                               <span>{product.is_featured ? 'Unfeature' : 'Feature'}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleRecommendedToggle(product)}>
+                              <ThumbsUp className="mr-2 h-4 w-4" />
+                              <span>{product.is_recommended ? 'Unrecommend' : 'Recommend'}</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEdit(product)}>
                               <Pencil className="mr-2 h-4 w-4" />

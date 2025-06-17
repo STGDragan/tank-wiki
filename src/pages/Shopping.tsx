@@ -1,5 +1,6 @@
 
 import FeaturedProducts from "@/components/shopping/FeaturedProducts";
+import RecommendedProducts from "@/components/shopping/RecommendedProducts";
 import {
   Card,
   CardContent,
@@ -28,7 +29,18 @@ const Shopping = () => {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Recommendations</CardTitle>
+          <CardTitle>Recommended Products</CardTitle>
+          <CardDescription>
+            Products we recommend based on their quality and popularity.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RecommendedProducts />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Browse by Category</CardTitle>
           <CardDescription>
             Product recommendations and shopping lists based on aquarium type.
           </CardDescription>
