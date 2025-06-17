@@ -7,8 +7,12 @@ import { SlideshowSection } from "../components/landing/SlideshowSection";
 export default function Inced() {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const contextValue = {}; // <-- Adjust this to your actual context data
+=======
+  const contextValue = ""; // placeholder string
+>>>>>>> parent of 16584ac (Update inced.tsx)
 =======
   const contextValue = ""; // placeholder string
 >>>>>>> parent of 16584ac (Update inced.tsx)
