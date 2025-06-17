@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Button } from "../src/components/ui/button";
-import { Logo } from "../src/components/Logo";
-import { FeaturesSection } from "../src/components/landing/FeaturesSection";
-import { SlideshowSection } from "../src/components/landing/SlideshowSection";
+import { Button } from "../components/ui/button";
+import { Logo } from "../components/Logo";
+import { FeaturesSection } from "../components/landing/FeaturesSection";
+import { SlideshowSection } from "../components/landing/SlideshowSection";
 
 export default function Inced() {
   return (
