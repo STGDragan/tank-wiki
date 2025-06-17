@@ -5,8 +5,7 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 export default function Inced() {
-  // Pass a valid string context for slideshow
-  const contextValue = "landing-page"; // or "dashboard", or whatever fits your use case
+  const contextValue = ""; // placeholder string
 
   return (
     <>
