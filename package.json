@@ -14,7 +14,14 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@supabase/supabase-js": "^2.0.0",
+<<<<<<< HEAD
     "clsx": "^1.2.1"
+=======
+    "clsx": "^1.2.1",
+    "lucide-react": "^0.276.0",
+    "@tanstack/react-query": "^4.30.0",
+    "react-router-dom": "^6.14.1"
+>>>>>>> parent of 039debc (Update package.json)
   },
   "devDependencies": {
     "@types/node": "20.2.5",
