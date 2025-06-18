@@ -6,12 +6,18 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ThumbsUp, DollarSign } from "lucide-react";
+import { ThumbsUp, DollarSign, ExternalLink } from "lucide-react";
 
 const fetchRecommendedProducts = async () => {
   const { data, error } = await supabase
     .from("products")
-    .select("*")
+    .select(`
+      *,
+      affiliate_links (
+        link_url,
+        provider
+      )
+    `)
     .eq("is_recommended", true)
     .eq("visible", true)
     .order("created_at", { ascending: false });
@@ -55,6 +61,12 @@ const RecommendedProducts = () => {
     return product.regular_price !== null && product.regular_price !== undefined;
   };
 
+  const handleProductClick = (product: any) => {
+    if (product.affiliate_links?.[0]?.link_url) {
+      window.open(product.affiliate_links[0].link_url, '_blank');
+    }
+  };
+
   if (error) {
     return <div>Error loading recommended products: {error.message}</div>;
   }
@@ -92,6 +104,9 @@ const RecommendedProducts = () => {
       <div className="text-center py-8">
         <ThumbsUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <p className="text-muted-foreground">No recommended products available at the moment.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Add products in the admin panel and mark them as recommended to display them here.
+        </p>
       </div>
     );
   }
@@ -113,7 +128,7 @@ const RecommendedProducts = () => {
           {products.map((product) => (
             <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="p-1">
-                <Card className="h-[340px] flex flex-col">
+                <Card className="h-[340px] flex flex-col cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleProductClick(product)}>
                   <CardHeader className="p-0 flex-shrink-0">
                     <div className="relative">
                       <img 
@@ -152,9 +167,16 @@ const RecommendedProducts = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 pt-2 flex-shrink-0">
-                    <Button variant="outline" className="w-full text-xs h-8">
-                      View Details
-                    </Button>
+                    {product.affiliate_links?.[0]?.link_url ? (
+                      <Button variant="outline" className="w-full text-xs h-8">
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        Buy on {product.affiliate_links[0].provider || 'Store'}
+                      </Button>
+                    ) : (
+                      <Button variant="outline" className="w-full text-xs h-8">
+                        View Details
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               </div>
