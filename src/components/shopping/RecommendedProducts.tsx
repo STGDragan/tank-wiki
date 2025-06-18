@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ThumbsUp } from "lucide-react";
+import { ThumbsUp, DollarSign } from "lucide-react";
 
 const fetchRecommendedProducts = async () => {
   const { data, error } = await supabase
@@ -36,6 +37,22 @@ const RecommendedProducts = () => {
     if (!description) return "";
     if (description.length <= maxLength) return description;
     return description.slice(0, maxLength) + '...';
+  };
+
+  const formatPrice = (price: number | null) => {
+    if (price === null || price === undefined) return null;
+    return `$${price.toFixed(2)}`;
+  };
+
+  const getEffectivePrice = (product: any) => {
+    if (product.is_on_sale && product.sale_price) {
+      return product.sale_price;
+    }
+    return product.regular_price;
+  };
+
+  const hasPrice = (product: any) => {
+    return product.regular_price !== null && product.regular_price !== undefined;
   };
 
   if (error) {
@@ -96,13 +113,21 @@ const RecommendedProducts = () => {
           {products.map((product) => (
             <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="p-1">
-                <Card className="h-[300px] flex flex-col">
+                <Card className="h-[340px] flex flex-col">
                   <CardHeader className="p-0 flex-shrink-0">
-                    <img 
-                      src={product.image_url || "/placeholder.svg"} 
-                      alt={product.name} 
-                      className="rounded-t-lg h-32 object-cover w-full" 
-                    />
+                    <div className="relative">
+                      <img 
+                        src={product.image_url || "/placeholder.svg"} 
+                        alt={product.name} 
+                        className="rounded-t-lg h-32 object-cover w-full" 
+                      />
+                      {product.is_on_sale && (
+                        <Badge className="absolute top-2 right-2 bg-red-500 text-white">
+                          <DollarSign className="h-3 w-3 mr-1" />
+                          Sale
+                        </Badge>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent className="p-4 flex-1 flex flex-col justify-between">
                     <div className="space-y-2">
@@ -112,10 +137,17 @@ const RecommendedProducts = () => {
                       <p className="text-xs text-muted-foreground line-clamp-4">
                         {truncateDescription(product.description)}
                       </p>
-                      {product.price && (
-                        <p className="text-sm font-medium text-primary">
-                          ${product.price}
-                        </p>
+                      {hasPrice(product) && (
+                        <div className="space-y-1">
+                          {product.is_on_sale && product.regular_price && (
+                            <div className="text-xs text-muted-foreground line-through">
+                              {formatPrice(product.regular_price)}
+                            </div>
+                          )}
+                          <div className={`text-sm font-medium ${product.is_on_sale ? 'text-red-600' : 'text-primary'}`}>
+                            {formatPrice(getEffectivePrice(product))}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </CardContent>

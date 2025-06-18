@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { PlusCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -40,6 +42,12 @@ const productFormSchema = z.object({
   custom_category: z.string().optional(),
   subcategory: z.string().optional().transform(e => e === "" ? undefined : e),
   custom_subcategory: z.string().optional(),
+  regular_price: z.union([z.string(), z.number()]).transform(val => val === "" ? undefined : Number(val)).optional(),
+  sale_price: z.union([z.string(), z.number()]).transform(val => val === "" ? undefined : Number(val)).optional(),
+  is_on_sale: z.boolean().default(false),
+  stock_quantity: z.union([z.string(), z.number()]).transform(val => val === "" ? 0 : Number(val)).optional(),
+  track_inventory: z.boolean().default(true),
+  low_stock_threshold: z.union([z.string(), z.number()]).transform(val => val === "" ? 5 : Number(val)).optional(),
   affiliate_provider: z.string().optional(),
   affiliate_url: z.union([
     z.string().url({ message: "Please enter a valid URL." }),
@@ -52,11 +60,17 @@ const productFormSchema = z.object({
 }).refine(data => !(data.subcategory === 'Other' && !data.custom_subcategory?.trim()), {
     message: "Please specify the subcategory name",
     path: ["custom_subcategory"],
+}).refine(data => {
+  if (data.is_on_sale && data.sale_price && data.regular_price) {
+    return data.sale_price < data.regular_price;
+  }
+  return true;
+}, {
+  message: "Sale price must be less than regular price",
+  path: ["sale_price"],
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
-
-// The hardcoded category data is now fetched from the database.
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
@@ -82,6 +96,12 @@ const AddProductDialog = () => {
       custom_category: "",
       subcategory: "",
       custom_subcategory: "",
+      regular_price: undefined,
+      sale_price: undefined,
+      is_on_sale: false,
+      stock_quantity: 0,
+      track_inventory: true,
+      low_stock_threshold: 5,
       affiliate_provider: "",
       affiliate_url: "",
     },
@@ -89,6 +109,7 @@ const AddProductDialog = () => {
 
   const watchedCategory = form.watch("category");
   const watchedSubcategory = form.watch("subcategory");
+  const watchedIsOnSale = form.watch("is_on_sale");
   const selectedCategory = categories?.find(c => c.name === watchedCategory);
 
   const { data: subcategories, isLoading: isLoadingSubcategories } = useQuery({
@@ -132,6 +153,12 @@ const AddProductDialog = () => {
           image_url: newProduct.image_url || null,
           category: categoryName === 'Other' ? undefined : categoryName,
           subcategory: subcategoryName === 'Other' ? undefined : subcategoryName,
+          regular_price: newProduct.regular_price || null,
+          sale_price: newProduct.sale_price || null,
+          is_on_sale: newProduct.is_on_sale,
+          stock_quantity: newProduct.stock_quantity || 0,
+          track_inventory: newProduct.track_inventory,
+          low_stock_threshold: newProduct.low_stock_threshold || 5,
         })
         .select()
         .single();
@@ -178,7 +205,7 @@ const AddProductDialog = () => {
           Add Product
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Product</DialogTitle>
           <DialogDescription>
@@ -200,6 +227,7 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="description"
@@ -213,6 +241,7 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="image_url"
@@ -226,6 +255,99 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="regular_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Regular Price</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_on_sale"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>On Sale</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {watchedIsOnSale && (
+              <FormField
+                control={form.control}
+                name="sale_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sale Price</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" placeholder="0.00" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="stock_quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock Quantity</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="track_inventory"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Track Inventory</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="low_stock_threshold"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Low Stock Alert</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="5" {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name="category"
@@ -258,6 +380,7 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+
             {watchedCategory === 'Other' && (
               <FormField
                 control={form.control}
@@ -273,6 +396,7 @@ const AddProductDialog = () => {
                 )}
               />
             )}
+
             <FormField
               control={form.control}
               name="subcategory"
@@ -307,6 +431,7 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+
              {(watchedSubcategory === 'Other' || watchedCategory === 'Other') && (
               <FormField
                 control={form.control}
@@ -322,6 +447,7 @@ const AddProductDialog = () => {
                 )}
               />
             )}
+
             <FormField
               control={form.control}
               name="affiliate_provider"
@@ -335,6 +461,7 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="affiliate_url"
@@ -348,6 +475,7 @@ const AddProductDialog = () => {
                 </FormItem>
               )}
             />
+
             <DialogFooter>
               <Button type="submit" disabled={addProductMutation.isPending}>
                 {addProductMutation.isPending ? "Adding..." : "Add Product"}
