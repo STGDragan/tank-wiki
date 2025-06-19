@@ -27,17 +27,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  image_url: z.union([
-    z.string().url({ message: "Please enter a valid URL." }),
-    z.literal('')
-  ]).optional()
-    .transform(e => e === "" ? undefined : e),
+  image_urls: z.array(z.string().url({ message: "Please enter valid URLs." })).default([]),
   category: z.string().optional().transform(e => e === "" ? undefined : e),
   custom_category: z.string().optional(),
   subcategory: z.string().optional().transform(e => e === "" ? undefined : e),
@@ -46,7 +42,7 @@ const productFormSchema = z.object({
   sale_price: z.union([z.string(), z.number()]).transform(val => val === "" ? undefined : Number(val)).optional(),
   is_on_sale: z.boolean().default(false),
   stock_quantity: z.union([z.string(), z.number()]).transform(val => val === "" ? 0 : Number(val)).optional(),
-  track_inventory: z.boolean().default(true),
+  track_inventory: z.boolean().default(false),
   low_stock_threshold: z.union([z.string(), z.number()]).transform(val => val === "" ? 5 : Number(val)).optional(),
   affiliate_provider: z.string().optional(),
   affiliate_url: z.union([
@@ -91,7 +87,7 @@ const AddProductDialog = () => {
     defaultValues: {
       name: "",
       description: "",
-      image_url: "",
+      image_urls: [],
       category: "",
       custom_category: "",
       subcategory: "",
@@ -100,7 +96,7 @@ const AddProductDialog = () => {
       sale_price: undefined,
       is_on_sale: false,
       stock_quantity: 0,
-      track_inventory: true,
+      track_inventory: false,
       low_stock_threshold: 5,
       affiliate_provider: "",
       affiliate_url: "",
@@ -110,6 +106,7 @@ const AddProductDialog = () => {
   const watchedCategory = form.watch("category");
   const watchedSubcategory = form.watch("subcategory");
   const watchedIsOnSale = form.watch("is_on_sale");
+  const watchedImageUrls = form.watch("image_urls");
   const selectedCategory = categories?.find(c => c.name === watchedCategory);
 
   const { data: subcategories, isLoading: isLoadingSubcategories } = useQuery({
@@ -150,7 +147,8 @@ const AddProductDialog = () => {
         .insert({
           name: newProduct.name,
           description: newProduct.description || null,
-          image_url: newProduct.image_url || null,
+          image_url: newProduct.image_urls.length > 0 ? newProduct.image_urls[0] : null,
+          imageurls: newProduct.image_urls,
           category: categoryName === 'Other' ? undefined : categoryName,
           subcategory: subcategoryName === 'Other' ? undefined : subcategoryName,
           regular_price: newProduct.regular_price || null,
@@ -195,6 +193,24 @@ const AddProductDialog = () => {
 
   const onSubmit = (data: ProductFormValues) => {
     addProductMutation.mutate(data);
+  };
+
+  const addImageUrl = () => {
+    const currentUrls = form.getValues("image_urls");
+    form.setValue("image_urls", [...currentUrls, ""]);
+  };
+
+  const removeImageUrl = (index: number) => {
+    const currentUrls = form.getValues("image_urls");
+    const newUrls = currentUrls.filter((_, i) => i !== index);
+    form.setValue("image_urls", newUrls);
+  };
+
+  const updateImageUrl = (index: number, value: string) => {
+    const currentUrls = form.getValues("image_urls");
+    const newUrls = [...currentUrls];
+    newUrls[index] = value;
+    form.setValue("image_urls", newUrls);
   };
 
   return (
@@ -242,19 +258,39 @@ const AddProductDialog = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="image_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <FormLabel>Product Images</FormLabel>
+                <Button type="button" variant="outline" size="sm" onClick={addImageUrl}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Image
+                </Button>
+              </div>
+              
+              {watchedImageUrls.map((url, index) => (
+                <div key={index} className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b"
+                      value={url}
+                      onChange={(e) => updateImageUrl(index, e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeImageUrl(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              
+              {watchedImageUrls.length === 0 && (
+                <p className="text-sm text-muted-foreground">No images added yet. Click "Add Image" to get started.</p>
               )}
-            />
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
