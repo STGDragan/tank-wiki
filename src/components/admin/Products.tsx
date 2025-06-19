@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Pencil, Trash2, Star, ThumbsUp, DollarSign, Package } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Star, ThumbsUp, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
@@ -79,7 +79,7 @@ const AdminProducts = () => {
 
   const updateFeatureStatusMutation = useMutation({
     mutationFn: async ({ productId, is_featured }: { productId: string; is_featured: boolean }) => {
-      const { error } = await supabase.from('products').update({ is_featured }).eq('id', productId).select();
+      const { error } = await supabase.from('products').update({ is_featured }).eq('id', productId);
       if (error) throw new Error(error.message);
     },
     onSuccess: (_, { is_featured }) => {
@@ -94,7 +94,7 @@ const AdminProducts = () => {
 
   const updateRecommendedStatusMutation = useMutation({
     mutationFn: async ({ productId, is_recommended }: { productId: string; is_recommended: boolean }) => {
-      const { error } = await supabase.from('products').update({ is_recommended }).eq('id', productId).select();
+      const { error } = await supabase.from('products').update({ is_recommended }).eq('id', productId);
       if (error) throw new Error(error.message);
     },
     onSuccess: (_, { is_recommended }) => {
@@ -241,7 +241,7 @@ const AdminProducts = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Badge variant={getStockBadgeVariant(product)}>
+                          <Badge variant={getStockBadgeVariant(product) as any}>
                             {getStockStatus(product)}
                           </Badge>
                           {product.track_inventory && (

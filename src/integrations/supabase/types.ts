@@ -1051,7 +1051,6 @@ export type Database = {
           model: string | null
           name: string
           onSale: boolean
-          price: number | null
           regular_price: number | null
           sale_end_date: string | null
           sale_price: number | null
@@ -1087,7 +1086,6 @@ export type Database = {
           model?: string | null
           name: string
           onSale?: boolean
-          price?: number | null
           regular_price?: number | null
           sale_end_date?: string | null
           sale_price?: number | null
@@ -1123,7 +1121,6 @@ export type Database = {
           model?: string | null
           name?: string
           onSale?: boolean
-          price?: number | null
           regular_price?: number | null
           sale_end_date?: string | null
           sale_price?: number | null
