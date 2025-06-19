@@ -105,7 +105,7 @@ const ProductDetail = () => {
 
   const effectivePrice = getEffectivePrice();
   const savings = calculateSavings();
-  const images = product.imageurls || [];
+  const images = Array.isArray(product.imageurls) ? product.imageurls as string[] : [];
   const primaryImage = images[0] || product.image_url || '/placeholder.svg';
 
   return (
