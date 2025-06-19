@@ -10,6 +10,7 @@ export const saltwaterRecommendations = [
     price: 29.99,
     sale: false,
     featured: true,
+    productId: 'clownfish-001',
   },
   {
     type: 'livestock',
@@ -20,6 +21,7 @@ export const saltwaterRecommendations = [
     price: 24.99,
     sale: false,
     featured: false,
+    productId: 'royal-gramma-001',
   },
   {
     type: 'livestock',
@@ -31,6 +33,7 @@ export const saltwaterRecommendations = [
     salePrice: 14.99,
     sale: true,
     featured: false,
+    productId: 'cardinal-fish-001',
   },
   {
     type: 'livestock',
@@ -41,6 +44,7 @@ export const saltwaterRecommendations = [
     price: 49.99,
     sale: false,
     featured: true,
+    productId: 'coral-beauty-001',
   },
   {
     type: 'livestock',
@@ -51,6 +55,7 @@ export const saltwaterRecommendations = [
     price: 12.99,
     sale: false,
     featured: false,
+    productId: 'green-chromis-001',
   },
   // Equipment
   {
@@ -62,6 +67,7 @@ export const saltwaterRecommendations = [
     price: 229.99,
     sale: false,
     featured: true,
+    productId: 'ai-prime-16hd-001',
   },
   {
     type: 'equipment',
@@ -73,6 +79,7 @@ export const saltwaterRecommendations = [
     salePrice: 119.99,
     sale: true,
     featured: false,
+    productId: 'protein-skimmer-001',
   },
   {
     type: 'equipment',
@@ -83,6 +90,7 @@ export const saltwaterRecommendations = [
     price: 89.99,
     sale: false,
     featured: false,
+    productId: 'powerhead-001',
   },
   {
     type: 'equipment',
@@ -93,6 +101,7 @@ export const saltwaterRecommendations = [
     price: 39.99,
     sale: false,
     featured: false,
+    productId: 'marine-heater-001',
   },
   {
     type: 'equipment',
@@ -103,6 +112,7 @@ export const saltwaterRecommendations = [
     price: 199.99,
     sale: false,
     featured: true,
+    productId: 'wave-maker-001',
   },
   // Consumables
   {
@@ -114,6 +124,7 @@ export const saltwaterRecommendations = [
     price: 24.99,
     sale: false,
     featured: false,
+    productId: 'red-sea-salt-001',
   },
   {
     type: 'consumable',
@@ -124,6 +135,7 @@ export const saltwaterRecommendations = [
     price: 15.99,
     sale: false,
     featured: false,
+    productId: 'carbon-media-001',
   },
   {
     type: 'consumable',
@@ -135,6 +147,7 @@ export const saltwaterRecommendations = [
     salePrice: 18.99,
     sale: true,
     featured: false,
+    productId: 'gfo-media-001',
   },
   {
     type: 'consumable',
@@ -145,6 +158,7 @@ export const saltwaterRecommendations = [
     price: 32.99,
     sale: false,
     featured: false,
+    productId: 'trace-elements-001',
   },
   {
     type: 'consumable',
@@ -155,6 +169,7 @@ export const saltwaterRecommendations = [
     price: 8.99,
     sale: false,
     featured: false,
+    productId: 'filter-socks-001',
   },
   // Food
   {
@@ -166,6 +181,7 @@ export const saltwaterRecommendations = [
     price: 16.99,
     sale: false,
     featured: false,
+    productId: 'hikari-marine-001',
   },
   {
     type: 'food',
@@ -176,6 +192,7 @@ export const saltwaterRecommendations = [
     price: 12.99,
     sale: false,
     featured: false,
+    productId: 'mysis-shrimp-001',
   },
 ];
 
@@ -190,6 +207,7 @@ export const freshwaterRecommendations = [
     price: 3.99,
     sale: false,
     featured: true,
+    productId: 'neon-tetra-001',
   },
   {
     type: 'livestock',
@@ -200,6 +218,7 @@ export const freshwaterRecommendations = [
     price: 7.99,
     sale: false,
     featured: false,
+    productId: 'java-fern-001',
   },
   {
     type: 'livestock',
@@ -211,6 +230,7 @@ export const freshwaterRecommendations = [
     salePrice: 6.99,
     sale: true,
     featured: false,
+    productId: 'corydoras-001',
   },
   {
     type: 'livestock',
@@ -221,6 +241,7 @@ export const freshwaterRecommendations = [
     price: 12.99,
     sale: false,
     featured: true,
+    productId: 'anubias-001',
   },
   {
     type: 'livestock',
@@ -231,6 +252,7 @@ export const freshwaterRecommendations = [
     price: 14.99,
     sale: false,
     featured: true,
+    productId: 'betta-fish-001',
   },
   // Equipment
   {
@@ -242,6 +264,7 @@ export const freshwaterRecommendations = [
     price: 29.99,
     sale: false,
     featured: false,
+    productId: 'heater-50w-001',
   },
   {
     type: 'equipment',
@@ -253,6 +276,7 @@ export const freshwaterRecommendations = [
     salePrice: 59.99,
     sale: true,
     featured: true,
+    productId: 'led-light-001',
   },
   {
     type: 'equipment',
@@ -263,6 +287,7 @@ export const freshwaterRecommendations = [
     price: 129.99,
     sale: false,
     featured: false,
+    productId: 'canister-filter-001',
   },
   {
     type: 'equipment',
@@ -273,6 +298,7 @@ export const freshwaterRecommendations = [
     price: 19.99,
     sale: false,
     featured: false,
+    productId: 'air-pump-001',
   },
   {
     type: 'equipment',
@@ -283,6 +309,7 @@ export const freshwaterRecommendations = [
     price: 89.99,
     sale: false,
     featured: true,
+    productId: 'co2-system-001',
   },
   // Consumables
   {
@@ -294,6 +321,7 @@ export const freshwaterRecommendations = [
     price: 9.99,
     sale: false,
     featured: false,
+    productId: 'seachem-prime-001',
   },
   {
     type: 'consumable',
@@ -304,6 +332,7 @@ export const freshwaterRecommendations = [
     price: 12.99,
     sale: false,
     featured: false,
+    productId: 'activated-carbon-001',
   },
   {
     type: 'consumable',
@@ -315,6 +344,7 @@ export const freshwaterRecommendations = [
     salePrice: 12.99,
     sale: true,
     featured: false,
+    productId: 'filter-cartridge-001',
   },
   {
     type: 'consumable',
@@ -325,6 +355,7 @@ export const freshwaterRecommendations = [
     price: 18.99,
     sale: false,
     featured: false,
+    productId: 'plant-fertilizer-001',
   },
   {
     type: 'consumable',
@@ -335,6 +366,7 @@ export const freshwaterRecommendations = [
     price: 24.99,
     sale: false,
     featured: false,
+    productId: 'bio-media-001',
   },
   // Food
   {
@@ -346,6 +378,7 @@ export const freshwaterRecommendations = [
     price: 13.99,
     sale: false,
     featured: false,
+    productId: 'hikari-micro-001',
   },
   {
     type: 'food',
@@ -356,6 +389,7 @@ export const freshwaterRecommendations = [
     price: 11.99,
     sale: false,
     featured: false,
+    productId: 'bloodworms-001',
   },
 ];
 

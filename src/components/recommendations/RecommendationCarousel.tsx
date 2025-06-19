@@ -80,7 +80,7 @@ const RecommendationCarousel = ({ items }: RecommendationCarouselProps) => {
                     className="flex-1"
                     onClick={() => {
                       if (item.productId) {
-                        navigate(`/product/${item.productId}`);
+                        navigate(`/placeholder-product/${item.productId}`);
                       }
                     }}
                   >
