@@ -1,191 +1,127 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ThumbsUp, DollarSign, ExternalLink } from "lucide-react";
-
-const fetchRecommendedProducts = async () => {
-  const { data, error } = await supabase
-    .from("products")
-    .select(`
-      *,
-      affiliate_links (
-        link_url,
-        provider
-      )
-    `)
-    .eq("is_recommended", true)
-    .eq("visible", true)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching recommended products:", error);
-    throw new Error(error.message);
-  }
-  return data;
-};
+import { ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const RecommendedProducts = () => {
-  const {
-    data: products,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["recommended-products"],
-    queryFn: fetchRecommendedProducts,
+  const navigate = useNavigate();
+
+  const { data: products, isLoading } = useQuery({
+    queryKey: ['recommended-products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          affiliate_links (
+            link_url,
+            provider
+          )
+        `)
+        .eq('is_recommended', true)
+        .eq('visible', true)
+        .limit(8);
+      
+      if (error) throw error;
+      return data;
+    },
   });
 
-  const truncateDescription = (description: string | null, maxLength: number = 100) => {
-    if (!description) return "";
-    if (description.length <= maxLength) return description;
-    return description.slice(0, maxLength) + '...';
-  };
-
-  const formatPrice = (price: number | null) => {
-    if (price === null || price === undefined) return null;
-    return `$${price.toFixed(2)}`;
-  };
-
   const getEffectivePrice = (product: any) => {
-    if (product.is_on_sale && product.sale_price) {
+    if (product.is_on_sale && product.sale_price && 
+        (!product.sale_start_date || new Date(product.sale_start_date) <= new Date()) &&
+        (!product.sale_end_date || new Date(product.sale_end_date) >= new Date())) {
       return product.sale_price;
     }
     return product.regular_price;
   };
 
-  const hasPrice = (product: any) => {
-    return product.regular_price !== null && product.regular_price !== undefined;
-  };
-
-  const handleProductClick = (product: any) => {
-    if (product.affiliate_links?.[0]?.link_url) {
-      window.open(product.affiliate_links[0].link_url, '_blank');
-    }
-  };
-
-  if (error) {
-    return <div>Error loading recommended products: {error.message}</div>;
-  }
-
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <ThumbsUp className="h-5 w-5 text-green-500" />
-          <h3 className="text-lg font-semibold">Recommended Products</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i} className="h-[300px]">
-              <CardHeader className="p-0">
-                <Skeleton className="h-32 w-full rounded-t-lg" />
-              </CardHeader>
-              <CardContent className="p-4">
-                <Skeleton className="h-4 w-3/4 mb-2" />
-                <Skeleton className="h-3 w-full mb-1" />
-                <Skeleton className="h-3 w-2/3" />
-              </CardContent>
-              <CardFooter className="p-4 pt-2">
-                <Skeleton className="h-8 w-full" />
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <Card key={i} className="overflow-hidden">
+            <div className="aspect-square bg-muted animate-pulse" />
+            <CardContent className="p-3 space-y-2">
+              <div className="h-4 bg-muted rounded animate-pulse" />
+              <div className="h-4 bg-muted rounded w-2/3 animate-pulse" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
 
-  if (!products || products.length === 0) {
+  if (!products?.length) {
     return (
-      <div className="text-center py-8">
-        <ThumbsUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <p className="text-muted-foreground">No recommended products available at the moment.</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Add products in the admin panel and mark them as recommended to display them here.
-        </p>
+      <div className="text-center py-8 text-muted-foreground">
+        No recommended products available.
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-2 mb-4">
-        <ThumbsUp className="h-5 w-5 text-green-500" />
-        <h3 className="text-lg font-semibold">Recommended Products</h3>
-      </div>
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-        }}
-        className="w-full px-12"
-      >
-        <CarouselContent>
-          {products.map((product) => (
-            <CarouselItem key={product.id} className="md:basis-1/2 lg:basis-1/3">
-              <div className="p-1">
-                <Card className="h-[340px] flex flex-col cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleProductClick(product)}>
-                  <CardHeader className="p-0 flex-shrink-0">
-                    <div className="relative">
-                      <img 
-                        src={product.image_url || "/placeholder.svg"} 
-                        alt={product.name} 
-                        className="rounded-t-lg h-32 object-cover w-full" 
-                      />
-                      {product.is_on_sale && (
-                        <Badge className="absolute top-2 right-2 bg-red-500 text-white">
-                          <DollarSign className="h-3 w-3 mr-1" />
-                          Sale
-                        </Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-4 flex-1 flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold line-clamp-2 text-sm">{product.name}</h4>
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-4">
-                        {truncateDescription(product.description)}
-                      </p>
-                      {hasPrice(product) && (
-                        <div className="space-y-1">
-                          {product.is_on_sale && product.regular_price && (
-                            <div className="text-xs text-muted-foreground line-through">
-                              {formatPrice(product.regular_price)}
-                            </div>
-                          )}
-                          <div className={`text-sm font-medium ${product.is_on_sale ? 'text-red-600' : 'text-primary'}`}>
-                            {formatPrice(getEffectivePrice(product))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-2 flex-shrink-0">
-                    {product.affiliate_links?.[0]?.link_url ? (
-                      <Button variant="outline" className="w-full text-xs h-8">
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Buy on {product.affiliate_links[0].provider || 'Store'}
-                      </Button>
-                    ) : (
-                      <Button variant="outline" className="w-full text-xs h-8">
-                        View Details
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {products.map((product) => {
+        const effectivePrice = getEffectivePrice(product);
+        const imageUrl = product.imageurls?.[0] || product.image_url || '/placeholder.svg';
+
+        return (
+          <Card key={product.id} className="overflow-hidden hover:shadow-md transition-shadow">
+            <div className="aspect-square overflow-hidden bg-muted relative">
+              <img
+                src={imageUrl}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+              {product.is_on_sale && (
+                <Badge className="absolute top-2 left-2 bg-red-100 text-red-800 hover:bg-red-100">
+                  Sale
+                </Badge>
+              )}
+            </div>
+            <CardContent className="p-3">
+              <h3 className="font-medium mb-1 text-sm line-clamp-2">{product.name}</h3>
+              
+              <div className="flex items-center gap-1 mb-2">
+                {effectivePrice && (
+                  <span className="text-sm font-bold text-primary">
+                    ${effectivePrice.toFixed(2)}
+                  </span>
+                )}
+                {product.is_on_sale && product.regular_price && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    ${product.regular_price.toFixed(2)}
+                  </span>
+                )}
               </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
+
+              <div className="flex gap-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 text-xs"
+                  onClick={() => navigate(`/product/${product.id}`)}
+                >
+                  View Details
+                </Button>
+                {product.affiliate_links?.[0]?.link_url && (
+                  <Button 
+                    size="sm"
+                    onClick={() => window.open(product.affiliate_links[0].link_url, '_blank')}
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };

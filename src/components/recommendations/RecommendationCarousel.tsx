@@ -1,71 +1,114 @@
 
-import { useState } from 'react';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "lucide-react";
 import { Recommendation } from "@/data/recommendations";
+import { useNavigate } from "react-router-dom";
 
 interface RecommendationCarouselProps {
   items: Recommendation[];
 }
 
 const RecommendationCarousel = ({ items }: RecommendationCarouselProps) => {
-  const [selectedItem, setSelectedItem] = useState<Recommendation | null>(null);
+  const navigate = useNavigate();
 
-  const truncateDescription = (description: string, maxLength: number = 100) => {
-    if (description.length <= maxLength) return description;
-    return description.slice(0, maxLength) + '...';
-  };
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No recommendations available for this category.
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Carousel opts={{ align: "start" }} className="w-full">
-        <CarouselContent>
-          {items.map((item, index) => (
-            <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Card className="h-[300px] cursor-pointer hover:shadow-lg transition-shadow flex flex-col">
-                    <CardHeader className="p-0 flex-shrink-0">
-                      <img 
-                        src={item.imageUrl} 
-                        alt={item.name} 
-                        className="w-full h-32 object-cover rounded-t-lg"
-                      />
-                    </CardHeader>
-                    <CardContent className="p-4 flex-1 flex flex-col justify-between">
-                      <div className="space-y-2">
-                        <CardTitle className="text-sm font-semibold line-clamp-2">{item.name}</CardTitle>
-                        <CardDescription className="text-xs text-muted-foreground line-clamp-4">
-                          {truncateDescription(item.description)}
-                        </CardDescription>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>{item.name}</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <img 
-                      src={item.imageUrl} 
-                      alt={item.name} 
-                      className="w-full h-48 object-cover rounded-md"
-                    />
-                    <DialogDescription className="text-sm leading-relaxed">
-                      {item.description}
-                    </DialogDescription>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="ml-12" />
-        <CarouselNext className="mr-12" />
-      </Carousel>
-    </>
+    <Carousel className="w-full">
+      <CarouselContent className="-ml-2 md:-ml-4">
+        {items.map((item, index) => (
+          <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+            <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="aspect-square overflow-hidden bg-muted relative">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                />
+                {item.sale && (
+                  <Badge className="absolute top-2 left-2 bg-red-100 text-red-800 hover:bg-red-100">
+                    Sale
+                  </Badge>
+                )}
+                {item.featured && (
+                  <Badge className="absolute top-2 right-2 bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+                    Featured
+                  </Badge>
+                )}
+              </div>
+              <CardContent className="p-4">
+                <h3 className="font-semibold mb-2 line-clamp-2">{item.name}</h3>
+                
+                <div className="flex items-center gap-2 mb-3">
+                  {item.salePrice ? (
+                    <>
+                      <span className="text-lg font-bold text-primary">
+                        ${item.salePrice.toFixed(2)}
+                      </span>
+                      {item.price && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ${item.price.toFixed(2)}
+                        </span>
+                      )}
+                    </>
+                  ) : item.price ? (
+                    <span className="text-lg font-bold text-primary">
+                      ${item.price.toFixed(2)}
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => {
+                      if (item.productId) {
+                        navigate(`/product/${item.productId}`);
+                      }
+                    }}
+                  >
+                    View Details
+                  </Button>
+                  {item.link && (
+                    <Button 
+                      size="sm"
+                      onClick={() => window.open(item.link, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
+                {item.description && (
+                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                    {item.description}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="hidden md:flex" />
+      <CarouselNext className="hidden md:flex" />
+    </Carousel>
   );
 };
 

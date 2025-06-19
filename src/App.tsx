@@ -19,6 +19,7 @@ import AquariumDetail from "./pages/AquariumDetail";
 import SharedWithMe from "./pages/SharedWithMe";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import Shopping from "./pages/Shopping";
+import ProductDetail from "./pages/ProductDetail";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle";
 import SpeciesBrowserPage from "./pages/SpeciesBrowser";
@@ -65,6 +66,7 @@ function App() {
                   <Route path="/aquarium/:id" element={<AquariumDetail />} />
                   <Route path="/shared-with-me" element={<SharedWithMe />} />
                   <Route path="/shopping" element={<Shopping />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/knowledge-base" element={<KnowledgeBase />} />
                   <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
                   <Route path="/species-browser" element={<SpeciesBrowserPage />} />
