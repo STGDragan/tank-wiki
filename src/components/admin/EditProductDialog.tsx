@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -115,12 +114,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       custom_subcategory: "",
       affiliate_provider: "",
       affiliate_url: "",
-      regular_price: "0",
-      sale_price: "0",
+      regular_price: "",
+      sale_price: "",
       is_on_sale: false,
       track_inventory: true,
-      stock_quantity: "0",
-      low_stock_threshold: "5",
+      stock_quantity: "",
+      low_stock_threshold: "",
     }
   });
 
@@ -137,8 +136,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         subcategory: product.subcategory || "",
         affiliate_provider: affiliateLink?.provider || "",
         affiliate_url: affiliateLink?.link_url || "",
-        regular_price: product.regular_price?.toString() || "0",
-        sale_price: product.sale_price?.toString() || "0",
+        regular_price: product.regular_price?.toString() || "",
+        sale_price: product.sale_price?.toString() || "",
         is_on_sale: product.is_on_sale || false,
         track_inventory: product.track_inventory ?? true,
         stock_quantity: (product.stock_quantity || 0).toString(),
@@ -439,7 +438,6 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               </div>
             )}
 
-            {/* ... keep existing code (category and subcategory fields) */}
             <FormField
               control={form.control}
               name="category"
@@ -537,7 +535,6 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               />
             )}
 
-            {/* ... keep existing code (affiliate fields) */}
             <FormField
               control={form.control}
               name="affiliate_provider"
