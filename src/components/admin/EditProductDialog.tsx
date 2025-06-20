@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -140,8 +141,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         sale_price: product.sale_price?.toString() || "0",
         is_on_sale: product.is_on_sale || false,
         track_inventory: product.track_inventory ?? true,
-        stock_quantity: product.stock_quantity?.toString() || "0",
-        low_stock_threshold: product.low_stock_threshold?.toString() || "5",
+        stock_quantity: (product.stock_quantity || 0).toString(),
+        low_stock_threshold: (product.low_stock_threshold || 5).toString(),
         custom_category: "",
         custom_subcategory: "",
       });
