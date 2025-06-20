@@ -173,7 +173,7 @@ const AdminProducts = () => {
         <CardHeader>
           <CardTitle>Product List</CardTitle>
           <CardDescription>
-            A list of all products in your store with pricing and inventory information. Use the toggles to quickly feature or recommend products.
+            A list of all products in your store with pricing and inventory information. Use the star and thumbs up buttons to quickly feature or recommend products.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -252,6 +252,7 @@ const AdminProducts = () => {
                             variant={product.is_featured ? "default" : "outline"}
                             onClick={() => handleFeatureToggle(product)}
                             className="h-7 px-2"
+                            disabled={updateFeatureStatusMutation.isPending}
                           >
                             <Star className="h-3 w-3" />
                           </Button>
@@ -260,6 +261,7 @@ const AdminProducts = () => {
                             variant={product.is_recommended ? "default" : "outline"}
                             onClick={() => handleRecommendedToggle(product)}
                             className="h-7 px-2"
+                            disabled={updateRecommendedStatusMutation.isPending}
                           >
                             <ThumbsUp className="h-3 w-3" />
                           </Button>

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +30,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -51,6 +54,8 @@ const productFormSchema = z.object({
   regular_price: z.string().optional().transform(e => e === "" ? undefined : parseFloat(e || "0")),
   sale_price: z.string().optional().transform(e => e === "" ? undefined : parseFloat(e || "0")),
   is_on_sale: z.boolean().default(false),
+  is_featured: z.boolean().default(false),
+  is_recommended: z.boolean().default(false),
   track_inventory: z.boolean().default(true),
   stock_quantity: z.string().optional().transform(e => e === "" ? 0 : parseInt(e || "0")),
   low_stock_threshold: z.string().optional().transform(e => e === "" ? 5 : parseInt(e || "5")),
@@ -117,6 +122,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       regular_price: undefined,
       sale_price: undefined,
       is_on_sale: false,
+      is_featured: false,
+      is_recommended: false,
       track_inventory: true,
       stock_quantity: 0,
       low_stock_threshold: 5,
@@ -139,6 +146,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         regular_price: product.regular_price || undefined,
         sale_price: product.sale_price || undefined,
         is_on_sale: product.is_on_sale || false,
+        is_featured: product.is_featured || false,
+        is_recommended: product.is_recommended || false,
         track_inventory: product.track_inventory ?? true,
         stock_quantity: product.stock_quantity || 0,
         low_stock_threshold: product.low_stock_threshold || 5,
@@ -214,6 +223,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
             regular_price: updatedValues.regular_price || null,
             sale_price: updatedValues.sale_price || null,
             is_on_sale: updatedValues.is_on_sale,
+            is_featured: updatedValues.is_featured,
+            is_recommended: updatedValues.is_recommended,
             track_inventory: updatedValues.track_inventory,
             stock_quantity: updatedValues.stock_quantity || 0,
             low_stock_threshold: updatedValues.low_stock_threshold || 5,
@@ -248,6 +259,9 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       queryClient.invalidateQueries({ queryKey: ['affiliateLink', product?.id] });
       queryClient.invalidateQueries({ queryKey: ["product_categories"] });
       queryClient.invalidateQueries({ queryKey: ["product_subcategories"] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+      queryClient.invalidateQueries({ queryKey: ['recommended-products'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-recommended-products'] });
       toast({ title: "Product Updated", description: "The product has been updated successfully." });
       onOpenChange(false);
     },
@@ -266,156 +280,30 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
             Update the details of the product below.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Aquarium Filter" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="e.g. A high-quality filter for up to 50 gallons." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="image_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Main Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Additional Images Section */}
-            <div className="space-y-2">
-              <FormLabel>Additional Images</FormLabel>
-              {additionalImages.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {additionalImages.map((url, index) => (
-                    <Badge key={index} variant="outline" className="flex items-center gap-1">
-                      <span className="truncate max-w-[100px]">{url}</span>
-                      <X className="h-3 w-3 cursor-pointer" onClick={() => removeImage(index)} />
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Additional image URL"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                />
-                <Button type="button" onClick={addImage} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Pricing Section */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="regular_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Regular Price</FormLabel>
-                    <FormControl>
-                      <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="sale_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sale Price</FormLabel>
-                    <FormControl>
-                      <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="is_on_sale"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>Product is on sale</FormLabel>
-                </FormItem>
-              )}
-            />
-
-            {/* Inventory Section */}
-            <FormField
-              control={form.control}
-              name="track_inventory"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>Track inventory</FormLabel>
-                </FormItem>
-              )}
-            />
-
-            {watchedTrackInventory && (
-              <div className="grid grid-cols-2 gap-4">
+        
+        <ScrollArea className="flex-1 pr-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-2">
+              {/* Basic Information Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Basic Information</h3>
+                <Separator />
+                
                 <FormField
                   control={form.control}
-                  name="stock_quantity"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stock Quantity</FormLabel>
+                      <FormLabel>Product Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="0" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                        <Input placeholder="e.g. Aquarium Filter" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -424,151 +312,361 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                 
                 <FormField
                   control={form.control}
-                  name="low_stock_threshold"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Low Stock Threshold</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="5" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                        <Textarea 
+                          placeholder="e.g. A high-quality filter for up to 50 gallons." 
+                          {...field} 
+                          rows={3}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-            )}
 
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={(value) => {
-                    field.onChange(value);
-                    form.setValue('subcategory', '');
-                    form.setValue('custom_subcategory', '');
-                     if (value !== 'Other') {
-                      form.setValue('custom_category', '');
-                    }
-                  }} value={field.value || ''} disabled={isLoadingCategories}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={isLoadingCategories ? "Loading..." : "Select a category"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories?.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.name}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="Other">Other...</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {watchedCategory === 'Other' && (
-              <FormField
-                control={form.control}
-                name="custom_category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Category Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. Aquarium Decor" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            <FormField
-              control={form.control}
-              name="subcategory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subcategory</FormLabel>
-                   <Select onValueChange={(value) => {
-                    field.onChange(value);
-                     if (value !== 'Other') {
-                      form.setValue('custom_subcategory', '');
-                    }
-                  }} value={field.value || ''} disabled={!watchedCategory || watchedCategory === 'Other' || isLoadingSubcategories}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={
-                          isLoadingSubcategories ? "Loading..." 
-                          : watchedCategory === 'Other' ? 'Define new subcategory below'
-                          : "Select a subcategory"
-                        } />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {subcategories?.map((subcat) => (
-                        <SelectItem key={subcat.name} value={subcat.name}>
-                          {subcat.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="Other">Other...</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {(watchedSubcategory === 'Other' || watchedCategory === 'Other') && (
-              <FormField
-                control={form.control}
-                name="custom_subcategory"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>New Subcategory Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g. Ornaments" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+              {/* Images Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Images</h3>
+                <Separator />
+                
+                <FormField
+                  control={form.control}
+                  name="image_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Main Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="affiliate_provider"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Affiliate Provider</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Amazon" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="affiliate_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Affiliate URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. https://amazon.com/product/123" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <DialogFooter>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Save Changes"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                <div className="space-y-2">
+                  <FormLabel>Additional Images</FormLabel>
+                  {additionalImages.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {additionalImages.map((url, index) => (
+                        <Badge key={index} variant="outline" className="flex items-center gap-1">
+                          <span className="truncate max-w-[100px]">{url}</span>
+                          <X className="h-3 w-3 cursor-pointer" onClick={() => removeImage(index)} />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Additional image URL"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                    />
+                    <Button type="button" onClick={addImage} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Category & Classification</h3>
+                <Separator />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue('subcategory', '');
+                          form.setValue('custom_subcategory', '');
+                           if (value !== 'Other') {
+                            form.setValue('custom_category', '');
+                          }
+                        }} value={field.value || ''} disabled={isLoadingCategories}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={isLoadingCategories ? "Loading..." : "Select a category"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories?.map((cat) => (
+                              <SelectItem key={cat.id} value={cat.name}>
+                                {cat.name}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="Other">Other...</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="subcategory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subcategory</FormLabel>
+                         <Select onValueChange={(value) => {
+                          field.onChange(value);
+                           if (value !== 'Other') {
+                            form.setValue('custom_subcategory', '');
+                          }
+                        }} value={field.value || ''} disabled={!watchedCategory || watchedCategory === 'Other' || isLoadingSubcategories}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                isLoadingSubcategories ? "Loading..." 
+                                : watchedCategory === 'Other' ? 'Define new subcategory below'
+                                : "Select a subcategory"
+                              } />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {subcategories?.map((subcat) => (
+                              <SelectItem key={subcat.name} value={subcat.name}>
+                                {subcat.name}
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="Other">Other...</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                {watchedCategory === 'Other' && (
+                  <FormField
+                    control={form.control}
+                    name="custom_category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Category Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Aquarium Decor" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                
+                {(watchedSubcategory === 'Other' || watchedCategory === 'Other') && (
+                  <FormField
+                    control={form.control}
+                    name="custom_subcategory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Subcategory Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Ornaments" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              {/* Pricing Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Pricing & Sales</h3>
+                <Separator />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="regular_price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Regular Price</FormLabel>
+                        <FormControl>
+                          <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="sale_price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sale Price</FormLabel>
+                        <FormControl>
+                          <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-3">
+                  <FormField
+                    control={form.control}
+                    name="is_on_sale"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel>Product is on sale</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="is_featured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel>Feature this product</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="is_recommended"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel>Recommend this product</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Inventory Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Inventory Management</h3>
+                <Separator />
+                
+                <FormField
+                  control={form.control}
+                  name="track_inventory"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel>Track inventory</FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                {watchedTrackInventory && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="stock_quantity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Stock Quantity</FormLabel>
+                          <FormControl>
+                            <Input placeholder="0" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="low_stock_threshold"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Low Stock Threshold</FormLabel>
+                          <FormControl>
+                            <Input placeholder="5" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Affiliate Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Affiliate Information</h3>
+                <Separator />
+                
+                <FormField
+                  control={form.control}
+                  name="affiliate_provider"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Affiliate Provider</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Amazon" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="affiliate_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Affiliate URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. https://amazon.com/product/123" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </form>
+          </Form>
+        </ScrollArea>
+        
+        <DialogFooter className="mt-6">
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            {isLoading ? "Saving..." : "Save Changes"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
