@@ -114,12 +114,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       custom_subcategory: "",
       affiliate_provider: "",
       affiliate_url: "",
-      regular_price: "",
-      sale_price: "",
+      regular_price: undefined,
+      sale_price: undefined,
       is_on_sale: false,
       track_inventory: true,
-      stock_quantity: "",
-      low_stock_threshold: "",
+      stock_quantity: 0,
+      low_stock_threshold: 5,
     }
   });
 
@@ -136,12 +136,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         subcategory: product.subcategory || "",
         affiliate_provider: affiliateLink?.provider || "",
         affiliate_url: affiliateLink?.link_url || "",
-        regular_price: product.regular_price?.toString() || "",
-        sale_price: product.sale_price?.toString() || "",
+        regular_price: product.regular_price || undefined,
+        sale_price: product.sale_price || undefined,
         is_on_sale: product.is_on_sale || false,
         track_inventory: product.track_inventory ?? true,
-        stock_quantity: (product.stock_quantity || 0).toString(),
-        low_stock_threshold: (product.low_stock_threshold || 5).toString(),
+        stock_quantity: product.stock_quantity || 0,
+        low_stock_threshold: product.low_stock_threshold || 5,
         custom_category: "",
         custom_subcategory: "",
       });
@@ -351,7 +351,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                   <FormItem>
                     <FormLabel>Regular Price</FormLabel>
                     <FormControl>
-                      <Input placeholder="0.00" type="number" step="0.01" {...field} />
+                      <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -365,7 +365,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                   <FormItem>
                     <FormLabel>Sale Price</FormLabel>
                     <FormControl>
-                      <Input placeholder="0.00" type="number" step="0.01" {...field} />
+                      <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -415,7 +415,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                     <FormItem>
                       <FormLabel>Stock Quantity</FormLabel>
                       <FormControl>
-                        <Input placeholder="0" type="number" {...field} />
+                        <Input placeholder="0" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -429,7 +429,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                     <FormItem>
                       <FormLabel>Low Stock Threshold</FormLabel>
                       <FormControl>
-                        <Input placeholder="5" type="number" {...field} />
+                        <Input placeholder="5" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
