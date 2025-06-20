@@ -100,6 +100,7 @@ const AdminProducts = () => {
     onSuccess: (_, { is_recommended }) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['recommended-products'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-recommended-products'] });
       toast({ title: 'Product Updated', description: `Product has been ${is_recommended ? 'marked as recommended' : 'unmarked as recommended'}.` });
     },
     onError: (error: Error) => {
@@ -127,13 +128,6 @@ const AdminProducts = () => {
   const formatPrice = (price: number | null) => {
     if (price === null || price === undefined) return 'Not set';
     return `$${price.toFixed(2)}`;
-  };
-
-  const getEffectivePrice = (product: Tables<'products'>) => {
-    if (product.is_on_sale && product.sale_price) {
-      return product.sale_price;
-    }
-    return product.regular_price;
   };
 
   const getStockStatus = (product: Tables<'products'>) => {
@@ -179,7 +173,7 @@ const AdminProducts = () => {
         <CardHeader>
           <CardTitle>Product List</CardTitle>
           <CardDescription>
-            A list of all products in your store with pricing and inventory information.
+            A list of all products in your store with pricing and inventory information. Use the toggles to quickly feature or recommend products.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -196,7 +190,7 @@ const AdminProducts = () => {
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
-                  <TableHead className="hidden md:table-cell">Description</TableHead>
+                  <TableHead>Quick Actions</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
@@ -251,8 +245,25 @@ const AdminProducts = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell max-w-sm truncate">
-                        {product.description}
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant={product.is_featured ? "default" : "outline"}
+                            onClick={() => handleFeatureToggle(product)}
+                            className="h-7 px-2"
+                          >
+                            <Star className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={product.is_recommended ? "default" : "outline"}
+                            onClick={() => handleRecommendedToggle(product)}
+                            className="h-7 px-2"
+                          >
+                            <ThumbsUp className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -268,14 +279,6 @@ const AdminProducts = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleFeatureToggle(product)}>
-                              <Star className="mr-2 h-4 w-4" />
-                              <span>{product.is_featured ? 'Unfeature' : 'Feature'}</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleRecommendedToggle(product)}>
-                              <ThumbsUp className="mr-2 h-4 w-4" />
-                              <span>{product.is_recommended ? 'Unrecommend' : 'Recommend'}</span>
-                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEdit(product)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Edit
