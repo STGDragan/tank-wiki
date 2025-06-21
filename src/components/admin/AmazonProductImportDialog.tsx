@@ -15,7 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Upload, Package } from "lucide-react";
+import { Upload, Package, AlertCircle, CheckCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AmazonProduct {
   name: string;
@@ -27,11 +28,37 @@ interface AmazonProduct {
   category?: string;
 }
 
+interface FieldMapping {
+  [csvColumn: string]: string;
+}
+
+interface ValidationError {
+  row: number;
+  field: string;
+  value: string;
+  message: string;
+}
+
+const INTERNAL_FIELDS = [
+  { value: 'name', label: 'Product Name (Required)' },
+  { value: 'description', label: 'Description' },
+  { value: 'price', label: 'Price' },
+  { value: 'image_url', label: 'Image URL' },
+  { value: 'amazon_url', label: 'Amazon URL' },
+  { value: 'brand', label: 'Brand' },
+  { value: 'category', label: 'Category' },
+  { value: 'ignore', label: 'Ignore Column' },
+];
+
 export function AmazonProductImportDialog() {
   const [open, setOpen] = useState(false);
   const [importData, setImportData] = useState("");
   const [dataFormat, setDataFormat] = useState<"json" | "csv">("json");
   const [defaultCategory, setDefaultCategory] = useState("");
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [fieldMapping, setFieldMapping] = useState<FieldMapping>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [showMapping, setShowMapping] = useState(false);
   const queryClient = useQueryClient();
 
   const importProductsMutation = useMutation({
@@ -61,9 +88,7 @@ export function AmazonProductImportDialog() {
         description: `${count} products have been imported from Amazon data.`
       });
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      setOpen(false);
-      setImportData("");
-      setDefaultCategory("");
+      handleReset();
     },
     onError: (error: Error) => {
       toast({
@@ -73,6 +98,101 @@ export function AmazonProductImportDialog() {
       });
     },
   });
+
+  const validateProduct = (product: any, rowIndex: number): ValidationError[] => {
+    const errors: ValidationError[] = [];
+    
+    if (!product.name || product.name.trim() === '') {
+      errors.push({
+        row: rowIndex + 1,
+        field: 'name',
+        value: product.name || '',
+        message: 'Product name is required'
+      });
+    }
+    
+    if (product.price && isNaN(parseFloat(product.price))) {
+      errors.push({
+        row: rowIndex + 1,
+        field: 'price',
+        value: product.price,
+        message: 'Price must be a valid number'
+      });
+    }
+    
+    if (product.image_url && !isValidUrl(product.image_url)) {
+      errors.push({
+        row: rowIndex + 1,
+        field: 'image_url',
+        value: product.image_url,
+        message: 'Image URL must be a valid URL'
+      });
+    }
+    
+    if (product.amazon_url && !isValidUrl(product.amazon_url)) {
+      errors.push({
+        row: rowIndex + 1,
+        field: 'amazon_url',
+        value: product.amazon_url,
+        message: 'Amazon URL must be a valid URL'
+      });
+    }
+    
+    return errors;
+  };
+
+  const isValidUrl = (string: string): boolean => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
+  const parseCSVWithMapping = (csvText: string, mapping: FieldMapping): { products: AmazonProduct[], errors: ValidationError[] } => {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return { products: [], errors: [] };
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const products: AmazonProduct[] = [];
+    const allErrors: ValidationError[] = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const product: any = { name: '' };
+      
+      headers.forEach((header, index) => {
+        const mappedField = mapping[header];
+        if (mappedField && mappedField !== 'ignore') {
+          const value = values[index] || '';
+          
+          switch (mappedField) {
+            case 'name':
+            case 'description':
+            case 'image_url':
+            case 'amazon_url':
+            case 'brand':
+            case 'category':
+              product[mappedField] = value;
+              break;
+            case 'price':
+              product.price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+              break;
+          }
+        }
+      });
+      
+      const errors = validateProduct(product, i - 1);
+      allErrors.push(...errors);
+      
+      if (product.name && errors.length === 0) {
+        products.push(product);
+      }
+    }
+    
+    return { products, errors: allErrors };
+  };
 
   const parseCSV = (csvText: string): AmazonProduct[] => {
     const lines = csvText.trim().split('\n');
@@ -153,6 +273,49 @@ export function AmazonProductImportDialog() {
     }
   };
 
+  const handleDataChange = (value: string) => {
+    setImportData(value);
+    setValidationErrors([]);
+    
+    if (dataFormat === "csv" && value.trim()) {
+      const lines = value.trim().split('\n');
+      if (lines.length > 0) {
+        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        setCsvHeaders(headers);
+        
+        // Auto-map common headers
+        const autoMapping: FieldMapping = {};
+        headers.forEach(header => {
+          const lowerHeader = header.toLowerCase();
+          if (lowerHeader.includes('name') || lowerHeader.includes('title')) {
+            autoMapping[header] = 'name';
+          } else if (lowerHeader.includes('price')) {
+            autoMapping[header] = 'price';
+          } else if (lowerHeader.includes('description')) {
+            autoMapping[header] = 'description';
+          } else if (lowerHeader.includes('brand')) {
+            autoMapping[header] = 'brand';
+          } else if (lowerHeader.includes('category')) {
+            autoMapping[header] = 'category';
+          } else if (lowerHeader.includes('image')) {
+            autoMapping[header] = 'image_url';
+          } else if (lowerHeader.includes('url')) {
+            autoMapping[header] = 'amazon_url';
+          } else {
+            autoMapping[header] = 'ignore';
+          }
+        });
+        
+        setFieldMapping(autoMapping);
+        setShowMapping(true);
+      }
+    } else {
+      setShowMapping(false);
+      setCsvHeaders([]);
+      setFieldMapping({});
+    }
+  };
+
   const handleImport = () => {
     if (!importData.trim()) {
       toast({
@@ -165,11 +328,28 @@ export function AmazonProductImportDialog() {
 
     try {
       let products: AmazonProduct[];
+      let errors: ValidationError[] = [];
       
       if (dataFormat === "csv") {
-        products = parseCSV(importData);
+        if (showMapping) {
+          const result = parseCSVWithMapping(importData, fieldMapping);
+          products = result.products;
+          errors = result.errors;
+        } else {
+          products = parseCSV(importData);
+        }
       } else {
         products = parseJSON(importData);
+      }
+
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        toast({
+          title: "Validation errors found",
+          description: `Found ${errors.length} validation errors. Please review and fix them.`,
+          variant: "destructive",
+        });
+        return;
       }
 
       if (products.length === 0) {
@@ -191,6 +371,23 @@ export function AmazonProductImportDialog() {
     }
   };
 
+  const handleReset = () => {
+    setOpen(false);
+    setImportData("");
+    setDefaultCategory("");
+    setCsvHeaders([]);
+    setFieldMapping({});
+    setValidationErrors([]);
+    setShowMapping(false);
+  };
+
+  const updateFieldMapping = (csvColumn: string, internalField: string) => {
+    setFieldMapping(prev => ({
+      ...prev,
+      [csvColumn]: internalField
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -199,7 +396,7 @@ export function AmazonProductImportDialog() {
           Import from Amazon
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -250,18 +447,73 @@ export function AmazonProductImportDialog() {
             <Textarea
               id="import-data"
               value={importData}
-              onChange={(e) => setImportData(e.target.value)}
+              onChange={(e) => handleDataChange(e.target.value)}
               placeholder={
                 dataFormat === "json" 
                   ? `[{"name": "Product Name", "price": "29.99", "description": "Product description", "image_url": "...", "amazon_url": "...", "brand": "Brand Name"}]`
                   : `name,price,description,image_url,amazon_url,brand\n"Product Name","29.99","Product description","...","...","Brand Name"`
               }
-              className="min-h-[200px] font-mono text-sm"
+              className="min-h-[150px] font-mono text-sm"
             />
           </div>
 
+          {showMapping && csvHeaders.length > 0 && (
+            <div className="space-y-3">
+              <Label>Field Mapping</Label>
+              <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
+                <p className="text-sm text-gray-600">Map your CSV columns to the correct product fields:</p>
+                {csvHeaders.map((header) => (
+                  <div key={header} className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm font-medium">{header}</span>
+                    </div>
+                    <div className="w-48">
+                      <Select 
+                        value={fieldMapping[header] || 'ignore'} 
+                        onValueChange={(value) => updateFieldMapping(header, value)}
+                      >
+                        <SelectTrigger className="h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {INTERNAL_FIELDS.map((field) => (
+                            <SelectItem key={field.value} value={field.value}>
+                              {field.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {validationErrors.length > 0 && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="space-y-2">
+                  <p className="font-medium">Found {validationErrors.length} validation errors:</p>
+                  <div className="max-h-32 overflow-y-auto space-y-1">
+                    {validationErrors.slice(0, 10).map((error, index) => (
+                      <div key={index} className="text-xs">
+                        Row {error.row}, {error.field}: {error.message}
+                        {error.value && ` (value: "${error.value}")`}
+                      </div>
+                    ))}
+                    {validationErrors.length > 10 && (
+                      <p className="text-xs">... and {validationErrors.length - 10} more errors</p>
+                    )}
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={handleReset}>
               Cancel
             </Button>
             <Button 
