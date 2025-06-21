@@ -91,19 +91,19 @@ export function AquariumSetupWizard({ aquariumCount }: AquariumSetupWizardProps)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200 hover:from-blue-100 hover:to-cyan-100">
-          <Fish className="h-4 w-4 mr-2" />
-          🐟 Aquarium Setup Wizard
+        <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0 shadow-lg hover:shadow-xl font-semibold">
+          <Fish className="h-5 w-5 mr-2" />
+          🧙‍♂️ Setup Wizard
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background dark:bg-slate-900 border dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Fish className="h-5 w-5 text-blue-600" />
+          <DialogTitle className="flex items-center gap-2 text-foreground dark:text-slate-100">
+            <Fish className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             Aquarium Setup Wizard
           </DialogTitle>
           <div className="space-y-2">
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <div className="flex justify-between text-sm text-muted-foreground dark:text-slate-400">
               <span>Step {currentStep + 1} of {steps.length}</span>
               <span>{steps[currentStep]}</span>
             </div>
