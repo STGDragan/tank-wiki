@@ -108,7 +108,7 @@ const Dashboard = () => {
         
         {ownedAquariums && ownedAquariums.length > 0 && (
           <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-            <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type }))} />
+            <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type, size: aq.size }))} />
             <Recommendations aquariums={ownedAquariums} />
           </div>
         )}
