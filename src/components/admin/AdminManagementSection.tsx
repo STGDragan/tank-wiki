@@ -1,3 +1,4 @@
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,10 +38,11 @@ export function AdminManagementSection() {
     queryFn: async () => {
       console.log('Fetching profiles for admin management...');
       
-      // Get profiles with auth user data
+      // Get profiles with email data (email is already in the profiles table)
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name');
+        .select('id, full_name, email')
+        .order('full_name');
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
@@ -48,27 +50,7 @@ export function AdminManagementSection() {
       }
 
       console.log('Profiles data:', profilesData);
-
-      // Get auth user emails
-      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (usersError) {
-        console.error('Error fetching users:', usersError);
-        throw usersError;
-      }
-
-      console.log('Auth users:', users?.length, 'users found');
-
-      // Combine profile and user data with proper typing
-      const profilesWithEmails: Profile[] = (profilesData || []).map(profile => {
-        const authUser = (users || []).find(user => user.id === profile.id);
-        return {
-          ...profile,
-          email: authUser?.email || 'No email'
-        };
-      });
-
-      console.log('Profiles with emails:', profilesWithEmails);
-      return profilesWithEmails;
+      return profilesData as Profile[] || [];
     },
   });
 
@@ -77,7 +59,12 @@ export function AdminManagementSection() {
     queryFn: async () => {
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          role,
+          profiles!inner(id, full_name, email)
+        `)
         .order('role');
 
       if (rolesError) throw rolesError;
@@ -86,32 +73,16 @@ export function AdminManagementSection() {
         return [];
       }
 
-      // Get profiles for the users with roles
-      const userIds = roles.map(role => role.user_id);
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', userIds);
-
-      if (profilesError) throw profilesError;
-
-      // Get auth user emails
-      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (usersError) throw usersError;
-
-      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
-      
-      const rolesWithProfiles: UserRole[] = roles.map(role => {
-        const profile = profilesMap.get(role.user_id);
-        const authUser = (users || []).find(user => user.id === role.user_id);
-        return {
-          ...role,
-          profile: profile ? {
-            ...profile,
-            email: authUser?.email || 'No email'
-          } : undefined
-        };
-      });
+      // Transform the data to match our interface
+      const rolesWithProfiles: UserRole[] = roles.map(role => ({
+        id: role.id,
+        user_id: role.user_id,
+        role: role.role,
+        profile: {
+          full_name: role.profiles?.full_name,
+          email: role.profiles?.email
+        }
+      }));
 
       return rolesWithProfiles;
     },
