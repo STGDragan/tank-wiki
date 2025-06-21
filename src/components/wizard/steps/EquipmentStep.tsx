@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { WizardStepProps } from "../types";
-import { ChevronLeft, ShoppingCart, Skip } from "lucide-react";
+import { ChevronLeft, ShoppingCart, SkipForward } from "lucide-react";
 
 export function EquipmentStep({ data, onUpdate, onNext, onPrev }: WizardStepProps) {
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(data.equipment);
@@ -141,7 +141,7 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
         </Button>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onNext}>
-            <Skip className="h-4 w-4 mr-2" />
+            <SkipForward className="h-4 w-4 mr-2" />
             Skip & Do Later
           </Button>
           <Button onClick={onNext}>

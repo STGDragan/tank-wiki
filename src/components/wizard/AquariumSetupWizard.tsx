@@ -82,7 +82,7 @@ export function AquariumSetupWizard({ aquariumCount }: AquariumSetupWizardProps)
       case 6:
         return <InhabitantsStep data={wizardData} onUpdate={updateWizardData} onNext={nextStep} onPrev={prevStep} />;
       case 7:
-        return <SummaryStep data={wizardData} aquariumCount={aquariumCount} onClose={() => setOpen(false)} onPrev={prevStep} />;
+        return <SummaryStep data={wizardData} onUpdate={updateWizardData} aquariumCount={aquariumCount} onClose={() => setOpen(false)} onPrev={prevStep} />;
       default:
         return null;
     }
