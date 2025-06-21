@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useFilteredCategories } from "./CategoryFilter";
 import { useCategorizedSpecies } from "./CategoryOrganizer";
+import { CompatibilityChecker } from "./CompatibilityChecker";
 import { Plus, X } from "lucide-react";
 
 interface CategorizedSpeciesSelectorProps {
@@ -56,6 +57,14 @@ export function CategorizedSpeciesSelector({
 
   return (
     <div className="space-y-6">
+      {/* Compatibility Checker */}
+      {value.length > 1 && (
+        <CompatibilityChecker 
+          selectedSpecies={value} 
+          aquariumType={aquariumType} 
+        />
+      )}
+
       {categorizedSpecies.map((category) => (
         <div key={category.name} className="space-y-3">
           <Label className="text-base font-medium dark:text-slate-200">{category.name}</Label>
