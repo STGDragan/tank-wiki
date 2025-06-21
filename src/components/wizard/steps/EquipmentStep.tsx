@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,9 @@ import { ChevronLeft, ShoppingCart, SkipForward } from "lucide-react";
 
 export function EquipmentStep({ data, onUpdate, onNext, onPrev }: WizardStepProps) {
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>(data.equipment);
+
+  console.log('EquipmentStep - onNext function:', onNext);
+  console.log('EquipmentStep - selectedEquipment:', selectedEquipment);
 
   const getEquipmentForTankType = () => {
     const baseEquipment = [
@@ -60,6 +64,27 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
     const newSelection = [...new Set([...selectedEquipment, ...essentialNames])];
     setSelectedEquipment(newSelection);
     onUpdate({ equipment: newSelection });
+  };
+
+  const handleNextClick = () => {
+    console.log('Next button clicked in EquipmentStep');
+    console.log('onNext function:', onNext);
+    if (onNext) {
+      console.log('Calling onNext...');
+      onNext();
+    } else {
+      console.error('onNext function is not available');
+    }
+  };
+
+  const handleSkipClick = () => {
+    console.log('Skip button clicked in EquipmentStep');
+    if (onNext) {
+      console.log('Calling onNext from skip...');
+      onNext();
+    } else {
+      console.error('onNext function is not available for skip');
+    }
   };
 
   return (
@@ -140,11 +165,11 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
           Back
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onNext}>
+          <Button variant="outline" onClick={handleSkipClick}>
             <SkipForward className="h-4 w-4 mr-2" />
             Skip & Do Later
           </Button>
-          <Button onClick={onNext}>
+          <Button onClick={handleNextClick}>
             Next
           </Button>
         </div>
