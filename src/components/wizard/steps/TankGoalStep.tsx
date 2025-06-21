@@ -105,28 +105,28 @@ export function TankGoalStep({ data, onUpdate, onNext, onPrev }: WizardStepProps
           Help Me Choose
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="dark:bg-slate-900 dark:border-slate-700">
         <DialogHeader>
-          <DialogTitle>Tank Type Quiz</DialogTitle>
+          <DialogTitle className="dark:text-slate-100">Tank Type Quiz</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">Answer a few questions to find your ideal tank type:</p>
+          <p className="text-sm text-muted-foreground dark:text-slate-400">Answer a few questions to find your ideal tank type:</p>
           <div className="space-y-3">
-            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => { handleTankTypeSelect('Freshwater'); setShowQuiz(false); }}>
-              <p className="font-medium">I'm new to aquariums and want something easy</p>
-              <p className="text-sm text-muted-foreground">→ Freshwater Community Tank</p>
+            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 dark:border-slate-700 dark:hover:bg-slate-800/50" onClick={() => { handleTankTypeSelect('Freshwater'); setShowQuiz(false); }}>
+              <p className="font-medium dark:text-slate-200">I'm new to aquariums and want something easy</p>
+              <p className="text-sm text-muted-foreground dark:text-slate-400">→ Freshwater Community Tank</p>
             </div>
-            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => { handleTankTypeSelect('Planted Freshwater'); setShowQuiz(false); }}>
-              <p className="font-medium">I want beautiful plants and natural look</p>
-              <p className="text-sm text-muted-foreground">→ Planted Freshwater Tank</p>
+            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 dark:border-slate-700 dark:hover:bg-slate-800/50" onClick={() => { handleTankTypeSelect('Planted Freshwater'); setShowQuiz(false); }}>
+              <p className="font-medium dark:text-slate-200">I want beautiful plants and natural look</p>
+              <p className="text-sm text-muted-foreground dark:text-slate-400">→ Planted Freshwater Tank</p>
             </div>
-            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => { handleTankTypeSelect('Saltwater Fish-Only (FO)'); setShowQuiz(false); }}>
-              <p className="font-medium">I want colorful marine fish</p>
-              <p className="text-sm text-muted-foreground">→ Saltwater Fish-Only Tank</p>
+            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 dark:border-slate-700 dark:hover:bg-slate-800/50" onClick={() => { handleTankTypeSelect('Saltwater Fish-Only (FO)'); setShowQuiz(false); }}>
+              <p className="font-medium dark:text-slate-200">I want colorful marine fish</p>
+              <p className="text-sm text-muted-foreground dark:text-slate-400">→ Saltwater Fish-Only Tank</p>
             </div>
-            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => { handleTankTypeSelect('Soft Coral Reef'); setShowQuiz(false); }}>
-              <p className="font-medium">I want corals but nothing too difficult</p>
-              <p className="text-sm text-muted-foreground">→ Soft Coral Reef Tank</p>
+            <div className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 dark:border-slate-700 dark:hover:bg-slate-800/50" onClick={() => { handleTankTypeSelect('Soft Coral Reef'); setShowQuiz(false); }}>
+              <p className="font-medium dark:text-slate-200">I want corals but nothing too difficult</p>
+              <p className="text-sm text-muted-foreground dark:text-slate-400">→ Soft Coral Reef Tank</p>
             </div>
           </div>
         </div>
@@ -137,7 +137,7 @@ export function TankGoalStep({ data, onUpdate, onNext, onPrev }: WizardStepProps
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-2">What kind of aquarium do you want to build?</h2>
+        <h2 className="text-2xl font-semibold mb-2 text-foreground dark:text-slate-100">What kind of aquarium do you want to build?</h2>
         <div className="flex justify-center">
           <QuizDialog />
         </div>
@@ -150,21 +150,23 @@ export function TankGoalStep({ data, onUpdate, onNext, onPrev }: WizardStepProps
           return (
             <Card 
               key={type.value}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-                isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
+              className={`cursor-pointer transition-all duration-200 hover:scale-105 border-2 dark:bg-slate-800/50 dark:border-slate-600 ${
+                isSelected 
+                  ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-500' 
+                  : 'hover:shadow-md dark:hover:bg-slate-700/50'
               }`}
               onClick={() => handleTankTypeSelect(type.value)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{type.emoji}</span>
-                  <CardTitle className="text-base">{type.label}</CardTitle>
+                  <CardTitle className="text-base text-foreground dark:text-slate-100">{type.label}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{type.description}</p>
+                <p className="text-sm text-muted-foreground dark:text-slate-300">{type.description}</p>
                 {isSelected && (
-                  <Badge className="mt-2 bg-blue-100 text-blue-800">Selected</Badge>
+                  <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-700">Selected</Badge>
                 )}
               </CardContent>
             </Card>
@@ -173,9 +175,9 @@ export function TankGoalStep({ data, onUpdate, onNext, onPrev }: WizardStepProps
       </div>
 
       {data.tankGoal && (
-        <Card>
+        <Card className="dark:bg-slate-800/50 dark:border-slate-700">
           <CardHeader>
-            <CardTitle className="text-lg">Select Your Species</CardTitle>
+            <CardTitle className="text-lg text-foreground dark:text-slate-100">Select Your Species</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <SpeciesSelector
@@ -186,15 +188,15 @@ export function TankGoalStep({ data, onUpdate, onNext, onPrev }: WizardStepProps
             
             {selectedSpecies.length > 0 && (
               <div className="space-y-2">
-                <p className="font-medium">Selected Species:</p>
+                <p className="font-medium text-foreground dark:text-slate-200">Selected Species:</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedSpecies.map(species => (
-                    <Badge key={species} variant="secondary" className="cursor-pointer" onClick={() => handleSpeciesChange(species)}>
+                    <Badge key={species} variant="secondary" className="cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600" onClick={() => handleSpeciesChange(species)}>
                       {species} ✕
                     </Badge>
                   ))}
                 </div>
-                <p className="text-sm text-blue-600 font-medium">{getRecommendedSize()}</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{getRecommendedSize()}</p>
               </div>
             )}
           </CardContent>
