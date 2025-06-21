@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,12 +17,12 @@ import { toast } from "sonner";
 import { RichTextEditor } from "@/components/admin/knowledge-base/RichTextEditor";
 
 const ArticleEditor = () => {
-    const { articleId } = useParams<{ articleId: string }>();
+    const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     
     const { data: categories, isLoading: isLoadingCategories } = useCategories();
-    const { data: article, isLoading: isLoadingArticle } = useArticle(articleId);
-    const mutation = useUpsertArticle(articleId);
+    const { data: article, isLoading: isLoadingArticle } = useArticle(slug, true);
+    const mutation = useUpsertArticle(slug, true);
 
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -105,7 +104,7 @@ const ArticleEditor = () => {
         setValue('slug', slug);
     }
     
-    if (isLoadingCategories || (articleId && isLoadingArticle)) {
+    if (isLoadingCategories || (slug && isLoadingArticle)) {
         return (
             <Card>
                 <CardHeader>
@@ -139,9 +138,9 @@ const ArticleEditor = () => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{articleId ? "Edit Article" : "Create New Article"}</CardTitle>
+                <CardTitle>{slug ? "Edit Article" : "Create New Article"}</CardTitle>
                 <CardDescription>
-                    {articleId ? "Update the details of this article." : "Fill in the form to create a new article."}
+                    {slug ? "Update the details of this article." : "Fill in the form to create a new article."}
                 </CardDescription>
             </CardHeader>
             <CardContent>

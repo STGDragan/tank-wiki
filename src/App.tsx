@@ -78,7 +78,7 @@ function App() {
                   <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
                   <Route path="/admin/knowledge-base" element={<AdminRoute><AdminKnowledgeBase /></AdminRoute>} />
                   <Route path="/admin/knowledge-base/article/new" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
-                  <Route path="/admin/knowledge-base/article/edit/:articleId" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
+                  <Route path="/admin/knowledge-base/article/edit/:slug" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
                   <Route path="/admin/slideshow" element={<AdminRoute><AdminSlideshow /></AdminRoute>} />
                   <Route path="/admin/legal" element={<AdminRoute><AdminLegal /></AdminRoute>} />
                   <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />

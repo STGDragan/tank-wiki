@@ -102,7 +102,7 @@ export const ArticleList = () => {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => navigate(`/admin/knowledge-base/article/edit/${article.id}`)}>
+                                            <DropdownMenuItem onClick={() => navigate(`/admin/knowledge-base/article/edit/${article.slug}`)}>
                                                 Edit
                                             </DropdownMenuItem>
                                             <DropdownMenuItem

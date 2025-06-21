@@ -46,23 +46,28 @@ export const useUpsertCategory = (category: Category | null) => {
     });
 };
 
-
 // Articles
-const fetchArticle = async (id: string): Promise<Article | null> => {
+const fetchArticleById = async (id: string): Promise<Article | null> => {
     const { data, error } = await supabase.from('knowledge_articles').select('*').eq('id', id).maybeSingle();
     if (error) throw new Error(error.message);
     return data;
 };
 
-export const useArticle = (articleId?: string) => {
+const fetchArticleBySlug = async (slug: string): Promise<Article | null> => {
+    const { data, error } = await supabase.from('knowledge_articles').select('*').eq('slug', slug).maybeSingle();
+    if (error) throw new Error(error.message);
+    return data;
+};
+
+export const useArticle = (identifier?: string, bySlug = false) => {
     return useQuery({ 
-        queryKey: ['knowledge_article', articleId], 
-        queryFn: () => fetchArticle(articleId!),
-        enabled: !!articleId 
+        queryKey: ['knowledge_article', identifier, bySlug], 
+        queryFn: () => bySlug ? fetchArticleBySlug(identifier!) : fetchArticleById(identifier!),
+        enabled: !!identifier 
     });
 };
 
-export const useUpsertArticle = (articleId?: string) => {
+export const useUpsertArticle = (identifier?: string, bySlug = false) => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -82,8 +87,10 @@ export const useUpsertArticle = (articleId?: string) => {
                 image_url: data.image_url,
             };
 
-            if (articleId) {
-                const { error } = await supabase.from('knowledge_articles').update(payload).eq('id', articleId);
+            if (identifier) {
+                // If we have an identifier, we're updating an existing article
+                const whereClause = bySlug ? 'slug' : 'id';
+                const { error } = await supabase.from('knowledge_articles').update(payload).eq(whereClause, identifier);
                 if (error) throw new Error(error.message);
             } else {
                 const insertData = {
@@ -96,14 +103,14 @@ export const useUpsertArticle = (articleId?: string) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['knowledge_articles'] });
-            if (articleId) {
-              queryClient.invalidateQueries({ queryKey: ['knowledge_article', articleId] });
+            if (identifier) {
+              queryClient.invalidateQueries({ queryKey: ['knowledge_article', identifier, bySlug] });
             }
-            toast.success(`Article ${articleId ? 'updated' : 'created'} successfully.`);
+            toast.success(`Article ${identifier ? 'updated' : 'created'} successfully.`);
             navigate('/admin/knowledge-base');
         },
         onError: (error) => {
-            toast.error(`Failed to ${articleId ? 'update' : 'create'} article: ${error.message}`);
+            toast.error(`Failed to ${identifier ? 'update' : 'create'} article: ${error.message}`);
         }
     });
 }
