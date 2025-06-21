@@ -89,6 +89,10 @@ export function WaterParametersSection({
     }
   });
 
+  const handleFormSuccess = () => {
+    setIsAddDialogOpen(false);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -141,8 +145,7 @@ export function WaterParametersSection({
             <AddWaterParameterForm
               aquariumId={aquariumId}
               aquariumType={aquariumType}
-              onSubmit={(data) => addParameterMutation.mutate(data)}
-              isSubmitting={addParameterMutation.isPending}
+              onSuccess={handleFormSuccess}
             />
           </DialogContent>
         </Dialog>
@@ -153,9 +156,8 @@ export function WaterParametersSection({
           {waterParameters.map((parameter) => (
             <WaterParameterCard
               key={parameter.id}
-              parameter={parameter}
-              onDelete={() => deleteParameterMutation.mutate(parameter.id)}
-              isDeleting={deleteParameterMutation.isPending && deleteParameterMutation.variables === parameter.id}
+              reading={parameter}
+              aquariumType={aquariumType}
             />
           ))}
         </div>
@@ -184,8 +186,7 @@ export function WaterParametersSection({
                 <AddWaterParameterForm
                   aquariumId={aquariumId}
                   aquariumType={aquariumType}
-                  onSubmit={(data) => addParameterMutation.mutate(data)}
-                  isSubmitting={addParameterMutation.isPending}
+                  onSuccess={handleFormSuccess}
                 />
               </DialogContent>
             </Dialog>

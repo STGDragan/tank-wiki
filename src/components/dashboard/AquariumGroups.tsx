@@ -28,11 +28,7 @@ export function AquariumGroups({ aquariums, onDeleteAquarium, aquariumCount }: A
           {aquariums.map((aquarium) => (
             <TankCard
               key={aquarium.id}
-              id={aquarium.id}
-              name={aquarium.name}
-              type={aquarium.type || 'Unknown'}
-              size={aquarium.size || 0}
-              image_url={aquarium.image_url}
+              aquarium={aquarium}
               onDelete={onDeleteAquarium}
             />
           ))}
