@@ -143,14 +143,14 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         subcategory: product.subcategory || "",
         affiliate_provider: affiliateLink?.provider || "",
         affiliate_url: affiliateLink?.link_url || "",
-        regular_price: product.regular_price || undefined,
-        sale_price: product.sale_price || undefined,
+        regular_price: product.regular_price ? product.regular_price.toString() : "",
+        sale_price: product.sale_price ? product.sale_price.toString() : "",
         is_on_sale: product.is_on_sale || false,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
         track_inventory: product.track_inventory ?? true,
-        stock_quantity: product.stock_quantity || 0,
-        low_stock_threshold: product.low_stock_threshold || 5,
+        stock_quantity: product.stock_quantity ? product.stock_quantity.toString() : "0",
+        low_stock_threshold: product.low_stock_threshold ? product.low_stock_threshold.toString() : "5",
         custom_category: "",
         custom_subcategory: "",
       });
@@ -288,7 +288,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 pr-4 max-h-[70vh]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-2">
               {/* Basic Information Section */}
@@ -494,7 +494,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                       <FormItem>
                         <FormLabel>Regular Price</FormLabel>
                         <FormControl>
-                          <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                          <Input placeholder="0.00" type="number" step="0.01" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -508,7 +508,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                       <FormItem>
                         <FormLabel>Sale Price</FormLabel>
                         <FormControl>
-                          <Input placeholder="0.00" type="number" step="0.01" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                          <Input placeholder="0.00" type="number" step="0.01" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -597,7 +597,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                         <FormItem>
                           <FormLabel>Stock Quantity</FormLabel>
                           <FormControl>
-                            <Input placeholder="0" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                            <Input placeholder="0" type="number" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -611,7 +611,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                         <FormItem>
                           <FormLabel>Low Stock Threshold</FormLabel>
                           <FormControl>
-                            <Input placeholder="5" type="number" {...field} value={field.value?.toString() || ""} onChange={(e) => field.onChange(e.target.value)} />
+                            <Input placeholder="5" type="number" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -660,7 +660,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         
         <DialogFooter className="mt-6">
           <Button 
-            type="submit" 
+            type="button" 
             disabled={isLoading}
             onClick={form.handleSubmit(onSubmit)}
           >

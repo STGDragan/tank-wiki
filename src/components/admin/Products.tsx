@@ -79,7 +79,7 @@ const AdminProducts = () => {
 
   const updateFeatureStatusMutation = useMutation({
     mutationFn: async ({ productId, is_featured }: { productId: string; is_featured: boolean }) => {
-      const { error } = await supabase.from('products').update({ is_featured }).eq('id', productId);
+      const { error } = await supabase.from('products').update({ is_featured }).eq('id', productId).select();
       if (error) throw new Error(error.message);
     },
     onSuccess: (_, { is_featured }) => {
@@ -94,7 +94,7 @@ const AdminProducts = () => {
 
   const updateRecommendedStatusMutation = useMutation({
     mutationFn: async ({ productId, is_recommended }: { productId: string; is_recommended: boolean }) => {
-      const { error } = await supabase.from('products').update({ is_recommended }).eq('id', productId);
+      const { error } = await supabase.from('products').update({ is_recommended }).eq('id', productId).select();
       if (error) throw new Error(error.message);
     },
     onSuccess: (_, { is_recommended }) => {

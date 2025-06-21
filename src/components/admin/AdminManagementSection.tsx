@@ -13,6 +13,7 @@ import { useState } from "react";
 interface Profile {
   id: string;
   full_name?: string;
+  email?: string;
 }
 
 interface UserRole {
@@ -21,6 +22,7 @@ interface UserRole {
   role: string;
   profile?: {
     full_name?: string;
+    email?: string;
   };
 }
 
@@ -34,13 +36,27 @@ export function AdminManagementSection() {
   const { data: profiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['admin-management-profiles'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get profiles with auth user data
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name')
-        .order('full_name');
+        .select('id, full_name');
 
-      if (error) throw error;
-      return data as Profile[];
+      if (profilesError) throw profilesError;
+
+      // Get auth user emails
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      if (usersError) throw usersError;
+
+      // Combine profile and user data
+      const profilesWithEmails = profilesData?.map(profile => {
+        const authUser = users?.find(user => user.id === profile.id);
+        return {
+          ...profile,
+          email: authUser?.email
+        };
+      }) || [];
+
+      return profilesWithEmails as Profile[];
     },
   });
 
@@ -60,19 +76,30 @@ export function AdminManagementSection() {
 
       // Get profiles for the users with roles
       const userIds = roles.map(role => role.user_id);
-      const { data: profiles, error: profilesError } = await supabase
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name')
         .in('id', userIds);
 
       if (profilesError) throw profilesError;
 
-      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      // Get auth user emails
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      if (usersError) throw usersError;
+
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
       
-      return roles.map(role => ({
-        ...role,
-        profile: profilesMap.get(role.user_id)
-      })) as UserRole[];
+      return roles.map(role => {
+        const profile = profilesMap.get(role.user_id);
+        const authUser = users?.find(user => user.id === role.user_id);
+        return {
+          ...role,
+          profile: profile ? {
+            ...profile,
+            email: authUser?.email
+          } : undefined
+        };
+      }) as UserRole[];
     },
   });
 
@@ -142,6 +169,12 @@ export function AdminManagementSection() {
     assignRoleMutation.mutate({ userId: selectedUserId, role: selectedRole });
   };
 
+  const formatUserDisplay = (profile: Profile) => {
+    const name = profile.full_name || 'Unnamed User';
+    const email = profile.email || 'No email';
+    return `${name} (${email})`;
+  };
+
   const isLoading = profilesLoading || rolesLoading;
 
   if (isLoading) {
@@ -173,7 +206,7 @@ export function AdminManagementSection() {
                 <SelectContent>
                   {profiles?.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
-                      {profile.full_name || 'Unnamed User'} ({profile.id.slice(0, 8)}...)
+                      {formatUserDisplay(profile)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -220,7 +253,7 @@ export function AdminManagementSection() {
                       {userRole.profile?.full_name || 'Unnamed User'}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {userRole.user_id.slice(0, 8)}...
+                      {userRole.profile?.email || 'No email'}
                     </p>
                   </div>
                   <Badge variant={userRole.role === 'admin' ? 'default' : 'secondary'}>

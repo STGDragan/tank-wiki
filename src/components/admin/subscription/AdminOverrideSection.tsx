@@ -10,6 +10,7 @@ import { Crown } from "lucide-react";
 interface Profile {
   id: string;
   full_name?: string;
+  email?: string;
   admin_subscription_override?: boolean;
 }
 
@@ -42,6 +43,12 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
     },
   });
 
+  const formatUserDisplay = (profile: Profile) => {
+    const name = profile.full_name || 'Unnamed User';
+    const email = profile.email || 'No email';
+    return { name, email };
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -55,28 +62,31 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {profiles?.map((profile) => (
-            <div key={profile.id} className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <p className="font-medium">{profile.full_name || 'Unnamed User'}</p>
-                <p className="text-sm text-muted-foreground">{profile.id}</p>
+          {profiles?.map((profile) => {
+            const { name, email } = formatUserDisplay(profile);
+            return (
+              <div key={profile.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">{name}</p>
+                  <p className="text-sm text-muted-foreground">{email}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor={`override-${profile.id}`}>Override Active</Label>
+                  <Switch
+                    id={`override-${profile.id}`}
+                    checked={profile.admin_subscription_override || false}
+                    onCheckedChange={(checked) =>
+                      toggleAdminOverrideMutation.mutate({
+                        userId: profile.id,
+                        override: checked,
+                      })
+                    }
+                    disabled={toggleAdminOverrideMutation.isPending}
+                  />
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Label htmlFor={`override-${profile.id}`}>Override Active</Label>
-                <Switch
-                  id={`override-${profile.id}`}
-                  checked={profile.admin_subscription_override || false}
-                  onCheckedChange={(checked) =>
-                    toggleAdminOverrideMutation.mutate({
-                      userId: profile.id,
-                      override: checked,
-                    })
-                  }
-                  disabled={toggleAdminOverrideMutation.isPending}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

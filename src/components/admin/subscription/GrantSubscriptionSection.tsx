@@ -15,6 +15,7 @@ import { useAuth } from "@/providers/AuthProvider";
 interface Profile {
   id: string;
   full_name?: string;
+  email?: string;
   admin_subscription_override?: boolean;
 }
 
@@ -86,6 +87,12 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
     });
   };
 
+  const formatUserDisplay = (profile: Profile) => {
+    const name = profile.full_name || 'Unnamed User';
+    const email = profile.email || 'No email';
+    return `${name} (${email})`;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -108,7 +115,7 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
               <SelectContent>
                 {profiles?.map((profile) => (
                   <SelectItem key={profile.id} value={profile.id}>
-                    {profile.full_name || 'Unnamed User'} ({profile.id.slice(0, 8)}...)
+                    {formatUserDisplay(profile)}
                   </SelectItem>
                 ))}
               </SelectContent>
