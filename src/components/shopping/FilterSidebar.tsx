@@ -103,9 +103,9 @@ const FilterSidebar = ({
   className,
   isMobile = false
 }: FilterSidebarProps) => {
-  // Categories default to open, others default to closed
+  // All sections default to closed
   const [openSections, setOpenSections] = useState({
-    categories: true,
+    categories: false,
     tankTypes: false,
     price: false,
     tags: false,
@@ -178,6 +178,19 @@ const FilterSidebar = ({
           </ScrollArea>
         </FilterSection>
 
+        {/* Price Range */}
+        <FilterSection
+          title="Price Range"
+          isOpen={openSections.price}
+          onToggle={() => toggleSection('price')}
+        >
+          <PriceRangeFilter
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            maxPrice={maxPrice}
+          />
+        </FilterSection>
+
         {/* Tank Types */}
         <FilterSection
           title="Tank Types"
@@ -192,19 +205,6 @@ const FilterSidebar = ({
               onFiltersChange={onFiltersChange}
             />
           </ScrollArea>
-        </FilterSection>
-
-        {/* Price Range */}
-        <FilterSection
-          title="Price Range"
-          isOpen={openSections.price}
-          onToggle={() => toggleSection('price')}
-        >
-          <PriceRangeFilter
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-            maxPrice={maxPrice}
-          />
         </FilterSection>
 
         {/* Size Class */}
