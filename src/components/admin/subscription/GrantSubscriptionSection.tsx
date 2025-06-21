@@ -141,7 +141,7 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a user..." />
-                </SelectT    rigger>
+                </SelectTrigger>
                 <SelectContent>
                   {profiles.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
