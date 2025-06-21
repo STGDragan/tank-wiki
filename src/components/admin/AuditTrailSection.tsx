@@ -23,6 +23,17 @@ interface AuditLogEntry {
   admin_email?: string;
 }
 
+interface AuthUser {
+  id: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface Profile {
+  id: string;
+  full_name?: string;
+}
+
 export function AuditTrailSection() {
   const { data: auditLogs, isLoading } = useQuery({
     queryKey: ['admin-audit-logs'],
@@ -72,8 +83,14 @@ export function AuditTrailSection() {
 
       console.log('Auth users fetched:', users?.length || 0);
 
-      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
-      const usersMap = new Map(users?.map(u => [u.id, u]) || []);
+      // Create properly typed maps
+      const profilesMap = new Map<string, Profile>(
+        (profiles || []).map(p => [p.id, p] as [string, Profile])
+      );
+      
+      const usersMap = new Map<string, AuthUser>(
+        (users || []).map(u => [u.id, u] as [string, AuthUser])
+      );
       
       const enrichedLogs = logs.map(log => {
         const profile = profilesMap.get(log.admin_user_id);
