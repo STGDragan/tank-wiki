@@ -58,3 +58,12 @@ export const gorgonians = [
   // New Gorgonian Species from dataset
   "Purple Gorgonian"
 ];
+
+// Add the missing coralSpecies export that combines all coral types
+export const coralSpecies = [
+  ...softCorals,
+  ...lpsCorals,
+  ...spsCorals,
+  ...npsCorals,
+  ...gorgonians
+];

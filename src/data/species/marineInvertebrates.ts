@@ -47,3 +47,15 @@ export const marineClams = [
 export const marineSponges = [
   "Yellow Ball Sponge", "Red Tree Sponge", "Purple Tube Sponge", "Blue Sponge"
 ];
+
+// Add the missing marineInvertebrates export that combines all marine invertebrate types
+export const marineInvertebrates = [
+  ...marineShrimp,
+  ...marineCrabs,
+  ...marineSnails,
+  ...marineEchinoderms,
+  ...marineWorms,
+  ...marineAnemones,
+  ...marineClams,
+  ...marineSponges
+];
