@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CreateTankDialog } from "./CreateTankDialog";
+import { AquariumSetupWizard } from "../wizard/AquariumSetupWizard";
 import { Plus } from "lucide-react";
 
 interface WelcomeBannerProps {
@@ -23,15 +24,18 @@ export function WelcomeBanner({ aquariumCount }: WelcomeBannerProps) {
               You can track water tests, manage equipment, and share your progress.
             </p>
           </div>
-          <CreateTankDialog 
-            aquariumCount={aquariumCount} 
-            trigger={
-              <Button size="lg" className="bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 hover:scale-105 shadow-lg font-medium">
-                <Plus className="h-5 w-5 mr-2" />
-                Add Aquarium
-              </Button>
-            }
-          />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <AquariumSetupWizard aquariumCount={aquariumCount} />
+            <CreateTankDialog 
+              aquariumCount={aquariumCount} 
+              trigger={
+                <Button size="lg" className="bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 hover:scale-105 shadow-lg font-medium">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add Aquarium
+                </Button>
+              }
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

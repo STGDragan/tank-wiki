@@ -1,6 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { CreateTankDialog } from "./CreateTankDialog";
+import { AquariumSetupWizard } from "../wizard/AquariumSetupWizard";
 import { Fish } from "lucide-react";
 
 interface EmptyStateProps {
@@ -16,9 +17,12 @@ export function EmptyState({ aquariumCount }: EmptyStateProps) {
         </div>
         <h3 className="text-2xl font-semibold mb-3 text-slate-800">No aquariums yet!</h3>
         <p className="text-slate-600 mb-8 max-w-md leading-relaxed">
-          Click the button above to get started and create your first aquarium.
+          Get started with your first aquarium using our setup wizard, or create one manually.
         </p>
-        <CreateTankDialog aquariumCount={aquariumCount} />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <AquariumSetupWizard aquariumCount={aquariumCount} />
+          <CreateTankDialog aquariumCount={aquariumCount} />
+        </div>
       </CardContent>
     </Card>
   );
