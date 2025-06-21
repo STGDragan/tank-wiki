@@ -15,19 +15,23 @@ interface TankCardProps {
 }
 
 export function TankCard({ id, name, type, size, image_url, onDelete }: TankCardProps) {
-  const imageUrl = image_url || `https://placehold.co/600x400/34D399/FFFFFF?text=${encodeURIComponent(name)}`;
+  const imageUrl = image_url || `https://placehold.co/600x400/0ea5e9/FFFFFF?text=${encodeURIComponent(name)}`;
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col hover:scale-105 transition-all duration-300 group overflow-hidden">
       <CardHeader className="p-0">
-        <Link to={`/aquarium/${id}`}>
-          <img src={imageUrl} alt={name} className="rounded-t-lg aspect-video object-cover w-full" />
+        <Link to={`/aquarium/${id}`} className="block overflow-hidden rounded-t-2xl">
+          <img 
+            src={imageUrl} 
+            alt={name} 
+            className="aspect-video object-cover w-full group-hover:scale-110 transition-transform duration-300" 
+          />
         </Link>
       </CardHeader>
-      <div className="p-6 flex-grow flex flex-col">
-        <CardTitle>{name}</CardTitle>
-        <CardDescription>{type}</CardDescription>
+      <div className="p-6 flex-grow flex flex-col bg-gradient-to-br from-white to-blue-50/30">
+        <CardTitle className="text-slate-800">{name}</CardTitle>
+        <CardDescription className="text-slate-600">{type}</CardDescription>
         <CardContent className="p-0 pt-2 flex-grow">
-          <p className="text-sm text-muted-foreground">{size} Gallons</p>
+          <p className="text-sm text-slate-500 font-medium">{size} Gallons</p>
         </CardContent>
         <CardFooter className="p-0 pt-4 mt-auto flex gap-2">
           <Button variant="outline" asChild className="flex-grow">
@@ -37,11 +41,11 @@ export function TankCard({ id, name, type, size, image_url, onDelete }: TankCard
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon">
+                <Button variant="destructive" size="icon" className="shadow-soft">
                     <Trash2 />
                 </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="rounded-2xl">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -49,8 +53,8 @@ export function TankCard({ id, name, type, size, image_url, onDelete }: TankCard
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDelete(id)}>
+                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(id)} className="rounded-xl">
                         Delete
                     </AlertDialogAction>
                 </AlertDialogFooter>
