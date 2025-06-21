@@ -23,6 +23,10 @@ export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceC
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.completed_date;
   const isCompleted = !!task.completed_date;
 
+  const handleComplete = (taskId: string, completedDate: Date, additionalData?: any) => {
+    onMarkComplete(taskId, completedDate);
+  };
+
   return (
     <Card className={`h-full ${isOverdue ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : isCompleted ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'bg-background'}`}>
       <CardHeader className="pb-3">
@@ -74,17 +78,10 @@ export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceC
         <div className="flex gap-2 pt-2">
           {!isCompleted && (
             <>
-              <CompleteTaskDialog
-                isOpen={isCompleteDialogOpen}
-                onOpenChange={setCompleteDialogOpen}
-                onComplete={(date) => onMarkComplete(task.id, date)}
-                trigger={
-                  <Button size="sm" className="flex-1">
-                    <Check className="mr-1 h-3 w-3" />
-                    Complete
-                  </Button>
-                }
-              />
+              <Button size="sm" className="flex-1" onClick={() => setCompleteDialogOpen(true)}>
+                <Check className="mr-1 h-3 w-3" />
+                Complete
+              </Button>
             </>
           )}
           
@@ -111,6 +108,13 @@ export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceC
           </AlertDialog>
         </div>
       </CardContent>
+      
+      <CompleteTaskDialog
+        task={task}
+        isOpen={isCompleteDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        onComplete={handleComplete}
+      />
     </Card>
   );
 };
