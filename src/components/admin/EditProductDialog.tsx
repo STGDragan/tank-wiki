@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import SanitizeAmazonLinkButton from "./SanitizeAmazonLinkButton";
 
 interface EditProductDialogProps {
   product: Tables<'products'> | null;
@@ -261,15 +261,22 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
 
           <div className="space-y-2">
             <Label htmlFor="edit-amazon_url">Amazon URL</Label>
-            <Input
-              id="edit-amazon_url"
-              type="url"
-              value={formData.amazon_url}
-              onChange={(e) => handleInputChange('amazon_url', e.target.value)}
-              placeholder="https://amazon.com/dp/ASIN123456"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="edit-amazon_url"
+                type="url"
+                value={formData.amazon_url}
+                onChange={(e) => handleInputChange('amazon_url', e.target.value)}
+                placeholder="https://amazon.com/dp/ASIN123456"
+                className="flex-1"
+              />
+              <SanitizeAmazonLinkButton
+                url={formData.amazon_url}
+                onUrlChange={(cleanedUrl) => handleInputChange('amazon_url', cleanedUrl)}
+              />
+            </div>
             <p className="text-xs text-muted-foreground">
-              Enter any Amazon product URL. It will be automatically formatted with your affiliate tag.
+              Enter any Amazon product URL. Use the sanitize button to clean it and add your affiliate tag.
             </p>
           </div>
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Upload, Package, AlertCircle, CheckCircle } from "lucide-react";
+import { Upload, Package, AlertCircle, CheckCircle, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AmazonProduct {
@@ -59,7 +58,28 @@ export function AmazonProductImportDialog() {
   const [fieldMapping, setFieldMapping] = useState<FieldMapping>({});
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [showMapping, setShowMapping] = useState(false);
+  const [sanitizeUrls, setSanitizeUrls] = useState(true);
   const queryClient = useQueryClient();
+
+  // Amazon URL sanitization function
+  const sanitizeAmazonUrl = (url: string): string => {
+    if (!url || !url.toLowerCase().includes('amazon.')) {
+      return url;
+    }
+
+    // Extract ASIN from various Amazon URL formats
+    let asinMatch = url.match(/\/dp\/([A-Z0-9]{10})/i);
+    if (!asinMatch) asinMatch = url.match(/\/gp\/product\/([A-Z0-9]{10})/i);
+    if (!asinMatch) asinMatch = url.match(/\/product\/([A-Z0-9]{10})/i);
+    if (!asinMatch) asinMatch = url.match(/[?&]pd_rd_i=([A-Z0-9]{10})/i);
+    if (!asinMatch) asinMatch = url.match(/[?&]ASIN=([A-Z0-9]{10})/i);
+
+    if (asinMatch) {
+      return `https://www.amazon.com/dp/${asinMatch[1]}?tag=travisdraga07-20`;
+    }
+
+    return url; // Return original URL if no ASIN found
+  };
 
   const importProductsMutation = useMutation({
     mutationFn: async ({ products, category }: { products: AmazonProduct[]; category: string }) => {
@@ -70,7 +90,7 @@ export function AmazonProductImportDialog() {
         category: product.category || category || "Amazon Import",
         subcategory: product.brand || "Imported",
         image_url: product.image_url || null,
-        amazon_url: product.amazon_url || null,
+        amazon_url: sanitizeUrls && product.amazon_url ? sanitizeAmazonUrl(product.amazon_url) : product.amazon_url || null,
         is_featured: false,
         is_recommended: false,
       }));
@@ -85,7 +105,7 @@ export function AmazonProductImportDialog() {
     onSuccess: (count) => {
       toast({ 
         title: "Products imported successfully", 
-        description: `${count} products have been imported from Amazon data.`
+        description: `${count} products have been imported from Amazon data.${sanitizeUrls ? ' URLs have been sanitized and tagged.' : ''}`
       });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       handleReset();
@@ -171,10 +191,12 @@ export function AmazonProductImportDialog() {
             case 'name':
             case 'description':
             case 'image_url':
-            case 'amazon_url':
             case 'brand':
             case 'category':
               product[mappedField] = value;
+              break;
+            case 'amazon_url':
+              product.amazon_url = sanitizeUrls ? sanitizeAmazonUrl(value) : value;
               break;
             case 'price':
               product.price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
@@ -225,7 +247,7 @@ export function AmazonProductImportDialog() {
             break;
           case 'url':
           case 'amazon_url':
-            product.amazon_url = value;
+            product.amazon_url = sanitizeUrls ? sanitizeAmazonUrl(value) : value;
             break;
           case 'brand':
             product.brand = value;
@@ -256,7 +278,9 @@ export function AmazonProductImportDialog() {
             description: item.description || '',
             price: parseFloat(String(item.price || 0).replace(/[^0-9.]/g, '')) || 0,
             image_url: item.image || item.image_url || '',
-            amazon_url: item.url || item.amazon_url || '',
+            amazon_url: sanitizeUrls && (item.url || item.amazon_url) ? 
+              sanitizeAmazonUrl(item.url || item.amazon_url) : 
+              item.url || item.amazon_url || '',
             brand: item.brand || '',
             category: item.category || '',
           };
@@ -379,6 +403,7 @@ export function AmazonProductImportDialog() {
     setFieldMapping({});
     setValidationErrors([]);
     setShowMapping(false);
+    setSanitizeUrls(true);
   };
 
   const updateFieldMapping = (csvColumn: string, internalField: string) => {
@@ -386,6 +411,40 @@ export function AmazonProductImportDialog() {
       ...prev,
       [csvColumn]: internalField
     }));
+  };
+
+  const handleBulkSanitize = () => {
+    if (!importData.trim()) return;
+    
+    try {
+      const lines = importData.trim().split('\n');
+      const sanitizedLines = lines.map((line, index) => {
+        if (index === 0) return line; // Keep header unchanged
+        
+        const values = line.split(',');
+        const sanitizedValues = values.map(value => {
+          const cleanValue = value.trim().replace(/^"|"$/g, '');
+          if (cleanValue.toLowerCase().includes('amazon.') && cleanValue.includes('http')) {
+            return `"${sanitizeAmazonUrl(cleanValue)}"`;
+          }
+          return value;
+        });
+        
+        return sanitizedValues.join(',');
+      });
+      
+      setImportData(sanitizedLines.join('\n'));
+      toast({
+        title: "URLs sanitized",
+        description: "All Amazon URLs in your data have been cleaned and tagged.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error sanitizing URLs",
+        description: "Could not process the data for URL sanitization.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -438,6 +497,35 @@ export function AmazonProductImportDialog() {
                 <SelectItem value="Other">Other</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="sanitize-urls"
+                checked={sanitizeUrls}
+                onChange={(e) => setSanitizeUrls(e.target.checked)}
+                className="rounded border-gray-300"
+              />
+              <Label htmlFor="sanitize-urls" className="flex items-center gap-1">
+                <Sparkles className="h-4 w-4" />
+                Auto-sanitize Amazon URLs
+              </Label>
+            </div>
+            
+            {dataFormat === "csv" && importData.trim() && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleBulkSanitize}
+                className="flex items-center gap-1"
+              >
+                <Sparkles className="h-4 w-4" />
+                Sanitize All URLs
+              </Button>
+            )}
           </div>
 
           <div className="space-y-2">
