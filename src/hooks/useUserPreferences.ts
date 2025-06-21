@@ -39,7 +39,11 @@ export const useUserPreferences = () => {
       }
 
       if (data) {
-        setPreferences(data);
+        const typedPrefs: UserPreferences = {
+          ...data,
+          units_volume: data.units_volume as 'gallons' | 'liters'
+        };
+        setPreferences(typedPrefs);
       } else {
         // Create default preferences
         const defaultPrefs = {
@@ -56,7 +60,11 @@ export const useUserPreferences = () => {
         if (insertError) {
           console.error('Error creating default preferences:', insertError);
         } else {
-          setPreferences(newPrefs);
+          const typedNewPrefs: UserPreferences = {
+            ...newPrefs,
+            units_volume: newPrefs.units_volume as 'gallons' | 'liters'
+          };
+          setPreferences(typedNewPrefs);
         }
       }
     } catch (error) {
@@ -86,7 +94,11 @@ export const useUserPreferences = () => {
         return;
       }
 
-      setPreferences(data);
+      const typedData: UserPreferences = {
+        ...data,
+        units_volume: data.units_volume as 'gallons' | 'liters'
+      };
+      setPreferences(typedData);
       toast({
         title: 'Preferences updated',
         description: 'Your preferences have been saved.',

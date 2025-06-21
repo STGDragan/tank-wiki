@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/providers/AuthProvider';
 import { toast } from '@/hooks/use-toast';
+import { Tables } from '@/integrations/supabase/types';
 
 export interface ActivityLog {
   id: string;
@@ -44,7 +45,14 @@ export const useActivityLogs = (aquariumId?: string) => {
         return;
       }
 
-      setLogs(data || []);
+      // Type-safe conversion
+      const typedLogs: ActivityLog[] = (data || []).map(log => ({
+        ...log,
+        activity_type: log.activity_type as ActivityLog['activity_type'],
+        data: log.data as Record<string, any>
+      }));
+
+      setLogs(typedLogs);
     } catch (error) {
       console.error('Error in fetchLogs:', error);
     } finally {
@@ -74,8 +82,14 @@ export const useActivityLogs = (aquariumId?: string) => {
         return;
       }
 
-      setLogs(prev => [data, ...prev]);
-      return data;
+      const newLog: ActivityLog = {
+        ...data,
+        activity_type: data.activity_type as ActivityLog['activity_type'],
+        data: data.data as Record<string, any>
+      };
+
+      setLogs(prev => [newLog, ...prev]);
+      return newLog;
     } catch (error) {
       console.error('Error adding log:', error);
     }

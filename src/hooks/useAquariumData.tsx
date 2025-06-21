@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -11,6 +12,7 @@ type Aquarium = Tables<'aquariums'> & { image_url?: string | null };
 type Preset = Tables<'tank_type_presets'>;
 type CustomSetting = Tables<'aquarium_parameter_settings'>;
 type Medication = Tables<'medications'>;
+type JournalEntry = Tables<'journal_entries'>;
 
 const fetchAquariumById = async (id: string) => {
   const { data, error } = await supabase
@@ -69,6 +71,17 @@ const fetchMaintenanceTasks = async (aquariumId: string): Promise<MaintenanceTas
     
     if (error) throw new Error(error.message);
     return data as MaintenanceTask[] || [];
+};
+
+const fetchJournalEntries = async (aquariumId: string): Promise<JournalEntry[]> => {
+    const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('aquarium_id', aquariumId)
+        .order('entry_date', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data || [];
 };
 
 const fetchTankTypePresets = async (aquariumType: string | null): Promise<Preset[]> => {
@@ -134,6 +147,12 @@ export const useAquariumData = (aquariumId: string | undefined, userId: string |
         enabled: !!aquariumId && !!userId,
     });
 
+    const { data: journalEntries, isLoading: isJournalLoading, error: journalError } = useQuery({
+        queryKey: ['journal_entries', aquariumId],
+        queryFn: () => fetchJournalEntries(aquariumId!),
+        enabled: !!aquariumId && !!userId,
+    });
+
     const { data: presets, isLoading: presetsLoading, error: presetsError } = useQuery({
         queryKey: ['tank_type_presets', aquarium?.type],
         queryFn: () => fetchTankTypePresets(aquarium!.type),
@@ -156,8 +175,8 @@ export const useAquariumData = (aquariumId: string | undefined, userId: string |
         return (tasks || []).filter(task => !task.completed_date);
     }, [tasks]);
 
-    const isLoading = isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading || presetsLoading || customSettingsLoading || isMedicationsLoading;
-    const error = aquariumError || livestockError || equipmentError || waterParamsError || maintenanceError || presetsError || customSettingsError || medicationsError;
+    const isLoading = isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading || presetsLoading || customSettingsLoading || isMedicationsLoading || isJournalLoading;
+    const error = aquariumError || livestockError || equipmentError || waterParamsError || maintenanceError || presetsError || customSettingsError || medicationsError || journalError;
 
     return {
         aquarium,
@@ -168,6 +187,7 @@ export const useAquariumData = (aquariumId: string | undefined, userId: string |
         presets,
         customSettings,
         medications,
+        journalEntries,
         pendingTasks,
         isLoading,
         error,
