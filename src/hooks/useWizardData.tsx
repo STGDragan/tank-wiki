@@ -33,7 +33,14 @@ export const useWizardData = (aquariumId: string | undefined, userId: string | u
         throw new Error(error.message);
       }
       
-      return data as WizardProgress | null;
+      if (!data) return null;
+
+      // Convert the data to our expected format
+      return {
+        ...data,
+        wizard_data: data.wizard_data as WizardData,
+        completed_steps: data.completed_steps as string[]
+      } as WizardProgress;
     },
     enabled: !!aquariumId && !!userId,
   });
@@ -45,7 +52,7 @@ export const useWizardData = (aquariumId: string | undefined, userId: string | u
       const progressData = {
         aquarium_id: aquariumId,
         user_id: userId,
-        wizard_data: wizardData,
+        wizard_data: wizardData as any, // Cast to any to satisfy Json type
         completed_steps: completedSteps,
         updated_at: new Date().toISOString(),
       };

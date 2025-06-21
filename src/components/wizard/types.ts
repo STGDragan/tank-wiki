@@ -14,6 +14,7 @@ export interface WizardData {
   equipment: string[];
   wantsCycleReminders: boolean;
   inhabitantOrder: string[];
+  [key: string]: any; // Add index signature to make it compatible with Json type
 }
 
 export interface WizardStepProps {

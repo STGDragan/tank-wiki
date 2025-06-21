@@ -55,12 +55,12 @@ export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummarySte
       // Save wizard progress data
       const { error: progressError } = await supabase
         .from('aquarium_wizard_progress')
-        .insert([{
+        .insert({
           aquarium_id: newAquarium.id,
           user_id: aquariumData.user_id,
-          wizard_data: data,
-          completed_steps: [],
-        }]);
+          wizard_data: data as any, // Cast to any to satisfy Json type
+          completed_steps: [], // Initialize as empty array
+        });
 
       if (progressError) throw new Error(progressError.message);
 
