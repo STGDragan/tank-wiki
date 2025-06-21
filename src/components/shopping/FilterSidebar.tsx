@@ -105,7 +105,7 @@ const FilterSidebar = ({
 }: FilterSidebarProps) => {
   // All sections default to closed
   const [openSections, setOpenSections] = useState({
-    categories: false,
+    equipment: false,
     tankTypes: false,
     price: false,
     tags: false,
@@ -163,11 +163,11 @@ const FilterSidebar = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Categories with ScrollArea when expanded */}
+        {/* Equipment with ScrollArea when expanded */}
         <FilterSection
-          title="Categories"
-          isOpen={openSections.categories}
-          onToggle={() => toggleSection('categories')}
+          title="Equipment"
+          isOpen={openSections.equipment}
+          onToggle={() => toggleSection('equipment')}
         >
           <ScrollArea className="h-64">
             <CategoryFilter
