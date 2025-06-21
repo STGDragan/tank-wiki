@@ -44,8 +44,10 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
   });
 
   const formatUserDisplay = (profile: Profile) => {
-    const name = profile.full_name || 'Unnamed User';
+    // Use full_name if available, otherwise use email
+    const name = profile.full_name || profile.email || 'Unknown User';
     const email = profile.email || 'No email';
+    
     return { name, email };
   };
 

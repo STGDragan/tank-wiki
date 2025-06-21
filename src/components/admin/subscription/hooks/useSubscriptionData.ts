@@ -56,15 +56,28 @@ export function useSubscriptionData() {
         return [];
       }
 
-      // For now, we'll return profiles without emails since we can't access auth.users from client
-      // The admin will need to identify users by their full names and profile IDs
-      const profilesWithPlaceholderEmails: ProfileWithEmail[] = profilesData.map(profile => ({
+      // Get auth user emails using admin.listUsers()
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      if (usersError) {
+        console.error('Error fetching auth users:', usersError);
+        throw usersError;
+      }
+
+      console.log('Auth users fetched:', users?.length || 0);
+
+      // Create a map of user emails by ID
+      const emailsMap = new Map<string, string>(
+        (users || []).map(user => [user.id, user.email || 'No email'])
+      );
+
+      // Combine profiles with emails
+      const profilesWithEmails: ProfileWithEmail[] = profilesData.map(profile => ({
         ...profile,
-        email: `${profile.id.slice(0, 8)}...` // Show partial ID as identifier
+        email: emailsMap.get(profile.id) || 'No email'
       }));
 
-      console.log('Final profiles with identifiers:', profilesWithPlaceholderEmails);
-      return profilesWithPlaceholderEmails;
+      console.log('Final profiles with emails:', profilesWithEmails);
+      return profilesWithEmails;
     },
   });
 
@@ -108,10 +121,15 @@ export function useSubscriptionData() {
 
       if (profilesError) throw profilesError;
 
-      // Create profiles map for quick lookup
-      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
+      // Get auth user emails
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      if (usersError) throw usersError;
 
-      // Add profile information to granted subscriptions with placeholder emails
+      // Create profiles and emails maps for quick lookup
+      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
+      const emailsMap = new Map((users || []).map(u => [u.id, u.email || 'No email']));
+
+      // Add profile information and emails to granted subscriptions
       const subscriptionsWithEmails: GrantedSubscriptionWithEmails[] = data.map(subscription => {
         const grantedToProfile = profilesMap.get(subscription.granted_to_user_id);
         const grantedByProfile = profilesMap.get(subscription.granted_by_admin_id);
@@ -120,8 +138,8 @@ export function useSubscriptionData() {
           ...subscription,
           granted_to_profile: grantedToProfile,
           granted_by_profile: grantedByProfile,
-          granted_to_email: `${subscription.granted_to_user_id.slice(0, 8)}...`,
-          granted_by_email: `${subscription.granted_by_admin_id.slice(0, 8)}...`
+          granted_to_email: emailsMap.get(subscription.granted_to_user_id) || 'No email',
+          granted_by_email: emailsMap.get(subscription.granted_by_admin_id) || 'No email'
         };
       });
 

@@ -90,9 +90,16 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
   };
 
   const formatUserDisplay = (profile: Profile) => {
-    const name = profile.full_name || 'Unnamed User';
+    // Use full_name if available, otherwise use email
+    const displayName = profile.full_name || profile.email || 'Unknown User';
     const identifier = profile.email || `ID: ${profile.id.slice(0, 8)}...`;
-    return `${name} (${identifier})`;
+    
+    // If we're using email as the name, don't repeat it
+    if (profile.full_name) {
+      return `${displayName} (${identifier})`;
+    } else {
+      return displayName;
+    }
   };
 
   return (
