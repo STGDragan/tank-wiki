@@ -66,6 +66,7 @@ function App() {
                 <Route element={<AppLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/aquarium/:id" element={<AquariumDetail />} />
+                  <Route path="/aquariums/:id" element={<AquariumDetail />} />
                   <Route path="/shared-with-me" element={<SharedWithMe />} />
                   <Route path="/shopping" element={<Shopping />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
