@@ -51,14 +51,14 @@ const productFormSchema = z.object({
     z.literal('')
   ]).optional()
     .transform(e => e === "" ? undefined : e),
-  regular_price: z.string().optional().transform(e => e === "" ? undefined : parseFloat(e || "0")),
-  sale_price: z.string().optional().transform(e => e === "" ? undefined : parseFloat(e || "0")),
+  regular_price: z.string().optional().transform(e => e === "" ? undefined : e ? parseFloat(e) : undefined),
+  sale_price: z.string().optional().transform(e => e === "" ? undefined : e ? parseFloat(e) : undefined),
   is_on_sale: z.boolean().default(false),
   is_featured: z.boolean().default(false),
   is_recommended: z.boolean().default(false),
   track_inventory: z.boolean().default(true),
-  stock_quantity: z.string().optional().transform(e => e === "" ? 0 : parseInt(e || "0")),
-  low_stock_threshold: z.string().optional().transform(e => e === "" ? 5 : parseInt(e || "5")),
+  stock_quantity: z.string().optional().transform(e => e === "" ? 0 : e ? parseInt(e) : 0),
+  low_stock_threshold: z.string().optional().transform(e => e === "" ? 5 : e ? parseInt(e) : 5),
 }).refine(data => !(data.category === 'Other' && !data.custom_category?.trim()), {
     message: "Please specify the category name",
     path: ["custom_category"],
@@ -119,14 +119,14 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       custom_subcategory: "",
       affiliate_provider: "",
       affiliate_url: "",
-      regular_price: undefined,
-      sale_price: undefined,
+      regular_price: "",
+      sale_price: "",
       is_on_sale: false,
       is_featured: false,
       is_recommended: false,
       track_inventory: true,
-      stock_quantity: 0,
-      low_stock_threshold: 5,
+      stock_quantity: "0",
+      low_stock_threshold: "5",
     }
   });
 

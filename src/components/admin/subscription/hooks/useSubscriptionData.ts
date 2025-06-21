@@ -19,13 +19,13 @@ export function useSubscriptionData() {
       if (usersError) throw usersError;
 
       // Combine profile and user data
-      const profilesWithEmails = profilesData?.map(profile => {
+      const profilesWithEmails = (profilesData || []).map(profile => {
         const authUser = users?.find(user => user.id === profile.id);
         return {
           ...profile,
           email: authUser?.email
         };
-      }) || [];
+      });
 
       return profilesWithEmails;
     },
@@ -50,7 +50,7 @@ export function useSubscriptionData() {
       if (usersError) throw usersError;
 
       // Add email information to granted subscriptions
-      const subscriptionsWithEmails = data?.map(subscription => {
+      const subscriptionsWithEmails = (data || []).map(subscription => {
         const grantedToUser = users?.find(user => user.id === subscription.granted_to_user_id);
         const grantedByUser = users?.find(user => user.id === subscription.granted_by_admin_id);
         
@@ -59,7 +59,7 @@ export function useSubscriptionData() {
           granted_to_email: grantedToUser?.email,
           granted_by_email: grantedByUser?.email
         };
-      }) || [];
+      });
 
       return subscriptionsWithEmails;
     },

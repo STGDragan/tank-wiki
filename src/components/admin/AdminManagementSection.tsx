@@ -87,7 +87,7 @@ export function AdminManagementSection() {
       const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
       if (usersError) throw usersError;
 
-      const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+      const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
       
       return roles.map(role => {
         const profile = profilesMap.get(role.user_id);
