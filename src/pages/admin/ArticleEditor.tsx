@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ import { articleSchema, ArticleFormData } from "@/lib/schemas/knowledgeBaseSchem
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RichTextEditor } from "@/components/admin/knowledge-base/RichTextEditor";
+import { WizardGuideAreaSelector } from "@/components/admin/knowledge-base/WizardGuideAreaSelector";
 
 const ArticleEditor = () => {
     const { slug } = useParams<{ slug: string }>();
@@ -39,10 +41,12 @@ const ArticleEditor = () => {
             status: 'draft',
             category_id: null,
             tags: '',
+            wizard_guide_areas: [],
         }
     });
 
     const contentType = watch('content_type');
+    const wizardGuideAreas = watch('wizard_guide_areas') || [];
 
     useEffect(() => {
         if (article) {
@@ -55,6 +59,7 @@ const ArticleEditor = () => {
                 content_type: (article.content_type as 'text' | 'html') ?? 'text',
                 tldr: article.tldr ?? '',
                 category_id: article.category_id ?? null,
+                wizard_guide_areas: article.wizard_guide_areas || [],
             });
             setImageUrl(article.image_url);
         }
@@ -250,6 +255,13 @@ const ArticleEditor = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Wizard Guide Areas Section */}
+                    <WizardGuideAreaSelector
+                        selectedAreas={wizardGuideAreas}
+                        onChange={(areas) => setValue('wizard_guide_areas', areas)}
+                    />
+
                     <div className="flex justify-end space-x-2">
                         <Button type="button" variant="ghost" onClick={() => navigate('/admin/knowledge-base')}>
                             <ArrowLeft />

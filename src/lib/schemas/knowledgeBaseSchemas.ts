@@ -17,6 +17,7 @@ export const articleSchema = z.object({
   status: z.enum(["draft", "published"]),
   category_id: z.string().nullable(),
   tags: z.string().optional(),
+  wizard_guide_areas: z.array(z.string()).optional(),
 });
 
 export type CategoryFormData = z.infer<typeof categorySchema>;

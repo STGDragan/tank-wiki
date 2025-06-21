@@ -354,6 +354,51 @@ export type Database = {
         }
         Relationships: []
       }
+      article_wizard_guides: {
+        Row: {
+          article_id: string
+          created_at: string
+          display_order: number
+          guide_area_id: string
+          id: string
+          is_primary: boolean
+          updated_at: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          display_order?: number
+          guide_area_id: string
+          id?: string
+          is_primary?: boolean
+          updated_at?: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          display_order?: number
+          guide_area_id?: string
+          id?: string
+          is_primary?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_wizard_guides_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_wizard_guides_guide_area_id_fkey"
+            columns: ["guide_area_id"]
+            isOneToOne: false
+            referencedRelation: "wizard_guide_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cms_settings: {
         Row: {
           created_at: string
@@ -1750,6 +1795,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      wizard_guide_areas: {
+        Row: {
+          area_key: string
+          area_name: string
+          created_at: string
+          description: string | null
+          id: string
+        }
+        Insert: {
+          area_key: string
+          area_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          area_key?: string
+          area_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

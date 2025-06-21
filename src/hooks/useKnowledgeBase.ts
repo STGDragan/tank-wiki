@@ -59,10 +59,34 @@ const fetchArticleBySlug = async (slug: string): Promise<Article | null> => {
     return data;
 };
 
+const fetchArticleWithWizardGuides = async (identifier: string, bySlug: boolean): Promise<(Article & { wizard_guide_areas?: string[] }) | null> => {
+    // First get the article
+    const article = bySlug ? await fetchArticleBySlug(identifier) : await fetchArticleById(identifier);
+    
+    if (!article) return null;
+
+    // Then get associated wizard guide areas
+    const { data: wizardGuides, error } = await supabase
+        .from('article_wizard_guides')
+        .select('guide_area_id')
+        .eq('article_id', article.id)
+        .order('display_order');
+
+    if (error) {
+        console.error('Error fetching wizard guides:', error);
+        return { ...article, wizard_guide_areas: [] };
+    }
+
+    return {
+        ...article,
+        wizard_guide_areas: wizardGuides?.map(guide => guide.guide_area_id) || []
+    };
+};
+
 export const useArticle = (identifier?: string, bySlug = false) => {
     return useQuery({ 
         queryKey: ['knowledge_article', identifier, bySlug], 
-        queryFn: () => bySlug ? fetchArticleBySlug(identifier!) : fetchArticleById(identifier!),
+        queryFn: () => fetchArticleWithWizardGuides(identifier!, bySlug),
         enabled: !!identifier 
     });
 };
@@ -87,18 +111,59 @@ export const useUpsertArticle = (identifier?: string, bySlug = false) => {
                 image_url: data.image_url,
             };
 
+            let articleId: string;
+
             if (identifier) {
                 // If we have an identifier, we're updating an existing article
                 const whereClause = bySlug ? 'slug' : 'id';
                 const { error } = await supabase.from('knowledge_articles').update(payload).eq(whereClause, identifier);
                 if (error) throw new Error(error.message);
+                
+                // Get the article ID for wizard guides update
+                if (bySlug) {
+                    const { data: article, error: fetchError } = await supabase
+                        .from('knowledge_articles')
+                        .select('id')
+                        .eq('slug', identifier)
+                        .single();
+                    if (fetchError) throw new Error(fetchError.message);
+                    articleId = article.id;
+                } else {
+                    articleId = identifier;
+                }
             } else {
                 const insertData = {
                     ...payload,
                     author_id: user?.id ?? null,
                 };
-                const { error } = await supabase.from('knowledge_articles').insert(insertData);
+                const { data: newArticle, error } = await supabase.from('knowledge_articles').insert(insertData).select('id').single();
                 if (error) throw new Error(error.message);
+                articleId = newArticle.id;
+            }
+
+            // Update wizard guide areas if provided
+            if (data.wizard_guide_areas) {
+                // Delete existing wizard guides
+                await supabase
+                    .from('article_wizard_guides')
+                    .delete()
+                    .eq('article_id', articleId);
+
+                // Insert new wizard guides
+                if (data.wizard_guide_areas.length > 0) {
+                    const guidesToInsert = data.wizard_guide_areas.map((guideAreaId, index) => ({
+                        article_id: articleId,
+                        guide_area_id: guideAreaId,
+                        display_order: index,
+                        is_primary: index === 0,
+                    }));
+
+                    const { error: guideError } = await supabase
+                        .from('article_wizard_guides')
+                        .insert(guidesToInsert);
+                    
+                    if (guideError) throw new Error(guideError.message);
+                }
             }
         },
         onSuccess: () => {
