@@ -16,7 +16,7 @@ export const useSocialMediaLinks = () => {
   return useQuery({
     queryKey: ['social_media_links'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('social_media_links')
         .select('*')
         .eq('is_active', true)
@@ -31,7 +31,7 @@ export const useAllSocialMediaLinks = () => {
   return useQuery({
     queryKey: ['all_social_media_links'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('social_media_links')
         .select('*')
         .order('platform');
@@ -46,7 +46,7 @@ export const useUpsertSocialMediaLink = () => {
 
   return useMutation({
     mutationFn: async (values: { platform: string; url: string; is_active: boolean }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('social_media_links')
         .upsert(values, { onConflict: 'platform' })
         .select()
