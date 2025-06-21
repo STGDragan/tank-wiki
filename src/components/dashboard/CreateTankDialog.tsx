@@ -5,155 +5,158 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { PlusCircle } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
+import { ProUpgradePrompt } from "@/components/wizard/ProUpgradePrompt";
+import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
+import { tankTypes } from "@/data/tankTypes";
 
 interface CreateTankDialogProps {
   aquariumCount: number;
-  trigger?: React.ReactNode;
 }
 
-export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateTankDialog({ aquariumCount }: CreateTankDialogProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showProPrompt, setShowProPrompt] = useState(false);
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [size, setSize] = useState("");
-  const [description, setDescription] = useState("");
-  const { user, hasActiveSubscription } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const createAquariumMutation = useMutation({
-    mutationFn: async (aquariumData: any) => {
-      const { data, error } = await supabase.from('aquariums').insert([aquariumData]).select().single();
-      if (error) throw new Error(error.message);
-      return data;
-    },
-    onSuccess: () => {
+  const handleCreateClick = () => {
+    // Check if user has reached the limit (3 tanks for free users)
+    if (aquariumCount >= 3) {
+      setShowProPrompt(true);
+      return;
+    }
+    setIsOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !name || !type) return;
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('aquariums')
+        .insert({
+          name,
+          type,
+          size: size ? parseInt(size) : null,
+          user_id: user.id
+        });
+
+      if (error) throw error;
+
+      toast({ title: "Aquarium created successfully!" });
       queryClient.invalidateQueries({ queryKey: ['aquariums'] });
-      toast({ title: 'Aquarium created successfully!' });
-      setOpen(false);
+      setIsOpen(false);
       setName("");
       setType("");
       setSize("");
-      setDescription("");
-    },
-    onError: (err: Error) => {
-      toast({ title: 'Error creating aquarium', description: err.message, variant: 'destructive' });
-    }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!hasActiveSubscription && aquariumCount >= 2) {
-      toast({
-        title: "Upgrade Required",
-        description: "Free users can create up to 2 aquariums. Upgrade to Pro for unlimited aquariums.",
-        variant: "destructive"
+    } catch (error: any) {
+      toast({ 
+        title: "Error creating aquarium", 
+        description: error.message, 
+        variant: "destructive" 
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    if (!name.trim()) {
-      toast({ title: 'Please enter a name for your aquarium', variant: 'destructive' });
-      return;
-    }
-
-    createAquariumMutation.mutate({
-      name: name.trim(),
-      type: type || null,
-      size: size ? parseFloat(size) : null,
-      description: description.trim() || null,
-      user_id: user?.id
-    });
   };
 
-  const defaultTrigger = (
-    <Button>
-      <Plus className="h-4 w-4 mr-2" />
-      Add Tank
-    </Button>
-  );
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Aquarium</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="My Aquarium"
-              required
-            />
-          </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            size="lg" 
+            className="btn-vibrant shadow-lg hover:shadow-xl font-semibold"
+            onClick={handleCreateClick}
+          >
+            <PlusCircle className="h-5 w-5 mr-2" />
+            Add Aquarium
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="vibrant-card max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Aquarium</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Aquarium Name *</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Living Room Tank"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="type">Tank Type *</Label>
+              <Select value={type} onValueChange={setType} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select tank type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tankTypes.map((tankType) => (
+                    <SelectItem key={tankType.value} value={tankType.value}>
+                      <div className="flex items-center gap-2">
+                        <span>{tankType.emoji}</span>
+                        <span>{tankType.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="size">Size (gallons)</Label>
+              <Input
+                id="size"
+                type="number"
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+                placeholder="e.g., 40"
+                min="1"
+              />
+            </div>
+            
+            <div className="flex gap-2 pt-4">
+              <Button type="submit" disabled={isSubmitting} className="btn-vibrant flex-1">
+                {isSubmitting ? "Creating..." : "Create Aquarium"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </form>
           
-          <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select aquarium type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="freshwater">Freshwater</SelectItem>
-                <SelectItem value="saltwater">Saltwater</SelectItem>
-                <SelectItem value="reef">Reef</SelectItem>
-                <SelectItem value="brackish">Brackish</SelectItem>
-                <SelectItem value="planted">Planted</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="pt-4 border-t">
+            <p className="text-sm text-muted-foreground text-center mb-3">
+              Want a guided setup experience?
+            </p>
+            <div className="flex justify-center">
+              <AquariumSetupWizard aquariumCount={aquariumCount} />
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="size">Size (gallons)</Label>
-            <Input
-              id="size"
-              type="number"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-              placeholder="e.g., 20"
-              min="1"
-              step="0.1"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us about your aquarium..."
-              rows={3}
-            />
-          </div>
-          
-          <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={createAquariumMutation.isPending}
-              className="flex-1"
-            >
-              {createAquariumMutation.isPending ? 'Creating...' : 'Create Aquarium'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <ProUpgradePrompt 
+        isOpen={showProPrompt} 
+        onClose={() => setShowProPrompt(false)}
+        aquariumCount={aquariumCount}
+      />
+    </>
   );
 }

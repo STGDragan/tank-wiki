@@ -1,4 +1,3 @@
-
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -62,56 +61,66 @@ const Dashboard = () => {
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
-      <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center justify-between mb-6">
-          <Skeleton className="h-8 w-48 rounded-xl" />
-          <Skeleton className="h-10 w-28 rounded-xl" />
-        </div>
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          <Skeleton className="h-48 w-full rounded-2xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
+      <div className="dashboard-bg">
+        <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <Skeleton className="h-8 w-48 rounded-xl" />
+            <Skeleton className="h-10 w-28 rounded-xl" />
+          </div>
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+            <Skeleton className="h-48 w-full rounded-2xl" />
+            <Skeleton className="h-48 w-full rounded-2xl" />
+            <Skeleton className="h-48 w-full rounded-2xl" />
+          </div>
         </div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">Error: {error.message}</div>;
+    return (
+      <div className="dashboard-bg">
+        <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          Error: {error.message}
+        </div>
+      </div>
+    );
   }
 
   const ownedAquariums = aquariums?.filter(aq => aq.user_id === user?.id) || [];
   const aquariumCount = ownedAquariums.length;
 
   return (
-    <div className="h-full w-full overflow-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        <div className="animate-fade-in">
-          <WelcomeBanner aquariumCount={aquariumCount} />
-        </div>
-        
-        <div className="w-full h-[200px] rounded-2xl overflow-hidden shadow-soft animate-slide-up">
-          <SlideshowSection context="dashboard" />
-        </div>
-        
-        <div className="animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-          {aquariumCount === 0 ? (
-            <EmptyState aquariumCount={aquariumCount} />
-          ) : (
-            <AquariumGroups 
-              aquariums={ownedAquariums}
-              onDeleteAquarium={handleDeleteAquarium}
-              aquariumCount={aquariumCount}
-            />
+    <div className="dashboard-bg min-h-screen">
+      <div className="h-full w-full overflow-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          <div className="animate-fade-in">
+            <WelcomeBanner aquariumCount={aquariumCount} />
+          </div>
+          
+          <div className="w-full h-[200px] rounded-2xl overflow-hidden shadow-soft animate-slide-up">
+            <SlideshowSection context="dashboard" />
+          </div>
+          
+          <div className="animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+            {aquariumCount === 0 ? (
+              <EmptyState aquariumCount={aquariumCount} />
+            ) : (
+              <AquariumGroups 
+                aquariums={ownedAquariums}
+                onDeleteAquarium={handleDeleteAquarium}
+                aquariumCount={aquariumCount}
+              />
+            )}
+          </div>
+          
+          {ownedAquariums && ownedAquariums.length > 0 && (
+            <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+              <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type, size: aq.size }))} />
+              <Recommendations aquariums={ownedAquariums} />
+            </div>
           )}
         </div>
-        
-        {ownedAquariums && ownedAquariums.length > 0 && (
-          <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-            <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type, size: aq.size }))} />
-            <Recommendations aquariums={ownedAquariums} />
-          </div>
-        )}
       </div>
     </div>
   );

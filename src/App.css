@@ -1,42 +1,77 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+
+/* Vibrant gradient backgrounds */
+.dashboard-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.wizard-bg {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.aquarium-detail-bg {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.community-bg {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
-.card {
-  padding: 2em;
+.landing-bg {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
-.read-the-docs {
-  color: #888;
+/* Animated gradient for hero sections */
+.hero-gradient {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Card enhancements for vibrant theme */
+.vibrant-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .vibrant-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Button enhancements */
+.btn-vibrant {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-vibrant:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.btn-pro-upgrade {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border: none;
+  color: white;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+  box-shadow: 0 4px 20px rgba(240, 147, 251, 0.5);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
