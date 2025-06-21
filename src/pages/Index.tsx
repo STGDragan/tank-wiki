@@ -6,6 +6,13 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 
 const Index = () => {
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById('features-section');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -25,15 +32,25 @@ const Index = () => {
         <section className="relative flex flex-col items-center justify-center text-center text-white overflow-hidden pt-20 pb-8">
           <div className="absolute inset-0 w-full h-full bg-primary/30 -z-10" />
           <div className="container mx-auto px-4 md:px-6 relative z-10 mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              The ultimate hub for your aquarium.
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+              All Your Aquariums. One Smart Dashboard.
             </h1>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8">
-              Track water parameters, manage livestock, schedule maintenance, and collaborate with others. All in one beautiful, modern platform.
+            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto mb-8">
+              TankWiki helps hobbyists track water quality, manage gear, and build thriving aquariums with ease.
             </p>
-            <Button size="lg" asChild>
-              <Link to="/login">Get Started for Free</Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button size="lg" asChild className="font-semibold">
+                <Link to="/login">Join the Beta</Link>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="lg" 
+                onClick={scrollToFeatures}
+                className="text-white hover:bg-white/10 hover:text-white font-medium"
+              >
+                How It Works
+              </Button>
+            </div>
           </div>
           <div className="w-full max-w-4xl mx-auto px-4 md:px-6 relative z-10">
             <div className="h-[350px] md:h-[400px] rounded-lg overflow-hidden shadow-2xl">
@@ -42,7 +59,9 @@ const Index = () => {
           </div>
         </section>
         
-        <FeaturesSection />
+        <div id="features-section">
+          <FeaturesSection />
+        </div>
       </main>
       <footer className="container mx-auto py-6 px-4 md:px-6 border-t">
         <div className="flex flex-col md:flex-row justify-between items-center">
