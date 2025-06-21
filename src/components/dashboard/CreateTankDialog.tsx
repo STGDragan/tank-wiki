@@ -16,9 +16,10 @@ import { tankTypes } from "@/data/tankTypes";
 
 interface CreateTankDialogProps {
   aquariumCount: number;
+  trigger?: React.ReactNode;
 }
 
-export function CreateTankDialog({ aquariumCount }: CreateTankDialogProps) {
+export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showProPrompt, setShowProPrompt] = useState(false);
   const [name, setName] = useState("");
@@ -71,18 +72,28 @@ export function CreateTankDialog({ aquariumCount }: CreateTankDialogProps) {
     }
   };
 
+  const defaultTrigger = (
+    <Button 
+      size="lg" 
+      className="btn-vibrant shadow-lg hover:shadow-xl font-semibold"
+      onClick={handleCreateClick}
+    >
+      <PlusCircle className="h-5 w-5 mr-2" />
+      Add Aquarium
+    </Button>
+  );
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button 
-            size="lg" 
-            className="btn-vibrant shadow-lg hover:shadow-xl font-semibold"
-            onClick={handleCreateClick}
-          >
-            <PlusCircle className="h-5 w-5 mr-2" />
-            Add Aquarium
-          </Button>
+          {trigger ? (
+            <div onClick={handleCreateClick}>
+              {trigger}
+            </div>
+          ) : (
+            defaultTrigger
+          )}
         </DialogTrigger>
         <DialogContent className="vibrant-card max-w-md">
           <DialogHeader>
