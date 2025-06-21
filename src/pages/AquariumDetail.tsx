@@ -14,6 +14,7 @@ import WishlistTab from "@/components/aquarium/WishlistTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
 import { AquariumRecommendationsContainer } from "@/components/aquarium/AquariumRecommendationsContainer";
 import { JournalTab } from "@/components/aquarium/JournalTab";
+import { WizardProgressTracker } from "@/components/aquarium/WizardProgressTracker";
 
 const AquariumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -169,10 +170,8 @@ const AquariumDetail = () => {
         </TabsContent>
 
         <TabsContent value="timeline">
-          <Timeline
-
-
-aquariumId={aquarium.id}
+          <TimelineTab
+            aquariumId={aquarium.id}
             userId={user.id}
             canEdit={canEdit}
           />

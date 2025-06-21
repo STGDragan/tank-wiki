@@ -286,6 +286,44 @@ export type Database = {
           },
         ]
       }
+      aquarium_wizard_progress: {
+        Row: {
+          aquarium_id: string
+          completed_steps: string[]
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          wizard_data: Json
+        }
+        Insert: {
+          aquarium_id: string
+          completed_steps?: string[]
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          wizard_data?: Json
+        }
+        Update: {
+          aquarium_id?: string
+          completed_steps?: string[]
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          wizard_data?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aquarium_wizard_progress_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aquariums: {
         Row: {
           created_at: string

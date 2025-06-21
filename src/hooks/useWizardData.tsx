@@ -26,9 +26,10 @@ export const useWizardData = (aquariumId: string | undefined, userId: string | u
         .from('aquarium_wizard_progress')
         .select('*')
         .eq('aquarium_id', aquariumId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
+        console.error('Error fetching wizard progress:', error);
         throw new Error(error.message);
       }
       
@@ -46,6 +47,7 @@ export const useWizardData = (aquariumId: string | undefined, userId: string | u
         user_id: userId,
         wizard_data: wizardData,
         completed_steps: completedSteps,
+        updated_at: new Date().toISOString(),
       };
 
       const { data, error } = await supabase
@@ -72,7 +74,10 @@ export const useWizardData = (aquariumId: string | undefined, userId: string | u
 
       const { data, error } = await supabase
         .from('aquarium_wizard_progress')
-        .update({ completed_steps: completedSteps, updated_at: new Date().toISOString() })
+        .update({ 
+          completed_steps: completedSteps, 
+          updated_at: new Date().toISOString() 
+        })
         .eq('aquarium_id', aquariumId)
         .select()
         .single();
