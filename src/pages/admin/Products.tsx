@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -30,6 +29,7 @@ import { MoreHorizontal, Pencil, Trash2, Star, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
+import { AmazonProductImportDialog } from "@/components/admin/AmazonProductImportDialog";
 import { useState } from "react";
 import EditProductDialog from "@/components/admin/EditProductDialog";
 
@@ -141,7 +141,10 @@ const AdminProducts = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
-        <AddProductDialog />
+        <div className="flex gap-2">
+          <AmazonProductImportDialog />
+          <AddProductDialog />
+        </div>
       </div>
       <Card>
         <CardHeader>
@@ -184,9 +187,9 @@ const AdminProducts = () => {
                       </TableCell>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                           {product.is_featured && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
-                           {product.is_recommended && <ThumbsUp className="h-4 w-4 text-green-400 fill-green-400" />}
-                           {product.name}
+                          {product.is_featured && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
+                          {product.is_recommended && <ThumbsUp className="h-4 w-4 text-green-400 fill-green-400" />}
+                          {product.name}
                         </div>
                       </TableCell>
                       <TableCell>{product.category}</TableCell>

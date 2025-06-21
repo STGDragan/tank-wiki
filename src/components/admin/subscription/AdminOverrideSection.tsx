@@ -44,11 +44,11 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
   });
 
   const formatUserDisplay = (profile: Profile) => {
-    // Use full_name if available, otherwise use email
-    const name = profile.full_name || profile.email || 'Unknown User';
-    const email = profile.email || 'No email';
+    // Use full_name if available, otherwise use email, otherwise fallback to truncated ID
+    const name = profile.full_name || profile.email || `ID: ${profile.id.slice(0, 8)}...`;
+    const subtitle = profile.full_name && profile.email ? profile.email : undefined;
     
-    return { name, email };
+    return { name, subtitle };
   };
 
   return (
@@ -65,12 +65,12 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
       <CardContent>
         <div className="space-y-4">
           {profiles?.map((profile) => {
-            const { name, email } = formatUserDisplay(profile);
+            const { name, subtitle } = formatUserDisplay(profile);
             return (
               <div key={profile.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="font-medium">{name}</p>
-                  <p className="text-sm text-muted-foreground">{email}</p>
+                  {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label htmlFor={`override-${profile.id}`}>Override Active</Label>
