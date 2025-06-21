@@ -5,6 +5,7 @@ import { ImageUploader } from "./ImageUploader";
 import { ShareAquariumDialog } from "./ShareAquariumDialog";
 import { Button } from "../ui/button";
 import { Camera } from "lucide-react";
+import { TimelineSlideshow } from "./TimelineSlideshow";
 
 interface AquariumHeaderProps {
   aquarium: {
@@ -37,8 +38,8 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header with aquarium info and optional compact image */}
+    <div className="space-y-6">
+      {/* Header with aquarium info and compact main image */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left side - Aquarium info */}
         <div className="flex-1">
@@ -58,17 +59,19 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
           </div>
         </div>
         
-        {/* Right side - Compact image or upload button */}
-        <div className="flex-shrink-0">
+        {/* Right side - Compact main tank image */}
+        <div className="flex-shrink-0 relative">
           {aquarium.image_url ? (
-            <div className="relative w-48 h-32 md:w-56 md:h-36 rounded-lg overflow-hidden bg-muted">
-              <img
-                src={aquarium.image_url}
-                alt={aquarium.name}
-                className="object-cover w-full h-full"
-              />
+            <div className="relative">
+              <div className="w-48 h-32 md:w-56 md:h-36 rounded-lg overflow-hidden bg-muted">
+                <img
+                  src={aquarium.image_url}
+                  alt={`${aquarium.name} main image`}
+                  className="object-cover w-full h-full"
+                />
+              </div>
               {isOwner && (
-                <div className="absolute bottom-2 right-2">
+                <div className="absolute -bottom-2 -right-2">
                   <ImageUploader
                     aquariumId={aquarium.id}
                     onUploadSuccess={handleImageUploadSuccess}
@@ -96,6 +99,9 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
           )}
         </div>
       </div>
+
+      {/* Timeline slideshow - full width */}
+      <TimelineSlideshow aquariumId={aquarium.id} />
     </div>
   );
 }

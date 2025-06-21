@@ -20,12 +20,15 @@ interface AuditLogEntry {
   admin_profile?: {
     full_name?: string;
   };
+  admin_email?: string;
 }
 
 export function AuditTrailSection() {
   const { data: auditLogs, isLoading } = useQuery({
     queryKey: ['admin-audit-logs'],
     queryFn: async () => {
+      console.log('Fetching audit logs...');
+      
       // First get the audit logs
       const { data: logs, error: logsError } = await supabase
         .from('admin_audit_log')
@@ -33,7 +36,12 @@ export function AuditTrailSection() {
         .order('created_at', { ascending: false })
         .limit(100);
 
-      if (logsError) throw logsError;
+      if (logsError) {
+        console.error('Error fetching audit logs:', logsError);
+        throw logsError;
+      }
+
+      console.log('Audit logs fetched:', logs?.length || 0);
 
       if (!logs || logs.length === 0) {
         return [];
@@ -41,19 +49,45 @@ export function AuditTrailSection() {
 
       // Get admin profiles for the logs
       const adminIds = [...new Set(logs.map(log => log.admin_user_id))];
+      console.log('Admin IDs to fetch profiles for:', adminIds);
+      
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name')
         .in('id', adminIds);
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('Profiles fetched:', profiles);
+
+      // Get auth user emails
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      if (usersError) {
+        console.error('Error fetching auth users:', usersError);
+        throw usersError;
+      }
+
+      console.log('Auth users fetched:', users?.length || 0);
 
       const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      const usersMap = new Map(users?.map(u => [u.id, u]) || []);
       
-      return logs.map(log => ({
-        ...log,
-        admin_profile: profilesMap.get(log.admin_user_id)
-      })) as AuditLogEntry[];
+      const enrichedLogs = logs.map(log => {
+        const profile = profilesMap.get(log.admin_user_id);
+        const authUser = usersMap.get(log.admin_user_id);
+        
+        return {
+          ...log,
+          admin_profile: profile,
+          admin_email: authUser?.email || 'No email'
+        };
+      }) as AuditLogEntry[];
+
+      console.log('Enriched logs:', enrichedLogs);
+      return enrichedLogs;
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -141,7 +175,7 @@ export function AuditTrailSection() {
                     Admin: {log.admin_profile?.full_name || 'Unknown'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {log.admin_user_id.slice(0, 8)}...
+                    {log.admin_email} ({log.admin_user_id.slice(0, 8)}...)
                   </p>
                 </div>
 

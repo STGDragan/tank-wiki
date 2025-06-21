@@ -36,27 +36,42 @@ export function useSubscriptionData() {
   const { data: profiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['admin-profiles'],
     queryFn: async () => {
+      console.log('Fetching profiles for subscription data...');
+      
       // Get profiles data
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name, admin_subscription_override')
         .order('full_name');
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
 
-      // Get auth user emails
+      console.log('Profiles data:', profilesData);
+
+      // Get auth user emails using the service role
       const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (usersError) throw usersError;
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+        throw usersError;
+      }
+
+      console.log('Auth users:', users?.length, 'users found');
 
       // Combine profile and user data
       const profilesWithEmails: ProfileWithEmail[] = (profilesData || []).map(profile => {
         const authUser = (users || []).find(user => user.id === profile.id);
-        return {
+        const result = {
           ...profile,
-          email: authUser?.email
+          email: authUser?.email || 'No email'
         };
+        console.log(`Profile ${profile.id}: ${profile.full_name} - ${result.email}`);
+        return result;
       });
 
+      console.log('Final profiles with emails:', profilesWithEmails);
       return profilesWithEmails;
     },
   });

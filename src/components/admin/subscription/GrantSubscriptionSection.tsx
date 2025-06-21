@@ -31,6 +31,8 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  console.log('GrantSubscriptionSection - profiles received:', profiles);
+
   const grantSubscriptionMutation = useMutation({
     mutationFn: async ({
       userId,
@@ -105,64 +107,70 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleGrantSubscription} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="user-select">Select User</Label>
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a user..." />
-              </SelectTrigger>
-              <SelectContent>
-                {profiles?.map((profile) => (
-                  <SelectItem key={profile.id} value={profile.id}>
-                    {formatUserDisplay(profile)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {!profiles || profiles.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No users found. Loading...</p>
           </div>
+        ) : (
+          <form onSubmit={handleGrantSubscription} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="user-select">Select User ({profiles.length} available)</Label>
+              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a user..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles.map((profile) => (
+                    <SelectItem key={profile.id} value={profile.id}>
+                      {formatUserDisplay(profile)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="tier-select">Subscription Tier</Label>
-            <Select value={subscriptionTier} onValueChange={setSubscriptionTier}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Pro">Pro</SelectItem>
-                <SelectItem value="Premium">Premium</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="tier-select">Subscription Tier</Label>
+              <Select value={subscriptionTier} onValueChange={setSubscriptionTier}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pro">Pro</SelectItem>
+                  <SelectItem value="Premium">Premium</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="expires-input">Expires At (optional)</Label>
-            <Input
-              id="expires-input"
-              type="datetime-local"
-              value={expiresAt}
-              onChange={(e) => setExpiresAt(e.target.value)}
-              placeholder="Leave empty for permanent access"
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="expires-input">Expires At (optional)</Label>
+              <Input
+                id="expires-input"
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
+                placeholder="Leave empty for permanent access"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes-input">Notes (optional)</Label>
-            <Textarea
-              id="notes-input"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Reason for granting free subscription..."
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes-input">Notes (optional)</Label>
+              <Textarea
+                id="notes-input"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Reason for granting free subscription..."
+              />
+            </div>
 
-          <Button
-            type="submit"
-            disabled={!selectedUserId || grantSubscriptionMutation.isPending}
-          >
-            {grantSubscriptionMutation.isPending ? "Granting..." : "Grant Subscription"}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              disabled={!selectedUserId || grantSubscriptionMutation.isPending}
+            >
+              {grantSubscriptionMutation.isPending ? "Granting..." : "Grant Subscription"}
+            </Button>
+          </form>
+        )}
       </CardContent>
     </Card>
   );

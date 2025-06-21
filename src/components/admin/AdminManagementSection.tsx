@@ -35,26 +35,39 @@ export function AdminManagementSection() {
   const { data: profiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['admin-management-profiles'],
     queryFn: async () => {
+      console.log('Fetching profiles for admin management...');
+      
       // Get profiles with auth user data
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name');
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('Profiles data:', profilesData);
 
       // Get auth user emails
       const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (usersError) throw usersError;
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
+        throw usersError;
+      }
+
+      console.log('Auth users:', users?.length, 'users found');
 
       // Combine profile and user data with proper typing
       const profilesWithEmails: Profile[] = (profilesData || []).map(profile => {
         const authUser = (users || []).find(user => user.id === profile.id);
         return {
           ...profile,
-          email: authUser?.email
+          email: authUser?.email || 'No email'
         };
       });
 
+      console.log('Profiles with emails:', profilesWithEmails);
       return profilesWithEmails;
     },
   });
@@ -95,7 +108,7 @@ export function AdminManagementSection() {
           ...role,
           profile: profile ? {
             ...profile,
-            email: authUser?.email
+            email: authUser?.email || 'No email'
           } : undefined
         };
       });
@@ -199,7 +212,7 @@ export function AdminManagementSection() {
           <h3 className="text-lg font-medium">Assign Role</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="user-select">Select User</Label>
+              <Label htmlFor="user-select">Select User ({profiles?.length || 0} available)</Label>
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a user..." />
