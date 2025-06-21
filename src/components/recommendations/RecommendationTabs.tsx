@@ -15,6 +15,8 @@ interface DatabaseProduct {
   is_featured?: boolean;
   is_recommended?: boolean;
   brand?: string;
+  category?: string;
+  is_livestock?: boolean;
   affiliate_links?: Array<{
     link_url: string;
     provider?: string;
@@ -59,7 +61,7 @@ const RecommendationTabs = ({ recommendations }: { recommendations: DatabaseProd
         <RecommendationCarousel items={inhabitants} />
       </TabsContent>
       <TabsContent value="equipment">
-        <ReRecommendationCarousel items={equipment} />
+        <RecommendationCarousel items={equipment} />
       </TabsContent>
       <TabsContent value="consumables">
         <RecommendationCarousel items={consumables} />
