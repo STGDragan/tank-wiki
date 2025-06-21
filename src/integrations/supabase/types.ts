@@ -1367,8 +1367,10 @@ export type Database = {
           avatar_url: string | null
           email: string | null
           enable_maintenance_notifications: boolean
+          first_name: string | null
           full_name: string | null
           id: string
+          last_name: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1377,8 +1379,10 @@ export type Database = {
           avatar_url?: string | null
           email?: string | null
           enable_maintenance_notifications?: boolean
+          first_name?: string | null
           full_name?: string | null
           id: string
+          last_name?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1387,8 +1391,10 @@ export type Database = {
           avatar_url?: string | null
           email?: string | null
           enable_maintenance_notifications?: boolean
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
           updated_at?: string | null
         }
         Relationships: []

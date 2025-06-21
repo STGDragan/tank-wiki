@@ -14,7 +14,8 @@ import { useEffect } from "react";
 import { Tables } from "@/integrations/supabase/types";
 
 const profileFormSchema = z.object({
-  full_name: z.string().nullable(),
+  first_name: z.string().nullable(),
+  last_name: z.string().nullable(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -31,23 +32,33 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      full_name: "",
+      first_name: "",
+      last_name: "",
     },
   });
 
   useEffect(() => {
     if (profile) {
-      form.reset({ full_name: profile.full_name || "" });
+      form.reset({ 
+        first_name: profile.first_name || "", 
+        last_name: profile.last_name || "" 
+      });
     }
   }, [profile, form]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (values: ProfileFormValues) => {
       if (!user) throw new Error("User not found");
+      
+      // Create full_name from first and last names for backward compatibility
+      const full_name = [values.first_name, values.last_name].filter(Boolean).join(' ') || null;
+      
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          full_name: values.full_name, 
+          first_name: values.first_name, 
+          last_name: values.last_name,
+          full_name: full_name,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -85,12 +96,25 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
             </FormItem>
             <FormField
               control={form.control}
-              name="full_name"
+              name="first_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your full name" {...field} value={field.value || ''} />
+                    <Input placeholder="Your first name" {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your last name" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
