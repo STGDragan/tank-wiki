@@ -51,8 +51,8 @@ export function PlacementStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-2">Tank Placement Checklist</h2>
-        <p className="text-muted-foreground">Choose a safe location for your aquarium</p>
+        <h2 className="text-2xl font-semibold mb-2 text-foreground dark:text-slate-100">Tank Placement Checklist</h2>
+        <p className="text-muted-foreground dark:text-slate-400">Choose a safe location for your aquarium</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -63,19 +63,21 @@ export function PlacementStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
           return (
             <Card 
               key={item.key}
-              className={`cursor-pointer transition-all duration-200 ${
-                isChecked ? 'ring-2 ring-green-500 bg-green-50' : 'hover:shadow-md'
+              className={`cursor-pointer transition-all duration-200 dark:bg-slate-800/50 dark:border-slate-600 ${
+                isChecked 
+                  ? 'ring-2 ring-green-500 bg-green-50 border-green-300 dark:bg-green-900/30 dark:border-green-500' 
+                  : 'hover:shadow-md dark:hover:bg-slate-700/50'
               }`}
               onClick={() => handleCheckboxChange(item.key, !isChecked)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-800/50 dark:to-cyan-800/50 flex items-center justify-center">
                       <span className="text-lg">{item.emoji}</span>
                     </div>
                     <div>
-                      <CardTitle className="text-base">{item.label}</CardTitle>
+                      <CardTitle className="text-base text-foreground dark:text-slate-100">{item.label}</CardTitle>
                     </div>
                   </div>
                   <Checkbox 
@@ -85,7 +87,7 @@ export function PlacementStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-sm text-muted-foreground dark:text-slate-300">{item.description}</p>
               </CardContent>
             </Card>
           );
@@ -93,11 +95,11 @@ export function PlacementStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
       </div>
 
       {allChecked && (
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-700">
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-2xl mb-2">✅</div>
-              <p className="font-medium text-green-800">Perfect! You've found an ideal location for your aquarium.</p>
+              <p className="font-medium text-green-800 dark:text-green-200">Perfect! You've found an ideal location for your aquarium.</p>
             </div>
           </CardContent>
         </Card>
