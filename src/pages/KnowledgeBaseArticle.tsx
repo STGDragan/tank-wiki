@@ -65,6 +65,11 @@ const KnowledgeBaseArticle = () => {
         );
     }
 
+    // Determine which content to display based on content_type
+    const displayContent = article.content_type === 'html' 
+        ? article.html_content 
+        : article.content?.replace(/\n/g, '<br />');
+
     return (
         <div className="space-y-6">
              <Button variant="outline" asChild>
@@ -101,7 +106,7 @@ const KnowledgeBaseArticle = () => {
                 )}
                 <div 
                     className="prose dark:prose-invert max-w-none" 
-                    dangerouslySetInnerHTML={{ __html: article.content?.replace(/\n/g, '<br />') || '' }} 
+                    dangerouslySetInnerHTML={{ __html: displayContent || '' }} 
                 />
             </article>
         </div>

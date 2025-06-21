@@ -15,6 +15,7 @@ import { useArticle, useCategories, useUpsertArticle } from "@/hooks/useKnowledg
 import { articleSchema, ArticleFormData } from "@/lib/schemas/knowledgeBaseSchemas";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RichTextEditor } from "@/components/admin/knowledge-base/RichTextEditor";
 
 const ArticleEditor = () => {
     const { articleId } = useParams<{ articleId: string }>();
@@ -27,18 +28,22 @@ const ArticleEditor = () => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
-    const { register, handleSubmit, reset, setValue, control, formState: { errors } } = useForm<ArticleFormData>({
+    const { register, handleSubmit, reset, setValue, control, watch, formState: { errors } } = useForm<ArticleFormData>({
         resolver: zodResolver(articleSchema),
         defaultValues: {
             title: '',
             slug: '',
             content: '',
+            html_content: '',
+            content_type: 'text',
             tldr: '',
             status: 'draft',
             category_id: null,
             tags: '',
         }
     });
+
+    const contentType = watch('content_type');
 
     useEffect(() => {
         if (article) {
@@ -47,6 +52,8 @@ const ArticleEditor = () => {
                 status: article.status as 'draft' | 'published',
                 tags: article.tags?.join(', ') || '',
                 content: article.content ?? '',
+                html_content: article.html_content ?? '',
+                content_type: (article.content_type as 'text' | 'html') ?? 'text',
                 tldr: article.tldr ?? '',
                 category_id: article.category_id ?? null,
             });
@@ -70,8 +77,6 @@ const ArticleEditor = () => {
 
         setIsUploading(true);
         try {
-            // Here we could delete the old image if it exists to save space.
-            // For now, we will just upload the new one.
             const { error: uploadError } = await supabase.storage
                 .from('knowledge_base_images')
                 .upload(filePath, file);
@@ -160,10 +165,19 @@ const ArticleEditor = () => {
                                     This summary will be used in the aquarium setup wizard and quick previews.
                                 </p>
                             </div>
-                            <div>
-                                <Label htmlFor="content">Content</Label>
-                                <Textarea id="content" {...register("content")} rows={15} />
-                            </div>
+                            <Controller
+                                name={contentType === 'html' ? 'html_content' : 'content'}
+                                control={control}
+                                render={({ field }) => (
+                                    <RichTextEditor
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        contentType={contentType}
+                                        onContentTypeChange={(type) => setValue('content_type', type)}
+                                        placeholder="Enter your article content here..."
+                                    />
+                                )}
+                            />
                         </div>
                         <div className="space-y-6">
                             <div>
