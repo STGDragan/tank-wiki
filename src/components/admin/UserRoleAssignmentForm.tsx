@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface Profile {
   id: string;
   full_name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
 }
 
@@ -23,9 +25,17 @@ export function UserRoleAssignmentForm({ profiles, onAssignRole, isAssigning }: 
   const [selectedRole, setSelectedRole] = useState<RoleType>("user");
 
   const formatUserDisplay = (profile: Profile) => {
-    const name = profile.full_name || 'Unnamed User';
+    // Prioritize first_name + last_name, then full_name, then email
+    let displayName = 'Unnamed User';
+    
+    if (profile.first_name && profile.last_name) {
+      displayName = `${profile.first_name} ${profile.last_name}`;
+    } else if (profile.full_name) {
+      displayName = profile.full_name;
+    }
+    
     const email = profile.email || 'No email';
-    return `${name} (${email})`;
+    return `${displayName} (${email})`;
   };
 
   const handleAssignRole = () => {

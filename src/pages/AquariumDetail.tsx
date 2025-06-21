@@ -137,6 +137,7 @@ const AquariumDetail = () => {
             canEdit={canEdit}
             onUpdateQuantity={handleUpdateLivestockQuantity}
             onDelete={handleDeleteLivestock}
+            showRecommendations={false}
           />
         </TabsContent>
 
@@ -147,6 +148,7 @@ const AquariumDetail = () => {
             aquariumType={aquarium.type}
             canEdit={canEdit}
             onDelete={handleDeleteEquipment}
+            showRecommendations={false}
           />
         </TabsContent>
 
@@ -158,6 +160,7 @@ const AquariumDetail = () => {
             aquariumSize={aquarium.size}
             onMarkComplete={handleMarkComplete}
             onDelete={handleDeleteTask}
+            showRecommendations={false}
           />
         </TabsContent>
 

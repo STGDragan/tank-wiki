@@ -9,6 +9,8 @@ interface UserRole {
   role: string;
   profile?: {
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
 }
@@ -20,6 +22,19 @@ interface CurrentRolesListProps {
 }
 
 export function CurrentRolesList({ userRoles, onRemoveRole, isRemoving }: CurrentRolesListProps) {
+  const formatUserDisplay = (profile?: UserRole['profile']) => {
+    if (!profile) return 'Unnamed User';
+    
+    // Prioritize first_name + last_name, then full_name, then email
+    if (profile.first_name && profile.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    } else if (profile.full_name) {
+      return profile.full_name;
+    }
+    
+    return 'Unnamed User';
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium flex items-center gap-2">
@@ -32,7 +47,7 @@ export function CurrentRolesList({ userRoles, onRemoveRole, isRemoving }: Curren
             <div className="flex items-center gap-3">
               <div>
                 <p className="font-medium">
-                  {userRole.profile?.full_name || 'Unnamed User'}
+                  {formatUserDisplay(userRole.profile)}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {userRole.profile?.email || 'No email'}

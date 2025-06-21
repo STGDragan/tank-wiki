@@ -53,8 +53,8 @@ export const LivestockCard = ({ livestock, onUpdateQuantity, onDelete }: Livesto
     <Card className="relative">
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
-          <div className="flex-1 cursor-pointer" onClick={handleProductClick}>
-            <h3 className="font-semibold text-lg hover:text-primary transition-colors">{livestock.species}</h3>
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg">{livestock.species}</h3>
             {livestock.name && (
               <p className="text-sm text-muted-foreground">"{livestock.name}"</p>
             )}
@@ -62,11 +62,14 @@ export const LivestockCard = ({ livestock, onUpdateQuantity, onDelete }: Livesto
               <div className="mt-2 space-y-1">
                 <p className="text-xs text-muted-foreground">Related Product Available</p>
                 {relatedProduct.affiliate_links?.[0] && (
-                  <div className="flex items-center gap-1 text-xs text-blue-600">
+                  <button 
+                    onClick={handleProductClick}
+                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 cursor-pointer"
+                  >
                     <ShoppingCart className="h-3 w-3" />
                     <span>Buy on {relatedProduct.affiliate_links[0].provider || 'Store'}</span>
                     <ExternalLink className="h-3 w-3" />
-                  </div>
+                  </button>
                 )}
               </div>
             )}

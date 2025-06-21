@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { LivestockCard } from '@/components/aquarium/LivestockCard';
 import { AddLivestockForm } from '@/components/aquarium/AddLivestockForm';
-import { LivestockRecommendations } from '@/components/aquarium/LivestockRecommendations';
 import { PlusCircle, Fish } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
@@ -27,7 +26,7 @@ export const LivestockSection = ({
     aquariumType, 
     onUpdateQuantity, 
     onDelete, 
-    canEdit, 
+    canEdit,
     showRecommendations = true 
 }: LivestockSectionProps) => {
     const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
@@ -65,8 +64,6 @@ export const LivestockSection = ({
                     ) : <p className="text-muted-foreground text-center py-8">No livestock added yet.</p>}
                 </CardContent>
             </Card>
-            
-            {showRecommendations && <LivestockRecommendations aquariumType={aquariumType} />}
         </div>
     );
 };

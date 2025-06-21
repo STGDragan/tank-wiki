@@ -6,7 +6,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { EquipmentCard } from '@/components/aquarium/EquipmentCard';
 import { AddEquipmentForm } from '@/components/aquarium/AddEquipmentForm';
-import { EquipmentRecommendations } from '@/components/aquarium/EquipmentRecommendations';
 import { PlusCircle, Settings } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
@@ -26,16 +25,10 @@ export const EquipmentSection = ({
     aquariumId, 
     aquariumType, 
     onDelete, 
-    canEdit, 
+    canEdit,
     showRecommendations = true 
 }: EquipmentSectionProps) => {
     const [isAddEquipmentOpen, setAddEquipmentOpen] = useState(false);
-
-    const existingEquipment = equipment?.map(item => ({
-        type: item.type,
-        brand: item.brand,
-        model: item.model
-    })) || [];
 
     return (
         <div className="space-y-6">
@@ -75,13 +68,6 @@ export const EquipmentSection = ({
                     ) : <p className="text-muted-foreground text-center py-8">No equipment added yet.</p>}
                 </CardContent>
             </Card>
-            
-            {showRecommendations && (
-                <EquipmentRecommendations 
-                    aquariumType={aquariumType} 
-                    existingEquipment={existingEquipment}
-                />
-            )}
         </div>
     );
 };
