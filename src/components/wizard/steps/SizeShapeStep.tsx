@@ -70,17 +70,17 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-2">Choose Your Tank Size & Shape</h2>
-        <p className="text-muted-foreground">Based on your selected species and tank type</p>
+        <h2 className="text-2xl font-semibold mb-2 text-foreground dark:text-slate-100">Choose Your Tank Size & Shape</h2>
+        <p className="text-muted-foreground dark:text-slate-400">Based on your selected species and tank type</p>
       </div>
 
-      <Card className="bg-blue-50 border-blue-200">
+      <Card className="bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-700">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
             <div>
-              <p className="font-medium text-blue-800">Recommended Size: {recommendedSize} gallons</p>
-              <p className="text-sm text-blue-700 mt-1">
+              <p className="font-medium text-blue-800 dark:text-blue-200">Recommended Size: {recommendedSize} gallons</p>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 Based on your {data.tankGoal.toLowerCase()} setup with {data.selectedSpecies.length} species selected.
                 Larger is always better for stability!
               </p>
@@ -91,7 +91,7 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="tank-size">Tank Size (gallons)</Label>
+          <Label htmlFor="tank-size" className="text-foreground dark:text-slate-200">Tank Size (gallons)</Label>
           <Input
             id="tank-size"
             type="number"
@@ -99,17 +99,17 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
             onChange={(e) => handleSizeChange(e.target.value)}
             placeholder={`Recommended: ${recommendedSize}`}
             min="1"
-            className="mt-1"
+            className="mt-1 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400"
           />
           {data.tankSize && data.tankSize < recommendedSize && (
-            <p className="text-sm text-amber-600 mt-1">
+            <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
               ⚠️ This size may be too small for your selected species. Consider going larger.
             </p>
           )}
         </div>
 
         <div>
-          <Label>Tank Shape</Label>
+          <Label className="text-foreground dark:text-slate-200">Tank Shape</Label>
           <div className="grid gap-3 md:grid-cols-2 mt-2">
             {tankShapes.map((shape) => {
               const isSelected = data.tankShape === shape.value;
@@ -117,8 +117,10 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
               return (
                 <Card 
                   key={shape.value}
-                  className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-                    isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'
+                  className={`cursor-pointer transition-all duration-200 hover:scale-105 dark:bg-slate-800/50 dark:border-slate-600 ${
+                    isSelected 
+                      ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-500' 
+                      : 'hover:shadow-md dark:hover:bg-slate-700/50'
                   }`}
                   onClick={() => handleShapeSelect(shape.value)}
                 >
@@ -126,15 +128,15 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{shape.image}</span>
                       <div>
-                        <CardTitle className="text-base">{shape.label}</CardTitle>
-                        <p className="text-xs text-muted-foreground">{shape.dimensions}</p>
+                        <CardTitle className="text-base text-foreground dark:text-slate-100">{shape.label}</CardTitle>
+                        <p className="text-xs text-muted-foreground dark:text-slate-400">{shape.dimensions}</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">{shape.description}</p>
+                    <p className="text-sm text-muted-foreground dark:text-slate-300">{shape.description}</p>
                     {isSelected && (
-                      <Badge className="mt-2 bg-blue-100 text-blue-800">Selected</Badge>
+                      <Badge className="mt-2 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-700">Selected</Badge>
                     )}
                   </CardContent>
                 </Card>
@@ -145,7 +147,7 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
       </div>
 
       <div className="flex justify-between">
-        <Button variant="outline" onClick={onPrev}>
+        <Button variant="outline" onClick={onPrev} className="dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
