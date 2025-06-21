@@ -58,8 +58,8 @@ const AquariumDetail = () => {
   if (error || !aquarium) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900">Aquarium not found</h2>
-        <p className="text-gray-600 mt-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Aquarium not found</h2>
+        <p className="text-gray-600 dark:text-slate-400 mt-2">
           {error?.message || "The aquarium you're looking for doesn't exist."}
         </p>
       </div>
@@ -74,15 +74,15 @@ const AquariumDetail = () => {
       <AquariumHeader aquarium={aquarium} />
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="livestock">Livestock</TabsTrigger>
-          <TabsTrigger value="equipment">Equipment</TabsTrigger>
-          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-          <TabsTrigger value="water">Water Tests</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
-          <TabsTrigger value="journal">Journal</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-8 dark:bg-slate-800 dark:border-slate-700">
+          <TabsTrigger value="overview" className="dark:data-[state=active]:bg-slate-700">Overview</TabsTrigger>
+          <TabsTrigger value="livestock" className="dark:data-[state=active]:bg-slate-700">Livestock</TabsTrigger>
+          <TabsTrigger value="equipment" className="dark:data-[state=active]:bg-slate-700">Equipment</TabsTrigger>
+          <TabsTrigger value="maintenance" className="dark:data-[state=active]:bg-slate-700">Maintenance</TabsTrigger>
+          <TabsTrigger value="water" className="dark:data-[state=active]:bg-slate-700">Water Tests</TabsTrigger>
+          <TabsTrigger value="timeline" className="dark:data-[state=active]:bg-slate-700">Timeline</TabsTrigger>
+          <TabsTrigger value="wishlist" className="dark:data-[state=active]:bg-slate-700">Wishlist</TabsTrigger>
+          <TabsTrigger value="journal" className="dark:data-[state=active]:bg-slate-700">Journal</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

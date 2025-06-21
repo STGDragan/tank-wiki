@@ -30,12 +30,12 @@ export function AquariumRecommendations({ aquariumType, existingEquipment = [] }
 
   if (allRecommendations.length === 0) {
     return (
-        <Card>
+        <Card className="dark:bg-slate-800/50 dark:border-slate-700">
             <CardHeader>
-                <CardTitle>Recommendations For You</CardTitle>
+                <CardTitle className="dark:text-slate-100">Recommendations For You</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground dark:text-slate-400 text-center py-8">
                     Set an aquarium type to see recommendations.
                 </p>
             </CardContent>
@@ -61,14 +61,14 @@ export function AquariumRecommendations({ aquariumType, existingEquipment = [] }
   });
 
   return (
-    <Card>
+    <Card className="dark:bg-slate-800/50 dark:border-slate-700">
       <CardHeader>
-        <CardTitle>Recommendations For You</CardTitle>
+        <CardTitle className="dark:text-slate-100">Recommendations For You</CardTitle>
       </CardHeader>
       <CardContent className="space-y-8">
         {inhabitantRecommendations.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-lg font-semibold mb-4 dark:text-slate-200">
               {isSaltwaterType ? 'Recommended Marine Life' : 'Recommended Freshwater Inhabitants'}
             </h3>
             <RecommendationCarousel items={inhabitantRecommendations} />
@@ -77,7 +77,7 @@ export function AquariumRecommendations({ aquariumType, existingEquipment = [] }
         
         {filteredEquipmentRecommendations.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-lg font-semibold mb-4 dark:text-slate-200">
               {isSaltwaterType ? 'Recommended Saltwater Equipment' : 'Recommended Freshwater Equipment'}
             </h3>
             <RecommendationCarousel items={filteredEquipmentRecommendations} />
@@ -85,7 +85,7 @@ export function AquariumRecommendations({ aquariumType, existingEquipment = [] }
         )}
 
         {inhabitantRecommendations.length === 0 && filteredEquipmentRecommendations.length === 0 && (
-          <p className="text-muted-foreground text-center py-8">
+          <p className="text-muted-foreground dark:text-slate-400 text-center py-8">
             No recommendations available for this tank type.
           </p>
         )}
