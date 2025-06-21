@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Star, ThumbsUp, DollarSign, Info } from "lucide-react";
+import { ExternalLink, DollarSign, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tables } from "@/integrations/supabase/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -63,9 +63,23 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return value.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
+  const handleCardClick = () => {
+    navigate(`/product/${product.id}`);
+  };
+
+  const handleAmazonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (affiliateUrl) {
+      window.open(affiliateUrl, '_blank');
+    }
+  };
+
   return (
     <TooltipProvider>
-      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-white/90 backdrop-blur-sm">
+      <Card 
+        className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground cursor-pointer"
+        onClick={handleCardClick}
+      >
         <div className="aspect-square overflow-hidden bg-muted relative">
           <img
             src={imageUrl}
@@ -79,18 +93,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <Badge className="bg-red-500 text-white hover:bg-red-500 shadow-md">
                 <DollarSign className="h-3 w-3 mr-1" />
                 Sale
-              </Badge>
-            )}
-            {product.is_featured && (
-              <Badge className="bg-yellow-500 text-white hover:bg-yellow-500 shadow-md">
-                <Star className="h-3 w-3 mr-1" />
-                Featured
-              </Badge>
-            )}
-            {product.is_recommended && (
-              <Badge className="bg-green-500 text-white hover:bg-green-500 shadow-md">
-                <ThumbsUp className="h-3 w-3 mr-1" />
-                Recommended
               </Badge>
             )}
           </div>
@@ -240,25 +242,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-2 pt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex-1 hover:bg-primary hover:text-white transition-colors"
-              onClick={() => navigate(`/product/${product.id}`)}
-            >
-              View Details
-            </Button>
-            {affiliateUrl && (
+          {affiliateUrl && (
+            <div className="flex justify-end pt-2">
               <Button 
                 size="sm"
                 className="px-3"
-                onClick={() => window.open(affiliateUrl, '_blank')}
+                onClick={handleAmazonClick}
               >
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="h-4 w-4 mr-1" />
+                Buy Now
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </TooltipProvider>
@@ -266,4 +261,3 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 export default ProductCard;
-

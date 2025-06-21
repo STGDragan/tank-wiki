@@ -103,9 +103,9 @@ const FilterSidebar = ({
   className,
   isMobile = false
 }: FilterSidebarProps) => {
-  // All sections default to closed
+  // Categories default to open, others default to closed
   const [openSections, setOpenSections] = useState({
-    categories: false,
+    categories: true,
     tankTypes: false,
     price: false,
     tags: false,

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -236,19 +235,6 @@ const Shopping = () => {
         if (!filters.compatibilityTags.some(tagId => productCompatibilityTagIds.includes(tagId))) {
           return false;
         }
-      }
-
-      // Legacy tags filter (for backward compatibility)
-      if (filters.tags.length > 0) {
-        const hasTag = filters.tags.some(tag => {
-          switch (tag) {
-            case 'Featured': return product.is_featured;
-            case 'On Sale': return product.is_on_sale;
-            case 'Recommended': return product.is_recommended;
-            default: return false;
-          }
-        });
-        if (!hasTag) return false;
       }
 
       // Condition filter
