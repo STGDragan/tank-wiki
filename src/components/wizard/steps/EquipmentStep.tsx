@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +7,7 @@ import { WizardStepProps } from "../types";
 import { ChevronLeft, ShoppingCart, Skip } from "lucide-react";
 
 export function EquipmentStep({ data, onUpdate, onNext, onPrev }: WizardStepProps) {
-  const [selecte 
-  dEquipment, setSelectedEquipment] = useState<string[]>(data.equipment);
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>(data.equipment);
 
   const getEquipmentForTankType = () => {
     const baseEquipment = [
