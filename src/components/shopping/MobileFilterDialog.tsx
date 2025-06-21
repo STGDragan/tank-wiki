@@ -12,11 +12,28 @@ import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import FilterSidebar, { FilterState } from "./FilterSidebar";
 
+interface CategoryHierarchy {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  parent_id: string | null;
+  level: number;
+  path: string[];
+}
+
+interface CompatibilityTag {
+  id: string;
+  name: string;
+  description: string;
+  tag_type: string;
+}
+
 interface MobileFilterDialogProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  categories: string[];
-  subcategories: string[];
+  categories: CategoryHierarchy[];
+  compatibilityTags: CompatibilityTag[];
   maxPrice: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -26,17 +43,19 @@ const MobileFilterDialog = ({
   filters,
   onFiltersChange,
   categories,
-  subcategories,
+  compatibilityTags,
   maxPrice,
   open,
   onOpenChange
 }: MobileFilterDialogProps) => {
-  const activeFilterCount = 
-    filters.categories.length + 
-    filters.subcategories.length + 
-    filters.tags.length + 
-    filters.condition.length +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice ? 1 : 0);
+  const activeFilterCount = Object.values(filters).reduce((count, filter) => {
+    if (Array.isArray(filter)) {
+      return count + filter.length;
+    }
+    // Handle price range
+    const [min, max] = filter as [number, number];
+    return count + (min > 0 || max < maxPrice ? 1 : 0);
+  }, 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,7 +81,7 @@ const MobileFilterDialog = ({
           filters={filters}
           onFiltersChange={onFiltersChange}
           categories={categories}
-          subcategories={subcategories}
+          compatibilityTags={compatibilityTags}
           maxPrice={maxPrice}
           isMobile={true}
         />
@@ -72,3 +91,4 @@ const MobileFilterDialog = ({
 };
 
 export default MobileFilterDialog;
+

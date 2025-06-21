@@ -18,7 +18,34 @@ type Product = Tables<'products'> & {
     link_url: string;
     provider: string;
   }>;
+  category_info?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  compatibility_tags?: Array<{
+    id: string;
+    name: string;
+    tag_type: string;
+  }>;
 };
+
+interface CategoryHierarchy {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  parent_id: string | null;
+  level: number;
+  path: string[];
+}
+
+interface CompatibilityTag {
+  id: string;
+  name: string;
+  description: string;
+  tag_type: string;
+}
 
 const Shopping = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,12 +59,43 @@ const Shopping = () => {
     subcategories: [],
     priceRange: [0, 1000],
     tags: [],
-    condition: []
+    condition: [],
+    tankTypes: [],
+    sizeClass: [],
+    temperament: [],
+    difficultyLevel: [],
+    compatibilityTags: []
   });
 
-  // Fetch all products
+  // Fetch category hierarchy
+  const { data: categories = [] } = useQuery({
+    queryKey: ['category-hierarchy'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_category_hierarchy');
+      if (error) throw error;
+      return data as CategoryHierarchy[];
+    },
+  });
+
+  // Fetch compatibility tags
+  const { data: compatibilityTags = [] } = useQuery({
+    queryKey: ['compatibility-tags'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('compatibility_tags')
+        .select('*')
+        .eq('is_active', true)
+        .order('tag_type', { ascending: true })
+        .order('name', { ascending: true });
+      
+      if (error) throw error;
+      return data as CompatibilityTag[];
+    },
+  });
+
+  // Fetch all products with enhanced data
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['all-products'],
+    queryKey: ['enhanced-products'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
@@ -46,26 +104,40 @@ const Shopping = () => {
           affiliate_links (
             link_url,
             provider
+          ),
+          category_info:product_categories_new!category_id (
+            id,
+            name,
+            slug
+          ),
+          product_compatibility_tags (
+            compatibility_tags (
+              id,
+              name,
+              tag_type
+            )
           )
         `)
         .eq('visible', true)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Product[];
+      
+      // Transform the data to flatten compatibility tags
+      return data.map(product => ({
+        ...product,
+        compatibility_tags: product.product_compatibility_tags?.map(pct => pct.compatibility_tags).filter(Boolean) || []
+      })) as Product[];
     },
   });
 
-  // Get unique categories and subcategories
-  const { categories, subcategories, maxPrice } = useMemo(() => {
-    const cats = [...new Set(products.map(p => p.category).filter(Boolean))];
-    const subs = [...new Set(products.map(p => p.subcategory).filter(Boolean))];
-    const max = Math.max(...products.map(p => p.regular_price || 0), ...products.map(p => p.sale_price || 0));
-    return {
-      categories: cats,
-      subcategories: subs,
-      maxPrice: max || 1000
-    };
+  // Calculate maxPrice from products
+  const maxPrice = useMemo(() => {
+    const prices = products.map(p => {
+      const salePrice = p.is_on_sale && p.sale_price ? p.sale_price : null;
+      return salePrice || p.regular_price || 0;
+    });
+    return Math.max(...prices, 1000);
   }, [products]);
 
   // Update price range when maxPrice changes
@@ -91,14 +163,20 @@ const Shopping = () => {
         if (!matchesSearch) return false;
       }
 
-      // Category filter
-      if (filters.categories.length > 0 && !filters.categories.includes(product.category || '')) {
-        return false;
+      // Category filter (hierarchical)
+      if (filters.categories.length > 0) {
+        const productCategorySlug = product.category_info?.slug || product.category?.toLowerCase().replace(/\s+/g, '-');
+        if (!productCategorySlug || !filters.categories.includes(productCategorySlug)) {
+          return false;
+        }
       }
 
       // Subcategory filter
-      if (filters.subcategories.length > 0 && !filters.subcategories.includes(product.subcategory || '')) {
-        return false;
+      if (filters.subcategories.length > 0) {
+        const productSubcategorySlug = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
+        if (!productSubcategorySlug || !filters.subcategories.includes(productSubcategorySlug)) {
+          return false;
+        }
       }
 
       // Price filter
@@ -107,7 +185,43 @@ const Shopping = () => {
         return false;
       }
 
-      // Tags filter
+      // Tank types filter
+      if (filters.tankTypes.length > 0) {
+        if (!product.tank_types || !product.tank_types.some(tt => filters.tankTypes.includes(tt))) {
+          return false;
+        }
+      }
+
+      // Size class filter
+      if (filters.sizeClass.length > 0) {
+        if (!product.size_class || !filters.sizeClass.includes(product.size_class)) {
+          return false;
+        }
+      }
+
+      // Temperament filter
+      if (filters.temperament.length > 0) {
+        if (!product.temperament || !filters.temperament.includes(product.temperament)) {
+          return false;
+        }
+      }
+
+      // Difficulty level filter
+      if (filters.difficultyLevel.length > 0) {
+        if (!product.difficulty_level || !filters.difficultyLevel.includes(product.difficulty_level)) {
+          return false;
+        }
+      }
+
+      // Compatibility tags filter
+      if (filters.compatibilityTags.length > 0) {
+        const productCompatibilityTagIds = product.compatibility_tags?.map(ct => ct.id) || [];
+        if (!filters.compatibilityTags.some(tagId => productCompatibilityTagIds.includes(tagId))) {
+          return false;
+        }
+      }
+
+      // Legacy tags filter (for backward compatibility)
       if (filters.tags.length > 0) {
         const hasTag = filters.tags.some(tag => {
           switch (tag) {
@@ -174,6 +288,10 @@ const Shopping = () => {
     );
   }
 
+  const isFiltersEmpty = Object.values(filters).every(f => 
+    Array.isArray(f) ? f.length === 0 : f[0] === 0 && f[1] === maxPrice
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -203,7 +321,7 @@ const Shopping = () => {
                   filters={filters}
                   onFiltersChange={setFilters}
                   categories={categories}
-                  subcategories={subcategories}
+                  compatibilityTags={compatibilityTags}
                   maxPrice={maxPrice}
                 />
               </div>
@@ -216,7 +334,7 @@ const Shopping = () => {
                 filters={filters}
                 onFiltersChange={setFilters}
                 categories={categories}
-                subcategories={subcategories}
+                compatibilityTags={compatibilityTags}
                 maxPrice={maxPrice}
               />
             </div>
@@ -232,7 +350,7 @@ const Shopping = () => {
                 filters={filters}
                 onFiltersChange={setFilters}
                 categories={categories}
-                subcategories={subcategories}
+                compatibilityTags={compatibilityTags}
                 maxPrice={maxPrice}
                 open={mobileFilterOpen}
                 onOpenChange={setMobileFilterOpen}
@@ -259,7 +377,7 @@ const Shopping = () => {
           />
 
           {/* Featured Products Section - Only show if no search/filters active */}
-          {!searchQuery && Object.values(filters).every(f => Array.isArray(f) ? f.length === 0 : f[0] === 0 && f[1] === maxPrice) && (
+          {!searchQuery && isFiltersEmpty && (
             <div className="space-y-4">
               <h2 className="text-2xl font-semibold">Featured Products</h2>
               <FeaturedProducts />
@@ -306,3 +424,4 @@ const Shopping = () => {
 };
 
 export default Shopping;
+

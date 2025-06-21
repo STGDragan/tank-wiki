@@ -381,6 +381,33 @@ export type Database = {
         }
         Relationships: []
       }
+      compatibility_tags: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          tag_type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          tag_type?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          tag_type?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           code: string
@@ -950,6 +977,86 @@ export type Database = {
         }
         Relationships: []
       }
+      product_categories_new: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          parent_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parent_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parent_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_new_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_compatibility_tags: {
+        Row: {
+          compatibility_tag_id: string | null
+          created_at: string
+          id: string
+          product_id: string | null
+        }
+        Insert: {
+          compatibility_tag_id?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string | null
+        }
+        Update: {
+          compatibility_tag_id?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_compatibility_tags_compatibility_tag_id_fkey"
+            columns: ["compatibility_tag_id"]
+            isOneToOne: false
+            referencedRelation: "compatibility_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_compatibility_tags_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_reviews: {
         Row: {
           created_at: string | null
@@ -1100,21 +1207,29 @@ export type Database = {
           affiliate_url: string | null
           amazon_url: string | null
           brand: string | null
+          care_level: string | null
           category: string | null
+          category_id: string | null
           condition: string | null
           created_at: string
           description: string | null
+          difficulty_level:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           dimensions: Json | null
           id: string
           image_url: string | null
           images: string[] | null
           imageurls: Json | null
           is_featured: boolean
+          is_livestock: boolean | null
           is_on_sale: boolean | null
           is_recommended: boolean
           low_stock_threshold: number | null
+          max_size: string | null
           meta_description: string | null
           meta_title: string | null
+          min_tank_size: string | null
           model: string | null
           name: string
           onSale: boolean
@@ -1123,35 +1238,47 @@ export type Database = {
           sale_price: number | null
           sale_start_date: string | null
           shipping_class: string | null
+          size_class: Database["public"]["Enums"]["size_class"] | null
           sku: string | null
           stock_quantity: number | null
           subcategory: string | null
           tags: string[] | null
+          tank_types: Database["public"]["Enums"]["tank_type"][] | null
+          temperament: Database["public"]["Enums"]["temperament"] | null
           track_inventory: boolean | null
           updated_at: string
           visible: boolean
           warranty_info: string | null
+          water_params: Json | null
           weight: number | null
         }
         Insert: {
           affiliate_url?: string | null
           amazon_url?: string | null
           brand?: string | null
+          care_level?: string | null
           category?: string | null
+          category_id?: string | null
           condition?: string | null
           created_at?: string
           description?: string | null
+          difficulty_level?:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           dimensions?: Json | null
           id?: string
           image_url?: string | null
           images?: string[] | null
           imageurls?: Json | null
           is_featured?: boolean
+          is_livestock?: boolean | null
           is_on_sale?: boolean | null
           is_recommended?: boolean
           low_stock_threshold?: number | null
+          max_size?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          min_tank_size?: string | null
           model?: string | null
           name: string
           onSale?: boolean
@@ -1160,35 +1287,47 @@ export type Database = {
           sale_price?: number | null
           sale_start_date?: string | null
           shipping_class?: string | null
+          size_class?: Database["public"]["Enums"]["size_class"] | null
           sku?: string | null
           stock_quantity?: number | null
           subcategory?: string | null
           tags?: string[] | null
+          tank_types?: Database["public"]["Enums"]["tank_type"][] | null
+          temperament?: Database["public"]["Enums"]["temperament"] | null
           track_inventory?: boolean | null
           updated_at?: string
           visible?: boolean
           warranty_info?: string | null
+          water_params?: Json | null
           weight?: number | null
         }
         Update: {
           affiliate_url?: string | null
           amazon_url?: string | null
           brand?: string | null
+          care_level?: string | null
           category?: string | null
+          category_id?: string | null
           condition?: string | null
           created_at?: string
           description?: string | null
+          difficulty_level?:
+            | Database["public"]["Enums"]["difficulty_level"]
+            | null
           dimensions?: Json | null
           id?: string
           image_url?: string | null
           images?: string[] | null
           imageurls?: Json | null
           is_featured?: boolean
+          is_livestock?: boolean | null
           is_on_sale?: boolean | null
           is_recommended?: boolean
           low_stock_threshold?: number | null
+          max_size?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          min_tank_size?: string | null
           model?: string | null
           name?: string
           onSale?: boolean
@@ -1197,17 +1336,29 @@ export type Database = {
           sale_price?: number | null
           sale_start_date?: string | null
           shipping_class?: string | null
+          size_class?: Database["public"]["Enums"]["size_class"] | null
           sku?: string | null
           stock_quantity?: number | null
           subcategory?: string | null
           tags?: string[] | null
+          tank_types?: Database["public"]["Enums"]["tank_type"][] | null
+          temperament?: Database["public"]["Enums"]["temperament"] | null
           track_inventory?: boolean | null
           updated_at?: string
           visible?: boolean
           warranty_info?: string | null
+          water_params?: Json | null
           weight?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories_new"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1586,6 +1737,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_category_hierarchy: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          description: string
+          parent_id: string
+          level: number
+          path: string[]
+        }[]
+      }
       get_effective_price: {
         Args: { product_row: Database["public"]["Tables"]["products"]["Row"] }
         Returns: number
@@ -1623,7 +1786,23 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      difficulty_level: "beginner" | "intermediate" | "expert"
       permission_level: "viewer" | "editor"
+      size_class: "nano" | "small" | "medium" | "large" | "giant"
+      tank_type:
+        | "freshwater_community"
+        | "african_cichlid"
+        | "planted_low_tech"
+        | "planted_high_tech"
+        | "brackish"
+        | "freshwater_nano"
+        | "saltwater_fo"
+        | "fowlr"
+        | "reef_soft_coral"
+        | "reef_lps"
+        | "reef_sps"
+        | "reef_mixed"
+      temperament: "peaceful" | "semi_aggressive" | "aggressive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1740,7 +1919,24 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      difficulty_level: ["beginner", "intermediate", "expert"],
       permission_level: ["viewer", "editor"],
+      size_class: ["nano", "small", "medium", "large", "giant"],
+      tank_type: [
+        "freshwater_community",
+        "african_cichlid",
+        "planted_low_tech",
+        "planted_high_tech",
+        "brackish",
+        "freshwater_nano",
+        "saltwater_fo",
+        "fowlr",
+        "reef_soft_coral",
+        "reef_lps",
+        "reef_sps",
+        "reef_mixed",
+      ],
+      temperament: ["peaceful", "semi_aggressive", "aggressive"],
     },
   },
 } as const
