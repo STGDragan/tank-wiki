@@ -1181,6 +1181,7 @@ export type Database = {
           admin_can_grant_subscriptions: boolean | null
           admin_subscription_override: boolean | null
           avatar_url: string | null
+          email: string | null
           enable_maintenance_notifications: boolean
           full_name: string | null
           id: string
@@ -1190,6 +1191,7 @@ export type Database = {
           admin_can_grant_subscriptions?: boolean | null
           admin_subscription_override?: boolean | null
           avatar_url?: string | null
+          email?: string | null
           enable_maintenance_notifications?: boolean
           full_name?: string | null
           id: string
@@ -1199,6 +1201,7 @@ export type Database = {
           admin_can_grant_subscriptions?: boolean | null
           admin_subscription_override?: boolean | null
           avatar_url?: string | null
+          email?: string | null
           enable_maintenance_notifications?: boolean
           full_name?: string | null
           id?: string

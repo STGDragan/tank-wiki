@@ -10,6 +10,7 @@ import { Crown } from "lucide-react";
 interface Profile {
   id: string;
   full_name?: string;
+  email?: string;
   admin_subscription_override?: boolean;
 }
 
@@ -43,10 +44,14 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
   });
 
   const formatUserDisplay = (profile: Profile) => {
-    // Use full_name if available, otherwise use truncated ID
-    const name = profile.full_name || `User ID: ${profile.id.slice(0, 8)}...`;
-    
-    return { name };
+    // Use full_name if available, otherwise use email, fallback to truncated ID
+    if (profile.full_name) {
+      return profile.full_name;
+    }
+    if (profile.email) {
+      return profile.email;
+    }
+    return `User ID: ${profile.id.slice(0, 8)}...`;
   };
 
   return (
@@ -63,11 +68,14 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
       <CardContent>
         <div className="space-y-4">
           {profiles?.map((profile) => {
-            const { name } = formatUserDisplay(profile);
+            const displayName = formatUserDisplay(profile);
             return (
               <div key={profile.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
-                  <p className="font-medium">{name}</p>
+                  <p className="font-medium">{displayName}</p>
+                  {profile.full_name && profile.email && (
+                    <p className="text-sm text-muted-foreground">{profile.email}</p>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label htmlFor={`override-${profile.id}`}>Override Active</Label>

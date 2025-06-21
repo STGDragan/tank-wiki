@@ -2,13 +2,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface ProfileWithoutEmail {
+interface ProfileWithEmail {
   id: string;
   full_name?: string;
+  email?: string;
   admin_subscription_override?: boolean;
 }
 
-interface GrantedSubscriptionWithoutEmails {
+interface GrantedSubscriptionWithProfiles {
   id: string;
   granted_to_user_id: string;
   granted_by_admin_id: string;
@@ -22,10 +23,12 @@ interface GrantedSubscriptionWithoutEmails {
   granted_to_profile?: {
     id: string;
     full_name?: string;
+    email?: string;
   };
   granted_by_profile?: {
     id: string;
     full_name?: string;
+    email?: string;
   };
 }
 
@@ -35,10 +38,10 @@ export function useSubscriptionData() {
     queryFn: async () => {
       console.log('Fetching profiles for subscription data...');
       
-      // Get profiles data without email column
+      // Get profiles data with email column
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, admin_subscription_override')
+        .select('id, full_name, email, admin_subscription_override')
         .order('full_name');
 
       if (profilesError) {
@@ -47,7 +50,7 @@ export function useSubscriptionData() {
       }
 
       console.log('Profiles data:', profilesData);
-      return profilesData as ProfileWithoutEmail[] || [];
+      return profilesData as ProfileWithEmail[] || [];
     },
   });
 
@@ -86,7 +89,7 @@ export function useSubscriptionData() {
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name')
+        .select('id, full_name, email')
         .in('id', uniqueUserIds);
 
       if (profilesError) throw profilesError;
@@ -95,14 +98,22 @@ export function useSubscriptionData() {
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
 
       // Add profile information to granted subscriptions
-      const subscriptionsWithProfiles: GrantedSubscriptionWithoutEmails[] = data.map(subscription => {
+      const subscriptionsWithProfiles: GrantedSubscriptionWithProfiles[] = data.map(subscription => {
         const grantedToProfile = profilesMap.get(subscription.granted_to_user_id);
         const grantedByProfile = profilesMap.get(subscription.granted_by_admin_id);
         
         return {
           ...subscription,
-          granted_to_profile: grantedToProfile ? { id: grantedToProfile.id, full_name: grantedToProfile.full_name } : undefined,
-          granted_by_profile: grantedByProfile ? { id: grantedByProfile.id, full_name: grantedByProfile.full_name } : undefined
+          granted_to_profile: grantedToProfile ? { 
+            id: grantedToProfile.id, 
+            full_name: grantedToProfile.full_name,
+            email: grantedToProfile.email
+          } : undefined,
+          granted_by_profile: grantedByProfile ? { 
+            id: grantedByProfile.id, 
+            full_name: grantedByProfile.full_name,
+            email: grantedByProfile.email
+          } : undefined
         };
       });
 

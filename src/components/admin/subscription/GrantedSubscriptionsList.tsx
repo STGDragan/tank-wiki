@@ -20,10 +20,12 @@ interface AdminGrantedSubscription {
   granted_to_profile?: {
     id: string;
     full_name?: string;
+    email?: string;
   };
   granted_by_profile?: {
     id: string;
     full_name?: string;
+    email?: string;
   };
 }
 
@@ -56,8 +58,14 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
     },
   });
 
-  const getUserDisplayName = (profile?: { full_name?: string }, userId?: string) => {
-    return profile?.full_name || `User ID: ${userId?.slice(0, 8)}...` || 'Unknown User';
+  const getUserDisplayName = (profile?: { full_name?: string; email?: string }, userId?: string) => {
+    if (profile?.full_name) {
+      return profile.full_name;
+    }
+    if (profile?.email) {
+      return profile.email;
+    }
+    return `User ID: ${userId?.slice(0, 8)}...` || 'Unknown User';
   };
 
   return (
