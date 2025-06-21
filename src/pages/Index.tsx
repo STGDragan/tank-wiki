@@ -1,9 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { Link } from "react-router-dom";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
+import { SupportSection } from "@/components/landing/SupportSection";
 
 const Index = () => {
   const scrollToFeatures = () => {
@@ -62,6 +62,8 @@ const Index = () => {
         <div id="features-section">
           <FeaturesSection />
         </div>
+        
+        <SupportSection />
       </main>
       <footer className="container mx-auto py-6 px-4 md:px-6 border-t border-slate-200/60">
         <div className="flex flex-col md:flex-row justify-between items-center">
