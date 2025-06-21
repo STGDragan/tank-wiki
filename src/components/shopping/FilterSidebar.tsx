@@ -169,7 +169,7 @@ const FilterSidebar = ({
           isOpen={openSections.equipment}
           onToggle={() => toggleSection('equipment')}
         >
-          <ScrollArea className="h-64">
+          <ScrollArea className="h-48">
             <CategoryFilter
               categories={categories}
               filters={filters}
@@ -178,7 +178,7 @@ const FilterSidebar = ({
           </ScrollArea>
         </FilterSection>
 
-        {/* Price Range */}
+        {/* Price Range - No ScrollArea needed for simple slider */}
         <FilterSection
           title="Price Range"
           isOpen={openSections.price}
@@ -197,7 +197,7 @@ const FilterSidebar = ({
           isOpen={openSections.tankTypes}
           onToggle={() => toggleSection('tankTypes')}
         >
-          <ScrollArea className="h-48">
+          <ScrollArea className="h-40">
             <CheckboxFilter
               options={TANK_TYPE_OPTIONS}
               filterKey="tankTypes"
@@ -207,7 +207,7 @@ const FilterSidebar = ({
           </ScrollArea>
         </FilterSection>
 
-        {/* Size Class */}
+        {/* Size Class - No ScrollArea needed for 5 items */}
         <FilterSection
           title="Size Class"
           isOpen={openSections.sizeClass}
@@ -221,7 +221,7 @@ const FilterSidebar = ({
           />
         </FilterSection>
 
-        {/* Temperament */}
+        {/* Temperament - No ScrollArea needed for 3 items */}
         <FilterSection
           title="Temperament"
           isOpen={openSections.temperament}
@@ -235,7 +235,7 @@ const FilterSidebar = ({
           />
         </FilterSection>
 
-        {/* Difficulty Level */}
+        {/* Difficulty Level - No ScrollArea needed for 3 items */}
         <FilterSection
           title="Difficulty Level"
           isOpen={openSections.difficulty}
@@ -255,7 +255,7 @@ const FilterSidebar = ({
           isOpen={openSections.compatibility}
           onToggle={() => toggleSection('compatibility')}
         >
-          <ScrollArea className="h-48">
+          <ScrollArea className="h-40">
             <CompatibilityTagsFilter
               compatibilityTags={compatibilityTags}
               filters={filters}
@@ -264,7 +264,7 @@ const FilterSidebar = ({
           </ScrollArea>
         </FilterSection>
 
-        {/* Condition */}
+        {/* Condition - No ScrollArea needed for 3 items */}
         <FilterSection
           title="Condition"
           isOpen={openSections.condition}
