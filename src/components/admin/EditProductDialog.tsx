@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,14 +50,26 @@ const productFormSchema = z.object({
     z.literal('')
   ]).optional()
     .transform(e => e === "" ? undefined : e),
-  regular_price: z.string().optional().transform(e => e === "" ? undefined : e ? parseFloat(e) : undefined),
-  sale_price: z.string().optional().transform(e => e === "" ? undefined : e ? parseFloat(e) : undefined),
+  regular_price: z.union([z.string(), z.number()]).optional().transform(e => {
+    if (e === "" || e === undefined) return undefined;
+    return typeof e === 'string' ? parseFloat(e) : e;
+  }),
+  sale_price: z.union([z.string(), z.number()]).optional().transform(e => {
+    if (e === "" || e === undefined) return undefined;
+    return typeof e === 'string' ? parseFloat(e) : e;
+  }),
   is_on_sale: z.boolean().default(false),
   is_featured: z.boolean().default(false),
   is_recommended: z.boolean().default(false),
   track_inventory: z.boolean().default(true),
-  stock_quantity: z.string().optional().transform(e => e === "" ? 0 : e ? parseInt(e) : 0),
-  low_stock_threshold: z.string().optional().transform(e => e === "" ? 5 : e ? parseInt(e) : 5),
+  stock_quantity: z.union([z.string(), z.number()]).optional().transform(e => {
+    if (e === "" || e === undefined) return 0;
+    return typeof e === 'string' ? parseInt(e) : e;
+  }),
+  low_stock_threshold: z.union([z.string(), z.number()]).optional().transform(e => {
+    if (e === "" || e === undefined) return 5;
+    return typeof e === 'string' ? parseInt(e) : e;
+  }),
 }).refine(data => !(data.category === 'Other' && !data.custom_category?.trim()), {
     message: "Please specify the category name",
     path: ["custom_category"],
@@ -119,14 +130,14 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       custom_subcategory: "",
       affiliate_provider: "",
       affiliate_url: "",
-      regular_price: "",
-      sale_price: "",
+      regular_price: undefined,
+      sale_price: undefined,
       is_on_sale: false,
       is_featured: false,
       is_recommended: false,
       track_inventory: true,
-      stock_quantity: "0",
-      low_stock_threshold: "5",
+      stock_quantity: 0,
+      low_stock_threshold: 5,
     }
   });
 
@@ -143,14 +154,14 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         subcategory: product.subcategory || "",
         affiliate_provider: affiliateLink?.provider || "",
         affiliate_url: affiliateLink?.link_url || "",
-        regular_price: product.regular_price ? product.regular_price.toString() : "",
-        sale_price: product.sale_price ? product.sale_price.toString() : "",
+        regular_price: product.regular_price || undefined,
+        sale_price: product.sale_price || undefined,
         is_on_sale: product.is_on_sale || false,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
         track_inventory: product.track_inventory ?? true,
-        stock_quantity: product.stock_quantity ? product.stock_quantity.toString() : "0",
-        low_stock_threshold: product.low_stock_threshold ? product.low_stock_threshold.toString() : "5",
+        stock_quantity: product.stock_quantity || 0,
+        low_stock_threshold: product.low_stock_threshold || 5,
         custom_category: "",
         custom_subcategory: "",
       });
@@ -389,7 +400,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                           field.onChange(value);
                           form.setValue('subcategory', '');
                           form.setValue('custom_subcategory', '');
-                           if (value !== 'Other') {
+                           if (value !==  'Other') {
                             form.setValue('custom_category', '');
                           }
                         }} value={field.value || ''} disabled={isLoadingCategories}>
@@ -494,7 +505,14 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                       <FormItem>
                         <FormLabel>Regular Price</FormLabel>
                         <FormControl>
-                          <Input placeholder="0.00" type="number" step="0.01" {...field} />
+                          <Input 
+                            placeholder="0.00" 
+                            type="number" 
+                            step="0.01" 
+                            {...field} 
+                            value={field.value ? field.value.toString() : ""}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -508,7 +526,14 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                       <FormItem>
                         <FormLabel>Sale Price</FormLabel>
                         <FormControl>
-                          <Input placeholder="0.00" type="number" step="0.01" {...field} />
+                          <Input 
+                            placeholder="0.00" 
+                            type="number" 
+                            step="0.01" 
+                            {...field} 
+                            value={field.value ? field.value.toString() : ""}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -597,7 +622,13 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                         <FormItem>
                           <FormLabel>Stock Quantity</FormLabel>
                           <FormControl>
-                            <Input placeholder="0" type="number" {...field} />
+                            <Input 
+                              placeholder="0" 
+                              type="number" 
+                              {...field} 
+                              value={field.value ? field.value.toString() : "0"}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -611,7 +642,13 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                         <FormItem>
                           <FormLabel>Low Stock Threshold</FormLabel>
                           <FormControl>
-                            <Input placeholder="5" type="number" {...field} />
+                            <Input 
+                              placeholder="5" 
+                              type="number" 
+                              {...field} 
+                              value={field.value ? field.value.toString() : "5"}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

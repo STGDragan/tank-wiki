@@ -1,4 +1,3 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,15 +47,15 @@ export function AdminManagementSection() {
       if (usersError) throw usersError;
 
       // Combine profile and user data
-      const profilesWithEmails = profilesData?.map(profile => {
+      const profilesWithEmails: Profile[] = (profilesData || []).map(profile => {
         const authUser = users?.find(user => user.id === profile.id);
         return {
           ...profile,
           email: authUser?.email
         };
-      }) || [];
+      });
 
-      return profilesWithEmails as Profile[];
+      return profilesWithEmails;
     },
   });
 
@@ -89,7 +88,7 @@ export function AdminManagementSection() {
 
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
       
-      return roles.map(role => {
+      const rolesWithProfiles: UserRole[] = roles.map(role => {
         const profile = profilesMap.get(role.user_id);
         const authUser = users?.find(user => user.id === role.user_id);
         return {
@@ -99,7 +98,9 @@ export function AdminManagementSection() {
             email: authUser?.email
           } : undefined
         };
-      }) as UserRole[];
+      });
+
+      return rolesWithProfiles;
     },
   });
 
