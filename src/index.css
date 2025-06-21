@@ -79,6 +79,10 @@
     touch-action: manipulation;
   }
   
+  .dark html {
+    @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900;
+  }
+  
   body {
     @apply bg-transparent text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -117,6 +121,10 @@
   
   .aquatic-gradient-soft {
     background: linear-gradient(135deg, #f0f9ff 0%, #ecfeff 50%, #f0fdf4 100%);
+  }
+  
+  .dark .aquatic-gradient-soft {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
   }
   
   .glass-effect {
