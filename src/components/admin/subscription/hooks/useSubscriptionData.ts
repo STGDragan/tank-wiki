@@ -9,6 +9,27 @@ interface ProfileWithEmail {
   email?: string;
 }
 
+interface GrantedSubscriptionFromDB {
+  id: string;
+  granted_to_user_id: string;
+  granted_by_admin_id: string;
+  granted_at: string;
+  expires_at?: string;
+  is_active: boolean;
+  subscription_tier: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  granted_to_profile: {
+    id: string;
+    full_name?: string;
+  } | null;
+  granted_by_profile: {
+    id: string;
+    full_name?: string;
+  } | null;
+}
+
 interface GrantedSubscriptionWithEmails {
   id: string;
   granted_to_user_id: string;
@@ -50,7 +71,7 @@ export function useSubscriptionData() {
 
       // Combine profile and user data
       const profilesWithEmails: ProfileWithEmail[] = (profilesData || []).map(profile => {
-        const authUser = users?.find(user => user.id === profile.id);
+        const authUser = (users || []).find(user => user.id === profile.id);
         return {
           ...profile,
           email: authUser?.email
@@ -79,13 +100,16 @@ export function useSubscriptionData() {
       const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
       if (usersError) throw usersError;
 
-      // Add email information to granted subscriptions
+      // Add email information to granted subscriptions with proper type handling
       const subscriptionsWithEmails: GrantedSubscriptionWithEmails[] = (data || []).map(subscription => {
-        const grantedToUser = users?.find(user => user.id === subscription.granted_to_user_id);
-        const grantedByUser = users?.find(user => user.id === subscription.granted_by_admin_id);
+        const typedSubscription = subscription as GrantedSubscriptionFromDB;
+        const grantedToUser = (users || []).find(user => user.id === typedSubscription.granted_to_user_id);
+        const grantedByUser = (users || []).find(user => user.id === typedSubscription.granted_by_admin_id);
         
         return {
-          ...subscription,
+          ...typedSubscription,
+          granted_to_profile: typedSubscription.granted_to_profile || undefined,
+          granted_by_profile: typedSubscription.granted_by_profile || undefined,
           granted_to_email: grantedToUser?.email,
           granted_by_email: grantedByUser?.email
         };
