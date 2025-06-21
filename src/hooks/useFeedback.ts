@@ -83,7 +83,7 @@ export function useFeedback() {
 
       toast({
         title: "Feedback submitted successfully!",
-        description: "Thank you for your feedback. We'll review it and get back to you if needed.",
+        description: "Thank you for your feedback. We'll review it and get back to you at OriginalTankWiki@gmail.com if needed.",
       });
 
       return true;
@@ -91,7 +91,7 @@ export function useFeedback() {
       console.error('Error submitting feedback:', error);
       toast({
         title: "Failed to submit feedback",
-        description: "Please try again later or contact support if the issue persists.",
+        description: "Please try again later or contact OriginalTankWiki@gmail.com if the issue persists.",
         variant: "destructive",
       });
       return false;

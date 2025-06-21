@@ -1,10 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { Link } from "react-router-dom";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 import { SupportSection } from "@/components/landing/SupportSection";
+import SocialMediaFooter from "@/components/layout/SocialMediaFooter";
+import MobileInstructions from "@/components/layout/MobileInstructions";
 
 const Index = () => {
   const scrollToFeatures = () => {
@@ -68,7 +69,7 @@ const Index = () => {
         
         <SupportSection />
       </main>
-      <footer className="container mx-auto py-6 px-4 md:px-6 border-t border-slate-200/60 dark:border-slate-700/60">
+      <footer className="container mx-auto py-6 px-4 md:px-6 border-t border-slate-200/60 dark:border-slate-700/60 space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-slate-600 dark:text-slate-400 text-sm">&copy; {new Date().getFullYear()} TankWiki. All rights reserved.</p>
             <div className="flex gap-4 mt-4 md:mt-0">
@@ -76,6 +77,10 @@ const Index = () => {
                 <Button variant="link" size="sm" asChild className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"><Link to="/legal/privacy-policy">Privacy Policy</Link></Button>
             </div>
         </div>
+        
+        <SocialMediaFooter />
+        
+        <MobileInstructions />
       </footer>
     </div>
   );
