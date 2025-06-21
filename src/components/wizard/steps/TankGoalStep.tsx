@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WizardStepProps } from "../types";
-import { SpeciesSelector } from "@/components/aquarium/SpeciesSelector";
+import { CategorizedSpeciesSelector } from "@/components/aquarium/species-selector/CategorizedSpeciesSelector";
 import { ChevronLeft, HelpCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -180,22 +179,14 @@ export function TankGoalStep({ data, onUpdate, onNext, onPrev }: WizardStepProps
             <CardTitle className="text-lg text-foreground dark:text-slate-100">Select Your Species</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <SpeciesSelector
-              value=""
-              onChange={(species) => handleSpeciesChange(species)}
+            <CategorizedSpeciesSelector
+              value={selectedSpecies}
+              onChange={handleSpeciesChange}
               aquariumType={data.tankGoal}
             />
             
             {selectedSpecies.length > 0 && (
-              <div className="space-y-2">
-                <p className="font-medium text-foreground dark:text-slate-200">Selected Species:</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedSpecies.map(species => (
-                    <Badge key={species} variant="secondary" className="cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600" onClick={() => handleSpeciesChange(species)}>
-                      {species} ✕
-                    </Badge>
-                  ))}
-                </div>
+              <div className="mt-4">
                 <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{getRecommendedSize()}</p>
               </div>
             )}
