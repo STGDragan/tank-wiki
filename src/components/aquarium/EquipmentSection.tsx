@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { EquipmentCard } from '@/components/aquarium/EquipmentCard';
-import { AddEquipmentForm } from '@/components/aquarium/AddEquipmentForm';
+import { EnhancedAddEquipmentForm } from '@/components/aquarium/EnhancedAddEquipmentForm';
 import { PlusCircle, Settings } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
@@ -39,7 +39,7 @@ export const EquipmentSection = ({
                             <Settings className="mr-3 h-6 w-6" />
                             Equipment
                         </CardTitle>
-                        <CardDescription className="mt-2">Manage all the equipment for your aquarium.</CardDescription>
+                        <CardDescription className="mt-2">Manage all the equipment for your aquarium with automatic maintenance scheduling.</CardDescription>
                     </div>
                     {canEdit && (
                         <Drawer open={isAddEquipmentOpen} onOpenChange={setAddEquipmentOpen}>
@@ -48,7 +48,12 @@ export const EquipmentSection = ({
                             </DrawerTrigger>
                             <DrawerContent>
                                 <DrawerHeader><DrawerTitle>Add New Equipment</DrawerTitle></DrawerHeader>
-                                <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto"><AddEquipmentForm aquariumId={aquariumId} onSuccess={() => setAddEquipmentOpen(false)} /></div>
+                                <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
+                                    <EnhancedAddEquipmentForm 
+                                        aquariumId={aquariumId} 
+                                        onSuccess={() => setAddEquipmentOpen(false)} 
+                                    />
+                                </div>
                             </DrawerContent>
                         </Drawer>
                     )}
@@ -65,7 +70,7 @@ export const EquipmentSection = ({
                             </CarouselContent>
                             <CarouselPrevious className="ml-12" /><CarouselNext className="mr-12" />
                         </Carousel>
-                    ) : <p className="text-muted-foreground text-center py-8">No equipment added yet.</p>}
+                    ) : <p className="text-muted-foreground text-center py-8">No equipment added yet. Add your first piece of equipment to get started with automated maintenance scheduling.</p>}
                 </CardContent>
             </Card>
         </div>

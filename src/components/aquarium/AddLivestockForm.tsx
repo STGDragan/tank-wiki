@@ -7,20 +7,16 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SpeciesSelector } from "./SpeciesSelector";
 import { DateSelector } from "./DateSelector";
+import { LivestockTypeSelector } from "./LivestockTypeSelector";
+import { CascadingSpeciesSelector } from "./CascadingSpeciesSelector";
+import { useState } from "react";
 
 const livestockFormSchema = z.object({
+  livestockType: z.string().min(1, "Livestock type is required."),
   species: z.string().min(1, "Species is required."),
   name: z.string().optional(),
   quantity: z.coerce.number().int().min(1, "Quantity must be at least 1."),
@@ -34,24 +30,38 @@ interface AddLivestockFormProps {
   aquariumId: string;
   aquariumType: string | null;
   onSuccess: () => void;
+  initialData?: Partial<LivestockFormValues>;
 }
 
-export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLivestockFormProps) {
+export function AddLivestockForm({ 
+  aquariumId, 
+  aquariumType, 
+  onSuccess, 
+  initialData 
+}: AddLivestockFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const form = useForm<LivestockFormValues>({
     resolver: zodResolver(livestockFormSchema),
     defaultValues: {
-      species: "",
-      name: "",
-      quantity: 1,
-      added_at: new Date(),
-      notes: "",
+      livestockType: initialData?.livestockType || "",
+      species: initialData?.species || "",
+      name: initialData?.name || "",
+      quantity: initialData?.quantity || 1,
+      added_at: initialData?.added_at || new Date(),
+      notes: initialData?.notes || "",
     },
   });
 
   const { isSubmitting } = form.formState;
+  const watchedLivestockType = form.watch("livestockType");
+
+  // Reset species when livestock type changes
+  const handleLivestockTypeChange = (type: string) => {
+    form.setValue("livestockType", type);
+    form.setValue("species", "");
+  };
 
   async function onSubmit(values: LivestockFormValues) {
     if (!user) {
@@ -83,11 +93,24 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
+          name="livestockType"
+          render={({ field }) => (
+            <LivestockTypeSelector
+              value={field.value}
+              onChange={handleLivestockTypeChange}
+              aquariumType={aquariumType}
+            />
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="species"
           render={({ field }) => (
-            <SpeciesSelector
+            <CascadingSpeciesSelector
               value={field.value}
               onChange={field.onChange}
+              livestockType={watchedLivestockType}
               aquariumType={aquariumType}
             />
           )}
