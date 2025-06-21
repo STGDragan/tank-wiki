@@ -46,9 +46,9 @@ export function AdminManagementSection() {
       const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
       if (usersError) throw usersError;
 
-      // Combine profile and user data
+      // Combine profile and user data with proper typing
       const profilesWithEmails: Profile[] = (profilesData || []).map(profile => {
-        const authUser = users?.find(user => user.id === profile.id);
+        const authUser = (users || []).find(user => user.id === profile.id);
         return {
           ...profile,
           email: authUser?.email
@@ -90,7 +90,7 @@ export function AdminManagementSection() {
       
       const rolesWithProfiles: UserRole[] = roles.map(role => {
         const profile = profilesMap.get(role.user_id);
-        const authUser = users?.find(user => user.id === role.user_id);
+        const authUser = (users || []).find(user => user.id === role.user_id);
         return {
           ...role,
           profile: profile ? {
