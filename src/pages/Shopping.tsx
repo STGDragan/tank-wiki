@@ -199,15 +199,21 @@ const Shopping = () => {
         if (!matchesSearch) return false;
       }
 
-      // Category filter (hierarchical)
+      // Category filter (hierarchical) - now handles both categories and subcategories
       if (filters.categories.length > 0) {
         const productCategorySlug = product.category_info?.slug || product.category?.toLowerCase().replace(/\s+/g, '-');
-        if (!productCategorySlug || !filters.categories.includes(productCategorySlug)) {
+        const productSubcategorySlug = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
+        
+        // Check if product matches any selected category or subcategory
+        const matchesCategory = productCategorySlug && filters.categories.includes(productCategorySlug);
+        const matchesSubcategory = productSubcategorySlug && filters.categories.includes(productSubcategorySlug);
+        
+        if (!matchesCategory && !matchesSubcategory) {
           return false;
         }
       }
 
-      // Subcategory filter
+      // Subcategory filter (deprecated - now handled by categories filter above)
       if (filters.subcategories.length > 0) {
         const productSubcategorySlug = product.subcategory?.toLowerCase().replace(/\s+/g, '-');
         if (!productSubcategorySlug || !filters.subcategories.includes(productSubcategorySlug)) {

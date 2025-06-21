@@ -73,15 +73,15 @@ const CategoryFilter = ({ categories, filters, onFiltersChange }: CategoryFilter
               {category.name}
             </label>
           </div>
-          {/* Subcategories */}
+          {/* Subcategories - each selectable as individual equipment options */}
           {subcategoriesByParent[category.id] && (
             <div className="ml-6 space-y-2">
               {subcategoriesByParent[category.id].map((subcat) => (
                 <div key={subcat.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`subcat-${subcat.id}`}
-                    checked={filters.subcategories.includes(subcat.slug)}
-                    onCheckedChange={() => toggleArrayFilter('subcategories', subcat.slug)}
+                    checked={filters.categories.includes(subcat.slug)}
+                    onCheckedChange={() => toggleArrayFilter('categories', subcat.slug)}
                   />
                   <label
                     htmlFor={`subcat-${subcat.id}`}
