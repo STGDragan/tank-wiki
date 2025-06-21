@@ -1,84 +1,22 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import React, { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
+import { Tables } from "@/integrations/supabase/types";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { X, Plus } from "lucide-react";
-import { Tables } from "@/integrations/supabase/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-
-const productFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  image_url: z.union([
-    z.string().url({ message: "Please enter a valid URL." }),
-    z.literal('')
-  ]).optional()
-    .transform(e => e === "" ? undefined : e),
-  category: z.string().optional().transform(e => e === "" ? undefined : e),
-  custom_category: z.string().optional(),
-  subcategory: z.string().optional().transform(e => e === "" ? undefined : e),
-  custom_subcategory: z.string().optional(),
-  affiliate_provider: z.string().optional(),
-  affiliate_url: z.union([
-    z.string().url({ message: "Please enter a valid URL." }),
-    z.literal('')
-  ]).optional()
-    .transform(e => e === "" ? undefined : e),
-  regular_price: z.union([z.string(), z.number()]).optional().transform(e => {
-    if (e === "" || e === undefined) return undefined;
-    return typeof e === 'string' ? parseFloat(e) : e;
-  }),
-  sale_price: z.union([z.string(), z.number()]).optional().transform(e => {
-    if (e === "" || e === undefined) return undefined;
-    return typeof e === 'string' ? parseFloat(e) : e;
-  }),
-  is_on_sale: z.boolean().default(false),
-  is_featured: z.boolean().default(false),
-  is_recommended: z.boolean().default(false),
-  track_inventory: z.boolean().default(true),
-  stock_quantity: z.union([z.string(), z.number()]).optional().transform(e => {
-    if (e === "" || e === undefined) return 0;
-    return typeof e === 'string' ? parseInt(e) : e;
-  }),
-  low_stock_threshold: z.union([z.string(), z.number()]).optional().transform(e => {
-    if (e === "" || e === undefined) return 5;
-    return typeof e === 'string' ? parseInt(e) : e;
-  }),
-}).refine(data => !(data.category === 'Other' && !data.custom_category?.trim()), {
-    message: "Please specify the category name",
-    path: ["custom_category"],
-}).refine(data => !(data.subcategory === 'Other' && !data.custom_subcategory?.trim()), {
-    message: "Please specify the subcategory name",
-    path: ["custom_subcategory"],
-});
-
-type ProductFormValues = z.infer<typeof productFormSchema>;
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 interface EditProductDialogProps {
   product: Tables<'products'> | null;
@@ -87,623 +25,332 @@ interface EditProductDialogProps {
 }
 
 const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    category: "",
+    subcategory: "",
+    brand: "",
+    model: "",
+    sku: "",
+    regular_price: "",
+    sale_price: "",
+    is_on_sale: false,
+    is_featured: false,
+    is_recommended: false,
+    stock_quantity: "",
+    track_inventory: true,
+    low_stock_threshold: "",
+    condition: "new",
+    image_url: "",
+    amazon_url: "",
+    visible: true,
+  });
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState("");
 
-  const { data: affiliateLink, isLoading: isLoadingAffiliateLink } = useQuery({
-    queryKey: ['affiliateLink', product?.id],
-    queryFn: async () => {
-      if (!product) return null;
-      const { data, error } = await supabase
-        .from('affiliate_links')
-        .select('*')
-        .eq('product_id', product.id)
-        .single();
-      if (error && error.code !== 'PGRST116') {
-        throw new Error(error.message);
-      }
-      return data;
-    },
-    enabled: !!product,
-  });
-
-  const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ['product_categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('product_categories').select('id, name').order('name');
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      image_url: "",
-      category: "",
-      custom_category: "",
-      subcategory: "",
-      custom_subcategory: "",
-      affiliate_provider: "",
-      affiliate_url: "",
-      regular_price: undefined,
-      sale_price: undefined,
-      is_on_sale: false,
-      is_featured: false,
-      is_recommended: false,
-      track_inventory: true,
-      stock_quantity: 0,
-      low_stock_threshold: 5,
-    }
-  });
-
+  // Reset form when product changes
   useEffect(() => {
     if (product) {
-      const existingImages = Array.isArray(product.imageurls) ? product.imageurls as string[] : [];
-      setAdditionalImages(existingImages.slice(1)); // Skip the first image which is the main image
-      
-      form.reset({
-        name: product.name,
+      setFormData({
+        name: product.name || "",
         description: product.description || "",
-        image_url: product.image_url || "",
         category: product.category || "",
         subcategory: product.subcategory || "",
-        affiliate_provider: affiliateLink?.provider || "",
-        affiliate_url: affiliateLink?.link_url || "",
-        regular_price: product.regular_price || undefined,
-        sale_price: product.sale_price || undefined,
+        brand: product.brand || "",
+        model: product.model || "",
+        sku: product.sku || "",
+        regular_price: product.regular_price?.toString() || "",
+        sale_price: product.sale_price?.toString() || "",
         is_on_sale: product.is_on_sale || false,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
+        stock_quantity: product.stock_quantity?.toString() || "",
         track_inventory: product.track_inventory ?? true,
-        stock_quantity: product.stock_quantity || 0,
-        low_stock_threshold: product.low_stock_threshold || 5,
-        custom_category: "",
-        custom_subcategory: "",
+        low_stock_threshold: product.low_stock_threshold?.toString() || "",
+        condition: product.condition || "new",
+        image_url: product.image_url || "",
+        amazon_url: (product as any).amazon_url || "",
+        visible: product.visible ?? true,
       });
     }
-  }, [product, affiliateLink, form]);
-
-  const watchedCategory = form.watch("category");
-  const watchedSubcategory = form.watch("subcategory");
-  const watchedTrackInventory = form.watch("track_inventory");
-  const selectedCategory = categories?.find(c => c.name === watchedCategory);
-
-  const { data: subcategories, isLoading: isLoadingSubcategories } = useQuery({
-    queryKey: ['product_subcategories', selectedCategory?.id],
-    queryFn: async () => {
-      if (!selectedCategory?.id) return [];
-      const { data, error } = await supabase.from('product_subcategories').select('name').eq('category_id', selectedCategory.id).order('name');
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!selectedCategory?.id,
-  });
-
-  const addImage = () => {
-    if (newImageUrl.trim()) {
-      setAdditionalImages(prev => [...prev, newImageUrl.trim()]);
-      setNewImageUrl("");
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setAdditionalImages(prev => prev.filter((_, i) => i !== index));
-  };
+  }, [product]);
 
   const updateProductMutation = useMutation({
-    mutationFn: async (updatedValues: ProductFormValues) => {
-        if (!product) throw new Error("No product to update");
-
-        let categoryName = updatedValues.category;
-        let subcategoryName = updatedValues.subcategory;
-        let categoryId = categories?.find(c => c.name === updatedValues.category)?.id;
-
-        // Handle custom category
-        if (updatedValues.category === 'Other' && updatedValues.custom_category) {
-            categoryName = updatedValues.custom_category;
-            const { data: newCat, error: catError } = await supabase.from('product_categories').insert({ name: categoryName }).select().single();
-            if (catError) throw catError;
-            categoryId = newCat.id;
-        }
-
-        // Handle custom subcategory
-        if (updatedValues.subcategory === 'Other' && updatedValues.custom_subcategory) {
-            if (!categoryId) throw new Error('A category must be selected or created to add a new subcategory.');
-            subcategoryName = updatedValues.custom_subcategory;
-            const { error: subcatError } = await supabase.from('product_subcategories').insert({ name: subcategoryName, category_id: categoryId });
-            if (subcatError) throw subcatError;
-        }
-
-        // Combine main image with additional images
-        const allImages = [updatedValues.image_url, ...additionalImages].filter(Boolean);
-
-        const { error: productError } = await supabase
-          .from("products")
-          .update({
-            name: updatedValues.name,
-            description: updatedValues.description || null,
-            image_url: updatedValues.image_url || null,
-            imageurls: allImages,
-            category: categoryName === 'Other' ? undefined : categoryName,
-            subcategory: subcategoryName === 'Other' ? undefined : subcategoryName,
-            regular_price: updatedValues.regular_price || null,
-            sale_price: updatedValues.sale_price || null,
-            is_on_sale: updatedValues.is_on_sale,
-            is_featured: updatedValues.is_featured,
-            is_recommended: updatedValues.is_recommended,
-            track_inventory: updatedValues.track_inventory,
-            stock_quantity: updatedValues.stock_quantity || 0,
-            low_stock_threshold: updatedValues.low_stock_threshold || 5,
-          })
-          .eq("id", product.id);
-        if (productError) throw productError;
-
-        const hasNewUrl = updatedValues.affiliate_url;
-        if (hasNewUrl) {
-          if (affiliateLink) {
-            const { error: updateError } = await supabase
-              .from('affiliate_links')
-              .update({ link_url: updatedValues.affiliate_url, provider: updatedValues.affiliate_provider || null })
-              .eq('id', affiliateLink.id);
-            if (updateError) throw updateError;
-          } else {
-            const { error: insertError } = await supabase
-              .from('affiliate_links')
-              .insert({ product_id: product.id, link_url: updatedValues.affiliate_url, provider: updatedValues.affiliate_provider || null });
-            if (insertError) throw insertError;
-          }
-        } else if (affiliateLink) {
-          const { error: deleteError } = await supabase
-            .from('affiliate_links')
-            .delete()
-            .eq('id', affiliateLink.id);
-          if (deleteError) throw deleteError;
-        }
+    mutationFn: async (productData: any) => {
+      if (!product) throw new Error('No product selected');
+      
+      const { error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', product.id);
+      
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ['affiliateLink', product?.id] });
-      queryClient.invalidateQueries({ queryKey: ["product_categories"] });
-      queryClient.invalidateQueries({ queryKey: ["product_subcategories"] });
-      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
-      queryClient.invalidateQueries({ queryKey: ['recommended-products'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-recommended-products'] });
-      toast({ title: "Product Updated", description: "The product has been updated successfully." });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast({ title: 'Product Updated', description: 'The product has been successfully updated.' });
       onOpenChange(false);
     },
     onError: (error: Error) => {
-      toast({ title: "Error updating product", description: error.message, variant: "destructive" });
-    },
+      toast({ title: 'Error updating product', description: error.message, variant: 'destructive' });
+    }
   });
 
-  const onSubmit = (data: ProductFormValues) => {
-    updateProductMutation.mutate(data);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const productData = {
+      ...formData,
+      regular_price: formData.regular_price ? parseFloat(formData.regular_price) : null,
+      sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
+      stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : 0,
+      low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold) : 5,
+    };
+
+    updateProductMutation.mutate(productData);
   };
-  
-  const isLoading = updateProductMutation.isPending || isLoadingAffiliateLink;
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   if (!product) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
-            Update the details of the product below.
+            Update the product information.
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 pr-4 max-h-[70vh]">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-2">
-              {/* Basic Information Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Basic Information</h3>
-                <Separator />
-                
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Aquarium Filter" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="e.g. A high-quality filter for up to 50 gallons." 
-                          {...field} 
-                          rows={3}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Product Name*</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-brand">Brand</Label>
+              <Input
+                id="edit-brand"
+                value={formData.brand}
+                onChange={(e) => handleInputChange('brand', e.target.value)}
+              />
+            </div>
+          </div>
 
-              {/* Images Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Images</h3>
-                <Separator />
-                
-                <FormField
-                  control={form.control}
-                  name="image_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Main Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. https://images.unsplash.com/photo-1488590528505-98d2b5aba04b" {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <div className="space-y-2">
+            <Label htmlFor="edit-description">Description</Label>
+            <Textarea
+              id="edit-description"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              rows={3}
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <FormLabel>Additional Images</FormLabel>
-                  {additionalImages.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {additionalImages.map((url, index) => (
-                        <Badge key={index} variant="outline" className="flex items-center gap-1">
-                          <span className="truncate max-w-[100px]">{url}</span>
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => removeImage(index)} />
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Additional image URL"
-                      value={newImageUrl}
-                      onChange={(e) => setNewImageUrl(e.target.value)}
-                    />
-                    <Button type="button" onClick={addImage} size="sm">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-category">Category</Label>
+              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aquarium Equipment">Aquarium Equipment</SelectItem>
+                  <SelectItem value="Fish Food">Fish Food</SelectItem>
+                  <SelectItem value="Water Treatment">Water Treatment</SelectItem>
+                  <SelectItem value="Lighting">Lighting</SelectItem>
+                  <SelectItem value="Filtration">Filtration</SelectItem>
+                  <SelectItem value="Decoration">Decoration</SelectItem>
+                  <SelectItem value="Testing Kits">Testing Kits</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-subcategory">Subcategory</Label>
+              <Input
+                id="edit-subcategory"
+                value={formData.subcategory}
+                onChange={(e) => handleInputChange('subcategory', e.target.value)}
+              />
+            </div>
+          </div>
 
-              {/* Category Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Category & Classification</h3>
-                <Separator />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select onValueChange={(value) => {
-                          field.onChange(value);
-                          form.setValue('subcategory', '');
-                          form.setValue('custom_subcategory', '');
-                           if (value !==  'Other') {
-                            form.setValue('custom_category', '');
-                          }
-                        }} value={field.value || ''} disabled={isLoadingCategories}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={isLoadingCategories ? "Loading..." : "Select a category"} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories?.map((cat) => (
-                              <SelectItem key={cat.id} value={cat.name}>
-                                {cat.name}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Other">Other...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="subcategory"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subcategory</FormLabel>
-                         <Select onValueChange={(value) => {
-                          field.onChange(value);
-                           if (value !== 'Other') {
-                            form.setValue('custom_subcategory', '');
-                          }
-                        }} value={field.value || ''} disabled={!watchedCategory || watchedCategory === 'Other' || isLoadingSubcategories}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={
-                                isLoadingSubcategories ? "Loading..." 
-                                : watchedCategory === 'Other' ? 'Define new subcategory below'
-                                : "Select a subcategory"
-                              } />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {subcategories?.map((subcat) => (
-                              <SelectItem key={subcat.name} value={subcat.name}>
-                                {subcat.name}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="Other">Other...</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                {watchedCategory === 'Other' && (
-                  <FormField
-                    control={form.control}
-                    name="custom_category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>New Category Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Aquarium Decor" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-                
-                {(watchedSubcategory === 'Other' || watchedCategory === 'Other') && (
-                  <FormField
-                    control={form.control}
-                    name="custom_subcategory"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>New Subcategory Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Ornaments" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-sku">SKU</Label>
+              <Input
+                id="edit-sku"
+                value={formData.sku}
+                onChange={(e) => handleInputChange('sku', e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-model">Model</Label>
+              <Input
+                id="edit-model"
+                value={formData.model}
+                onChange={(e) => handleInputChange('model', e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-condition">Condition</Label>
+              <Select value={formData.condition} onValueChange={(value) => handleInputChange('condition', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">New</SelectItem>
+                  <SelectItem value="used">Used</SelectItem>
+                  <SelectItem value="refurbished">Refurbished</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-              {/* Pricing Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Pricing & Sales</h3>
-                <Separator />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="regular_price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Regular Price</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="0.00" 
-                            type="number" 
-                            step="0.01" 
-                            {...field} 
-                            value={field.value ? field.value.toString() : ""}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="sale_price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Sale Price</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="0.00" 
-                            type="number" 
-                            step="0.01" 
-                            {...field} 
-                            value={field.value ? field.value.toString() : ""}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-regular_price">Regular Price ($)</Label>
+              <Input
+                id="edit-regular_price"
+                type="number"
+                step="0.01"
+                value={formData.regular_price}
+                onChange={(e) => handleInputChange('regular_price', e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-sale_price">Sale Price ($)</Label>
+              <Input
+                id="edit-sale_price"
+                type="number"
+                step="0.01"
+                value={formData.sale_price}
+                onChange={(e) => handleInputChange('sale_price', e.target.value)}
+              />
+            </div>
+          </div>
 
-                <div className="flex flex-col space-y-3">
-                  <FormField
-                    control={form.control}
-                    name="is_on_sale"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel>Product is on sale</FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="is_featured"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel>Feature this product</FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="is_recommended"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel>Recommend this product</FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-image_url">Image URL</Label>
+            <Input
+              id="edit-image_url"
+              type="url"
+              value={formData.image_url}
+              onChange={(e) => handleInputChange('image_url', e.target.value)}
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
 
-              {/* Inventory Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Inventory Management</h3>
-                <Separator />
-                
-                <FormField
-                  control={form.control}
-                  name="track_inventory"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Track inventory</FormLabel>
-                    </FormItem>
-                  )}
-                />
+          <div className="space-y-2">
+            <Label htmlFor="edit-amazon_url">Amazon URL</Label>
+            <Input
+              id="edit-amazon_url"
+              type="url"
+              value={formData.amazon_url}
+              onChange={(e) => handleInputChange('amazon_url', e.target.value)}
+              placeholder="https://amazon.com/dp/ASIN123456"
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter any Amazon product URL. It will be automatically formatted with your affiliate tag.
+            </p>
+          </div>
 
-                {watchedTrackInventory && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="stock_quantity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Stock Quantity</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="0" 
-                              type="number" 
-                              {...field} 
-                              value={field.value ? field.value.toString() : "0"}
-                              onChange={(e) => field.onChange(e.target.value)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="low_stock_threshold"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Low Stock Threshold</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="5" 
-                              type="number" 
-                              {...field} 
-                              value={field.value ? field.value.toString() : "5"}
-                              onChange={(e) => field.onChange(e.target.value)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-stock_quantity">Stock Quantity</Label>
+              <Input
+                id="edit-stock_quantity"
+                type="number"
+                value={formData.stock_quantity}
+                onChange={(e) => handleInputChange('stock_quantity', e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-low_stock_threshold">Low Stock Threshold</Label>
+              <Input
+                id="edit-low_stock_threshold"
+                type="number"
+                value={formData.low_stock_threshold}
+                onChange={(e) => handleInputChange('low_stock_threshold', e.target.value)}
+              />
+            </div>
+          </div>
 
-              {/* Affiliate Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Affiliate Information</h3>
-                <Separator />
-                
-                <FormField
-                  control={form.control}
-                  name="affiliate_provider"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Affiliate Provider</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Amazon" {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="affiliate_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Affiliate URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. https://amazon.com/product/123" {...field} value={field.value ?? ""} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </form>
-          </Form>
-        </ScrollArea>
-        
-        <DialogFooter className="mt-6">
-          <Button 
-            type="button" 
-            disabled={isLoading}
-            onClick={form.handleSubmit(onSubmit)}
-          >
-            {isLoading ? "Saving..." : "Save Changes"}
-          </Button>
-        </DialogFooter>
+          <div className="flex flex-wrap gap-6">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-track_inventory"
+                checked={formData.track_inventory}
+                onCheckedChange={(checked) => handleInputChange('track_inventory', checked)}
+              />
+              <Label htmlFor="edit-track_inventory">Track Inventory</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-is_on_sale"
+                checked={formData.is_on_sale}
+                onCheckedChange={(checked) => handleInputChange('is_on_sale', checked)}
+              />
+              <Label htmlFor="edit-is_on_sale">On Sale</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-is_featured"
+                checked={formData.is_featured}
+                onCheckedChange={(checked) => handleInputChange('is_featured', checked)}
+              />
+              <Label htmlFor="edit-is_featured">Featured</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-is_recommended"
+                checked={formData.is_recommended}
+                onCheckedChange={(checked) => handleInputChange('is_recommended', checked)}
+              />
+              <Label htmlFor="edit-is_recommended">Recommended</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-visible"
+                checked={formData.visible}
+                onCheckedChange={(checked) => handleInputChange('visible', checked)}
+              />
+              <Label htmlFor="edit-visible">Visible</Label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={updateProductMutation.isPending}>
+              {updateProductMutation.isPending ? "Updating..." : "Update Product"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

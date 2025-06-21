@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,8 +55,19 @@ const ProductDetail = () => {
   };
 
   const handlePurchase = () => {
-    if (product?.affiliate_links?.[0]?.link_url) {
-      window.open(product.affiliate_links[0].link_url, '_blank');
+    // Priority: 1. affiliate_url, 2. affiliate_links, 3. amazon_url, 4. show coming soon
+    let purchaseUrl = null;
+    
+    if (product?.affiliate_url) {
+      purchaseUrl = product.affiliate_url;
+    } else if (product?.affiliate_links?.[0]?.link_url) {
+      purchaseUrl = product.affiliate_links[0].link_url;
+    } else if (product?.amazon_url) {
+      purchaseUrl = product.amazon_url;
+    }
+    
+    if (purchaseUrl) {
+      window.open(purchaseUrl, '_blank');
     } else {
       toast({
         title: "Coming Soon",
@@ -107,6 +117,20 @@ const ProductDetail = () => {
   const savings = calculateSavings();
   const images = Array.isArray(product.imageurls) ? product.imageurls as string[] : [];
   const primaryImage = images[0] || product.image_url || '/placeholder.svg';
+
+  // Determine the purchase provider text
+  const getPurchaseProvider = () => {
+    if (product.affiliate_url && product.affiliate_url.includes('amazon.')) {
+      return 'Amazon';
+    } else if (product.affiliate_links?.[0]?.provider) {
+      return product.affiliate_links[0].provider;
+    } else if (product.amazon_url) {
+      return 'Amazon';
+    }
+    return null;
+  };
+
+  const purchaseProvider = getPurchaseProvider();
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -234,10 +258,8 @@ const ProductDetail = () => {
                 disabled={product.track_inventory && product.stock_quantity === 0}
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />
-                {product.affiliate_links?.[0]?.link_url ? 'Buy Now' : 'Purchase'}
-                {product.affiliate_links?.[0]?.link_url && (
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                )}
+                {purchaseProvider ? `Buy on ${purchaseProvider}` : 'Purchase'}
+                <ExternalLink className="ml-2 h-4 w-4" />
               </Button>
               
               <Button variant="outline" onClick={handleAddToWishlist}>
@@ -245,9 +267,9 @@ const ProductDetail = () => {
               </Button>
             </div>
             
-            {product.affiliate_links?.[0]?.provider && (
+            {purchaseProvider && (
               <p className="text-sm text-muted-foreground text-center">
-                Available at {product.affiliate_links[0].provider}
+                Available at {purchaseProvider}
               </p>
             )}
           </div>

@@ -354,6 +354,33 @@ export type Database = {
         }
         Relationships: []
       }
+      cms_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           code: string
@@ -1070,6 +1097,8 @@ export type Database = {
       }
       products: {
         Row: {
+          affiliate_url: string | null
+          amazon_url: string | null
           brand: string | null
           category: string | null
           condition: string | null
@@ -1105,6 +1134,8 @@ export type Database = {
           weight: number | null
         }
         Insert: {
+          affiliate_url?: string | null
+          amazon_url?: string | null
           brand?: string | null
           category?: string | null
           condition?: string | null
@@ -1140,6 +1171,8 @@ export type Database = {
           weight?: number | null
         }
         Update: {
+          affiliate_url?: string | null
+          amazon_url?: string | null
           brand?: string | null
           category?: string | null
           condition?: string | null
@@ -1544,6 +1577,10 @@ export type Database = {
           _permission_level: Database["public"]["Enums"]["permission_level"]
         }
         Returns: boolean
+      }
+      format_amazon_affiliate_url: {
+        Args: { input_url: string; affiliate_tag?: string }
+        Returns: string
       }
       generate_order_number: {
         Args: Record<PropertyKey, never>

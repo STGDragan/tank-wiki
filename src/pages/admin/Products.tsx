@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -39,6 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
 import { AmazonProductImportDialog } from "@/components/admin/AmazonProductImportDialog";
+import AffiliateSettings from "@/components/admin/AffiliateSettings";
 import { useState } from "react";
 import EditProductDialog from "@/components/admin/EditProductDialog";
 
@@ -189,6 +189,9 @@ const AdminProducts = () => {
           <AddProductDialog />
         </div>
       </div>
+
+      {/* Affiliate Settings */}
+      <AffiliateSettings />
       
       <Card>
         <CardHeader>
