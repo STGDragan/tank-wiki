@@ -1,7 +1,6 @@
 
 import { useAuth } from "@/providers/AuthProvider";
 import { useQueryClient } from "@tanstack/react-query";
-import { AspectRatio } from "../ui/aspect-ratio";
 import { ImageUploader } from "./ImageUploader";
 import { ShareAquariumDialog } from "./ShareAquariumDialog";
 import { Button } from "../ui/button";
@@ -38,9 +37,11 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
+    <div className="space-y-4">
+      {/* Header with aquarium info and optional compact image */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left side - Aquarium info */}
+        <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold">{aquarium.name}</h1>
             {isOwner && (
@@ -57,32 +58,31 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
           </div>
         </div>
         
-        {/* Show compact upload button when no image exists and user is owner */}
-        {!aquarium.image_url && isOwner && (
-          <div className="flex items-center">
-            <ImageUploader
-              aquariumId={aquarium.id}
-              onUploadSuccess={handleImageUploadSuccess}
-              table="aquariums"
-              recordId={aquarium.id}
-              aspect={16/9}
-              showAsButton={true}
-            />
-          </div>
-        )}
-      </div>
-      
-      {/* Only render the image section if there's an image */}
-      {aquarium.image_url && (
-        <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
-          <div className="relative w-full h-full">
-            <img
-              src={aquarium.image_url}
-              alt={aquarium.name}
-              className="object-cover w-full h-full"
-            />
-            {isOwner && (
-              <div className="absolute bottom-4 right-4">
+        {/* Right side - Compact image or upload button */}
+        <div className="flex-shrink-0">
+          {aquarium.image_url ? (
+            <div className="relative w-48 h-32 md:w-56 md:h-36 rounded-lg overflow-hidden bg-muted">
+              <img
+                src={aquarium.image_url}
+                alt={aquarium.name}
+                className="object-cover w-full h-full"
+              />
+              {isOwner && (
+                <div className="absolute bottom-2 right-2">
+                  <ImageUploader
+                    aquariumId={aquarium.id}
+                    onUploadSuccess={handleImageUploadSuccess}
+                    table="aquariums"
+                    recordId={aquarium.id}
+                    aspect={16/9}
+                    showAsButton={true}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            isOwner && (
+              <div className="w-48 h-32 md:w-56 md:h-36 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center bg-muted/20">
                 <ImageUploader
                   aquariumId={aquarium.id}
                   onUploadSuccess={handleImageUploadSuccess}
@@ -92,10 +92,10 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
                   showAsButton={true}
                 />
               </div>
-            )}
-          </div>
-        </AspectRatio>
-      )}
+            )
+          )}
+        </div>
+      </div>
     </div>
   );
 }
