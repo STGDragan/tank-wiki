@@ -71,6 +71,7 @@ const Shopping = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_category_hierarchy');
       if (error) throw error;
+      console.log('Fetched categories:', data);
       return data as CategoryHierarchy[];
     },
   });
@@ -129,8 +130,19 @@ const Shopping = () => {
     },
   });
 
-  // Filter categories to only show those that have products
+  // Filter categories to only show those that have products - but keep all equipment categories
   const availableCategories = useMemo(() => {
+    console.log('All categories:', categories);
+    
+    // Always include equipment categories regardless of whether they have products
+    const equipmentCategories = categories.filter(cat => 
+      cat.slug === 'aquarium-equipment' || 
+      (cat.parent_id && categories.find(parent => parent.id === cat.parent_id)?.slug === 'aquarium-equipment')
+    );
+    
+    console.log('Equipment categories:', equipmentCategories);
+    
+    // For other categories, only show those with products
     const productCategorySlugs = new Set(
       products.map(p => p.category_info?.slug || p.category?.toLowerCase().replace(/\s+/g, '-')).filter(Boolean)
     );
@@ -138,13 +150,21 @@ const Shopping = () => {
       products.map(p => p.subcategory?.toLowerCase().replace(/\s+/g, '-')).filter(Boolean)
     );
     
-    return categories.filter(cat => {
+    const otherCategories = categories.filter(cat => {
+      // Skip equipment categories as we already included them
+      if (cat.slug === 'aquarium-equipment') return false;
+      if (cat.parent_id && categories.find(parent => parent.id === cat.parent_id)?.slug === 'aquarium-equipment') return false;
+      
       if (cat.level === 0) {
         return productCategorySlugs.has(cat.slug);
       } else {
         return productSubcategorySlugs.has(cat.slug);
       }
     });
+    
+    const result = [...equipmentCategories, ...otherCategories];
+    console.log('Available categories:', result);
+    return result;
   }, [categories, products]);
 
   // Calculate maxPrice from products
