@@ -25,8 +25,6 @@ interface AdminGrantedSubscription {
     id: string;
     full_name?: string;
   };
-  granted_to_email?: string;
-  granted_by_email?: string;
 }
 
 interface GrantedSubscriptionsListProps {
@@ -58,8 +56,8 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
     },
   });
 
-  const getUserDisplayName = (profile?: { full_name?: string }, email?: string) => {
-    return profile?.full_name || email || 'Unknown User';
+  const getUserDisplayName = (profile?: { full_name?: string }, userId?: string) => {
+    return profile?.full_name || `User ID: ${userId?.slice(0, 8)}...` || 'Unknown User';
   };
 
   return (
@@ -79,7 +77,7 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
             <div key={subscription.id} className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex-1">
                 <p className="font-medium">
-                  {getUserDisplayName(subscription.granted_to_profile, subscription.granted_to_email)}
+                  {getUserDisplayName(subscription.granted_to_profile, subscription.granted_to_user_id)}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant={subscription.is_active ? "default" : "secondary"}>
@@ -90,7 +88,7 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Granted by: {getUserDisplayName(subscription.granted_by_profile, subscription.granted_by_email)} • {format(new Date(subscription.granted_at), "MMM d, yyyy")}
+                  Granted by: {getUserDisplayName(subscription.granted_by_profile, subscription.granted_by_admin_id)} • {format(new Date(subscription.granted_at), "MMM d, yyyy")}
                   {subscription.expires_at && (
                     <span> • Expires: {format(new Date(subscription.expires_at), "MMM d, yyyy")}</span>
                   )}

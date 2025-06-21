@@ -15,7 +15,6 @@ import { useAuth } from "@/providers/AuthProvider";
 interface Profile {
   id: string;
   full_name?: string;
-  email?: string;
   admin_subscription_override?: boolean;
 }
 
@@ -90,15 +89,8 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
   };
 
   const formatUserDisplay = (profile: Profile) => {
-    // Use full_name if available, otherwise use email, otherwise fallback to truncated ID
-    const displayName = profile.full_name || profile.email || `ID: ${profile.id.slice(0, 8)}...`;
-    
-    // If we have both name and email, show both
-    if (profile.full_name && profile.email) {
-      return `${profile.full_name} (${profile.email})`;
-    }
-    
-    return displayName;
+    // Use full_name if available, otherwise use truncated ID
+    return profile.full_name || `User ID: ${profile.id.slice(0, 8)}...`;
   };
 
   return (

@@ -2,14 +2,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-interface ProfileWithEmail {
+interface ProfileWithoutEmail {
   id: string;
   full_name?: string;
   admin_subscription_override?: boolean;
-  email?: string;
 }
 
-interface GrantedSubscriptionWithEmails {
+interface GrantedSubscriptionWithoutEmails {
   id: string;
   granted_to_user_id: string;
   granted_by_admin_id: string;
@@ -28,8 +27,6 @@ interface GrantedSubscriptionWithEmails {
     id: string;
     full_name?: string;
   };
-  granted_to_email?: string;
-  granted_by_email?: string;
 }
 
 export function useSubscriptionData() {
@@ -38,11 +35,10 @@ export function useSubscriptionData() {
     queryFn: async () => {
       console.log('Fetching profiles for subscription data...');
       
-      // Get profiles data with emails from our own profiles table
-      // We'll store emails in the profiles table when users sign up
+      // Get profiles data without email column
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, admin_subscription_override, email')
+        .select('id, full_name, admin_subscription_override')
         .order('full_name');
 
       if (profilesError) {
@@ -51,7 +47,7 @@ export function useSubscriptionData() {
       }
 
       console.log('Profiles data:', profilesData);
-      return profilesData as ProfileWithEmail[] || [];
+      return profilesData as ProfileWithoutEmail[] || [];
     },
   });
 
@@ -80,7 +76,7 @@ export function useSubscriptionData() {
         return [];
       }
 
-      // Get all profile data for granted_to and granted_by users including emails
+      // Get all profile data for granted_to and granted_by users
       const userIds = [
         ...data.map(sub => sub.granted_to_user_id),
         ...data.map(sub => sub.granted_by_admin_id)
@@ -90,7 +86,7 @@ export function useSubscriptionData() {
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name')
         .in('id', uniqueUserIds);
 
       if (profilesError) throw profilesError;
@@ -98,21 +94,19 @@ export function useSubscriptionData() {
       // Create profiles map for quick lookup
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
 
-      // Add profile information and emails to granted subscriptions
-      const subscriptionsWithEmails: GrantedSubscriptionWithEmails[] = data.map(subscription => {
+      // Add profile information to granted subscriptions
+      const subscriptionsWithProfiles: GrantedSubscriptionWithoutEmails[] = data.map(subscription => {
         const grantedToProfile = profilesMap.get(subscription.granted_to_user_id);
         const grantedByProfile = profilesMap.get(subscription.granted_by_admin_id);
         
         return {
           ...subscription,
           granted_to_profile: grantedToProfile ? { id: grantedToProfile.id, full_name: grantedToProfile.full_name } : undefined,
-          granted_by_profile: grantedByProfile ? { id: grantedByProfile.id, full_name: grantedByProfile.full_name } : undefined,
-          granted_to_email: grantedToProfile?.email || `ID: ${subscription.granted_to_user_id.slice(0, 8)}...`,
-          granted_by_email: grantedByProfile?.email || `ID: ${subscription.granted_by_admin_id.slice(0, 8)}...`
+          granted_by_profile: grantedByProfile ? { id: grantedByProfile.id, full_name: grantedByProfile.full_name } : undefined
         };
       });
 
-      return subscriptionsWithEmails;
+      return subscriptionsWithProfiles;
     },
   });
 
