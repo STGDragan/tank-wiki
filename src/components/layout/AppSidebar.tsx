@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, MessageSquare, Crown, UserCog } from "lucide-react";
+import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, MessageSquare, Crown, UserCog, Share2 } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   Sidebar,
@@ -33,6 +33,7 @@ const adminNav = [
   { name: "Feedback", href: "/admin/feedback", icon: MessageSquare },
   { name: "Subscriptions", href: "/admin/subscriptions", icon: Crown },
   { name: "Admin Management", href: "/admin/management", icon: UserCog },
+  { name: "Social Media", href: "/admin/social-media", icon: Share2 },
 ];
 
 export function AppSidebar() {

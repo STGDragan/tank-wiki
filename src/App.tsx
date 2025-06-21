@@ -39,6 +39,7 @@ import AdminLegal from "./pages/admin/Legal";
 import AdminFeedback from "./pages/admin/Feedback";
 import AdminSubscriptions from "./pages/admin/SubscriptionManager";
 import AdminManagement from "./pages/admin/AdminManagement";
+import AdminSocialMedia from "./pages/admin/SocialMedia";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ function App() {
                   <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
                   <Route path="/admin/subscriptions" element={<AdminRoute><AdminSubscriptions /></AdminRoute>} />
                   <Route path="/admin/management" element={<AdminRoute><AdminManagement /></AdminRoute>} />
+                  <Route path="/admin/social-media" element={<AdminRoute><AdminSocialMedia /></AdminRoute>} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
