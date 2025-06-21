@@ -34,9 +34,7 @@ export function InhabitantsStep({ data, onUpdate, onNext, onPrev }: WizardStepPr
         },
         {
           phase: 'Week 6-8',
-          title: '
-
-Fish',
+          title: 'Delicate Fish',
           description: 'Tangs, angels, or other delicate species',
           emoji: '🐟',
           recommendedQuantity: '1-3 fish',
