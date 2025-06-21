@@ -33,6 +33,7 @@ const maintenanceTaskSchema = z.object({
   due_date: z.date().optional(),
   equipment_id: z.string().optional(),
   frequency: z.string().optional(),
+  custom_frequency: z.string().optional(),
   volume_changed: z.coerce.number({ invalid_type_error: "Please enter a valid number." }).optional().nullable(),
 });
 
@@ -77,6 +78,7 @@ const frequencyOptions = [
     { value: "weekly", label: "Weekly" },
     { value: "every 2 weeks", label: "Every 2 Weeks" },
     { value: "monthly", label: "Monthly" },
+    { value: "custom", label: "Custom" },
 ];
 
 const fetchUserMaintenanceTasks = async (userId: string): Promise<string[]> => {
@@ -163,11 +165,13 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, in
             notes: "",
             equipment_id: "",
             frequency: "once",
+            custom_frequency: "",
             volume_changed: null,
         },
     });
 
     const watchedTask = form.watch("task");
+    const watchedFrequency = form.watch("frequency");
     const [recommendedVolume, setRecommendedVolume] = React.useState<number | null>(null);
 
     React.useEffect(() => {
@@ -224,6 +228,8 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, in
             }
         }
 
+        const finalFrequency = values.frequency === 'custom' ? values.custom_frequency : values.frequency;
+
         const newMaintenanceTask: TablesInsert<'maintenance'> = {
             aquarium_id: aquariumId,
             user_id: user.id,
@@ -231,7 +237,7 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, in
             notes: values.notes || null,
             due_date: values.due_date ? values.due_date.toISOString() : null,
             equipment_id: finalEquipmentId,
-            frequency: values.frequency === 'once' ? null : values.frequency,
+            frequency: finalFrequency === 'once' ? null : finalFrequency,
         };
 
         const { error } = await supabase.from("maintenance").insert(newMaintenanceTask);
@@ -337,6 +343,22 @@ export const AddMaintenanceTaskForm = ({ aquariumId, onSuccess, aquariumType, in
                         </FormItem>
                     )}
                 />
+
+                {watchedFrequency === "custom" && (
+                    <FormField
+                        control={form.control}
+                        name="custom_frequency"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Custom Frequency</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g., every 3 weeks, bi-weekly, etc." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
 
                 <FormField
                     control={form.control}

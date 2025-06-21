@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { MaintenanceCard } from '@/components/aquarium/MaintenanceCard';
-import { AddMaintenanceTaskForm } from '@/components/aquarium/AddMaintenanceTaskForm';
+import { EquipmentBasedMaintenanceForm } from '@/components/aquarium/EquipmentBasedMaintenanceForm';
 import { ConsumablesRecommendations } from '@/components/aquarium/ConsumablesRecommendations';
 import { PlusCircle, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AddMaintenanceTaskForm } from '@/components/aquarium/AddMaintenanceTaskForm';
 
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 
@@ -51,7 +53,28 @@ export const MaintenanceSection = ({
                         <DrawerContent>
                             <DrawerHeader><DrawerTitle>Add New Maintenance Task</DrawerTitle></DrawerHeader>
                             <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
-                                <AddMaintenanceTaskForm aquariumId={aquariumId} aquariumType={aquariumType} aquariumSize={aquariumSize} onSuccess={() => setAddTaskOpen(false)} />
+                                <Tabs defaultValue="equipment-based" className="w-full">
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger value="equipment-based">Equipment-Based</TabsTrigger>
+                                        <TabsTrigger value="general">General Task</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="equipment-based" className="mt-4">
+                                        <EquipmentBasedMaintenanceForm 
+                                            aquariumId={aquariumId} 
+                                            aquariumType={aquariumType} 
+                                            aquariumSize={aquariumSize} 
+                                            onSuccess={() => setAddTaskOpen(false)} 
+                                        />
+                                    </TabsContent>
+                                    <TabsContent value="general" className="mt-4">
+                                        <AddMaintenanceTaskForm 
+                                            aquariumId={aquariumId} 
+                                            aquariumType={aquariumType} 
+                                            aquariumSize={aquariumSize} 
+                                            onSuccess={() => setAddTaskOpen(false)} 
+                                        />
+                                    </TabsContent>
+                                </Tabs>
                             </div>
                         </DrawerContent>
                     </Drawer>

@@ -1,117 +1,116 @@
 
-import { useState } from 'react';
+import { format } from 'date-fns';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react';
-import { format, isAfter, isBefore } from 'date-fns';
-import { Tables } from '@/integrations/supabase/types';
 import { CompleteTaskDialog } from './CompleteTaskDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Calendar, Check, Trash2, Wrench } from 'lucide-react';
+import { Tables } from '@/integrations/supabase/types';
+import { useState } from 'react';
 
-type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
+type MaintenanceTask = Tables<'maintenance'> &  { equipment: { type: string, brand: string | null, model: string | null } | null };
 
 interface MaintenanceCardProps {
   task: MaintenanceTask;
-  onMarkComplete: (taskId: string, completedDate: Date, additionalData?: any) => void;
+  onMarkComplete: (taskId: string, completedDate: Date) => void;
   onDelete: (taskId: string) => void;
 }
 
 export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceCardProps) => {
-  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
+  const [isCompleteDialogOpen, setCompleteDialogOpen] = useState(false);
   
+  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.completed_date;
   const isCompleted = !!task.completed_date;
-  const isOverdue = task.due_date && isBefore(new Date(task.due_date), new Date()) && !isCompleted;
-  const isUpcoming = task.due_date && isAfter(new Date(task.due_date), new Date()) && !isCompleted;
-
-  const getStatusBadge = () => {
-    if (isCompleted) {
-      return <Badge className="bg-green-100 text-green-800 border-green-200">Completed</Badge>;
-    }
-    if (isOverdue) {
-      return <Badge variant="destructive">Overdue</Badge>;
-    }
-    if (isUpcoming) {
-      return <Badge variant="secondary">Upcoming</Badge>;
-    }
-    return <Badge variant="outline">No Due Date</Badge>;
-  };
-
-  const getStatusIcon = () => {
-    if (isCompleted) {
-      return <CheckCircle className="h-4 w-4 text-green-600" />;
-    }
-    if (isOverdue) {
-      return <AlertTriangle className="h-4 w-4 text-red-600" />;
-    }
-    return <CalendarDays className="h-4 w-4 text-blue-600" />;
-  };
 
   return (
-    <>
-      <Card className={`h-full ${isOverdue ? 'border-red-200 bg-red-50' : isCompleted ? 'border-green-200 bg-green-50' : ''}`}>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              {getStatusIcon()}
-              <CardTitle className="text-sm font-medium">{task.task}</CardTitle>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(task.id)}
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+    <Card className={`h-full ${isOverdue ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : isCompleted ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'bg-background'}`}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-semibold text-foreground leading-snug">
+          {task.task}
+        </CardTitle>
+        {task.equipment && (
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Wrench className="mr-1 h-3 w-3" />
+            {task.equipment.type}
+            {task.equipment.brand && ` (${task.equipment.brand})`}
           </div>
-          {getStatusBadge()}
-        </CardHeader>
-        <CardContent className="pt-0 space-y-2">
-          {task.due_date && (
-            <CardDescription className="text-xs">
+        )}
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {task.due_date && (
+          <div className="flex items-center text-sm text-foreground">
+            <Calendar className="mr-2 h-4 w-4" />
+            <span className="font-medium">
               Due: {format(new Date(task.due_date), 'MMM d, yyyy')}
-            </CardDescription>
-          )}
-          {task.completed_date && (
-            <CardDescription className="text-xs">
-              Completed: {format(new Date(task.completed_date), 'MMM d, yyyy')}
-            </CardDescription>
-          )}
-          {task.equipment && (
-            <CardDescription className="text-xs">
-              Equipment: {task.equipment.type}
-              {task.equipment.brand && ` (${task.equipment.brand})`}
-            </CardDescription>
-          )}
-          {task.frequency && (
-            <CardDescription className="text-xs">
-              Frequency: {task.frequency}
-            </CardDescription>
-          )}
-          {task.notes && (
-            <CardDescription className="text-xs">
-              {task.notes}
-            </CardDescription>
-          )}
+            </span>
+          </div>
+        )}
+        
+        {task.frequency && (
+          <Badge variant="outline" className="text-xs">
+            {task.frequency}
+          </Badge>
+        )}
+        
+        {isOverdue && (
+          <Badge variant="destructive" className="text-xs">
+            Overdue
+          </Badge>
+        )}
+        
+        {isCompleted && (
+          <Badge variant="default" className="text-xs bg-green-600">
+            Completed {format(new Date(task.completed_date!), 'MMM d')}
+          </Badge>
+        )}
+        
+        {task.notes && (
+          <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+            {task.notes}
+          </p>
+        )}
+        
+        <div className="flex gap-2 pt-2">
           {!isCompleted && (
-            <Button
-              size="sm"
-              className="w-full mt-3"
-              onClick={() => setIsCompleteDialogOpen(true)}
-            >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Complete Task
-            </Button>
+            <>
+              <CompleteTaskDialog
+                isOpen={isCompleteDialogOpen}
+                onOpenChange={setCompleteDialogOpen}
+                onComplete={(date) => onMarkComplete(task.id, date)}
+                trigger={
+                  <Button size="sm" className="flex-1">
+                    <Check className="mr-1 h-3 w-3" />
+                    Complete
+                  </Button>
+                }
+              />
+            </>
           )}
-        </CardContent>
-      </Card>
-
-      <CompleteTaskDialog
-        task={task}
-        isOpen={isCompleteDialogOpen}
-        onOpenChange={setIsCompleteDialogOpen}
-        onComplete={onMarkComplete}
-      />
-    </>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="flex-shrink-0">
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Task</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this maintenance task? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(task.id)}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
