@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,7 +77,7 @@ const SIZE_CLASS_OPTIONS = [
 
 const TEMPERAMENT_OPTIONS = [
   { value: 'peaceful', label: 'Peaceful' },
-  { value: 'semi_aggressive', label: 'Semi-Aggressive' },
+  { value: 'semi-aggressive', label: 'Semi-Aggressive' },
   { value: 'aggressive', label: 'Aggressive' }
 ];
 
@@ -162,146 +161,144 @@ const FilterSidebar = ({
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Equipment with ScrollArea when expanded */}
-        <FilterSection
-          title="Equipment"
-          isOpen={openSections.equipment}
-          onToggle={() => toggleSection('equipment')}
-        >
-          <ScrollArea className="h-48">
-            <CategoryFilter
-              categories={categories}
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
-          </ScrollArea>
-        </FilterSection>
+      <CardContent>
+        <ScrollArea className="h-[calc(100vh-200px)]">
+          <div className="space-y-6 pr-4">
+            {/* Equipment - No individual ScrollArea */}
+            <FilterSection
+              title="Equipment"
+              isOpen={openSections.equipment}
+              onToggle={() => toggleSection('equipment')}
+            >
+              <CategoryFilter
+                categories={categories}
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Price Range - No ScrollArea needed for simple slider */}
-        <FilterSection
-          title="Price Range"
-          isOpen={openSections.price}
-          onToggle={() => toggleSection('price')}
-        >
-          <PriceRangeFilter
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-            maxPrice={maxPrice}
-          />
-        </FilterSection>
+            {/* Price Range */}
+            <FilterSection
+              title="Price Range"
+              isOpen={openSections.price}
+              onToggle={() => toggleSection('price')}
+            >
+              <PriceRangeFilter
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                maxPrice={maxPrice}
+              />
+            </FilterSection>
 
-        {/* Tank Types */}
-        <FilterSection
-          title="Tank Types"
-          isOpen={openSections.tankTypes}
-          onToggle={() => toggleSection('tankTypes')}
-        >
-          <ScrollArea className="h-40">
-            <CheckboxFilter
-              options={TANK_TYPE_OPTIONS}
-              filterKey="tankTypes"
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
-          </ScrollArea>
-        </FilterSection>
+            {/* Tank Types - No individual ScrollArea */}
+            <FilterSection
+              title="Tank Types"
+              isOpen={openSections.tankTypes}
+              onToggle={() => toggleSection('tankTypes')}
+            >
+              <CheckboxFilter
+                options={TANK_TYPE_OPTIONS}
+                filterKey="tankTypes"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Size Class - No ScrollArea needed for 5 items */}
-        <FilterSection
-          title="Size Class"
-          isOpen={openSections.sizeClass}
-          onToggle={() => toggleSection('sizeClass')}
-        >
-          <CheckboxFilter
-            options={SIZE_CLASS_OPTIONS}
-            filterKey="sizeClass"
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
-        </FilterSection>
+            {/* Size Class */}
+            <FilterSection
+              title="Size Class"
+              isOpen={openSections.sizeClass}
+              onToggle={() => toggleSection('sizeClass')}
+            >
+              <CheckboxFilter
+                options={SIZE_CLASS_OPTIONS}
+                filterKey="sizeClass"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Temperament - No ScrollArea needed for 3 items */}
-        <FilterSection
-          title="Temperament"
-          isOpen={openSections.temperament}
-          onToggle={() => toggleSection('temperament')}
-        >
-          <CheckboxFilter
-            options={TEMPERAMENT_OPTIONS}
-            filterKey="temperament"
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
-        </FilterSection>
+            {/* Temperament */}
+            <FilterSection
+              title="Temperament"
+              isOpen={openSections.temperament}
+              onToggle={() => toggleSection('temperament')}
+            >
+              <CheckboxFilter
+                options={TEMPERAMENT_OPTIONS}
+                filterKey="temperament"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Difficulty Level - No ScrollArea needed for 3 items */}
-        <FilterSection
-          title="Difficulty Level"
-          isOpen={openSections.difficulty}
-          onToggle={() => toggleSection('difficulty')}
-        >
-          <CheckboxFilter
-            options={DIFFICULTY_OPTIONS}
-            filterKey="difficultyLevel"
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
-        </FilterSection>
+            {/* Difficulty Level */}
+            <FilterSection
+              title="Difficulty Level"
+              isOpen={openSections.difficulty}
+              onToggle={() => toggleSection('difficulty')}
+            >
+              <CheckboxFilter
+                options={DIFFICULTY_OPTIONS}
+                filterKey="difficultyLevel"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Compatibility Tags */}
-        <FilterSection
-          title="Compatibility"
-          isOpen={openSections.compatibility}
-          onToggle={() => toggleSection('compatibility')}
-        >
-          <ScrollArea className="h-40">
-            <CompatibilityTagsFilter
-              compatibilityTags={compatibilityTags}
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
-          </ScrollArea>
-        </FilterSection>
+            {/* Compatibility Tags - No individual ScrollArea */}
+            <FilterSection
+              title="Compatibility"
+              isOpen={openSections.compatibility}
+              onToggle={() => toggleSection('compatibility')}
+            >
+              <CompatibilityTagsFilter
+                compatibilityTags={compatibilityTags}
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Condition - No ScrollArea needed for 3 items */}
-        <FilterSection
-          title="Condition"
-          isOpen={openSections.condition}
-          onToggle={() => toggleSection('condition')}
-        >
-          <CheckboxFilter
-            options={CONDITION_OPTIONS}
-            filterKey="condition"
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
-        </FilterSection>
+            {/* Condition */}
+            <FilterSection
+              title="Condition"
+              isOpen={openSections.condition}
+              onToggle={() => toggleSection('condition')}
+            >
+              <CheckboxFilter
+                options={CONDITION_OPTIONS}
+                filterKey="condition"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </FilterSection>
 
-        {/* Active Filters */}
-        {hasActiveFilters && (
-          <div className="pt-4 border-t">
-            <p className="text-sm font-medium mb-2 text-foreground">Active Filters:</p>
-            <div className="flex flex-wrap gap-1">
-              {Object.entries(filters).flatMap(([key, values]) => {
-                if (key === 'priceRange') {
-                  const [min, max] = values as [number, number];
-                  if (min > 0 || max < maxPrice) {
-                    return [<Badge key="price" variant="secondary" className="text-xs">
-                      ${min}-${max}
-                    </Badge>];
-                  }
-                  return [];
-                }
-                return (values as string[]).map(value => (
-                  <Badge key={`${key}-${value}`} variant="secondary" className="text-xs">
-                    {value.replace('_', ' ')}
-                  </Badge>
-                ));
-              })}
-            </div>
+            {/* Active Filters */}
+            {hasActiveFilters && (
+              <div className="pt-4 border-t">
+                <p className="text-sm font-medium mb-2 text-foreground">Active Filters:</p>
+                <div className="flex flex-wrap gap-1">
+                  {Object.entries(filters).flatMap(([key, values]) => {
+                    if (key === 'priceRange') {
+                      const [min, max] = values as [number, number];
+                      if (min > 0 || max < maxPrice) {
+                        return [<Badge key="price" variant="secondary" className="text-xs">
+                          ${min}-${max}
+                        </Badge>];
+                      }
+                      return [];
+                    }
+                    return (values as string[]).map(value => (
+                      <Badge key={`${key}-${value}`} variant="secondary" className="text-xs">
+                        {value.replace('_', ' ')}
+                      </Badge>
+                    ));
+                  })}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );

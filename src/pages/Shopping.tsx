@@ -301,8 +301,8 @@ const Shopping = () => {
         </div>
         <div className="animate-pulse space-y-4">
           <div className="h-12 bg-muted rounded-xl" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
               <div key={i} className="h-96 bg-muted rounded-xl" />
             ))}
           </div>
@@ -374,7 +374,7 @@ const Shopping = () => {
               </div>
             )}
 
-            {/* All Products Grid */}
+            {/* All Products Grid - Wider cards */}
             <div className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
                 {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
@@ -398,7 +398,7 @@ const Shopping = () => {
               ) : (
                 <div className={
                   viewMode === 'grid' 
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6" 
                     : "space-y-4"
                 }>
                   {filteredAndSortedProducts.map((product) => (
