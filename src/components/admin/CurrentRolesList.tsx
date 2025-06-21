@@ -28,6 +28,10 @@ export function CurrentRolesList({ userRoles, onRemoveRole, isRemoving }: Curren
     // Prioritize first_name + last_name, then full_name, then email
     if (profile.first_name && profile.last_name) {
       return `${profile.first_name} ${profile.last_name}`;
+    } else if (profile.first_name) {
+      return profile.first_name;
+    } else if (profile.last_name) {
+      return profile.last_name;
     } else if (profile.full_name) {
       return profile.full_name;
     }

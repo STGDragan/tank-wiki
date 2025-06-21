@@ -30,6 +30,10 @@ export function UserRoleAssignmentForm({ profiles, onAssignRole, isAssigning }: 
     
     if (profile.first_name && profile.last_name) {
       displayName = `${profile.first_name} ${profile.last_name}`;
+    } else if (profile.first_name) {
+      displayName = profile.first_name;
+    } else if (profile.last_name) {
+      displayName = profile.last_name;
     } else if (profile.full_name) {
       displayName = profile.full_name;
     }

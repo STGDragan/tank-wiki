@@ -20,11 +20,15 @@ interface AdminGrantedSubscription {
   granted_to_profile?: {
     id: string;
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
   granted_by_profile?: {
     id: string;
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
 }
@@ -58,11 +62,22 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
     },
   });
 
-  const getUserDisplayName = (profile?: { full_name?: string; email?: string }, userId?: string) => {
-    if (profile?.full_name) {
+  const getUserDisplayName = (profile?: { full_name?: string; first_name?: string; last_name?: string; email?: string }, userId?: string) => {
+    if (!profile) {
+      return `User ID: ${userId?.slice(0, 8)}...` || 'Unknown User';
+    }
+    
+    // Prioritize first_name + last_name, then full_name, then email
+    if (profile.first_name && profile.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    } else if (profile.first_name) {
+      return profile.first_name;
+    } else if (profile.last_name) {
+      return profile.last_name;
+    } else if (profile.full_name) {
       return profile.full_name;
     }
-    if (profile?.email) {
+    if (profile.email) {
       return profile.email;
     }
     return `User ID: ${userId?.slice(0, 8)}...` || 'Unknown User';

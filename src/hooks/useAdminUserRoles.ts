@@ -6,6 +6,8 @@ import { toast } from "@/hooks/use-toast";
 interface Profile {
   id: string;
   full_name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
 }
 
@@ -15,6 +17,8 @@ interface UserRole {
   role: string;
   profile?: {
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
 }
@@ -31,8 +35,8 @@ export function useAdminUserRoles() {
       
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
-        .order('full_name');
+        .select('id, full_name, first_name, last_name, email')
+        .order('first_name, last_name, full_name');
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
@@ -62,7 +66,7 @@ export function useAdminUserRoles() {
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name, first_name, last_name, email')
         .in('id', userIds);
 
       if (profilesError) throw profilesError;

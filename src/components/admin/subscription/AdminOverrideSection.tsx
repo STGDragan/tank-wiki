@@ -10,6 +10,8 @@ import { Crown } from "lucide-react";
 interface Profile {
   id: string;
   full_name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   admin_subscription_override?: boolean;
 }
@@ -44,8 +46,14 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
   });
 
   const formatUserDisplay = (profile: Profile) => {
-    // Use full_name if available, otherwise use email, fallback to truncated ID
-    if (profile.full_name) {
+    // Prioritize first_name + last_name, then full_name, then email
+    if (profile.first_name && profile.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    } else if (profile.first_name) {
+      return profile.first_name;
+    } else if (profile.last_name) {
+      return profile.last_name;
+    } else if (profile.full_name) {
       return profile.full_name;
     }
     if (profile.email) {
@@ -69,11 +77,13 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
         <div className="space-y-4">
           {profiles?.map((profile) => {
             const displayName = formatUserDisplay(profile);
+            const showEmail = profile.email && (profile.first_name || profile.last_name || profile.full_name);
+            
             return (
               <div key={profile.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="font-medium">{displayName}</p>
-                  {profile.full_name && profile.email && (
+                  {showEmail && (
                     <p className="text-sm text-muted-foreground">{profile.email}</p>
                   )}
                 </div>
