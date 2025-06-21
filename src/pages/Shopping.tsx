@@ -52,7 +52,6 @@ const Shopping = () => {
   const [sortBy, setSortBy] = useState<SortOption>('popularity');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [desktopFilterOpen, setDesktopFilterOpen] = useState(true);
   
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
@@ -130,6 +129,24 @@ const Shopping = () => {
       })) as Product[];
     },
   });
+
+  // Filter categories to only show those that have products
+  const availableCategories = useMemo(() => {
+    const productCategorySlugs = new Set(
+      products.map(p => p.category_info?.slug || p.category?.toLowerCase().replace(/\s+/g, '-')).filter(Boolean)
+    );
+    const productSubcategorySlugs = new Set(
+      products.map(p => p.subcategory?.toLowerCase().replace(/\s+/g, '-')).filter(Boolean)
+    );
+    
+    return categories.filter(cat => {
+      if (cat.level === 0) {
+        return productCategorySlugs.has(cat.slug);
+      } else {
+        return productSubcategorySlugs.has(cat.slug);
+      }
+    });
+  }, [categories, products]);
 
   // Calculate maxPrice from products
   const maxPrice = useMemo(() => {
@@ -272,9 +289,9 @@ const Shopping = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-8 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Shopping</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Shopping</h1>
         </div>
         <div className="animate-pulse space-y-4">
           <div className="h-12 bg-muted rounded-xl" />
@@ -293,129 +310,97 @@ const Shopping = () => {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Shopping</h1>
-      </div>
-
-      {/* Search Bar */}
-      <div className="w-full">
-        <SearchBar onSearch={setSearchQuery} />
-      </div>
-
-      {/* Desktop Layout */}
-      <div className="flex gap-6">
-        {/* Desktop Filter Sidebar */}
-        <div className="hidden lg:block">
-          <Sheet open={desktopFilterOpen} onOpenChange={setDesktopFilterOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="lg:hidden mb-4">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-80 p-0">
-              <div className="p-6">
-                <FilterSidebar
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  categories={categories}
-                  compatibilityTags={compatibilityTags}
-                  maxPrice={maxPrice}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
-          
-          {desktopFilterOpen && (
-            <div className="w-80 sticky top-6">
-              <FilterSidebar
-                filters={filters}
-                onFiltersChange={setFilters}
-                categories={categories}
-                compatibilityTags={compatibilityTags}
-                maxPrice={maxPrice}
-              />
-            </div>
-          )}
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Shopping</h1>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 space-y-6">
-          {/* Mobile Filter Button and Sorting Controls */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="lg:hidden">
-              <MobileFilterDialog
-                filters={filters}
-                onFiltersChange={setFilters}
-                categories={categories}
-                compatibilityTags={compatibilityTags}
-                maxPrice={maxPrice}
-                open={mobileFilterOpen}
-                onOpenChange={setMobileFilterOpen}
-              />
-            </div>
-            
-            <div className="hidden lg:block">
-              <Button
-                variant="outline"
-                onClick={() => setDesktopFilterOpen(!desktopFilterOpen)}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                {desktopFilterOpen ? 'Hide' : 'Show'} Filters
-              </Button>
-            </div>
+        {/* Search Bar */}
+        <div className="w-full">
+          <SearchBar onSearch={setSearchQuery} />
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="flex gap-6">
+          {/* Desktop Filter Sidebar - Always Visible */}
+          <div className="hidden lg:block w-80 sticky top-6 h-fit">
+            <FilterSidebar
+              filters={filters}
+              onFiltersChange={setFilters}
+              categories={availableCategories}
+              compatibilityTags={compatibilityTags}
+              maxPrice={maxPrice}
+            />
           </div>
 
-          <SortingControls
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            resultCount={filteredAndSortedProducts.length}
-          />
-
-          {/* Featured Products Section - Only show if no search/filters active */}
-          {!searchQuery && isFiltersEmpty && (
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold">Featured Products</h2>
-              <FeaturedProducts />
-            </div>
-          )}
-
-          {/* All Products Grid */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">
-              {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
-            </h2>
-            
-            {filteredAndSortedProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">
-                  {searchQuery ? 'No products found matching your search.' : 'No products available.'}
-                </p>
-                {searchQuery && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setSearchQuery('')}
-                    className="mt-4"
-                  >
-                    Clear Search
-                  </Button>
-                )}
+          {/* Main Content */}
+          <div className="flex-1 space-y-6">
+            {/* Mobile Filter Button and Sorting Controls */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="lg:hidden">
+                <MobileFilterDialog
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  categories={availableCategories}
+                  compatibilityTags={compatibilityTags}
+                  maxPrice={maxPrice}
+                  open={mobileFilterOpen}
+                  onOpenChange={setMobileFilterOpen}
+                />
               </div>
-            ) : (
-              <div className={
-                viewMode === 'grid' 
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-                  : "space-y-4"
-              }>
-                {filteredAndSortedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+            </div>
+
+            <SortingControls
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              resultCount={filteredAndSortedProducts.length}
+            />
+
+            {/* Featured Products Section - Only show if no search/filters active */}
+            {!searchQuery && isFiltersEmpty && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-semibold text-foreground">Featured Products</h2>
+                <FeaturedProducts />
               </div>
             )}
+
+            {/* All Products Grid */}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold text-foreground">
+                {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
+              </h2>
+              
+              {filteredAndSortedProducts.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">
+                    {searchQuery ? 'No products found matching your search.' : 'No products available.'}
+                  </p>
+                  {searchQuery && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setSearchQuery('')}
+                      className="mt-4"
+                    >
+                      Clear Search
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className={
+                  viewMode === 'grid' 
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+                    : "space-y-4"
+                }>
+                  {filteredAndSortedProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -424,4 +409,3 @@ const Shopping = () => {
 };
 
 export default Shopping;
-

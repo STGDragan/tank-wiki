@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Filter, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FilterSection from "./filters/FilterSection";
@@ -102,16 +103,17 @@ const FilterSidebar = ({
   className,
   isMobile = false
 }: FilterSidebarProps) => {
+  // All sections default to closed
   const [openSections, setOpenSections] = useState({
-    categories: true,
-    tankTypes: true,
-    price: true,
-    tags: true,
-    condition: true,
-    sizeClass: true,
-    temperament: true,
-    difficulty: true,
-    compatibility: true
+    categories: false,
+    tankTypes: false,
+    price: false,
+    tags: false,
+    condition: false,
+    sizeClass: false,
+    temperament: false,
+    difficulty: false,
+    compatibility: false
   });
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -140,9 +142,9 @@ const FilterSidebar = ({
   );
 
   return (
-    <Card className={cn("w-full", className)}>
+    <Card className={cn("w-full bg-background border border-border", className)}>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center justify-between text-lg">
+        <CardTitle className="flex items-center justify-between text-lg text-foreground">
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
             Filters
@@ -161,17 +163,19 @@ const FilterSidebar = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Categories */}
+        {/* Categories with ScrollArea when expanded */}
         <FilterSection
           title="Categories"
           isOpen={openSections.categories}
           onToggle={() => toggleSection('categories')}
         >
-          <CategoryFilter
-            categories={categories}
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <ScrollArea className="h-64">
+            <CategoryFilter
+              categories={categories}
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </ScrollArea>
         </FilterSection>
 
         {/* Tank Types */}
@@ -180,12 +184,14 @@ const FilterSidebar = ({
           isOpen={openSections.tankTypes}
           onToggle={() => toggleSection('tankTypes')}
         >
-          <CheckboxFilter
-            options={TANK_TYPE_OPTIONS}
-            filterKey="tankTypes"
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <ScrollArea className="h-48">
+            <CheckboxFilter
+              options={TANK_TYPE_OPTIONS}
+              filterKey="tankTypes"
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </ScrollArea>
         </FilterSection>
 
         {/* Price Range */}
@@ -249,11 +255,13 @@ const FilterSidebar = ({
           isOpen={openSections.compatibility}
           onToggle={() => toggleSection('compatibility')}
         >
-          <CompatibilityTagsFilter
-            compatibilityTags={compatibilityTags}
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <ScrollArea className="h-48">
+            <CompatibilityTagsFilter
+              compatibilityTags={compatibilityTags}
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </ScrollArea>
         </FilterSection>
 
         {/* Condition */}
@@ -273,7 +281,7 @@ const FilterSidebar = ({
         {/* Active Filters */}
         {hasActiveFilters && (
           <div className="pt-4 border-t">
-            <p className="text-sm font-medium mb-2">Active Filters:</p>
+            <p className="text-sm font-medium mb-2 text-foreground">Active Filters:</p>
             <div className="flex flex-wrap gap-1">
               {Object.entries(filters).flatMap(([key, values]) => {
                 if (key === 'priceRange') {
