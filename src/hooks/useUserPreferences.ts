@@ -20,6 +20,9 @@ export const useUserPreferences = () => {
   useEffect(() => {
     if (user) {
       fetchPreferences();
+    } else {
+      setPreferences(null);
+      setLoading(false);
     }
   }, [user]);
 
@@ -35,6 +38,7 @@ export const useUserPreferences = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching preferences:', error);
+        setLoading(false);
         return;
       }
 
@@ -45,32 +49,60 @@ export const useUserPreferences = () => {
         };
         setPreferences(typedPrefs);
       } else {
-        // Create default preferences
-        const defaultPrefs = {
-          user_id: user.id,
-          units_volume: 'gallons' as const,
-        };
-        
-        const { data: newPrefs, error: insertError } = await supabase
-          .from('user_preferences')
-          .insert(defaultPrefs)
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Error creating default preferences:', insertError);
-        } else {
-          const typedNewPrefs: UserPreferences = {
-            ...newPrefs,
-            units_volume: newPrefs.units_volume as 'gallons' | 'liters'
-          };
-          setPreferences(typedNewPrefs);
-        }
+        // Only create default preferences if none exist
+        await createDefaultPreferences();
       }
     } catch (error) {
       console.error('Error in fetchPreferences:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createDefaultPreferences = async () => {
+    if (!user) return;
+
+    const defaultPrefs = {
+      user_id: user.id,
+      units_volume: 'gallons' as const,
+    };
+    
+    try {
+      const { data: newPrefs, error: insertError } = await supabase
+        .from('user_preferences')
+        .insert(defaultPrefs)
+        .select()
+        .single();
+
+      if (insertError) {
+        // If it's a duplicate key error, try to fetch the existing record
+        if (insertError.code === '23505') {
+          console.log('Preferences already exist, fetching existing record');
+          const { data: existingPrefs, error: fetchError } = await supabase
+            .from('user_preferences')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!fetchError && existingPrefs) {
+            const typedExistingPrefs: UserPreferences = {
+              ...existingPrefs,
+              units_volume: existingPrefs.units_volume as 'gallons' | 'liters'
+            };
+            setPreferences(typedExistingPrefs);
+          }
+        } else {
+          console.error('Error creating default preferences:', insertError);
+        }
+      } else if (newPrefs) {
+        const typedNewPrefs: UserPreferences = {
+          ...newPrefs,
+          units_volume: newPrefs.units_volume as 'gallons' | 'liters'
+        };
+        setPreferences(typedNewPrefs);
+      }
+    } catch (error) {
+      console.error('Error in createDefaultPreferences:', error);
     }
   };
 
