@@ -604,6 +604,7 @@ export type Database = {
           status: string
           tags: string[] | null
           title: string
+          tldr: string | null
           updated_at: string
         }
         Insert: {
@@ -617,6 +618,7 @@ export type Database = {
           status?: string
           tags?: string[] | null
           title: string
+          tldr?: string | null
           updated_at?: string
         }
         Update: {
@@ -630,6 +632,7 @@ export type Database = {
           status?: string
           tags?: string[] | null
           title?: string
+          tldr?: string | null
           updated_at?: string
         }
         Relationships: [

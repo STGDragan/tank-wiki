@@ -1,13 +1,31 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RecommendationCarousel from "@/components/recommendations/RecommendationCarousel";
-import { Recommendation } from "@/data/recommendations";
 
-const RecommendationTabs = ({ recommendations }: { recommendations: Recommendation[] }) => {
-  const inhabitants = recommendations.filter(r => r.type === 'livestock');
-  const equipment = recommendations.filter(r => r.type === 'equipment');
-  const consumables = recommendations.filter(r => r.type === 'consumable');
-  const food = recommendations.filter(r => r.type === 'food');
+// Define a type for database products instead of static recommendations
+interface DatabaseProduct {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  imageurls?: string[];
+  regular_price?: number;
+  sale_price?: number;
+  is_on_sale?: boolean;
+  is_featured?: boolean;
+  is_recommended?: boolean;
+  brand?: string;
+  affiliate_links?: Array<{
+    link_url: string;
+    provider?: string;
+  }>;
+}
+
+const RecommendationTabs = ({ recommendations }: { recommendations: DatabaseProduct[] }) => {
+  const inhabitants = recommendations.filter(r => r.category === 'livestock' || r.is_livestock === true);
+  const equipment = recommendations.filter(r => r.category === 'equipment');
+  const consumables = recommendations.filter(r => r.category === 'consumable');
+  const food = recommendations.filter(r => r.category === 'food');
 
   return (
     <Tabs defaultValue="inhabitants" className="w-full">
@@ -41,7 +59,7 @@ const RecommendationTabs = ({ recommendations }: { recommendations: Recommendati
         <RecommendationCarousel items={inhabitants} />
       </TabsContent>
       <TabsContent value="equipment">
-        <RecommendationCarousel items={equipment} />
+        <ReRecommendationCarousel items={equipment} />
       </TabsContent>
       <TabsContent value="consumables">
         <RecommendationCarousel items={consumables} />

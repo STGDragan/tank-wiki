@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ const ArticleEditor = () => {
             title: '',
             slug: '',
             content: '',
+            tldr: '',
             status: 'draft',
             category_id: null,
             tags: '',
@@ -45,6 +47,7 @@ const ArticleEditor = () => {
                 status: article.status as 'draft' | 'published',
                 tags: article.tags?.join(', ') || '',
                 content: article.content ?? '',
+                tldr: article.tldr ?? '',
                 category_id: article.category_id ?? null,
             });
             setImageUrl(article.image_url);
@@ -144,6 +147,18 @@ const ArticleEditor = () => {
                                 <Label htmlFor="title">Title</Label>
                                 <Input id="title" {...register("title")} onChange={handleTitleChange} />
                                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="tldr">TL/DR Summary</Label>
+                                <Textarea 
+                                    id="tldr" 
+                                    {...register("tldr")} 
+                                    rows={3}
+                                    placeholder="Brief summary of the article for quick reference and wizard integration..."
+                                />
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    This summary will be used in the aquarium setup wizard and quick previews.
+                                </p>
                             </div>
                             <div>
                                 <Label htmlFor="content">Content</Label>

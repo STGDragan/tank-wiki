@@ -75,6 +75,7 @@ export const useUpsertArticle = (articleId?: string) => {
                 status: data.status,
                 category_id: data.category_id,
                 content: data.content || null,
+                tldr: data.tldr || null,
                 tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
                 image_url: data.image_url,
             };
