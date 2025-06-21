@@ -15,6 +15,7 @@ import { AquariumRecommendationsContainer } from "@/components/aquarium/Aquarium
 import { JournalTab } from "@/components/aquarium/JournalTab";
 import { LogTab } from "@/components/aquarium/LogTab";
 import { WizardProgressTracker } from "@/components/aquarium/WizardProgressTracker";
+import { TankHealthIndicator } from "@/components/aquarium/TankHealthIndicator";
 
 const AquariumDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,12 +48,14 @@ const AquariumDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full" />
-          ))}
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="space-y-6 p-6">
+          <Skeleton className="h-8 w-64" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-48 w-full" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -60,11 +63,13 @@ const AquariumDetail = () => {
 
   if (error || !aquarium) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Aquarium not found</h2>
-        <p className="text-gray-600 dark:text-slate-400 mt-2">
-          {error?.message || "The aquarium you're looking for doesn't exist."}
-        </p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900">Aquarium not found</h2>
+          <p className="text-gray-600 mt-2">
+            {error?.message || "The aquarium you're looking for doesn't exist."}
+          </p>
+        </div>
       </div>
     );
   }
@@ -73,147 +78,159 @@ const AquariumDetail = () => {
   const latestWaterReading = waterParameters && waterParameters.length > 0 ? waterParameters[0] : undefined;
 
   return (
-    <div className="space-y-6">
-      <AquariumHeader aquarium={aquarium} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="space-y-6 p-6">
+        <AquariumHeader aquarium={aquarium} />
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10 dark:bg-slate-800 dark:border-slate-700">
-          <TabsTrigger value="overview" className="dark:data-[state=active]:bg-slate-700">Overview</TabsTrigger>
-          <TabsTrigger value="progress" className="dark:data-[state=active]:bg-slate-700">Progress</TabsTrigger>
-          <TabsTrigger value="livestock" className="dark:data-[state=active]:bg-slate-700">Livestock</TabsTrigger>
-          <TabsTrigger value="equipment" className="dark:data-[state=active]:bg-slate-700">Equipment</TabsTrigger>
-          <TabsTrigger value="maintenance" className="dark:data-[state=active]:bg-slate-700">Maintenance</TabsTrigger>
-          <TabsTrigger value="water" className="dark:data-[state=active]:bg-slate-700">Water Tests</TabsTrigger>
-          <TabsTrigger value="timeline" className="dark:data-[state=active]:bg-slate-700">Timeline</TabsTrigger>
-          <TabsTrigger value="wishlist" className="dark:data-[state=active]:bg-slate-700">Wishlist</TabsTrigger>
-          <TabsTrigger value="journal" className="dark:data-[state=active]:bg-slate-700">Journal</TabsTrigger>
-          <TabsTrigger value="log" className="dark:data-[state=active]:bg-slate-700">Activity Log</TabsTrigger>
-        </TabsList>
+        {/* Tank Health Indicator - Prominent placement */}
+        <TankHealthIndicator
+          waterParameters={waterParameters}
+          maintenanceTasks={tasks}
+          livestock={livestock}
+          equipment={equipment}
+          aquariumType={aquarium.type}
+          aquariumSize={aquarium.size}
+        />
 
-        <TabsContent value="overview" className="space-y-6">
-          <LivestockSection
-            livestock={livestock || []}
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            canEdit={canEdit}
-            onUpdateQuantity={handleUpdateLivestockQuantity}
-            onDelete={handleDeleteLivestock}
-            showRecommendations={false}
-          />
-          <EquipmentSection
-            equipment={equipment || []}
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            canEdit={canEdit}
-            onDelete={handleDeleteEquipment}
-            showRecommendations={false}
-          />
-          <MaintenanceSection
-            tasks={pendingTasks || []}
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            aquariumSize={aquarium.size}
-            onMarkComplete={handleMarkComplete}
-            onDelete={handleDeleteTask}
-            showRecommendations={false}
-          />
-          <AquariumRecommendationsContainer
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            userId={user.id}
-          />
-        </TabsContent>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-10 bg-white/80 backdrop-blur-sm border shadow-sm">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Overview</TabsTrigger>
+            <TabsTrigger value="progress" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Progress</TabsTrigger>
+            <TabsTrigger value="livestock" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Livestock</TabsTrigger>
+            <TabsTrigger value="equipment" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Equipment</TabsTrigger>
+            <TabsTrigger value="maintenance" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Maintenance</TabsTrigger>
+            <TabsTrigger value="water" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Water Tests</TabsTrigger>
+            <TabsTrigger value="timeline" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Timeline</TabsTrigger>
+            <TabsTrigger value="wishlist" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Wishlist</TabsTrigger>
+            <TabsTrigger value="journal" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Journal</TabsTrigger>
+            <TabsTrigger value="log" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700">Activity Log</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="progress" className="space-y-6">
-          <WizardProgressTracker 
-            aquariumId={aquarium.id}
-            userId={user.id}
-            aquariumCount={0} // This will be passed properly from a parent component
-          />
-        </TabsContent>
+          <TabsContent value="overview" className="space-y-6">
+            <LivestockSection
+              livestock={livestock || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              canEdit={canEdit}
+              onUpdateQuantity={handleUpdateLivestockQuantity}
+              onDelete={handleDeleteLivestock}
+              showRecommendations={false}
+            />
+            <EquipmentSection
+              equipment={equipment || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              canEdit={canEdit}
+              onDelete={handleDeleteEquipment}
+              showRecommendations={false}
+            />
+            <MaintenanceSection
+              tasks={pendingTasks || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              aquariumSize={aquarium.size}
+              onMarkComplete={handleMarkComplete}
+              onDelete={handleDeleteTask}
+              showRecommendations={false}
+            />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
+            />
+          </TabsContent>
 
-        <TabsContent value="livestock" className="space-y-6">
-          <LivestockSection
-            livestock={livestock || []}
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            canEdit={canEdit}
-            onUpdateQuantity={handleUpdateLivestockQuantity}
-            onDelete={handleDeleteLivestock}
-            showRecommendations={false}
-          />
-        </TabsContent>
+          <TabsContent value="progress" className="space-y-6">
+            <WizardProgressTracker 
+              aquariumId={aquarium.id}
+              userId={user.id}
+              aquariumCount={0}
+            />
+          </TabsContent>
 
-        <TabsContent value="equipment" className="space-y-6">
-          <EquipmentSection
-            equipment={equipment || []}
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            canEdit={canEdit}
-            onDelete={handleDeleteEquipment}
-            showRecommendations={false}
-          />
-        </TabsContent>
+          <TabsContent value="livestock" className="space-y-6">
+            <LivestockSection
+              livestock={livestock || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              canEdit={canEdit}
+              onUpdateQuantity={handleUpdateLivestockQuantity}
+              onDelete={handleDeleteLivestock}
+              showRecommendations={false}
+            />
+          </TabsContent>
 
-        <TabsContent value="maintenance" className="space-y-6">
-          <MaintenanceSection
-            tasks={tasks || []}
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            aquariumSize={aquarium.size}
-            onMarkComplete={handleMarkComplete}
-            onDelete={handleDeleteTask}
-            showRecommendations={false}
-          />
-        </TabsContent>
+          <TabsContent value="equipment" className="space-y-6">
+            <EquipmentSection
+              equipment={equipment || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              canEdit={canEdit}
+              onDelete={handleDeleteEquipment}
+              showRecommendations={false}
+            />
+          </TabsContent>
 
-        <TabsContent value="water" className="space-y-6">
-          <WaterParametersSection
-            aquariumId={aquarium.id}
-            aquariumType={aquarium.type}
-            latestReading={latestWaterReading}
-          />
-        </TabsContent>
+          <TabsContent value="maintenance" className="space-y-6">
+            <MaintenanceSection
+              tasks={tasks || []}
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              aquariumSize={aquarium.size}
+              onMarkComplete={handleMarkComplete}
+              onDelete={handleDeleteTask}
+              showRecommendations={false}
+            />
+          </TabsContent>
 
-        <TabsContent value="timeline">
-          <TimelineTab
-            aquariumId={aquarium.id}
-            userId={user.id}
-            canEdit={canEdit}
-          />
-        </TabsContent>
+          <TabsContent value="water" className="space-y-6">
+            <WaterParametersSection
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              latestReading={latestWaterReading}
+            />
+          </TabsContent>
 
-        <TabsContent value="wishlist">
-          <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
-        </TabsContent>
+          <TabsContent value="timeline">
+            <TimelineTab
+              aquariumId={aquarium.id}
+              userId={user.id}
+              canEdit={canEdit}
+            />
+          </TabsContent>
 
-        <TabsContent value="journal">
-          <JournalTab
-            aquariumId={aquarium.id}
-            canEdit={canEdit}
-            userId={user.id}
-            tasks={tasks}
-            livestock={livestock}
-            waterParameters={waterParameters}
-            equipment={equipment}
-          />
-        </TabsContent>
+          <TabsContent value="wishlist">
+            <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
+          </TabsContent>
 
-        <TabsContent value="log">
-          <LogTab
-            aquariumId={aquarium.id}
-            canEdit={canEdit}
-            userId={user.id}
-            tasks={tasks}
-            livestock={livestock}
-            waterParameters={waterParameters}
-            equipment={equipment}
-            journalEntries={journalEntries}
-            aquariumType={aquarium.type}
-            medications={medications}
-          />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="journal">
+            <JournalTab
+              aquariumId={aquarium.id}
+              canEdit={canEdit}
+              userId={user.id}
+              tasks={tasks}
+              livestock={livestock}
+              waterParameters={waterParameters}
+              equipment={equipment}
+            />
+          </TabsContent>
+
+          <TabsContent value="log">
+            <LogTab
+              aquariumId={aquarium.id}
+              canEdit={canEdit}
+              userId={user.id}
+              tasks={tasks}
+              livestock={livestock}
+              waterParameters={waterParameters}
+              equipment={equipment}
+              journalEntries={journalEntries}
+              aquariumType={aquarium.type}
+              medications={medications}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

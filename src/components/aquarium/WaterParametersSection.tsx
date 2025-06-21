@@ -1,88 +1,197 @@
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
-import { AddWaterParameterForm } from '@/components/aquarium/AddWaterParameterForm';
-import { TestingKitRecommendations } from '@/components/aquarium/TestingKitRecommendations';
-import { ConsumablesRecommendations } from '@/components/aquarium/ConsumablesRecommendations';
-import { PlusCircle, TestTube2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, TestTube } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/providers/AuthProvider";
 import { Tables } from "@/integrations/supabase/types";
-import { format } from 'date-fns';
+import { toast } from "@/hooks/use-toast";
+import { AddWaterParameterForm } from "./AddWaterParameterForm";
+import { WaterParameterCard } from "./WaterParameterCard";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type WaterParameterReading = Tables<'water_parameters'>;
 
 interface WaterParametersSectionProps {
   aquariumId: string;
-  aquariumType: string | null;
-  latestReading: WaterParameterReading | undefined;
+  aquariumType?: string | null;
+  latestReading?: WaterParameterReading;
 }
 
-export const WaterParametersSection = ({ aquariumId, aquariumType, latestReading }: WaterParametersSectionProps) => {
-  const [isAddWaterParamsOpen, setAddWaterParamsOpen] = useState(false);
-  const isSaltwater = aquariumType?.toLowerCase().includes('saltwater');
-  const isFreshwater = aquariumType === "Freshwater";
-  const isSaltwaterFO = aquariumType === "Saltwater Fish-Only (FO)";
+const fetchWaterParameters = async (aquariumId: string): Promise<WaterParameterReading[]> => {
+  const { data, error } = await supabase
+    .from('water_parameters')
+    .select('*')
+    .eq('aquarium_id', aquariumId)
+    .order('recorded_at', { ascending: false })
+    .limit(10);
+
+  if (error) throw new Error(error.message);
+  return data || [];
+};
+
+export function WaterParametersSection({ 
+  aquariumId, 
+  aquariumType, 
+  latestReading 
+}: WaterParametersSectionProps) {
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: waterParameters, isLoading, error } = useQuery({
+    queryKey: ['water_parameters', aquariumId],
+    queryFn: () => fetchWaterParameters(aquariumId),
+    enabled: !!aquariumId && !!user,
+  });
+
+  const addParameterMutation = useMutation({
+    mutationFn: async (newParameter: Omit<WaterParameterReading, 'id' | 'created_at'>) => {
+      if (!user) throw new Error("You must be logged in to add water parameters.");
+      
+      // Default missing critical values to 0
+      const parameterWithDefaults = {
+        ...newParameter,
+        ammonia: newParameter.ammonia ?? 0,
+        nitrite: newParameter.nitrite ?? 0,
+        nitrate: newParameter.nitrate ?? 0,
+        user_id: user.id,
+        aquarium_id: aquariumId,
+      };
+
+      const { error } = await supabase.from('water_parameters').insert(parameterWithDefaults);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
+      toast({ title: 'Success', description: 'Water parameters added successfully.' });
+      setIsAddDialogOpen(false);
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    }
+  });
+
+  const deleteParameterMutation = useMutation({
+    mutationFn: async (parameterId: string) => {
+      const { error } = await supabase.from('water_parameters').delete().eq('id', parameterId);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
+      toast({ title: 'Success', description: 'Water parameters deleted.' });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TestTube className="h-5 w-5" />
+            Water Parameters
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="pt-6 text-center">
+          <p className="text-muted-foreground">Error loading water parameters: {error.message}</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between">
-          <div>
-            <CardTitle className="flex items-center text-2xl">
-              <TestTube2 className="mr-3 h-6 w-6" />
-              Water Parameters
-            </CardTitle>
-            <CardDescription className="mt-2">View the latest water quality readings for your aquarium.</CardDescription>
-          </div>
-          <Drawer open={isAddWaterParamsOpen} onOpenChange={setAddWaterParamsOpen}>
-            <DrawerTrigger asChild>
-              <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Reading</Button>
-            </DrawerTrigger>
-            <DrawerContent className="max-h-[90vh]">
-              <DrawerHeader><DrawerTitle>Add New Water Parameter Reading</DrawerTitle></DrawerHeader>
-              <div className="px-4 pb-4">
-                  <AddWaterParameterForm aquariumId={aquariumId} aquariumType={aquariumType} onSuccess={() => setAddWaterParamsOpen(false)} />
-              </div>
-            </DrawerContent>
-          </Drawer>
-        </CardHeader>
-        <CardContent>
-              {!latestReading ? (
-                  <p className="text-muted-foreground text-center py-8">No water parameter readings yet.</p>
-              ) : (
-                  <>
-                      <p className="text-sm text-muted-foreground mb-4">Last reading on: {format(new Date(latestReading.recorded_at), 'PPP, p')}</p>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-                          <div><span className="font-semibold text-muted-foreground mr-1">Temp:</span> {latestReading.temperature != null ? <>{latestReading.temperature}<span className="text-muted-foreground text-xs ml-1">°F</span></> : 'N/A'}</div>
-                          <div><span className="font-semibold text-muted-foreground mr-1">pH:</span> {latestReading.ph ?? 'N/A'}</div>
-                          <div><span className="font-semibold text-muted-foreground mr-1">Ammonia:</span> {latestReading.ammonia != null ? <>{latestReading.ammonia}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
-                          <div><span className="font-semibold text-muted-foreground mr-1">Nitrite:</span> {latestReading.nitrite != null ? <>{latestReading.nitrite}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
-                          <div><span className="font-semibold text-muted-foreground mr-1">Nitrate:</span> {latestReading.nitrate != null ? <>{latestReading.nitrate}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
-                          
-                          {/* Hide GH and KH for freshwater AND saltwater fish-only tanks */}
-                          {!isFreshwater && !isSaltwaterFO && latestReading.gh != null && <div><span className="font-semibold text-muted-foreground mr-1">GH:</span> {latestReading.gh}<span className="text-muted-foreground text-xs ml-1">dGH</span></div>}
-                          {!isFreshwater && !isSaltwaterFO && latestReading.kh != null && <div><span className="font-semibold text-muted-foreground mr-1">KH:</span> {latestReading.kh}<span className="text-muted-foreground text-xs ml-1">dKH</span></div>}
-                          {latestReading.co2 != null && <div><span className="font-semibold text-muted-foreground mr-1">CO2:</span> {latestReading.co2}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
-                          {latestReading.phosphate != null && <div><span className="font-semibold text-muted-foreground mr-1">Phosphate:</span> {latestReading.phosphate}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
-                          {latestReading.copper != null && <div><span className="font-semibold text-muted-foreground mr-1">Copper:</span> {latestReading.copper}<span className="text-muted-foreground text-xs ml-1">ppm</span></div>}
-                          
-                          {isSaltwater && (
-                              <>
-                                  <div><span className="font-semibold text-muted-foreground mr-1">Salinity:</span> {latestReading.salinity != null ? <>{latestReading.salinity}<span className="text-muted-foreground text-xs ml-1">ppt</span></> : 'N/A'}</div>
-                                  <div><span className="font-semibold text-muted-foreground mr-1">Alkalinity:</span> {latestReading.alkalinity != null ? <>{latestReading.alkalinity}<span className="text-muted-foreground text-xs ml-1">dKH</span></> : 'N/A'}</div>
-                                  <div><span className="font-semibold text-muted-foreground mr-1">Calcium:</span> {latestReading.calcium != null ? <>{latestReading.calcium}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
-                                  <div><span className="font-semibold text-muted-foreground mr-1">Magnesium:</span> {latestReading.magnesium != null ? <>{latestReading.magnesium}<span className="text-muted-foreground text-xs ml-1">ppm</span></> : 'N/A'}</div>
-                              </>
-                          )}
-                      </div>
-                  </>
-              )}
-          </CardContent>
-      </Card>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <TestTube className="h-6 w-6 text-blue-600" />
+          Water Parameters
+        </h2>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Test Results
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add Water Test Results</DialogTitle>
+              <DialogDescription>
+                Record your latest water test results. Missing values will default to 0 for tracking.
+              </DialogDescription>
+            </DialogHeader>
+            <AddWaterParameterForm
+              aquariumId={aquariumId}
+              aquariumType={aquariumType}
+              onSubmit={(data) => addParameterMutation.mutate(data)}
+              isSubmitting={addParameterMutation.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
 
-      <TestingKitRecommendations aquariumType={aquariumType} />
-      <ConsumablesRecommendations aquariumType={aquariumType} />
+      {waterParameters && waterParameters.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {waterParameters.map((parameter) => (
+            <WaterParameterCard
+              key={parameter.id}
+              parameter={parameter}
+              onDelete={() => deleteParameterMutation.mutate(parameter.id)}
+              isDeleting={deleteParameterMutation.isPending && deleteParameterMutation.variables === parameter.id}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <TestTube className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No water tests recorded</h3>
+            <p className="text-gray-600 mb-4">
+              Start tracking your aquarium's water quality by adding your first test results.
+            </p>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add First Test
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Add Water Test Results</DialogTitle>
+                  <DialogDescription>
+                    Record your latest water test results. Missing values will default to 0 for tracking.
+                  </DialogDescription>
+                </DialogHeader>
+                <AddWaterParameterForm
+                  aquariumId={aquariumId}
+                  aquariumType={aquariumType}
+                  onSubmit={(data) => addParameterMutation.mutate(data)}
+                  isSubmitting={addParameterMutation.isPending}
+                />
+              </DialogContent>
+            </Dialog>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
-};
+}

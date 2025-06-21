@@ -6,9 +6,8 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import AddWishlistItemForm, { AddWishlistItemFormRef } from "./AddWishlistItemForm";
+import { EnhancedWishlistForm } from "./EnhancedWishlistForm";
 import WishlistItemCard from "./WishlistItemCard";
-import { useRef } from "react";
 
 type WishlistItem = Tables<'wishlist_items'>;
 
@@ -32,7 +31,6 @@ interface WishlistTabProps {
 const WishlistTab = ({ aquariumId, canEdit }: WishlistTabProps) => {
     const queryClient = useQueryClient();
     const { user } = useAuth();
-    const formRef = useRef<AddWishlistItemFormRef>(null);
 
     const { data: items, isLoading, error } = useQuery({
         queryKey: ['wishlist_items', aquariumId],
@@ -53,7 +51,6 @@ const WishlistTab = ({ aquariumId, canEdit }: WishlistTabProps) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['wishlist_items', aquariumId] });
             toast({ title: 'Success', description: 'Wishlist item added.' });
-            formRef.current?.reset();
         },
         onError: (err: Error) => {
             toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -96,14 +93,10 @@ const WishlistTab = ({ aquariumId, canEdit }: WishlistTabProps) => {
     return (
         <div className="space-y-4 mt-2">
             {canEdit && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Add to Wishlist</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <AddWishlistItemForm ref={formRef} onSubmit={addItemMutation.mutate} isSubmitting={addItemMutation.isPending} />
-                    </CardContent>
-                </Card>
+                <EnhancedWishlistForm 
+                    onSubmit={addItemMutation.mutate} 
+                    isSubmitting={addItemMutation.isPending} 
+                />
             )}
             <Card>
                 <CardHeader>

@@ -1,67 +1,88 @@
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Eye, Settings, Trash2, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Trash2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Aquarium } from "@/hooks/useAquariums";
+import { TankHealthIndicator } from "@/components/aquarium/TankHealthIndicator";
 
 interface TankCardProps {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  image_url: string | null;
+  aquarium: Aquarium;
   onDelete: (id: string) => void;
+  healthData?: {
+    waterParameters?: any[];
+    maintenanceTasks?: any[];
+    livestock?: any[];
+    equipment?: any[];
+  };
 }
 
-export function TankCard({ id, name, type, size, image_url, onDelete }: TankCardProps) {
-  const imageUrl = image_url || `https://placehold.co/600x400/0ea5e9/FFFFFF?text=${encodeURIComponent(name)}`;
+export function TankCard({ aquarium, onDelete, healthData }: TankCardProps) {
   return (
-    <Card className="flex flex-col hover:scale-105 transition-all duration-300 group overflow-hidden">
-      <CardHeader className="p-0">
-        <Link to={`/aquarium/${id}`} className="block overflow-hidden rounded-t-2xl">
-          <img 
-            src={imageUrl} 
-            alt={name} 
-            className="aspect-video object-cover w-full group-hover:scale-110 transition-transform duration-300" 
-          />
-        </Link>
+    <Card className="group hover:shadow-lg transition-all duration-200 bg-gradient-to-br from-white to-blue-50/30 border-blue-100 hover:border-blue-200">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1 flex-1">
+            <CardTitle className="text-lg text-gray-900">{aquarium.name}</CardTitle>
+            <div className="flex items-center gap-2 flex-wrap">
+              {aquarium.type && (
+                <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                  {aquarium.type}
+                </Badge>
+              )}
+              {aquarium.size && (
+                <Badge variant="outline" className="text-xs">
+                  {aquarium.size} gal
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(aquarium.id)}
+              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
-      <div className="p-6 flex-grow flex flex-col bg-gradient-to-br from-white to-blue-50/30">
-        <CardTitle className="text-slate-800">{name}</CardTitle>
-        <CardDescription className="text-slate-600">{type}</CardDescription>
-        <CardContent className="p-0 pt-2 flex-grow">
-          <p className="text-sm text-slate-500 font-medium">{size} Gallons</p>
-        </CardContent>
-        <CardFooter className="p-0 pt-4 mt-auto flex gap-2">
-          <Button variant="outline" asChild className="flex-grow">
-            <Link to={`/aquarium/${id}`}>
-              View Details <ChevronRight className="ml-2 h-4 w-4" />
+      
+      <CardContent className="space-y-4">
+        {/* Tank Health Indicator */}
+        <TankHealthIndicator
+          waterParameters={healthData?.waterParameters}
+          maintenanceTasks={healthData?.maintenanceTasks}
+          livestock={healthData?.livestock}
+          equipment={healthData?.equipment}
+          aquariumType={aquarium.type}
+          aquariumSize={aquarium.size}
+          compact={true}
+          className="mb-3"
+        />
+
+        {aquarium.image_url && (
+          <div className="w-full h-32 rounded-lg overflow-hidden">
+            <img 
+              src={aquarium.image_url} 
+              alt={aquarium.name}
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            />
+          </div>
+        )}
+        
+        <div className="flex gap-2">
+          <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700">
+            <Link to={`/aquariums/${aquarium.id}`} className="flex items-center justify-center gap-2">
+              <Eye className="h-4 w-4" />
+              View Details
             </Link>
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon" className="shadow-soft">
-                    <Trash2 />
-                </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="rounded-2xl">
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your aquarium and all of its associated data.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDelete(id)} className="rounded-xl">
-                        Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-        </CardFooter>
-      </div>
+        </div>
+      </CardContent>
     </Card>
   );
 }

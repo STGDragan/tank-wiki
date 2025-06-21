@@ -1,3 +1,4 @@
+
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { useAuth } from "@/providers/AuthProvider";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +28,6 @@ const Dashboard = () => {
         description: "Welcome to Pro! You can now add up to 10 aquariums.",
       });
       refreshSubscriber();
-      // Clean up URL
       searchParams.delete('subscription_success');
       setSearchParams(searchParams, { replace: true });
     }
@@ -61,7 +61,7 @@ const Dashboard = () => {
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
-      <div className="dashboard-bg">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-6">
             <Skeleton className="h-8 w-48 rounded-xl" />
@@ -79,7 +79,7 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="dashboard-bg">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           Error: {error.message}
         </div>
@@ -91,14 +91,14 @@ const Dashboard = () => {
   const aquariumCount = ownedAquariums.length;
 
   return (
-    <div className="dashboard-bg min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="h-full w-full overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           <div className="animate-fade-in">
             <WelcomeBanner aquariumCount={aquariumCount} />
           </div>
           
-          <div className="w-full h-[200px] rounded-2xl overflow-hidden shadow-soft animate-slide-up">
+          <div className="w-full h-[200px] rounded-2xl overflow-hidden shadow-lg animate-slide-up">
             <SlideshowSection context="dashboard" />
           </div>
           
