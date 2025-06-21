@@ -1,4 +1,3 @@
-
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +13,7 @@ import WishlistTab from "@/components/aquarium/WishlistTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
 import { AquariumRecommendationsContainer } from "@/components/aquarium/AquariumRecommendationsContainer";
 import { JournalTab } from "@/components/aquarium/JournalTab";
+import { LogTab } from "@/components/aquarium/LogTab";
 import { WizardProgressTracker } from "@/components/aquarium/WizardProgressTracker";
 
 const AquariumDetail = () => {
@@ -27,6 +27,8 @@ const AquariumDetail = () => {
     waterParameters,
     tasks,
     pendingTasks,
+    journalEntries,
+    medications,
     isLoading,
     error,
   } = useAquariumData(id, user?.id);
@@ -75,7 +77,7 @@ const AquariumDetail = () => {
       <AquariumHeader aquarium={aquarium} />
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9 dark:bg-slate-800 dark:border-slate-700">
+        <TabsList className="grid w-full grid-cols-10 dark:bg-slate-800 dark:border-slate-700">
           <TabsTrigger value="overview" className="dark:data-[state=active]:bg-slate-700">Overview</TabsTrigger>
           <TabsTrigger value="progress" className="dark:data-[state=active]:bg-slate-700">Progress</TabsTrigger>
           <TabsTrigger value="livestock" className="dark:data-[state=active]:bg-slate-700">Livestock</TabsTrigger>
@@ -85,6 +87,7 @@ const AquariumDetail = () => {
           <TabsTrigger value="timeline" className="dark:data-[state=active]:bg-slate-700">Timeline</TabsTrigger>
           <TabsTrigger value="wishlist" className="dark:data-[state=active]:bg-slate-700">Wishlist</TabsTrigger>
           <TabsTrigger value="journal" className="dark:data-[state=active]:bg-slate-700">Journal</TabsTrigger>
+          <TabsTrigger value="log" className="dark:data-[state=active]:bg-slate-700">Activity Log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -193,6 +196,21 @@ const AquariumDetail = () => {
             livestock={livestock}
             waterParameters={waterParameters}
             equipment={equipment}
+          />
+        </TabsContent>
+
+        <TabsContent value="log">
+          <LogTab
+            aquariumId={aquarium.id}
+            canEdit={canEdit}
+            userId={user.id}
+            tasks={tasks}
+            livestock={livestock}
+            waterParameters={waterParameters}
+            equipment={equipment}
+            journalEntries={journalEntries}
+            aquariumType={aquarium.type}
+            medications={medications}
           />
         </TabsContent>
       </Tabs>

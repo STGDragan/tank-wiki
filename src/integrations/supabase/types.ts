@@ -9,6 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          activity_type: string
+          aquarium_id: string
+          created_at: string
+          data: Json | null
+          description: string | null
+          id: string
+          image_url: string | null
+          logged_at: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          aquarium_id: string
+          created_at?: string
+          data?: Json | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          logged_at?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          aquarium_id?: string
+          created_at?: string
+          data?: Json | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          logged_at?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_log: {
         Row: {
           action_type: string
@@ -1657,6 +1707,30 @@ export type Database = {
           name?: string
           parameter?: string
           unit?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          units_volume: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          units_volume?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          units_volume?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

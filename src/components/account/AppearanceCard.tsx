@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { VolumeUnitSelector } from "@/components/dashboard/VolumeUnitSelector";
 
 export const AppearanceCard = () => {
   const { theme, setTheme } = useTheme();
@@ -16,12 +17,12 @@ export const AppearanceCard = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Appearance</CardTitle>
+        <CardTitle>Appearance & Preferences</CardTitle>
         <CardDescription>
-          Customize the look and feel of the app. Select your preferred theme.
+          Customize the look and feel of the app, including theme and unit preferences.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor="theme-select">Theme</Label>
           <Select value={theme} onValueChange={setTheme}>
@@ -34,6 +35,10 @@ export const AppearanceCard = () => {
               <SelectItem value="system">System</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="border-t pt-4">
+          <VolumeUnitSelector />
         </div>
       </CardContent>
     </Card>

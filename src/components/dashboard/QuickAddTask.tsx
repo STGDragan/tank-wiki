@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { PlusCircle, Fish, Droplets, Wrench, TestTube, Filter } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
-import { QuickNoteForm } from "./QuickNoteForm";
+import { QuickLogForm } from "./QuickLogForm";
+import { VolumeUnitSelector } from "./VolumeUnitSelector";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 type Aquarium = Pick<Tables<'aquariums'>, 'id' | 'name' | 'type' | 'size'>;
 
@@ -45,43 +47,34 @@ const quickActions = [
 
 export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   const [selectedAquariumId, setSelectedAquariumId] = useState<string>('');
-  const [isQuickNoteDialogOpen, setQuickNoteDialogOpen] = useState(false);
+  const [isQuickLogDialogOpen, setQuickLogDialogOpen] = useState(false);
   const [isLivestockDialogOpen, setLivestockDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string>('');
-  const [waterChangeValue, setWaterChangeValue] = useState<string>('');
-  const [waterChangeUnit, setWaterChangeUnit] = useState<'percentage' | 'liters'>('percentage');
+  const { preferences } = useUserPreferences();
   
   const selectedAquarium = aquariums.find(aq => aq.id === selectedAquariumId);
 
   const handleActionClick = (actionId: string) => {
     setSelectedAction(actionId);
-    if (actionId === 'water_change') {
-      // Reset water change inputs when opening
-      setWaterChangeValue('');
-      setWaterChangeUnit('percentage');
-    }
-    setQuickNoteDialogOpen(true);
+    setQuickLogDialogOpen(true);
   };
 
   const getActionTitle = () => {
     const action = quickActions.find(a => a.id === selectedAction);
     return action ? `Log ${action.label}` : 'Log Activity';
   };
-
-  const getWaterChangeNotes = () => {
-    if (selectedAction === 'water_change' && waterChangeValue) {
-      const unit = waterChangeUnit === 'percentage' ? '%' : 'L';
-      return `Water change: ${waterChangeValue}${unit}`;
-    }
-    return '';
-  };
   
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Quick Add</CardTitle>
-          <CardDescription>Quickly log activities or add livestock to your aquariums.</CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>Quick Add</CardTitle>
+              <CardDescription>Quickly log activities or add livestock to your aquariums.</CardDescription>
+            </div>
+            <VolumeUnitSelector />
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <Select onValueChange={setSelectedAquariumId} value={selectedAquariumId}>
@@ -123,53 +116,23 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
         </CardContent>
       </Card>
 
-      <Dialog open={isQuickNoteDialogOpen} onOpenChange={setQuickNoteDialogOpen}>
-        <DialogContent className="max-w-md">
+      <Dialog open={isQuickLogDialogOpen} onOpenChange={setQuickLogDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{getActionTitle()}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            {selectedAction === 'water_change' && (
-              <div className="space-y-3 p-3 border rounded-md bg-blue-50">
-                <h4 className="font-medium text-sm">Water Change Details</h4>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Amount"
-                    value={waterChangeValue}
-                    onChange={(e) => setWaterChangeValue(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Select value={waterChangeUnit} onValueChange={(value: 'percentage' | 'liters') => setWaterChangeUnit(value)}>
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="percentage">%</SelectItem>
-                      <SelectItem value="liters">L</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {selectedAquarium?.size && waterChangeUnit === 'percentage' && waterChangeValue && (
-                  <p className="text-xs text-muted-foreground">
-                    ≈ {((selectedAquarium.size * parseFloat(waterChangeValue)) / 100).toFixed(1)}L for this {selectedAquarium.size}L tank
-                  </p>
-                )}
-              </div>
-            )}
-            {selectedAquarium && (
-              <QuickNoteForm 
-                aquariumId={selectedAquarium.id}
-                actionType={selectedAction}
-                initialNotes={getWaterChangeNotes()}
-                onSuccess={() => {
-                  setQuickNoteDialogOpen(false);
-                  setSelectedAction('');
-                  setWaterChangeValue('');
-                }}
-              />
-            )}
-          </div>
+          {selectedAquarium && (
+            <QuickLogForm 
+              aquariumId={selectedAquarium.id}
+              aquariumType={selectedAquarium.type}
+              aquariumSize={selectedAquarium.size}
+              actionType={selectedAction}
+              onSuccess={() => {
+                setQuickLogDialogOpen(false);
+                setSelectedAction('');
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
       
