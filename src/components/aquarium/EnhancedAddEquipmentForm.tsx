@@ -1,4 +1,3 @@
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -34,10 +33,11 @@ type EquipmentFormValues = z.infer<typeof equipmentFormSchema>;
 
 interface EnhancedAddEquipmentFormProps {
   aquariumId: string;
+  aquariumType?: string | null;
   onSuccess: () => void;
 }
 
-export function EnhancedAddEquipmentForm({ aquariumId, onSuccess }: EnhancedAddEquipmentFormProps) {
+export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }: EnhancedAddEquipmentFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedConsumables, setSelectedConsumables] = useState<string[]>([]);

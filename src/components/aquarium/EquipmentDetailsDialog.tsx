@@ -64,8 +64,10 @@ export function EquipmentDetailsDialog({ equipment, isOpen, onClose, onDelete }:
     }
   };
 
-  const handleImageUpload = (url: string) => {
-    setFormData(prev => ({ ...prev, image_url: url }));
+  const handleImageUploadSuccess = (imageUrl?: string) => {
+    if (imageUrl) {
+      setFormData(prev => ({ ...prev, image_url: imageUrl }));
+    }
   };
 
   return (
@@ -123,8 +125,11 @@ export function EquipmentDetailsDialog({ equipment, isOpen, onClose, onDelete }:
             <div className="space-y-2">
               <Label>Upload New Image</Label>
               <ImageUploader
-                onImageUpload={handleImageUpload}
-                currentImageUrl={formData.image_url}
+                aquariumId={equipment.aquarium_id}
+                onUploadSuccess={handleImageUploadSuccess}
+                table="equipment"
+                recordId={equipment.id}
+                aspect={16/9}
               />
             </div>
           )}
