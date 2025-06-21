@@ -1,4 +1,3 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,14 +56,10 @@ export function AdminManagementSection() {
   const { data: userRoles, isLoading: rolesLoading } = useQuery({
     queryKey: ['admin-user-roles'],
     queryFn: async () => {
+      // First get all user roles
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
-        .select(`
-          id,
-          user_id,
-          role,
-          profiles!inner(id, full_name, email)
-        `)
+        .select('id, user_id, role')
         .order('role');
 
       if (rolesError) throw rolesError;
@@ -73,15 +68,26 @@ export function AdminManagementSection() {
         return [];
       }
 
-      // Transform the data to match our interface
+      // Get the user IDs from roles
+      const userIds = roles.map(role => role.user_id);
+
+      // Then get the profiles for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map for quick lookup
+      const profilesMap = new Map((profilesData || []).map(profile => [profile.id, profile]));
+
+      // Combine the data
       const rolesWithProfiles: UserRole[] = roles.map(role => ({
         id: role.id,
         user_id: role.user_id,
         role: role.role,
-        profile: {
-          full_name: role.profiles?.full_name,
-          email: role.profiles?.email
-        }
+        profile: profilesMap.get(role.user_id) || undefined
       }));
 
       return rolesWithProfiles;
