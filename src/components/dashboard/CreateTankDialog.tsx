@@ -1,191 +1,158 @@
 
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
-import { toast as sonnerToast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
 
-const tankSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  size: z.coerce.number().min(1, "Size must be at least 1 gallon"),
-  type: z.enum([
-    "Freshwater",
-    "Planted Freshwater",
-    "Freshwater Invertebrates",
-    "Saltwater Fish-Only (FO)",
-    "Fish-Only with Live Rock (FOWLR)",
-    "Soft Coral Reef",
-    "Mixed Reef (LPS + Soft)",
-    "SPS Reef (Hard Coral)"
-  ]),
-});
+interface CreateTankDialogProps {
+  aquariumCount: number;
+  trigger?: React.ReactNode;
+}
 
-type TankFormValues = z.infer<typeof tankSchema>;
-
-const createAquarium = async ({ name, size, type, userId }: TankFormValues & { userId: string }) => {
-  const { data, error } = await supabase
-    .from("aquariums")
-    .insert([{ name, size, type, user_id: userId }])
-    .select();
-
-  if (error) throw error;
-  return data;
-};
-
-export function CreateTankDialog({ aquariumCount }: { aquariumCount: number }) {
+export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogProps) {
   const [open, setOpen] = useState(false);
-  const { user, subscriber } = useAuth();
+  const [name, setName] = useState("");
+  const [type, setType] = useState("");
+  const [size, setSize] = useState("");
+  const [description, setDescription] = useState("");
+  const { user, hasActiveSubscription } = useAuth();
   const queryClient = useQueryClient();
 
-  const form = useForm<TankFormValues>({
-    resolver: zodResolver(tankSchema),
-    defaultValues: { name: "", size: 10, type: "Freshwater" },
-  });
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: createAquarium,
-    onSuccess: () => {
-      sonnerToast.success("Aquarium created successfully!");
-      queryClient.invalidateQueries({ queryKey: ['aquariums'] });
-      setOpen(false);
-      form.reset();
-    },
-    onError: (error) => {
-      sonnerToast.error("Failed to create aquarium", { description: error.message });
-    },
-  });
-
-  const { mutate: createCheckout, isPending: isCreatingCheckout } = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('create-checkout-session');
+  const createAquariumMutation = useMutation({
+    mutationFn: async (aquariumData: any) => {
+      const { data, error } = await supabase.from('aquariums').insert([aquariumData]).select().single();
       if (error) throw new Error(error.message);
       return data;
     },
-    onSuccess: (data) => {
-      if (data.url) {
-        window.location.href = data.url;
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aquariums'] });
+      toast({ title: 'Aquarium created successfully!' });
+      setOpen(false);
+      setName("");
+      setType("");
+      setSize("");
+      setDescription("");
     },
-    onError: (error) => {
-      sonnerToast.error("Could not create checkout session", { description: error.message });
+    onError: (err: Error) => {
+      toast({ title: 'Error creating aquarium', description: err.message, variant: 'destructive' });
     }
   });
 
-  const onSubmit = (values: TankFormValues) => {
-    if (!user) {
-      sonnerToast.error("You must be logged in to create an aquarium.");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!hasActiveSubscription && aquariumCount >= 2) {
+      toast({
+        title: "Upgrade Required",
+        description: "Free users can create up to 2 aquariums. Upgrade to Pro for unlimited aquariums.",
+        variant: "destructive"
+      });
       return;
     }
-    mutate({ ...values, userId: user.id });
+
+    if (!name.trim()) {
+      toast({ title: 'Please enter a name for your aquarium', variant: 'destructive' });
+      return;
+    }
+
+    createAquariumMutation.mutate({
+      name: name.trim(),
+      type: type || null,
+      size: size ? parseFloat(size) : null,
+      description: description.trim() || null,
+      user_id: user?.id
+    });
   };
 
-  const isFreeTier = !subscriber?.subscribed;
-  const freeTierLimit = 3;
-  const proTierLimit = 10;
-  
-  const atFreeTierLimit = isFreeTier && aquariumCount >= freeTierLimit;
-  const atProTierLimit = subscriber?.subscribed && aquariumCount >= proTierLimit;
-
-  const handleUpgrade = () => {
-    createCheckout();
-    setOpen(false);
-  };
+  const defaultTrigger = (
+    <Button>
+      <Plus className="h-4 w-4 mr-2" />
+      Add Tank
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Tank
-        </Button>
+        {trigger || defaultTrigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        {atFreeTierLimit ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>Upgrade to AquaManager Pro</DialogTitle>
-                <DialogDescription>
-                  You're on the free plan, which allows up to {freeTierLimit} aquariums. Upgrade to Pro for just $9.99/year to create up to {proTierLimit} aquariums!
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button variant="ghost" onClick={() => setOpen(false)}>Maybe Later</Button>
-                <Button onClick={handleUpgrade} disabled={isCreatingCheckout}>
-                  {isCreatingCheckout ? 'Redirecting...' : 'Upgrade Now'}
-                </Button>
-              </DialogFooter>
-            </>
-          ) : atProTierLimit ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>Pro Tier Limit Reached</DialogTitle>
-                <DialogDescription>
-                  You've reached the limit of {proTierLimit} aquariums for the Pro plan. To add more, please contact support about our enterprise options.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button onClick={() => setOpen(false)}>OK</Button>
-              </DialogFooter>
-            </>
-          ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <DialogHeader>
-                <DialogTitle>Create New Aquarium</DialogTitle>
-                <DialogDescription>Fill in the details for your new tank. You can change these later.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl><Input placeholder="Reef Tank" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}/>
-                <FormField control={form.control} name="size" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Size (Gallons)</FormLabel>
-                    <FormControl><Input type="number" placeholder="75" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}/>
-                <FormField control={form.control} name="type" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select tank type" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Freshwater">Freshwater</SelectItem>
-                        <SelectItem value="Planted Freshwater">Planted Freshwater</SelectItem>
-                        <SelectItem value="Freshwater Invertebrates">Freshwater Invertebrates</SelectItem>
-                        <SelectItem value="Saltwater Fish-Only (FO)">Saltwater Fish-Only (FO)</SelectItem>
-                        <SelectItem value="Fish-Only with Live Rock (FOWLR)">Fish-Only with Live Rock (FOWLR)</SelectItem>
-                        <SelectItem value="Soft Coral Reef">Soft Coral Reef</SelectItem>
-                        <SelectItem value="Mixed Reef (LPS + Soft)">Mixed Reef (LPS + Soft)</SelectItem>
-                        <SelectItem value="SPS Reef (Hard Coral)">SPS Reef (Hard Coral)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}/>
-              </div>
-              <DialogFooter>
-                <Button type="submit" disabled={isPending}>{isPending ? "Creating..." : "Create Tank"}</Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        )}
+        <DialogHeader>
+          <DialogTitle>Create New Aquarium</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name *</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="My Aquarium"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="type">Type</Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select aquarium type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="freshwater">Freshwater</SelectItem>
+                <SelectItem value="saltwater">Saltwater</SelectItem>
+                <SelectItem value="reef">Reef</SelectItem>
+                <SelectItem value="brackish">Brackish</SelectItem>
+                <SelectItem value="planted">Planted</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="size">Size (gallons)</Label>
+            <Input
+              id="size"
+              type="number"
+              value={size}
+              onChange={(e) => setSize(e.target.value)}
+              placeholder="e.g., 20"
+              min="1"
+              step="0.1"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Tell us about your aquarium..."
+              rows={3}
+            />
+          </div>
+          
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="flex-1">
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={createAquariumMutation.isPending}
+              className="flex-1"
+            >
+              {createAquariumMutation.isPending ? 'Creating...' : 'Create Aquarium'}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

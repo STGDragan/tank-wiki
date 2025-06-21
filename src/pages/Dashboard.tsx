@@ -12,6 +12,8 @@ import { toast } from "@/hooks/use-toast";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 import { useAquariums, Aquarium } from "@/hooks/useAquariums";
 import { AquariumGroups } from "@/components/dashboard/AquariumGroups";
+import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
+import { EmptyState } from "@/components/dashboard/EmptyState";
 
 const Dashboard = () => {
   const { user, loading: authLoading, refreshSubscriber } = useAuth();
@@ -84,15 +86,21 @@ const Dashboard = () => {
   return (
     <div className="h-full w-full overflow-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <WelcomeBanner aquariumCount={aquariumCount} />
+        
         <div className="w-full h-[200px] rounded-lg overflow-hidden">
           <SlideshowSection context="dashboard" />
         </div>
         
-        <AquariumGroups 
-          aquariums={ownedAquariums}
-          onDeleteAquarium={handleDeleteAquarium}
-          aquariumCount={aquariumCount}
-        />
+        {aquariumCount === 0 ? (
+          <EmptyState aquariumCount={aquariumCount} />
+        ) : (
+          <AquariumGroups 
+            aquariums={ownedAquariums}
+            onDeleteAquarium={handleDeleteAquarium}
+            aquariumCount={aquariumCount}
+          />
+        )}
         
         {ownedAquariums && ownedAquariums.length > 0 && (
           <div className="space-y-6">
