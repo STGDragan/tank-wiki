@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { WizardStepProps } from "../types";
-import { ChevronLeft, Info } from "lucide-react";
+import { ChevronLeft, Info, CheckCircle } from "lucide-react";
+import { useEffect } from "react";
 
 export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProps) {
   const tankShapes = [
@@ -58,6 +59,13 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
 
   const recommendedSize = getRecommendedSize();
 
+  // Set recommended size as default when component loads if no size is set
+  useEffect(() => {
+    if (!data.tankSize && recommendedSize) {
+      onUpdate({ tankSize: recommendedSize });
+    }
+  }, [data.tankSize, recommendedSize, onUpdate]);
+
   const handleSizeChange = (size: string) => {
     const numSize = parseInt(size) || 0;
     onUpdate({ tankSize: numSize });
@@ -65,6 +73,10 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
 
   const handleShapeSelect = (shape: string) => {
     onUpdate({ tankShape: shape });
+  };
+
+  const handleUseRecommendedSize = () => {
+    onUpdate({ tankSize: recommendedSize });
   };
 
   return (
@@ -78,12 +90,22 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div>
+            <div className="flex-1">
               <p className="font-medium text-blue-800 dark:text-blue-200">Recommended Size: {recommendedSize} gallons</p>
               <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 Based on your {data.tankGoal.toLowerCase()} setup with {data.selectedSpecies.length} species selected.
                 Larger is always better for stability!
               </p>
+              {data.tankSize !== recommendedSize && (
+                <Button 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={handleUseRecommendedSize}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Use Recommended Size
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>
@@ -91,7 +113,7 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="tank-size" className="text-foreground dark:text-slate-200">Tank Size (gallons)</Label>
+          <Label htmlFor="tank-size" className="text-foreground dark:text-slate-200">Tank Size (gallons) *</Label>
           <Input
             id="tank-size"
             type="number"
@@ -100,10 +122,17 @@ export function SizeShapeStep({ data, onUpdate, onNext, onPrev }: WizardStepProp
             placeholder={`Recommended: ${recommendedSize}`}
             min="1"
             className="mt-1 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100 dark:placeholder-slate-400"
+            required
           />
           {data.tankSize && data.tankSize < recommendedSize && (
             <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
               ⚠️ This size may be too small for your selected species. Consider going larger.
+            </p>
+          )}
+          {data.tankSize === recommendedSize && (
+            <p className="text-sm text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
+              <CheckCircle className="h-4 w-4" />
+              Perfect! Using our recommended size.
             </p>
           )}
         </div>
