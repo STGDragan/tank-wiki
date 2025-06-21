@@ -15,6 +15,8 @@ import { useAuth } from "@/providers/AuthProvider";
 interface Profile {
   id: string;
   full_name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   admin_subscription_override?: boolean;
 }
@@ -90,11 +92,16 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
   };
 
   const formatUserDisplay = (profile: Profile) => {
-    // Use full_name if available, otherwise use email, fallback to truncated ID
-    if (profile.full_name) {
-      return profile.full_name;
-    }
-    if (profile.email) {
+    // Prioritize first_name + last_name, then full_name, then email, fallback to truncated ID
+    if (profile.first_name && profile.last_name) {
+      return `${profile.first_name} ${profile.last_name} (${profile.email || 'No email'})`;
+    } else if (profile.first_name) {
+      return `${profile.first_name} (${profile.email || 'No email'})`;
+    } else if (profile.last_name) {
+      return `${profile.last_name} (${profile.email || 'No email'})`;
+    } else if (profile.full_name) {
+      return `${profile.full_name} (${profile.email || 'No email'})`;
+    } else if (profile.email) {
       return profile.email;
     }
     return `User ID: ${profile.id.slice(0, 8)}...`;
@@ -134,7 +141,7 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a user..." />
-                </SelectTrigger>
+                </SelectT    rigger>
                 <SelectContent>
                   {profiles.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>

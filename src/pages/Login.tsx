@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
@@ -37,7 +39,8 @@ const Login = () => {
     setIsSignUp(!isSignUp);
     setEmail("");
     setPassword("");
-    setFullName("");
+    setFirstName("");
+    setLastName("");
     setSignUpSuccess(false);
     setAgreedToTerms(false);
     setRememberMe(false);
@@ -55,7 +58,9 @@ const Login = () => {
         password,
         options: {
           data: {
-            full_name: fullName,
+            first_name: firstName,
+            last_name: lastName,
+            full_name: `${firstName} ${lastName}`.trim(),
           },
           emailRedirectTo: `${window.location.origin}/dashboard`,
         },
@@ -130,18 +135,34 @@ const Login = () => {
               <>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name</Label>
-                      <Input 
-                        id="fullName" 
-                        type="text" 
-                        placeholder="John Doe" 
-                        required 
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        autoComplete="name"
-                      />
-                    </div>
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="firstName">First Name</Label>
+                          <Input 
+                            id="firstName" 
+                            type="text" 
+                            placeholder="John" 
+                            required 
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            autoComplete="given-name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="lastName">Last Name</Label>
+                          <Input 
+                            id="lastName" 
+                            type="text" 
+                            placeholder="Doe" 
+                            required 
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            autoComplete="family-name"
+                          />
+                        </div>
+                      </div>
+                    </>
                   )}
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>

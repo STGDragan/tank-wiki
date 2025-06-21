@@ -39,6 +39,7 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
 
   useEffect(() => {
     if (profile) {
+      console.log("Profile data received:", profile);
       form.reset({ 
         first_name: profile.first_name || "", 
         last_name: profile.last_name || "" 
@@ -79,6 +80,7 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       // Also invalidate admin profiles to refresh the subscription manager
       queryClient.invalidateQueries({ queryKey: ['admin-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-management-profiles'] });
     },
     onError: (error: any) => {
       console.error("Profile update mutation error:", error);

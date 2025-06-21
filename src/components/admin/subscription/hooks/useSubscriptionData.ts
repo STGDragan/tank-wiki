@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 interface ProfileWithEmail {
   id: string;
   full_name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   admin_subscription_override?: boolean;
 }
@@ -23,11 +25,15 @@ interface GrantedSubscriptionWithProfiles {
   granted_to_profile?: {
     id: string;
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
   granted_by_profile?: {
     id: string;
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
 }
@@ -38,11 +44,11 @@ export function useSubscriptionData() {
     queryFn: async () => {
       console.log('Fetching profiles for subscription data...');
       
-      // Get profiles data with email column
+      // Get profiles data with email column and first/last names
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, email, admin_subscription_override')
-        .order('full_name');
+        .select('id, full_name, first_name, last_name, email, admin_subscription_override')
+        .order('first_name, last_name, full_name');
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
@@ -89,7 +95,7 @@ export function useSubscriptionData() {
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name, first_name, last_name, email')
         .in('id', uniqueUserIds);
 
       if (profilesError) throw profilesError;
@@ -107,11 +113,15 @@ export function useSubscriptionData() {
           granted_to_profile: grantedToProfile ? { 
             id: grantedToProfile.id, 
             full_name: grantedToProfile.full_name,
+            first_name: grantedToProfile.first_name,
+            last_name: grantedToProfile.last_name,
             email: grantedToProfile.email
           } : undefined,
           granted_by_profile: grantedByProfile ? { 
             id: grantedByProfile.id, 
             full_name: grantedByProfile.full_name,
+            first_name: grantedByProfile.first_name,
+            last_name: grantedByProfile.last_name,
             email: grantedByProfile.email
           } : undefined
         };
