@@ -74,8 +74,9 @@ const AquariumDetail = () => {
       <AquariumHeader aquarium={aquarium} />
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8 dark:bg-slate-800 dark:border-slate-700">
+        <TabsList className="grid w-full grid-cols-9 dark:bg-slate-800 dark:border-slate-700">
           <TabsTrigger value="overview" className="dark:data-[state=active]:bg-slate-700">Overview</TabsTrigger>
+          <TabsTrigger value="progress" className="dark:data-[state=active]:bg-slate-700">Progress</TabsTrigger>
           <TabsTrigger value="livestock" className="dark:data-[state=active]:bg-slate-700">Livestock</TabsTrigger>
           <TabsTrigger value="equipment" className="dark:data-[state=active]:bg-slate-700">Equipment</TabsTrigger>
           <TabsTrigger value="maintenance" className="dark:data-[state=active]:bg-slate-700">Maintenance</TabsTrigger>
@@ -116,6 +117,14 @@ const AquariumDetail = () => {
             aquariumId={aquarium.id}
             aquariumType={aquarium.type}
             userId={user.id}
+          />
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-6">
+          <WizardProgressTracker 
+            aquariumId={aquarium.id}
+            userId={user.id}
+            aquariumCount={0} // This will be passed properly from a parent component
           />
         </TabsContent>
 
@@ -160,8 +169,10 @@ const AquariumDetail = () => {
         </TabsContent>
 
         <TabsContent value="timeline">
-          <TimelineTab
-            aquariumId={aquarium.id}
+          <Timeline
+
+
+aquariumId={aquarium.id}
             userId={user.id}
             canEdit={canEdit}
           />
