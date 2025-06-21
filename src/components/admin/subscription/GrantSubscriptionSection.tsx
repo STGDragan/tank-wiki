@@ -91,8 +91,8 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
 
   const formatUserDisplay = (profile: Profile) => {
     const name = profile.full_name || 'Unnamed User';
-    const email = profile.email || 'No email';
-    return `${name} (${email})`;
+    const identifier = profile.email || `ID: ${profile.id.slice(0, 8)}...`;
+    return `${name} (${identifier})`;
   };
 
   return (
@@ -104,12 +104,23 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
         </CardTitle>
         <CardDescription>
           Grant temporary or permanent free subscriptions to specific users.
+          {profiles && profiles.length === 0 && (
+            <span className="block mt-2 text-amber-600">
+              Note: No user profiles found. Users need to sign up and complete their profiles first.
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {!profiles || profiles.length === 0 ? (
+        {!profiles ? (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">No users found. Loading...</p>
+            <p className="text-muted-foreground">Loading users...</p>
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              No user profiles found. Users need to sign up and complete their profiles to appear here.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleGrantSubscription} className="space-y-4">

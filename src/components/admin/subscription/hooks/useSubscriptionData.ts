@@ -38,7 +38,7 @@ export function useSubscriptionData() {
     queryFn: async () => {
       console.log('Fetching profiles for subscription data...');
       
-      // Get profiles data
+      // Get profiles data first
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name, admin_subscription_override')
@@ -51,28 +51,20 @@ export function useSubscriptionData() {
 
       console.log('Profiles data:', profilesData);
 
-      // Get auth user emails using the service role
-      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (usersError) {
-        console.error('Error fetching users:', usersError);
-        throw usersError;
+      if (!profilesData || profilesData.length === 0) {
+        console.log('No profiles found');
+        return [];
       }
 
-      console.log('Auth users:', users?.length, 'users found');
+      // For now, we'll return profiles without emails since we can't access auth.users from client
+      // The admin will need to identify users by their full names and profile IDs
+      const profilesWithPlaceholderEmails: ProfileWithEmail[] = profilesData.map(profile => ({
+        ...profile,
+        email: `${profile.id.slice(0, 8)}...` // Show partial ID as identifier
+      }));
 
-      // Combine profile and user data
-      const profilesWithEmails: ProfileWithEmail[] = (profilesData || []).map(profile => {
-        const authUser = (users || []).find(user => user.id === profile.id);
-        const result = {
-          ...profile,
-          email: authUser?.email || 'No email'
-        };
-        console.log(`Profile ${profile.id}: ${profile.full_name} - ${result.email}`);
-        return result;
-      });
-
-      console.log('Final profiles with emails:', profilesWithEmails);
-      return profilesWithEmails;
+      console.log('Final profiles with identifiers:', profilesWithPlaceholderEmails);
+      return profilesWithPlaceholderEmails;
     },
   });
 
@@ -116,26 +108,20 @@ export function useSubscriptionData() {
 
       if (profilesError) throw profilesError;
 
-      // Get auth user emails
-      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
-      if (usersError) throw usersError;
-
       // Create profiles map for quick lookup
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
 
-      // Add email and profile information to granted subscriptions
+      // Add profile information to granted subscriptions with placeholder emails
       const subscriptionsWithEmails: GrantedSubscriptionWithEmails[] = data.map(subscription => {
         const grantedToProfile = profilesMap.get(subscription.granted_to_user_id);
         const grantedByProfile = profilesMap.get(subscription.granted_by_admin_id);
-        const grantedToUser = (users || []).find(user => user.id === subscription.granted_to_user_id);
-        const grantedByUser = (users || []).find(user => user.id === subscription.granted_by_admin_id);
         
         return {
           ...subscription,
           granted_to_profile: grantedToProfile,
           granted_by_profile: grantedByProfile,
-          granted_to_email: grantedToUser?.email,
-          granted_by_email: grantedByUser?.email
+          granted_to_email: `${subscription.granted_to_user_id.slice(0, 8)}...`,
+          granted_by_email: `${subscription.granted_by_admin_id.slice(0, 8)}...`
         };
       });
 
