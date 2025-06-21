@@ -49,7 +49,7 @@ const CategoryFilter = ({ categories, filters, onFiltersChange }: CategoryFilter
             />
             <label
               htmlFor={`category-${category.id}`}
-              className="text-sm font-medium leading-none cursor-pointer"
+              className="text-sm font-medium leading-none cursor-pointer hover:text-primary"
             >
               {category.name}
             </label>
@@ -66,7 +66,7 @@ const CategoryFilter = ({ categories, filters, onFiltersChange }: CategoryFilter
                   />
                   <label
                     htmlFor={`subcat-${subcat.id}`}
-                    className="text-xs text-muted-foreground cursor-pointer"
+                    className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"
                   >
                     {subcat.name}
                   </label>

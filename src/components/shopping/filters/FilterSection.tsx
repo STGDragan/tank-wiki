@@ -18,7 +18,6 @@ const FilterSection = ({ title, isOpen, onToggle, children }: FilterSectionProps
       <Button
         variant="ghost"
         className="flex w-full justify-between p-0 h-auto font-medium text-left hover:bg-transparent"
-        onClick={onToggle}
       >
         {title}
         <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
