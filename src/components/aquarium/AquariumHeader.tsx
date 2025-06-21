@@ -59,43 +59,35 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
           </div>
         </div>
         
-        {/* Right side - Compact main tank image */}
-        <div className="flex-shrink-0 relative">
+        {/* Right side - Compact main tank image with repositioned change button */}
+        <div className="flex-shrink-0 flex flex-col gap-2">
           {aquarium.image_url ? (
-            <div className="relative">
-              <div className="w-48 h-32 md:w-56 md:h-36 rounded-lg overflow-hidden bg-muted">
-                <img
-                  src={aquarium.image_url}
-                  alt={`${aquarium.name} main image`}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              {isOwner && (
-                <div className="absolute -bottom-2 -right-2">
-                  <ImageUploader
-                    aquariumId={aquarium.id}
-                    onUploadSuccess={handleImageUploadSuccess}
-                    table="aquariums"
-                    recordId={aquarium.id}
-                    aspect={16/9}
-                    showAsButton={true}
-                  />
-                </div>
-              )}
+            <div className="w-48 h-32 md:w-56 md:h-36 rounded-lg overflow-hidden bg-muted">
+              <img
+                src={aquarium.image_url}
+                alt={`${aquarium.name} main image`}
+                className="object-cover w-full h-full"
+              />
             </div>
           ) : (
-            isOwner && (
-              <div className="w-48 h-32 md:w-56 md:h-36 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center bg-muted/20">
-                <ImageUploader
-                  aquariumId={aquarium.id}
-                  onUploadSuccess={handleImageUploadSuccess}
-                  table="aquariums"
-                  recordId={aquarium.id}
-                  aspect={16/9}
-                  showAsButton={true}
-                />
+            <div className="w-48 h-32 md:w-56 md:h-36 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center bg-muted/20">
+              <div className="text-center text-muted-foreground">
+                <Camera className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm">No image yet</p>
               </div>
-            )
+            </div>
+          )}
+          
+          {/* Change image button positioned below the image */}
+          {isOwner && (
+            <ImageUploader
+              aquariumId={aquarium.id}
+              onUploadSuccess={handleImageUploadSuccess}
+              table="aquariums"
+              recordId={aquarium.id}
+              aspect={16/9}
+              showAsButton={true}
+            />
           )}
         </div>
       </div>
