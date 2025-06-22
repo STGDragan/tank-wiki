@@ -608,9 +608,13 @@ export function AmazonProductImportDialog() {
                         <SelectTrigger className="h-10 bg-white dark:bg-slate-600 border-slate-300 dark:border-slate-500">
                           <SelectValue placeholder="Select field type..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg z-50 max-h-[200px] overflow-y-auto">
+                        <SelectContent className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg max-h-[300px] overflow-y-auto z-[9999]">
                           {INTERNAL_FIELDS.map((field) => (
-                            <SelectItem key={field.value} value={field.value} className="cursor-pointer">
+                            <SelectItem 
+                              key={field.value} 
+                              value={field.value} 
+                              className="cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 px-2 py-2 text-sm"
+                            >
                               {field.label}
                             </SelectItem>
                           ))}
