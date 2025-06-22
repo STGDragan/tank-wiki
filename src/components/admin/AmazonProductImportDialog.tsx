@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -569,7 +570,6 @@ export function AmazonProductImportDialog() {
                     </div>
                     <div className="w-56">
                       <Select 
-                        key={`${header}-${fieldMapping[header] || 'none'}`}
                         value={fieldMapping[header] || 'ignore'} 
                         onValueChange={(value) => {
                           console.log(`Field mapping change: ${header} -> ${value}`);
@@ -579,7 +579,7 @@ export function AmazonProductImportDialog() {
                         <SelectTrigger className="h-10 bg-white dark:bg-slate-600 border-slate-300 dark:border-slate-500">
                           <SelectValue placeholder="Select field type..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg z-50">
                           {INTERNAL_FIELDS.map((field) => (
                             <SelectItem key={field.value} value={field.value}>
                               {field.label}
