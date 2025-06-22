@@ -330,6 +330,7 @@ export function AmazonProductImportDialog() {
           }
         });
         
+        console.log('Auto-generated mapping:', autoMapping);
         setFieldMapping(autoMapping);
         setShowMapping(true);
       }
@@ -356,6 +357,7 @@ export function AmazonProductImportDialog() {
       
       if (dataFormat === "csv") {
         if (showMapping) {
+          console.log('Using field mapping for import:', fieldMapping);
           const result = parseCSVWithMapping(importData, fieldMapping);
           products = result.products;
           errors = result.errors;
@@ -409,12 +411,9 @@ export function AmazonProductImportDialog() {
   const updateFieldMapping = (csvColumn: string, internalField: string) => {
     console.log(`Updating field mapping: ${csvColumn} -> ${internalField}`);
     setFieldMapping(prev => {
-      const newMapping = {
-        ...prev,
-        [csvColumn]: internalField
-      };
-      console.log('New field mapping:', newMapping);
-      return newMapping;
+      const updated = { ...prev, [csvColumn]: internalField };
+      console.log('Updated field mapping state:', updated);
+      return updated;
     });
   };
 
@@ -569,7 +568,6 @@ export function AmazonProductImportDialog() {
                     </div>
                     <div className="w-56">
                       <Select 
-                        key={`${header}-${Date.now()}`}
                         value={fieldMapping[header] || 'ignore'} 
                         onValueChange={(value) => {
                           console.log(`Field mapping change: ${header} -> ${value}`);
