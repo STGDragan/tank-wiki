@@ -81,7 +81,9 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          Error: {error.message}
+          <div className="text-foreground">
+            Error: {error.message}
+          </div>
         </div>
       </div>
     );
