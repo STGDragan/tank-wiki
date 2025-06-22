@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -350,14 +351,20 @@ export function AmazonProductImportDialog() {
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
         setCsvHeaders(headers);
         
-        // Auto-map common headers
+        // Enhanced auto-mapping with specific mappings for Price and Product Link
         const autoMapping: FieldMapping = {};
         headers.forEach(header => {
           const lowerHeader = header.toLowerCase();
-          if (lowerHeader.includes('name') || lowerHeader.includes('title')) {
-            autoMapping[header] = 'name';
-          } else if (lowerHeader.includes('price')) {
+          
+          // Specific mappings requested by user
+          if (header === 'Price' || lowerHeader === 'price') {
             autoMapping[header] = 'price';
+          } else if (header === 'Product Link' || lowerHeader === 'product link') {
+            autoMapping[header] = 'amazon_url';
+          }
+          // General auto-mapping logic
+          else if (lowerHeader.includes('name') || lowerHeader.includes('title')) {
+            autoMapping[header] = 'name';
           } else if (lowerHeader.includes('description')) {
             autoMapping[header] = 'description';
           } else if (lowerHeader.includes('brand')) {
@@ -366,7 +373,7 @@ export function AmazonProductImportDialog() {
             autoMapping[header] = 'category';
           } else if (lowerHeader.includes('image')) {
             autoMapping[header] = 'image_url';
-          } else if (lowerHeader.includes('url')) {
+          } else if (lowerHeader.includes('url') || lowerHeader.includes('link')) {
             autoMapping[header] = 'amazon_url';
           } else if (lowerHeader.includes('asin')) {
             autoMapping[header] = 'asin';
@@ -624,7 +631,7 @@ export function AmazonProductImportDialog() {
                         <SelectTrigger className="h-10 bg-white dark:bg-slate-600 border-slate-300 dark:border-slate-500">
                           <SelectValue placeholder="Select field type..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg max-h-[300px] overflow-y-auto z-[9999]">
+                        <SelectContent className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg max-h-[300px] overflow-y-auto z-[100]">
                           {INTERNAL_FIELDS.map((field) => (
                             <SelectItem 
                               key={field.value} 
