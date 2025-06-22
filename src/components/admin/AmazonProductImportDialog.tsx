@@ -548,19 +548,26 @@ export function AmazonProductImportDialog() {
           {showMapping && csvHeaders.length > 0 && (
             <div className="space-y-3">
               <Label>Field Mapping</Label>
-              <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
-                <p className="text-sm text-gray-600">Map your CSV columns to the correct product fields:</p>
+              <div className="border rounded-lg p-4 space-y-3 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Map your CSV columns to the correct product fields. The left side shows your CSV column headers, the right side lets you choose what type of data each column contains.
+                </p>
                 {csvHeaders.map((header) => (
-                  <div key={header} className="flex items-center gap-3">
+                  <div key={header} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-md">
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm font-medium">{header}</span>
+                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                        CSV Column: "{header}"
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        This is a column from your imported data
+                      </div>
                     </div>
-                    <div className="w-48">
+                    <div className="w-56">
                       <Select 
                         value={fieldMapping[header] || 'ignore'} 
                         onValueChange={(value) => updateFieldMapping(header, value)}
                       >
-                        <SelectTrigger className="h-8">
+                        <SelectTrigger className="h-10 bg-white dark:bg-slate-600">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
