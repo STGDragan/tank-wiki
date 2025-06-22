@@ -158,25 +158,25 @@ export function CompatibilityChecker({ selectedSpecies, aquariumType }: Compatib
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'error': return 'border-red-500 bg-red-50 dark:bg-red-900/20';
-      case 'warning': return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
-      case 'info': return 'border-blue-500 bg-blue-50 dark:bg-blue-900/20';
-      default: return 'border-gray-500 bg-gray-50 dark:bg-gray-900/20';
+      case 'error': return 'border-red-500 bg-red-50 dark:bg-red-950/50';
+      case 'warning': return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/50';
+      case 'info': return 'border-blue-500 bg-blue-50 dark:bg-blue-950/50';
+      default: return 'border-gray-500 bg-gray-50 dark:bg-gray-950/50';
     }
   };
 
   const getSeverityTextColor = (severity: string) => {
     switch (severity) {
-      case 'error': return 'text-red-800 dark:text-red-200';
-      case 'warning': return 'text-yellow-800 dark:text-yellow-200';
-      case 'info': return 'text-blue-800 dark:text-blue-200';
-      default: return 'text-gray-800 dark:text-gray-200';
+      case 'error': return 'text-red-900 dark:text-red-100';
+      case 'warning': return 'text-yellow-900 dark:text-yellow-100';
+      case 'info': return 'text-blue-900 dark:text-blue-100';
+      default: return 'text-gray-900 dark:text-gray-100';
     }
   };
 
   return (
     <div className="space-y-3">
-      <h4 className="font-semibold text-sm flex items-center gap-2">
+      <h4 className="font-semibold text-sm flex items-center gap-2 text-foreground">
         <AlertTriangle className="h-4 w-4 text-orange-500" />
         Compatibility Analysis
       </h4>
@@ -188,12 +188,12 @@ export function CompatibilityChecker({ selectedSpecies, aquariumType }: Compatib
               {issue.icon}
             </div>
             <div className="flex-1">
-              <AlertDescription className={`${getSeverityTextColor(issue.severity)} text-sm`}>
+              <AlertDescription className={`${getSeverityTextColor(issue.severity)} text-sm font-medium`}>
                 {issue.message}
               </AlertDescription>
               <div className="flex flex-wrap gap-1 mt-2">
                 {issue.species.map(species => (
-                  <Badge key={species} variant="outline" className="text-xs">
+                  <Badge key={species} variant="outline" className={`text-xs ${getSeverityTextColor(issue.severity)} border-current`}>
                     {species}
                   </Badge>
                 ))}

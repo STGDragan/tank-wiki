@@ -85,8 +85,8 @@ export const EnhancedLivestockCard = ({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <Fish className="h-4 w-4" />
-                  <h3 className="font-semibold text-lg">{livestock.species}</h3>
+                  <Fish className="h-4 w-4 text-foreground" />
+                  <h3 className="font-semibold text-lg text-foreground">{livestock.species}</h3>
                   {hasCompatibilityIssues && (
                     <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   )}
@@ -121,22 +121,22 @@ export const EnhancedLivestockCard = ({
               </div>
             </div>
 
-            {/* Warning badges */}
+            {/* Warning badges with improved contrast */}
             {(isAggressive || isDifficult || hasCompatibilityIssues) && (
               <div className="flex flex-wrap gap-1">
                 {isAggressive && (
-                  <Badge variant="destructive" className="text-xs">
+                  <Badge variant="destructive" className="text-xs bg-red-600 text-white hover:bg-red-700">
                     <Skull className="h-3 w-3 mr-1" />
                     Aggressive
                   </Badge>
                 )}
                 {isDifficult && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs bg-gray-600 text-white hover:bg-gray-700">
                     Advanced Care
                   </Badge>
                 )}
                 {hasCompatibilityIssues && (
-                  <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-700">
+                  <Badge className="text-xs bg-orange-600 text-white hover:bg-orange-700 border-orange-600">
                     <AlertTriangle className="h-3 w-3 mr-1" />
                     Compatibility Issue
                   </Badge>
@@ -169,7 +169,7 @@ export const EnhancedLivestockCard = ({
                 {relatedProduct.affiliate_links?.[0] && (
                   <button 
                     onClick={handleProductClick}
-                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 cursor-pointer"
                   >
                     <ShoppingCart className="h-3 w-3" />
                     <span>Buy on {relatedProduct.affiliate_links[0].provider || 'Store'}</span>
@@ -190,7 +190,7 @@ export const EnhancedLivestockCard = ({
                 >
                   <Skull className="h-4 w-4" />
                 </Button>
-                <span className="font-bold text-lg min-w-[2rem] text-center">{livestock.quantity}</span>
+                <span className="font-bold text-lg min-w-[2rem] text-center text-foreground">{livestock.quantity}</span>
                 <Button 
                   variant="outline" 
                   size="icon" 
