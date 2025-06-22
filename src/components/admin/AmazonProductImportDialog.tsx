@@ -128,6 +128,8 @@ export function AmazonProductImportDialog() {
   const validateProduct = (product: any, rowIndex: number): ValidationError[] => {
     const errors: ValidationError[] = [];
     
+    console.log(`Validating product at row ${rowIndex + 1}:`, product);
+    
     if (!product.name || product.name.trim() === '') {
       errors.push({
         row: rowIndex + 1,
@@ -193,15 +195,23 @@ export function AmazonProductImportDialog() {
     const products: AmazonProduct[] = [];
     const allErrors: ValidationError[] = [];
     
+    console.log('CSV Headers:', headers);
+    console.log('Field Mapping:', mapping);
+    
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-      const product: any = { name: '' };
+      const product: any = {};
       
+      console.log(`Processing row ${i}, values:`, values);
+      
+      // Apply field mapping
       headers.forEach((header, index) => {
         const mappedField = mapping[header];
-        if (mappedField && mappedField !== 'ignore') {
-          const value = values[index] || '';
-          
+        const value = values[index] || '';
+        
+        console.log(`Mapping: ${header} (${mappedField}) = "${value}"`);
+        
+        if (mappedField && mappedField !== 'ignore' && value) {
           switch (mappedField) {
             case 'name':
             case 'description':
@@ -224,13 +234,19 @@ export function AmazonProductImportDialog() {
         }
       });
       
+      console.log(`Processed product for row ${i}:`, product);
+      
       const errors = validateProduct(product, i - 1);
       allErrors.push(...errors);
       
-      if (product.name && errors.length === 0) {
+      // Only add products that have a name (after validation)
+      if (product.name && product.name.trim() !== '') {
         products.push(product);
       }
     }
+    
+    console.log('Final products:', products);
+    console.log('All errors:', allErrors);
     
     return { products, errors: allErrors };
   };
