@@ -407,10 +407,15 @@ export function AmazonProductImportDialog() {
   };
 
   const updateFieldMapping = (csvColumn: string, internalField: string) => {
-    setFieldMapping(prev => ({
-      ...prev,
-      [csvColumn]: internalField
-    }));
+    console.log(`Updating field mapping: ${csvColumn} -> ${internalField}`);
+    setFieldMapping(prev => {
+      const newMapping = {
+        ...prev,
+        [csvColumn]: internalField
+      };
+      console.log('New field mapping:', newMapping);
+      return newMapping;
+    });
   };
 
   const handleBulkSanitize = () => {
@@ -548,27 +553,31 @@ export function AmazonProductImportDialog() {
           {showMapping && csvHeaders.length > 0 && (
             <div className="space-y-3">
               <Label>Field Mapping</Label>
-              <div className="border rounded-lg p-4 space-y-3 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+              <div className="border rounded-lg p-4 space-y-3 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                   Map your CSV columns to the correct product fields. The left side shows your CSV column headers, the right side lets you choose what type of data each column contains.
                 </p>
                 {csvHeaders.map((header) => (
-                  <div key={header} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-md">
+                  <div key={header} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-700 rounded-md border border-slate-200 dark:border-slate-600">
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
-                        CSV Column: "{header}"
+                        CSV Column: <span className="font-mono bg-slate-100 dark:bg-slate-600 px-2 py-1 rounded text-xs">{header}</span>
                       </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400">
-                        This is a column from your imported data
+                        Current mapping: <span className="font-medium">{fieldMapping[header] || 'None'}</span>
                       </div>
                     </div>
                     <div className="w-56">
                       <Select 
+                        key={`${header}-${fieldMapping[header] || 'none'}`}
                         value={fieldMapping[header] || 'ignore'} 
-                        onValueChange={(value) => updateFieldMapping(header, value)}
+                        onValueChange={(value) => {
+                          console.log(`Field mapping change: ${header} -> ${value}`);
+                          updateFieldMapping(header, value);
+                        }}
                       >
-                        <SelectTrigger className="h-10 bg-white dark:bg-slate-600">
-                          <SelectValue />
+                        <SelectTrigger className="h-10 bg-white dark:bg-slate-600 border-slate-300 dark:border-slate-500">
+                          <SelectValue placeholder="Select field type..." />
                         </SelectTrigger>
                         <SelectContent>
                           {INTERNAL_FIELDS.map((field) => (
