@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ExternalLink, Star, ShoppingCart, Heart } from "lucide-react";
+import { ArrowLeft, ExternalLink, Star, ShoppingCart, Heart, Package, Hash, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ProductDetail = () => {
@@ -45,6 +46,38 @@ const ProductDetail = () => {
     }
     
     return product.regular_price;
+  };
+
+  const getOriginalCost = () => {
+    if (!product) return null;
+    
+    // If no sale price, use regular price as original cost
+    if (!product.sale_price) {
+      return product.regular_price;
+    }
+    
+    // If there's a sale price, regular price is the original cost
+    return product.regular_price;
+  };
+
+  const extractAsinFromUrl = (url: string | null) => {
+    if (!url) return null;
+    
+    // Extract ASIN from various Amazon URL formats
+    const asinPatterns = [
+      /\/dp\/([A-Z0-9]{10})/i,
+      /\/gp\/product\/([A-Z0-9]{10})/i,
+      /\/product\/([A-Z0-9]{10})/i,
+      /[?&]pd_rd_i=([A-Z0-9]{10})/i,
+      /[?&]ASIN=([A-Z0-9]{10})/i
+    ];
+
+    for (const pattern of asinPatterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    
+    return null;
   };
 
   const calculateSavings = () => {
@@ -114,9 +147,11 @@ const ProductDetail = () => {
   }
 
   const effectivePrice = getEffectivePrice();
+  const originalCost = getOriginalCost();
   const savings = calculateSavings();
   const images = Array.isArray(product.imageurls) ? product.imageurls as string[] : [];
   const primaryImage = images[0] || product.image_url || '/placeholder.svg';
+  const asin = extractAsinFromUrl(product.amazon_url) || extractAsinFromUrl(product.affiliate_url);
 
   // Determine the purchase provider text
   const getPurchaseProvider = () => {
@@ -208,9 +243,9 @@ const ProductDetail = () => {
                 </span>
               )}
               
-              {product.is_on_sale && product.regular_price && (
+              {product.is_on_sale && originalCost && originalCost !== effectivePrice && (
                 <span className="text-xl text-muted-foreground line-through">
-                  ${product.regular_price.toFixed(2)}
+                  ${originalCost.toFixed(2)}
                 </span>
               )}
             </div>
@@ -222,20 +257,31 @@ const ProductDetail = () => {
             )}
           </div>
 
-          {/* Stock Status */}
-          {product.track_inventory && (
-            <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${
-                product.stock_quantity > 0 ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className={product.stock_quantity > 0 ? 'text-green-600' : 'text-red-600'}>
-                {product.stock_quantity > 0 
-                  ? `${product.stock_quantity} in stock`
-                  : 'Out of stock'
-                }
-              </span>
+          {/* Stock Status and Inventory */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  Quantity: <span className="font-medium text-foreground">{product.stock_quantity || 0}</span>
+                </span>
+              </div>
+              
+              {product.track_inventory && (
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    (product.stock_quantity || 0) > 0 ? 'bg-green-500' : 'bg-red-500'
+                  }`}></div>
+                  <span className={(product.stock_quantity || 0) > 0 ? 'text-green-600' : 'text-red-600'}>
+                    {(product.stock_quantity || 0) > 0 
+                      ? `${product.stock_quantity} in stock`
+                      : 'Out of stock'
+                    }
+                  </span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Description */}
           {product.description && (
@@ -255,7 +301,7 @@ const ProductDetail = () => {
               <Button 
                 onClick={handlePurchase} 
                 className="flex-1"
-                disabled={product.track_inventory && product.stock_quantity === 0}
+                disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 {purchaseProvider ? `Buy on ${purchaseProvider}` : 'Purchase'}
@@ -292,6 +338,34 @@ const ProductDetail = () => {
                     <span>{product.model}</span>
                   </div>
                 )}
+                
+                {originalCost && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <DollarSign className="h-4 w-4" />
+                      Original Cost:
+                    </span>
+                    <span className="font-medium">${originalCost.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                {asin && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Hash className="h-4 w-4" />
+                      ASIN:
+                    </span>
+                    <span className="font-mono text-sm">{asin}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Package className="h-4 w-4" />
+                    Stock Quantity:
+                  </span>
+                  <span className="font-medium">{product.stock_quantity || 0}</span>
+                </div>
                 
                 {product.condition && (
                   <div className="flex justify-between">
