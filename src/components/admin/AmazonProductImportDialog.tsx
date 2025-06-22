@@ -25,6 +25,8 @@ interface AmazonProduct {
   amazon_url?: string;
   brand?: string;
   category?: string;
+  asin?: string;
+  quantity?: number;
 }
 
 interface FieldMapping {
@@ -46,6 +48,8 @@ const INTERNAL_FIELDS = [
   { value: 'amazon_url', label: 'Amazon URL' },
   { value: 'brand', label: 'Brand' },
   { value: 'category', label: 'Category' },
+  { value: 'asin', label: 'ASIN' },
+  { value: 'quantity', label: 'Quantity' },
   { value: 'ignore', label: 'Ignore Column' },
 ];
 
@@ -91,6 +95,8 @@ export function AmazonProductImportDialog() {
         subcategory: product.brand || "Imported",
         image_url: product.image_url || null,
         amazon_url: sanitizeUrls && product.amazon_url ? sanitizeAmazonUrl(product.amazon_url) : product.amazon_url || null,
+        stock_quantity: product.quantity || 0,
+        sku: product.asin || null,
         is_featured: false,
         is_recommended: false,
       }));
@@ -137,6 +143,15 @@ export function AmazonProductImportDialog() {
         field: 'price',
         value: product.price,
         message: 'Price must be a valid number'
+      });
+    }
+    
+    if (product.quantity && isNaN(parseInt(product.quantity))) {
+      errors.push({
+        row: rowIndex + 1,
+        field: 'quantity',
+        value: product.quantity,
+        message: 'Quantity must be a valid number'
       });
     }
     
@@ -193,6 +208,7 @@ export function AmazonProductImportDialog() {
             case 'image_url':
             case 'brand':
             case 'category':
+            case 'asin':
               product[mappedField] = value;
               break;
             case 'amazon_url':
@@ -200,6 +216,9 @@ export function AmazonProductImportDialog() {
               break;
             case 'price':
               product.price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+              break;
+            case 'quantity':
+              product.quantity = parseInt(value) || 0;
               break;
           }
         }
@@ -255,6 +274,12 @@ export function AmazonProductImportDialog() {
           case 'category':
             product.category = value;
             break;
+          case 'asin':
+            product.asin = value;
+            break;
+          case 'quantity':
+            product.quantity = parseInt(value) || 0;
+            break;
         }
       });
       
@@ -283,6 +308,8 @@ export function AmazonProductImportDialog() {
               item.url || item.amazon_url || '',
             brand: item.brand || '',
             category: item.category || '',
+            asin: item.asin || '',
+            quantity: parseInt(item.quantity) || 0,
           };
           
           if (product.name) {
@@ -325,6 +352,10 @@ export function AmazonProductImportDialog() {
             autoMapping[header] = 'image_url';
           } else if (lowerHeader.includes('url')) {
             autoMapping[header] = 'amazon_url';
+          } else if (lowerHeader.includes('asin')) {
+            autoMapping[header] = 'asin';
+          } else if (lowerHeader.includes('quantity')) {
+            autoMapping[header] = 'quantity';
           } else {
             autoMapping[header] = 'ignore';
           }
@@ -542,8 +573,8 @@ export function AmazonProductImportDialog() {
               onChange={(e) => handleDataChange(e.target.value)}
               placeholder={
                 dataFormat === "json" 
-                  ? `[{"name": "Product Name", "price": "29.99", "description": "Product description", "image_url": "...", "amazon_url": "...", "brand": "Brand Name"}]`
-                  : `name,price,description,image_url,amazon_url,brand\n"Product Name","29.99","Product description","...","...","Brand Name"`
+                  ? `[{"name": "Product Name", "price": "29.99", "description": "Product description", "image_url": "...", "amazon_url": "...", "brand": "Brand Name", "asin": "B123456789", "quantity": 10}]`
+                  : `name,price,description,image_url,amazon_url,brand,asin,quantity\n"Product Name","29.99","Product description","...","...","Brand Name","B123456789","10"`
               }
               className="min-h-[150px] font-mono text-sm"
             />
