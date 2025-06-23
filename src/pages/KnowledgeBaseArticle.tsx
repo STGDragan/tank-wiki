@@ -78,14 +78,14 @@ const KnowledgeBaseArticle = () => {
                     Back to Knowledge Base
                 </Link>
             </Button>
-            <article>
+            <article className="bg-background text-foreground">
                 <header className="mb-8 border-b pb-4">
                     {article.knowledge_categories && (
                         <Link to={`/knowledge-base?category=${article.knowledge_categories.slug}`} className="text-primary font-semibold hover:underline">
                             {article.knowledge_categories.name}
                         </Link>
                     )}
-                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mt-2">{article.title}</h1>
+                    <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mt-2 text-foreground">{article.title}</h1>
                     <p className="text-muted-foreground mt-2">
                         Published on {format(new Date(article.created_at), 'PPP')}
                     </p>
@@ -105,7 +105,7 @@ const KnowledgeBaseArticle = () => {
                     </div>
                 )}
                 <div 
-                    className="prose dark:prose-invert max-w-none" 
+                    className="prose prose-slate prose-lg max-w-none dark:prose-invert dark:prose-headings:text-foreground dark:prose-p:text-foreground dark:prose-strong:text-foreground dark:prose-em:text-foreground dark:prose-code:text-foreground dark:prose-blockquote:text-muted-foreground dark:prose-li:text-foreground" 
                     dangerouslySetInnerHTML={{ __html: displayContent || '' }} 
                 />
             </article>

@@ -26,6 +26,7 @@ export const useUpsertCategory = (category: Category | null) => {
 
     return useMutation({
         mutationFn: async (data: CategoryFormData) => {
+            console.log('Saving category with data:', data);
             if (category) {
                 const updateData = { ...data, description: data.description || null };
                 const { error } = await supabase.from('knowledge_categories').update(updateData).eq('id', category.id);
@@ -41,6 +42,7 @@ export const useUpsertCategory = (category: Category | null) => {
             toast.success(`Category ${category ? 'updated' : 'created'} successfully.`);
         },
         onError: (error) => {
+            console.error('Category save error:', error);
             toast.error(`Failed to ${category ? 'update' : 'create'} category: ${error.message}`);
         }
     });
@@ -98,26 +100,43 @@ export const useUpsertArticle = (identifier?: string, bySlug = false) => {
 
     return useMutation({
         mutationFn: async (data: ArticleFormData & { image_url?: string | null }) => {
+            console.log('Saving article with data:', data);
+            console.log('Content type:', data.content_type);
+            console.log('Content:', data.content);
+            console.log('HTML Content:', data.html_content);
+            
             const payload = {
                 title: data.title,
                 slug: data.slug,
                 status: data.status,
                 category_id: data.category_id,
-                content: data.content_type === 'text' ? data.content || null : null,
-                html_content: data.content_type === 'html' ? data.html_content || null : null,
+                content: data.content_type === 'text' ? (data.content || null) : null,
+                html_content: data.content_type === 'html' ? (data.html_content || null) : null,
                 content_type: data.content_type,
                 tldr: data.tldr || null,
                 tags: data.tags?.split(',').map(tag => tag.trim()).filter(Boolean) || null,
                 image_url: data.image_url,
             };
 
+            console.log('Final payload to save:', payload);
+
             let articleId: string;
 
             if (identifier) {
                 // If we have an identifier, we're updating an existing article
                 const whereClause = bySlug ? 'slug' : 'id';
-                const { error } = await supabase.from('knowledge_articles').update(payload).eq(whereClause, identifier);
-                if (error) throw new Error(error.message);
+                console.log('Updating article with whereClause:', whereClause, 'identifier:', identifier);
+                const { data: updateResult, error } = await supabase
+                    .from('knowledge_articles')
+                    .update(payload)
+                    .eq(whereClause, identifier)
+                    .select();
+                
+                if (error) {
+                    console.error('Update error:', error);
+                    throw new Error(error.message);
+                }
+                console.log('Update result:', updateResult);
                 
                 // Get the article ID for wizard guides update
                 if (bySlug) {
@@ -136,13 +155,24 @@ export const useUpsertArticle = (identifier?: string, bySlug = false) => {
                     ...payload,
                     author_id: user?.id ?? null,
                 };
-                const { data: newArticle, error } = await supabase.from('knowledge_articles').insert(insertData).select('id').single();
-                if (error) throw new Error(error.message);
+                console.log('Inserting new article with data:', insertData);
+                const { data: newArticle, error } = await supabase
+                    .from('knowledge_articles')
+                    .insert(insertData)
+                    .select('id')
+                    .single();
+                
+                if (error) {
+                    console.error('Insert error:', error);
+                    throw new Error(error.message);
+                }
+                console.log('Insert result:', newArticle);
                 articleId = newArticle.id;
             }
 
             // Update wizard guide areas if provided
             if (data.wizard_guide_areas) {
+                console.log('Updating wizard guide areas:', data.wizard_guide_areas);
                 // Delete existing wizard guides
                 await supabase
                     .from('article_wizard_guides')
@@ -175,6 +205,7 @@ export const useUpsertArticle = (identifier?: string, bySlug = false) => {
             navigate('/admin/knowledge-base');
         },
         onError: (error) => {
+            console.error('Article save error:', error);
             toast.error(`Failed to ${identifier ? 'update' : 'create'} article: ${error.message}`);
         }
     });

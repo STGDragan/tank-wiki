@@ -7,12 +7,14 @@ import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
+import { SearchBar } from "@/components/knowledge-base/SearchBar";
+import { useState } from "react";
 
-type Article = Pick<Tables<'knowledge_articles'>, 'id' | 'title' | 'slug' | 'status'>;
+type Article = Pick<Tables<'knowledge_articles'>, 'id' | 'title' | 'slug' | 'status' | 'content' | 'html_content' | 'content_type' | 'tags'>;
 type Category = Tables<'knowledge_categories'> & { knowledge_articles: Article[] };
 
-const fetchKnowledgeData = async (): Promise<Category[]> => {
-    const { data, error } = await supabase
+const fetchKnowledgeData = async (searchQuery?: string): Promise<Category[]> => {
+    let query = supabase
         .from('knowledge_categories')
         .select(`
             *,
@@ -20,24 +22,50 @@ const fetchKnowledgeData = async (): Promise<Category[]> => {
                 id,
                 title,
                 slug,
-                status
+                status,
+                content,
+                html_content,
+                content_type,
+                tags
             )
         `)
         .order('name', { ascending: true });
 
+    const { data, error } = await query;
+
     if (error) throw new Error(error.message);
 
-    // Filter for published articles only
+    // Filter for published articles and apply search
     const categoriesWithPublishedArticles = data.map(category => ({
         ...category,
-        knowledge_articles: category.knowledge_articles.filter(article => article.status === 'published')
+        knowledge_articles: category.knowledge_articles
+            .filter(article => article.status === 'published')
+            .filter(article => {
+                if (!searchQuery) return true;
+                
+                const searchLower = searchQuery.toLowerCase();
+                const titleMatch = article.title.toLowerCase().includes(searchLower);
+                const contentMatch = article.content?.toLowerCase().includes(searchLower) || 
+                                   article.html_content?.toLowerCase().includes(searchLower);
+                const tagMatch = article.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+                
+                return titleMatch || contentMatch || tagMatch;
+            })
     })).filter(category => category.knowledge_articles.length > 0);
 
     return categoriesWithPublishedArticles;
 };
 
 const KnowledgeBase = () => {
-  const { data: categories, isLoading, error } = useQuery({ queryKey: ['knowledge_base_public'], queryFn: fetchKnowledgeData });
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: categories, isLoading, error, refetch } = useQuery({ 
+    queryKey: ['knowledge_base_public', searchQuery], 
+    queryFn: () => fetchKnowledgeData(searchQuery) 
+  });
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
 
   return (
     <div className="space-y-8">
@@ -50,6 +78,8 @@ const KnowledgeBase = () => {
           Explore articles, guides, and a glossary to enhance your aquarium hobby.
         </p>
       </div>
+      
+      <SearchBar onSearch={handleSearch} placeholder="Search articles by title, content, or tags..." />
       
       {isLoading && (
         <div className="space-y-4">
@@ -95,9 +125,14 @@ const KnowledgeBase = () => {
 
       {categories && categories.length === 0 && !isLoading && (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
-            <h2 className="text-xl font-semibold">No Articles Yet</h2>
+            <h2 className="text-xl font-semibold">
+              {searchQuery ? 'No articles found' : 'No Articles Yet'}
+            </h2>
             <p className="text-muted-foreground mt-2">
-                We're working on bringing you insightful articles. Check back soon!
+                {searchQuery 
+                  ? `No articles match your search for "${searchQuery}". Try different keywords.`
+                  : 'We\'re working on bringing you insightful articles. Check back soon!'
+                }
             </p>
         </div>
       )}

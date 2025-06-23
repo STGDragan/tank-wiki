@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AmazonProduct {
   name: string;
+  title?: string;
   description?: string;
   price?: number;
   image_url?: string;
@@ -43,6 +43,7 @@ interface ValidationError {
 
 const INTERNAL_FIELDS = [
   { value: 'name', label: 'Product Name (Required)' },
+  { value: 'title', label: 'Title' },
   { value: 'description', label: 'Description' },
   { value: 'price', label: 'Price' },
   { value: 'image_url', label: 'Image URL' },
@@ -89,7 +90,7 @@ export function AmazonProductImportDialog() {
   const importProductsMutation = useMutation({
     mutationFn: async ({ products, category }: { products: AmazonProduct[]; category: string }) => {
       const productsToInsert = products.map(product => ({
-        name: product.name,
+        name: product.title || product.name,
         description: product.description || "",
         regular_price: product.price || 0,
         category: product.category || category || "Amazon Import",
@@ -215,6 +216,7 @@ export function AmazonProductImportDialog() {
         if (mappedField && mappedField !== 'ignore' && value) {
           switch (mappedField) {
             case 'name':
+            case 'title':
             case 'description':
             case 'image_url':
             case 'brand':
@@ -240,8 +242,8 @@ export function AmazonProductImportDialog() {
       const errors = validateProduct(product, i - 1);
       allErrors.push(...errors);
       
-      // Only add products that have a name (after validation)
-      if (product.name && product.name.trim() !== '') {
+      // Only add products that have a name or title (after validation)
+      if ((product.name && product.name.trim() !== '') || (product.title && product.title.trim() !== '')) {
         products.push(product);
       }
     }
@@ -269,7 +271,11 @@ export function AmazonProductImportDialog() {
           case 'name':
           case 'title':
           case 'product_name':
-            product.name = value;
+            if (header === 'title') {
+              product.title = value;
+            } else {
+              product.name = value;
+            }
             break;
           case 'description':
             product.description = value;
@@ -300,7 +306,7 @@ export function AmazonProductImportDialog() {
         }
       });
       
-      if (product.name) {
+      if (product.name || product.title) {
         products.push(product);
       }
     }
@@ -317,6 +323,7 @@ export function AmazonProductImportDialog() {
         data.forEach(item => {
           const product: AmazonProduct = {
             name: item.name || item.title || item.product_name || '',
+            title: item.title || '',
             description: item.description || '',
             price: parseFloat(String(item.price || 0).replace(/[^0-9.]/g, '')) || 0,
             image_url: item.image || item.image_url || '',
@@ -329,7 +336,7 @@ export function AmazonProductImportDialog() {
             quantity: parseInt(item.quantity) || 0,
           };
           
-          if (product.name) {
+          if (product.name || product.title) {
             products.push(product);
           }
         });
@@ -362,9 +369,11 @@ export function AmazonProductImportDialog() {
             autoMapping[header] = 'price';
           } else if (header === 'Product Link' || lowerHeader === 'product link') {
             autoMapping[header] = 'amazon_url';
+          } else if (header === 'Title' || lowerHeader === 'title') {
+            autoMapping[header] = 'title';
           }
           // General auto-mapping logic
-          else if (lowerHeader.includes('name') || lowerHeader.includes('title')) {
+          else if (lowerHeader.includes('name') || (lowerHeader.includes('title') && !lowerHeader.includes('product'))) {
             autoMapping[header] = 'name';
           } else if (lowerHeader.includes('description')) {
             autoMapping[header] = 'description';

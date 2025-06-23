@@ -28,31 +28,17 @@ const CategoryFilter = ({ categories, filters, onFiltersChange }: CategoryFilter
     onFiltersChange({ ...filters, [key]: newArray });
   };
 
-  // Filter to only show equipment-related categories
-  const equipmentCategories = categories.filter(cat => 
-    cat.slug === 'aquarium-equipment' || 
-    (cat.parent_id && categories.find(parent => parent.id === cat.parent_id)?.slug === 'aquarium-equipment')
-  );
-
-  const rootCategories = equipmentCategories.filter(cat => cat.level === 0);
-  const subcategoriesByParent = equipmentCategories.reduce((acc, cat) => {
-    if (cat.level > 0 && cat.parent_id) {
+  // Group categories by hierarchy for better display
+  const rootCategories = categories.filter(cat => cat.parent_id === null);
+  const subcategoriesByParent = categories.reduce((acc, cat) => {
+    if (cat.parent_id) {
       if (!acc[cat.parent_id]) acc[cat.parent_id] = [];
       acc[cat.parent_id].push(cat);
     }
     return acc;
   }, {} as Record<string, CategoryHierarchy[]>);
 
-  // If no equipment categories found, show a message
-  if (equipmentCategories.length === 0) {
-    return (
-      <div className="text-sm text-muted-foreground p-4 text-center">
-        No equipment categories available
-      </div>
-    );
-  }
-
-  console.log('Equipment categories:', equipmentCategories);
+  console.log('All categories:', categories);
   console.log('Root categories:', rootCategories);
   console.log('Subcategories by parent:', subcategoriesByParent);
 
@@ -73,50 +59,52 @@ const CategoryFilter = ({ categories, filters, onFiltersChange }: CategoryFilter
               {category.name}
             </label>
           </div>
-          {/* Subcategories - each selectable as individual equipment options */}
+          
+          {/* Subcategories - properly nested */}
           {subcategoriesByParent[category.id] && (
             <div className="ml-6 space-y-2">
               {subcategoriesByParent[category.id].map((subcat) => (
-                <div key={subcat.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`subcat-${subcat.id}`}
-                    checked={filters.categories.includes(subcat.slug)}
-                    onCheckedChange={() => toggleArrayFilter('categories', subcat.slug)}
-                  />
-                  <label
-                    htmlFor={`subcat-${subcat.id}`}
-                    className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"
-                  >
-                    {subcat.name}
-                  </label>
+                <div key={subcat.id} className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`subcat-${subcat.id}`}
+                      checked={filters.categories.includes(subcat.slug)}
+                      onCheckedChange={() => toggleArrayFilter('categories', subcat.slug)}
+                    />
+                    <label
+                      htmlFor={`subcat-${subcat.id}`}
+                      className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"
+                    >
+                      {subcat.name}
+                    </label>
+                  </div>
+                  
+                  {/* Sub-subcategories */}
+                  {subcategoriesByParent[subcat.id] && (
+                    <div className="ml-6 space-y-1">
+                      {subcategoriesByParent[subcat.id].map((subsubcat) => (
+                        <div key={subsubcat.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`subsubcat-${subsubcat.id}`}
+                            checked={filters.categories.includes(subsubcat.slug)}
+                            onCheckedChange={() => toggleArrayFilter('categories', subsubcat.slug)}
+                          />
+                          <label
+                            htmlFor={`subsubcat-${subsubcat.id}`}
+                            className="text-xs text-muted-foreground cursor-pointer hover:text-foreground pl-2"
+                          >
+                            {subsubcat.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       ))}
-      
-      {/* Show subcategories even if no root category is found */}
-      {rootCategories.length === 0 && equipmentCategories.length > 0 && (
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-foreground mb-2">Equipment Categories</div>
-          {equipmentCategories.map((category) => (
-            <div key={category.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`category-${category.id}`}
-                checked={filters.categories.includes(category.slug)}
-                onCheckedChange={() => toggleArrayFilter('categories', category.slug)}
-              />
-              <label
-                htmlFor={`category-${category.id}`}
-                className="text-sm leading-none cursor-pointer hover:text-primary"
-              >
-                {category.name}
-              </label>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
