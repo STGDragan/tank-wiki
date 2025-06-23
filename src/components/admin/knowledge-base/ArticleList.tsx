@@ -15,8 +15,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type Article = Tables<'knowledge_articles'> & { knowledge_categories: { name: string } | null };
 
-const fetchArticles = async (): Promise<Article[]> => {
-    const { data, error } = await supabase
+interface ArticleListProps {
+    searchQuery?: string;
+}
+
+const fetchArticles = async (searchQuery?: string): Promise<Article[]> => {
+    let query = supabase
         .from('knowledge_articles')
         .select(`
             *,
@@ -26,14 +30,36 @@ const fetchArticles = async (): Promise<Article[]> => {
         `)
         .order('created_at', { ascending: false });
 
+    const { data, error } = await query;
+
     if (error) throw new Error(error.message);
-    return data as Article[];
+
+    // Filter articles based on search query
+    let filteredData = data as Article[];
+    
+    if (searchQuery && searchQuery.trim()) {
+        const searchLower = searchQuery.toLowerCase();
+        filteredData = filteredData.filter(article => {
+            const titleMatch = article.title.toLowerCase().includes(searchLower);
+            const contentMatch = article.content?.toLowerCase().includes(searchLower) || 
+                               article.html_content?.toLowerCase().includes(searchLower);
+            const tagMatch = article.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+            const categoryMatch = article.knowledge_categories?.name.toLowerCase().includes(searchLower);
+            
+            return titleMatch || contentMatch || tagMatch || categoryMatch;
+        });
+    }
+
+    return filteredData;
 };
 
-export const ArticleList = () => {
+export const ArticleList = ({ searchQuery }: ArticleListProps) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { data: articles, isLoading, error } = useQuery({ queryKey: ['knowledge_articles'], queryFn: fetchArticles });
+    const { data: articles, isLoading, error } = useQuery({ 
+        queryKey: ['knowledge_articles', searchQuery], 
+        queryFn: () => fetchArticles(searchQuery) 
+    });
 
     const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
@@ -64,60 +90,68 @@ export const ArticleList = () => {
         <Card>
             <CardHeader>
                 <div className="flex justify-between items-center">
-                    <CardTitle>Articles</CardTitle>
+                    <CardTitle>
+                        Articles {searchQuery && `(${articles?.length || 0} results for "${searchQuery}")`}
+                    </CardTitle>
                     <Button asChild>
                         <Link to="/admin/knowledge-base/article/new">Add New Article</Link>
                     </Button>
                 </div>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Category</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Created At</TableHead>
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {articles?.map(article => (
-                            <TableRow key={article.id}>
-                                <TableCell className="font-medium">{article.title}</TableCell>
-                                <TableCell>{article.knowledge_categories?.name || 'N/A'}</TableCell>
-                                <TableCell>
-                                    <Badge variant={article.status === 'published' ? 'default' : 'secondary'}>
-                                        {article.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{format(new Date(article.created_at), 'PPP')}</TableCell>
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                                <span className="sr-only">Open menu</span>
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => navigate(`/admin/knowledge-base/article/edit/${article.slug}`)}>
-                                                Edit
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                className="text-red-600"
-                                                onClick={() => deleteMutation.mutate(article.id)}
-                                            >
-                                                Delete
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
+                {articles && articles.length === 0 && searchQuery ? (
+                    <div className="text-center py-8">
+                        <p className="text-muted-foreground">No articles found matching "{searchQuery}"</p>
+                    </div>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Title</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Created At</TableHead>
+                                <TableHead>Actions</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {articles?.map(article => (
+                                <TableRow key={article.id}>
+                                    <TableCell className="font-medium">{article.title}</TableCell>
+                                    <TableCell>{article.knowledge_categories?.name || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={article.status === 'published' ? 'default' : 'secondary'}>
+                                            {article.status}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>{format(new Date(article.created_at), 'PPP')}</TableCell>
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => navigate(`/admin/knowledge-base/article/edit/${article.slug}`)}>
+                                                    Edit
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="text-red-600"
+                                                    onClick={() => deleteMutation.mutate(article.id)}
+                                                >
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
             </CardContent>
         </Card>
     );
