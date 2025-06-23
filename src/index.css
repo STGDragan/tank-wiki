@@ -158,6 +158,91 @@
     background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
     @apply border-slate-700/50;
   }
+
+  /* Knowledge Base Article Content Styling */
+  .article-content {
+    @apply text-base leading-relaxed;
+  }
+
+  .article-content h1,
+  .article-content h2,
+  .article-content h3,
+  .article-content h4,
+  .article-content h5,
+  .article-content h6 {
+    @apply font-bold text-card-foreground mt-8 mb-4;
+  }
+
+  .article-content h1 { @apply text-3xl; }
+  .article-content h2 { @apply text-2xl; }
+  .article-content h3 { @apply text-xl; }
+  .article-content h4 { @apply text-lg; }
+
+  .article-content p {
+    @apply mb-4 text-card-foreground;
+  }
+
+  .article-content ul,
+  .article-content ol {
+    @apply mb-4 pl-6 text-card-foreground;
+  }
+
+  .article-content ul {
+    @apply list-disc;
+  }
+
+  .article-content ol {
+    @apply list-decimal;
+  }
+
+  .article-content li {
+    @apply mb-2;
+  }
+
+  .article-content strong {
+    @apply font-semibold text-card-foreground;
+  }
+
+  .article-content em {
+    @apply italic text-card-foreground;
+  }
+
+  .article-content blockquote {
+    @apply border-l-4 border-primary pl-4 my-4 italic text-muted-foreground;
+  }
+
+  .article-content code {
+    @apply bg-muted px-1 py-0.5 rounded text-sm font-mono text-card-foreground;
+  }
+
+  .article-content pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4;
+  }
+
+  .article-content pre code {
+    @apply bg-transparent px-0 py-0;
+  }
+
+  .article-content a {
+    @apply text-primary hover:underline;
+  }
+
+  .article-content img {
+    @apply max-w-full h-auto rounded-lg my-4;
+  }
+
+  .article-content table {
+    @apply w-full border-collapse border border-border mb-4;
+  }
+
+  .article-content th,
+  .article-content td {
+    @apply border border-border px-4 py-2 text-left;
+  }
+
+  .article-content th {
+    @apply bg-muted font-semibold;
+  }
 }
 
 /* Mobile-specific adjustments */
