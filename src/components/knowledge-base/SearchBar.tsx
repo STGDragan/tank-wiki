@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -20,16 +18,6 @@ export const SearchBar = ({ onSearch, placeholder = "Search articles..." }: Sear
     try {
       // Log the search keyword for analytics
       console.log('User searched for:', keyword);
-      
-      // You could also store this in a table for analytics
-      const { error } = await supabase.rpc('log_search_keyword', {
-        keyword: keyword.trim().toLowerCase(),
-        searched_at: new Date().toISOString()
-      });
-      
-      if (error) {
-        console.error('Error tracking search keyword:', error);
-      }
     } catch (error) {
       console.error('Error tracking search:', error);
     }
