@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 
-interface MaintenanceSectionProps {
+interface EnhancedMaintenanceSectionProps {
     tasks: MaintenanceTask[];
     aquariumId: string;
     aquariumType: string | null;
@@ -26,7 +26,7 @@ interface MaintenanceSectionProps {
     showRecommendations?: boolean;
 }
 
-export const MaintenanceSection = ({ 
+export const EnhancedMaintenanceSection = ({ 
     tasks, 
     aquariumId, 
     aquariumType, 
@@ -34,7 +34,7 @@ export const MaintenanceSection = ({
     onMarkComplete, 
     onDelete, 
     showRecommendations = true 
-}: MaintenanceSectionProps) => {
+}: EnhancedMaintenanceSectionProps) => {
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
     const [filter, setFilter] = useState<string>("all");
 
