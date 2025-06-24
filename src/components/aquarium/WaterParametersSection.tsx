@@ -48,33 +48,6 @@ export function WaterParametersSection({
     enabled: !!aquariumId && !!user,
   });
 
-  const addParameterMutation = useMutation({
-    mutationFn: async (newParameter: Omit<WaterParameterReading, 'id' | 'created_at'>) => {
-      if (!user) throw new Error("You must be logged in to add water parameters.");
-      
-      // Default missing critical values to 0
-      const parameterWithDefaults = {
-        ...newParameter,
-        ammonia: newParameter.ammonia ?? 0,
-        nitrite: newParameter.nitrite ?? 0,
-        nitrate: newParameter.nitrate ?? 0,
-        user_id: user.id,
-        aquarium_id: aquariumId,
-      };
-
-      const { error } = await supabase.from('water_parameters').insert(parameterWithDefaults);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
-      toast({ title: 'Success', description: 'Water parameters added successfully.' });
-      setIsAddDialogOpen(false);
-    },
-    onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    }
-  });
-
   const deleteParameterMutation = useMutation({
     mutationFn: async (parameterId: string) => {
       const { error } = await supabase.from('water_parameters').delete().eq('id', parameterId);
@@ -141,17 +114,7 @@ export function WaterParametersSection({
                 Add Test
               </Button>
             </DialogTrigger>
-            <DialogContent 
-              className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
-              style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '90vw',
-                maxWidth: '800px'
-              }}
-            >
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
               <DialogHeader className="flex-shrink-0">
                 <DialogTitle>Add Water Parameter Reading</DialogTitle>
                 <DialogDescription>

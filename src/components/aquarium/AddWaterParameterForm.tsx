@@ -22,15 +22,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { IdealRangeDisplay } from "./WaterParameterIdealRanges";
 
 const numberOrEmptyToDefault = z.preprocess(
@@ -58,31 +50,11 @@ const waterParametersFormSchema = z.object({
 
 type WaterParametersFormValues = z.infer<typeof waterParametersFormSchema>;
 
-interface CustomTest {
-  name: string;
-  value: string;
-  unit: string;
-}
-
 interface AddWaterParameterFormProps {
   aquariumId: string;
   aquariumType: string | null;
   onSuccess: () => void;
 }
-
-const otherTestOptions = [
-  { value: "iron", label: "Iron", unit: "ppm" },
-  { value: "silicate", label: "Silicate", unit: "ppm" },
-  { value: "iodine", label: "Iodine", unit: "ppm" },
-  { value: "strontium", label: "Strontium", unit: "ppm" },
-  { value: "boron", label: "Boron", unit: "ppm" },
-  { value: "fluoride", label: "Fluoride", unit: "ppm" },
-  { value: "bromide", label: "Bromide", unit: "ppm" },
-  { value: "potassium", label: "Potassium", unit: "ppm" },
-  { value: "redox", label: "Redox (ORP)", unit: "mV" },
-  { value: "tds", label: "Total Dissolved Solids", unit: "ppm" },
-  { value: "conductivity", label: "Conductivity", unit: "μS/cm" },
-];
 
 // Fetch most recent water parameters for auto-population
 const fetchLatestWaterParameters = async (aquariumId: string) => {
@@ -92,7 +64,7 @@ const fetchLatestWaterParameters = async (aquariumId: string) => {
     .eq('aquarium_id', aquariumId)
     .order('recorded_at', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (error && error.code !== 'PGRST116') {
     throw new Error(error.message);
@@ -103,8 +75,6 @@ const fetchLatestWaterParameters = async (aquariumId: string) => {
 export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: AddWaterParameterFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [customTests, setCustomTests] = useState<CustomTest[]>([]);
-  const [selectedOtherTest, setSelectedOtherTest] = useState<string>("");
 
   // Fetch latest parameters for auto-population
   const { data: latestParams } = useQuery({
@@ -117,20 +87,20 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
     resolver: zodResolver(waterParametersFormSchema),
     defaultValues: {
       recorded_at: new Date(),
-      temperature: latestParams?.temperature ?? null,
-      ph: latestParams?.ph ?? null,
-      ammonia: latestParams?.ammonia ?? null,
-      nitrite: latestParams?.nitrite ?? null,
-      nitrate: latestParams?.nitrate ?? null,
-      salinity: latestParams?.salinity ?? null,
-      alkalinity: latestParams?.alkalinity ?? null,
-      calcium: latestParams?.calcium ?? null,
-      magnesium: latestParams?.magnesium ?? null,
-      gh: latestParams?.gh ?? null,
-      kh: latestParams?.kh ?? null,
-      co2: latestParams?.co2 ?? null,
-      phosphate: latestParams?.phosphate ?? null,
-      copper: latestParams?.copper ?? null,
+      temperature: null,
+      ph: null,
+      ammonia: null,
+      nitrite: null,
+      nitrate: null,
+      salinity: null,
+      alkalinity: null,
+      calcium: null,
+      magnesium: null,
+      gh: null,
+      kh: null,
+      co2: null,
+      phosphate: null,
+      copper: null,
     },
   });
 
@@ -158,31 +128,6 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
   }, [latestParams, form]);
 
   const { isSubmitting } = form.formState;
-
-  const addOtherTest = () => {
-    if (selectedOtherTest) {
-      const testOption = otherTestOptions.find(option => option.value === selectedOtherTest);
-      if (testOption) {
-        setCustomTests([...customTests, { name: testOption.label, value: "", unit: testOption.unit }]);
-        setSelectedOtherTest("");
-      }
-    }
-  };
-
-  const addCustomTest = () => {
-    setCustomTests([...customTests, { name: "", value: "", unit: "ppm" }]);
-  };
-
-  const removeCustomTest = (index: number) => {
-    setCustomTests(customTests.filter((_, i) => i !== index));
-  };
-
-  const updateCustomTest = (index: number, field: keyof CustomTest, value: string) => {
-    const updated = customTests.map((test, i) => 
-      i === index ? { ...test, [field]: value } : test
-    );
-    setCustomTests(updated);
-  };
 
   async function onSubmit(values: WaterParametersFormValues) {
     if (!user) {
@@ -347,9 +292,8 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                   </FormItem>
                 )}
               />
-              
-              {/* Hide GH and KH for freshwater AND saltwater fish-only tanks */}
-              {!isFreshwater && !isPlantedFreshwater && !isFreshwaterInverts && !isSaltwaterFO && (
+
+              {(isPlantedFreshwater || isFreshwaterInverts) && (
                   <>
                       <FormField
                         control={form.control}
@@ -462,7 +406,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                             <FormControl>
                               <Input 
                                 type="number" 
-                                step="0.1" 
+                                step="0.001" 
                                 {...field} 
                                 value={field.value ?? ""} 
                                 className="bg-background border-input" 
@@ -572,77 +516,6 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
               )}
           </div>
 
-          {/* Other Tests Section */}
-          <div className="mt-6 p-4 border rounded-lg bg-card">
-            <h3 className="text-lg font-semibold mb-4">Additional Tests</h3>
-            
-            {/* Predefined Other Tests Dropdown */}
-            <div className="flex gap-2 mb-4">
-              <Select value={selectedOtherTest} onValueChange={setSelectedOtherTest}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select additional test..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {otherTestOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label} ({option.unit})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button type="button" onClick={addOtherTest} disabled={!selectedOtherTest}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Custom Test Button */}
-            <Button type="button" variant="outline" onClick={addCustomTest} className="mb-4">
-              <Plus className="h-4 w-4 mr-2" /> Add Custom Test
-            </Button>
-
-            {/* Display Added Tests */}
-            {customTests.map((test, index) => (
-              <div key={index} className="grid grid-cols-12 gap-2 mb-2">
-                <div className="col-span-4">
-                  <Input
-                    placeholder="Test name"
-                    value={test.name}
-                    onChange={(e) => updateCustomTest(index, 'name', e.target.value)}
-                    className="bg-background border-input"
-                  />
-                </div>
-                <div className="col-span-3">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="Value"
-                    value={test.value}
-                    onChange={(e) => updateCustomTest(index, 'value', e.target.value)}
-                    className="bg-background border-input"
-                  />
-                </div>
-                <div className="col-span-4">
-                  <Input
-                    placeholder="Unit (e.g., ppm, mg/L)"
-                    value={test.unit}
-                    onChange={(e) => updateCustomTest(index, 'unit', e.target.value)}
-                    className="bg-background border-input"
-                  />
-                </div>
-                <div className="col-span-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeCustomTest(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
           <FormField
               control={form.control}
               name="recorded_at"
@@ -659,6 +532,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                             !field.value && "text-muted-foreground"
                           )}
                         >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
