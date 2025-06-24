@@ -3,8 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/components/ui/use-toast";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -29,10 +29,11 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { IdealRangeDisplay } from "./WaterParameterIdealRanges";
 
 const numberOrEmptyToDefault = z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? 0 : v),
-    z.coerce.number().min(0).default(0)
+    (v) => (v === "" || v === null || v === undefined ? null : v),
+    z.coerce.number().min(0).nullable()
 );
 
 const waterParametersFormSchema = z.object({
@@ -81,32 +82,78 @@ const otherTestOptions = [
   { value: "conductivity", label: "Conductivity", unit: "μS/cm" },
 ];
 
+// Fetch most recent water parameters for auto-population
+const fetchLatestWaterParameters = async (aquariumId: string) => {
+  const { data, error } = await supabase
+    .from('water_parameters')
+    .select('*')
+    .eq('aquarium_id', aquariumId)
+    .order('recorded_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(error.message);
+  }
+  return data;
+};
+
 export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: AddWaterParameterFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [customTests, setCustomTests] = useState<CustomTest[]>([]);
   const [selectedOtherTest, setSelectedOtherTest] = useState<string>("");
 
+  // Fetch latest parameters for auto-population
+  const { data: latestParams } = useQuery({
+    queryKey: ['latest-water-parameters', aquariumId],
+    queryFn: () => fetchLatestWaterParameters(aquariumId),
+    enabled: !!aquariumId,
+  });
+
   const form = useForm<WaterParametersFormValues>({
     resolver: zodResolver(waterParametersFormSchema),
     defaultValues: {
       recorded_at: new Date(),
-      temperature: 0,
-      ph: 0,
-      ammonia: 0,
-      nitrite: 0,
-      nitrate: 0,
-      salinity: 0,
-      alkalinity: 0,
-      calcium: 0,
-      magnesium: 0,
-      gh: 0,
-      kh: 0,
-      co2: 0,
-      phosphate: 0,
-      copper: 0,
+      temperature: latestParams?.temperature ?? null,
+      ph: latestParams?.ph ?? null,
+      ammonia: latestParams?.ammonia ?? null,
+      nitrite: latestParams?.nitrite ?? null,
+      nitrate: latestParams?.nitrate ?? null,
+      salinity: latestParams?.salinity ?? null,
+      alkalinity: latestParams?.alkalinity ?? null,
+      calcium: latestParams?.calcium ?? null,
+      magnesium: latestParams?.magnesium ?? null,
+      gh: latestParams?.gh ?? null,
+      kh: latestParams?.kh ?? null,
+      co2: latestParams?.co2 ?? null,
+      phosphate: latestParams?.phosphate ?? null,
+      copper: latestParams?.copper ?? null,
     },
   });
+
+  // Update form defaults when latest params are loaded
+  React.useEffect(() => {
+    if (latestParams) {
+      form.reset({
+        recorded_at: new Date(),
+        temperature: latestParams.temperature,
+        ph: latestParams.ph,
+        ammonia: latestParams.ammonia,
+        nitrite: latestParams.nitrite,
+        nitrate: latestParams.nitrate,
+        salinity: latestParams.salinity,
+        alkalinity: latestParams.alkalinity,
+        calcium: latestParams.calcium,
+        magnesium: latestParams.magnesium,
+        gh: latestParams.gh,
+        kh: latestParams.kh,
+        co2: latestParams.co2,
+        phosphate: latestParams.phosphate,
+        copper: latestParams.copper,
+      });
+    }
+  }, [latestParams, form]);
 
   const { isSubmitting } = form.formState;
 
@@ -145,20 +192,20 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
       aquarium_id: aquariumId,
       user_id: user.id,
       recorded_at: values.recorded_at.toISOString(),
-      temperature: values.temperature || null,
-      ph: values.ph || null,
-      ammonia: values.ammonia || null,
-      nitrite: values.nitrite || null,
-      nitrate: values.nitrate || null,
-      salinity: values.salinity || null,
-      alkalinity: values.alkalinity || null,
-      calcium: values.calcium || null,
-      magnesium: values.magnesium || null,
-      gh: values.gh || null,
-      kh: values.kh || null,
-      co2: values.co2 || null,
-      phosphate: values.phosphate || null,
-      copper: values.copper || null,
+      temperature: values.temperature,
+      ph: values.ph,
+      ammonia: values.ammonia,
+      nitrite: values.nitrite,
+      nitrate: values.nitrate,
+      salinity: values.salinity,
+      alkalinity: values.alkalinity,
+      calcium: values.calcium,
+      magnesium: values.magnesium,
+      gh: values.gh,
+      kh: values.kh,
+      co2: values.co2,
+      phosphate: values.phosphate,
+      copper: values.copper,
     });
 
     if (error) {
@@ -193,9 +240,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 name="temperature"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Temperature (°F)</FormLabel>
+                    <FormLabel className="flex items-center">
+                      Temperature (°F)
+                      <IdealRangeDisplay parameter="temperature" aquariumType={aquariumType} />
+                    </FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.1" {...field} value={field.value} />
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        {...field} 
+                        value={field.value ?? ""} 
+                        className="bg-background border-input" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -206,9 +262,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 name="ph"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>pH</FormLabel>
+                    <FormLabel className="flex items-center">
+                      pH
+                      <IdealRangeDisplay parameter="ph" aquariumType={aquariumType} />
+                    </FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.1" {...field} value={field.value} />
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        {...field} 
+                        value={field.value ?? ""} 
+                        className="bg-background border-input" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -219,9 +284,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 name="ammonia"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ammonia (ppm)</FormLabel>
+                    <FormLabel className="flex items-center">
+                      Ammonia (ppm)
+                      <IdealRangeDisplay parameter="ammonia" aquariumType={aquariumType} />
+                    </FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} value={field.value} />
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        {...field} 
+                        value={field.value ?? ""} 
+                        className="bg-background border-input" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -232,9 +306,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 name="nitrite"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nitrite (ppm)</FormLabel>
+                    <FormLabel className="flex items-center">
+                      Nitrite (ppm)
+                      <IdealRangeDisplay parameter="nitrite" aquariumType={aquariumType} />
+                    </FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} value={field.value} />
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        {...field} 
+                        value={field.value ?? ""} 
+                        className="bg-background border-input" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -245,9 +328,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                 name="nitrate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nitrate (ppm)</FormLabel>
+                    <FormLabel className="flex items-center">
+                      Nitrate (ppm)
+                      <IdealRangeDisplay parameter="nitrate" aquariumType={aquariumType} />
+                    </FormLabel>
                     <FormControl>
-                      <Input type="number" step="1" {...field} value={field.value} />
+                      <Input 
+                        type="number" 
+                        step="1" 
+                        {...field} 
+                        value={field.value ?? ""} 
+                        className="bg-background border-input" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -262,9 +354,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         name="gh"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>General Hardness (dGH)</FormLabel>
+                            <FormLabel className="flex items-center">
+                              General Hardness (dGH)
+                              <IdealRangeDisplay parameter="gh" aquariumType={aquariumType} />
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.1" {...field} value={field.value} />
+                              <Input 
+                                type="number" 
+                                step="0.1" 
+                                {...field} 
+                                value={field.value ?? ""} 
+                                className="bg-background border-input" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -275,9 +376,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         name="kh"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Carbonate Hardness (dKH)</FormLabel>
+                            <FormLabel className="flex items-center">
+                              Carbonate Hardness (dKH)
+                              <IdealRangeDisplay parameter="kh" aquariumType={aquariumType} />
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.1" {...field} value={field.value} />
+                              <Input 
+                                type="number" 
+                                step="0.1" 
+                                {...field} 
+                                value={field.value ?? ""} 
+                                className="bg-background border-input" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -292,9 +402,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     name="co2"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>CO2 (ppm)</FormLabel>
+                        <FormLabel className="flex items-center">
+                          CO2 (ppm)
+                          <IdealRangeDisplay parameter="co2" aquariumType={aquariumType} />
+                        </FormLabel>
                         <FormControl>
-                          <Input type="number" step="1" {...field} value={field.value} />
+                          <Input 
+                            type="number" 
+                            step="1" 
+                            {...field} 
+                            value={field.value ?? ""} 
+                            className="bg-background border-input" 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -308,9 +427,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     name="copper"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Copper (ppm)</FormLabel>
+                        <FormLabel className="flex items-center">
+                          Copper (ppm)
+                          <IdealRangeDisplay parameter="copper" aquariumType={aquariumType} />
+                        </FormLabel>
                         <FormControl>
-                          <Input type="number" step="0.01" {...field} value={field.value} />
+                          <Input 
+                            type="number" 
+                            step="0.01" 
+                            {...field} 
+                            value={field.value ?? ""} 
+                            className="bg-background border-input" 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -325,9 +453,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         name="salinity"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Salinity (ppt)</FormLabel>
+                            <FormLabel className="flex items-center">
+                              Salinity (ppt)
+                              <IdealRangeDisplay parameter="salinity" aquariumType={aquariumType} />
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.1" {...field} value={field.value} />
+                              <Input 
+                                type="number" 
+                                step="0.1" 
+                                {...field} 
+                                value={field.value ?? ""} 
+                                className="bg-background border-input" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -338,9 +475,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         name="alkalinity"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Alkalinity (dKH)</FormLabel>
+                            <FormLabel className="flex items-center">
+                              Alkalinity (dKH)
+                              <IdealRangeDisplay parameter="alkalinity" aquariumType={aquariumType} />
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.1" {...field} value={field.value} />
+                              <Input 
+                                type="number" 
+                                step="0.1" 
+                                {...field} 
+                                value={field.value ?? ""} 
+                                className="bg-background border-input" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -356,9 +502,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         name="calcium"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Calcium (ppm)</FormLabel>
+                            <FormLabel className="flex items-center">
+                              Calcium (ppm)
+                              <IdealRangeDisplay parameter="calcium" aquariumType={aquariumType} />
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="1" {...field} value={field.value} />
+                              <Input 
+                                type="number" 
+                                step="1" 
+                                {...field} 
+                                value={field.value ?? ""} 
+                                className="bg-background border-input" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -369,9 +524,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                         name="magnesium"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Magnesium (ppm)</FormLabel>
+                            <FormLabel className="flex items-center">
+                              Magnesium (ppm)
+                              <IdealRangeDisplay parameter="magnesium" aquariumType={aquariumType} />
+                            </FormLabel>
                             <FormControl>
-                              <Input type="number" step="1" {...field} value={field.value} />
+                              <Input 
+                                type="number" 
+                                step="1" 
+                                {...field} 
+                                value={field.value ?? ""} 
+                                className="bg-background border-input" 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -386,9 +550,18 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     name="phosphate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phosphate (ppm)</FormLabel>
+                        <FormLabel className="flex items-center">
+                          Phosphate (ppm)
+                          <IdealRangeDisplay parameter="phosphate" aquariumType={aquariumType} />
+                        </FormLabel>
                         <FormControl>
-                          <Input type="number" step="0.01" {...field} value={field.value} />
+                          <Input 
+                            type="number" 
+                            step="0.01" 
+                            {...field} 
+                            value={field.value ?? ""} 
+                            className="bg-background border-input" 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -398,7 +571,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
           </div>
 
           {/* Other Tests Section */}
-          <div className="mt-6 p-4 border rounded-lg bg-muted">
+          <div className="mt-6 p-4 border rounded-lg bg-card">
             <h3 className="text-lg font-semibold mb-4">Additional Tests</h3>
             
             {/* Predefined Other Tests Dropdown */}
@@ -433,6 +606,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     placeholder="Test name"
                     value={test.name}
                     onChange={(e) => updateCustomTest(index, 'name', e.target.value)}
+                    className="bg-background border-input"
                   />
                 </div>
                 <div className="col-span-3">
@@ -442,6 +616,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     placeholder="Value"
                     value={test.value}
                     onChange={(e) => updateCustomTest(index, 'value', e.target.value)}
+                    className="bg-background border-input"
                   />
                 </div>
                 <div className="col-span-4">
@@ -449,6 +624,7 @@ export function AddWaterParameterForm({ aquariumId, aquariumType, onSuccess }: A
                     placeholder="Unit (e.g., ppm, mg/L)"
                     value={test.unit}
                     onChange={(e) => updateCustomTest(index, 'unit', e.target.value)}
+                    className="bg-background border-input"
                   />
                 </div>
                 <div className="col-span-1">

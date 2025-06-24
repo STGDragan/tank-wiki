@@ -82,30 +82,32 @@ export function WaterParametersSection({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
-      toast({ title: 'Success', description: 'Water parameters deleted.' });
+      toast({ title: 'Success', description: 'Water parameter reading deleted successfully.' });
     },
     onError: (err: Error) => {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   });
 
-  const handleFormSuccess = () => {
-    setIsAddDialogOpen(false);
+  const handleDelete = (parameterId: string) => {
+    if (window.confirm('Are you sure you want to delete this water parameter reading?')) {
+      deleteParameterMutation.mutate(parameterId);
+    }
   };
 
   if (isLoading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TestTube className="h-5 w-5" />
-            Water Parameters
-          </CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl">Water Parameters</CardTitle>
+            <p className="text-sm text-muted-foreground">Track and monitor your water quality</p>
+          </div>
+          <Skeleton className="h-10 w-32" />
         </CardHeader>
         <CardContent className="space-y-4">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         </CardContent>
       </Card>
     );
@@ -114,85 +116,88 @@ export function WaterParametersSection({
   if (error) {
     return (
       <Card>
-        <CardContent className="pt-6 text-center">
-          <p className="text-muted-foreground">Error loading water parameters: {error.message}</p>
+        <CardHeader>
+          <CardTitle className="text-destructive">Error Loading Water Parameters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <TestTube className="h-6 w-6 text-blue-600" />
-          Water Parameters
-        </h2>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Test Results
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add Water Test Results</DialogTitle>
-              <DialogDescription>
-                Record your latest water test results. Missing values will default to 0 for tracking.
-              </DialogDescription>
-            </DialogHeader>
-            <AddWaterParameterForm
-              aquariumId={aquariumId}
-              aquariumType={aquariumType}
-              onSuccess={handleFormSuccess}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {waterParameters && waterParameters.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {waterParameters.map((parameter) => (
-            <WaterParameterCard
-              key={parameter.id}
-              reading={parameter}
-              aquariumType={aquariumType}
-            />
-          ))}
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="space-y-1">
+          <CardTitle className="text-2xl">Water Parameters</CardTitle>
+          <p className="text-sm text-muted-foreground">Track and monitor your water quality</p>
         </div>
-      ) : (
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <TestTube className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No water tests recorded</h3>
-            <p className="text-gray-600 mb-4">
-              Start tracking your aquarium's water quality by adding your first test results.
-            </p>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add First Test
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add Water Test Results</DialogTitle>
-                  <DialogDescription>
-                    Record your latest water test results. Missing values will default to 0 for tracking.
-                  </DialogDescription>
-                </DialogHeader>
-                <AddWaterParameterForm
+        <div className="flex gap-2">
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <TestTube className="mr-2 h-4 w-4" />
+                Add Test
+              </Button>
+            </DialogTrigger>
+            <DialogContent 
+              className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '90vw',
+                maxWidth: '800px'
+              }}
+            >
+              <DialogHeader className="flex-shrink-0">
+                <DialogTitle>Add Water Parameter Reading</DialogTitle>
+                <DialogDescription>
+                  Record your latest water test results. Values from your most recent test are pre-filled but fully editable.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-hidden">
+                <AddWaterParameterForm 
                   aquariumId={aquariumId}
                   aquariumType={aquariumType}
-                  onSuccess={handleFormSuccess}
+                  onSuccess={() => setIsAddDialogOpen(false)}
                 />
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {waterParameters && waterParameters.length > 0 ? (
+          <div className="grid gap-4">
+            {waterParameters.map((reading) => (
+              <WaterParameterCard 
+                key={reading.id} 
+                reading={reading} 
+                aquariumType={aquariumType}
+                onDelete={() => handleDelete(reading.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <TestTube className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No water tests recorded</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Start tracking your water quality by adding your first test results.
+            </p>
+            <Button 
+              onClick={() => setIsAddDialogOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <TestTube className="mr-2 h-4 w-4" />
+              Add First Test
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
