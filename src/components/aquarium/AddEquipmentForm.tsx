@@ -24,6 +24,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { TablesInsert } from "@/integrations/supabase/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 const formSchema = z.object({
   type: z.string().min(2, "Type is required."),
@@ -56,6 +57,7 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [customType, setCustomType] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,6 +70,9 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
     },
   });
 
+  const watchedType = form.watch("type");
+  const isCustomType = watchedType === "Other";
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
       toast({
@@ -78,8 +83,19 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
       return;
     }
 
+    const finalType = isCustomType ? customType : values.type;
+
+    if (isCustomType && !customType.trim()) {
+      toast({
+        title: "Custom Equipment Type Required",
+        description: "Please enter a custom equipment type.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newEquipment: TablesInsert<"equipment"> = {
-      type: values.type,
+      type: finalType,
       brand: values.brand || null,
       model: values.model || null,
       notes: values.notes || null,
@@ -133,34 +149,49 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
             </FormItem>
           )}
         />
+
+        {isCustomType && (
+          <FormItem>
+            <FormLabel>Custom Equipment Type</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Enter custom equipment type"
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="brand"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Brand</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Fluval, Eheim" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="model"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Model</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., FX6, Jager" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Brand</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Fluval, Eheim" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="model"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Model</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., FX6, Jager" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
         <FormField
           control={form.control}
           name="installed_at"
@@ -199,6 +230,7 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="notes"
@@ -216,6 +248,7 @@ export const AddEquipmentForm = ({ aquariumId, onSuccess }: AddEquipmentFormProp
             </FormItem>
           )}
         />
+
         <Button type="submit" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? "Adding..." : "Add Equipment"}
         </Button>

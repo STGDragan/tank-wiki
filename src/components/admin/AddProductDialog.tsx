@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import SanitizeAmazonLinkButton from "./SanitizeAmazonLinkButton";
 
 const AddProductDialog = () => {
@@ -28,17 +29,15 @@ const AddProductDialog = () => {
     subcategory: "",
     brand: "",
     model: "",
-    sku: "",
     regular_price: "",
     sale_price: "",
     is_on_sale: false,
     is_featured: false,
     is_recommended: false,
     stock_quantity: "",
-    track_inventory: true,
+    track_inventory: false,
     low_stock_threshold: "5",
-    condition: "new",
-    image_url: "",
+    image_urls: [""],
     amazon_url: "",
     visible: true,
   });
@@ -70,17 +69,15 @@ const AddProductDialog = () => {
       subcategory: "",
       brand: "",
       model: "",
-      sku: "",
       regular_price: "",
       sale_price: "",
       is_on_sale: false,
       is_featured: false,
       is_recommended: false,
       stock_quantity: "",
-      track_inventory: true,
+      track_inventory: false,
       low_stock_threshold: "5",
-      condition: "new",
-      image_url: "",
+      image_urls: [""],
       amazon_url: "",
       visible: true,
     });
@@ -89,19 +86,47 @@ const AddProductDialog = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const filteredImageUrls = formData.image_urls.filter(url => url.trim() !== "");
+    
     const productData = {
       ...formData,
       regular_price: formData.regular_price ? parseFloat(formData.regular_price) : null,
       sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
       stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : 0,
       low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold) : 5,
+      image_url: filteredImageUrls[0] || null,
+      images: filteredImageUrls.length > 0 ? filteredImageUrls : null,
     };
+
+    // Remove image_urls from the final data since we use image_url and images
+    delete productData.image_urls;
 
     addProductMutation.mutate(productData);
   };
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addImageUrl = () => {
+    setFormData(prev => ({
+      ...prev,
+      image_urls: [...prev.image_urls, ""]
+    }));
+  };
+
+  const removeImageUrl = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      image_urls: prev.image_urls.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateImageUrl = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      image_urls: prev.image_urls.map((url, i) => i === index ? value : url)
+    }));
   };
 
   return (
@@ -182,38 +207,13 @@ const AddProductDialog = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="sku">SKU</Label>
-              <Input
-                id="sku"
-                value={formData.sku}
-                onChange={(e) => handleInputChange('sku', e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="model">Model</Label>
-              <Input
-                id="model"
-                value={formData.model}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="condition">Condition</Label>
-              <Select value={formData.condition} onValueChange={(value) => handleInputChange('condition', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="used">Used</SelectItem>
-                  <SelectItem value="refurbished">Refurbished</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="model">Model</Label>
+            <Input
+              id="model"
+              value={formData.model}
+              onChange={(e) => handleInputChange('model', e.target.value)}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -241,14 +241,34 @@ const AddProductDialog = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image_url">Image URL</Label>
-            <Input
-              id="image_url"
-              type="url"
-              value={formData.image_url}
-              onChange={(e) => handleInputChange('image_url', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
+            <div className="flex items-center justify-between">
+              <Label>Image URLs</Label>
+              <Button type="button" onClick={addImageUrl} size="sm" variant="outline">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Image
+              </Button>
+            </div>
+            {formData.image_urls.map((url, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  type="url"
+                  value={url}
+                  onChange={(e) => updateImageUrl(index, e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="flex-1"
+                />
+                {formData.image_urls.length > 1 && (
+                  <Button
+                    type="button"
+                    onClick={() => removeImageUrl(index)}
+                    size="sm"
+                    variant="outline"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="space-y-2">

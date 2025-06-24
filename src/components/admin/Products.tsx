@@ -18,21 +18,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Pencil, Trash2, Star, ThumbsUp, DollarSign } from "lucide-react";
+import { Edit, Trash2, Star, ThumbsUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddProductDialog from "@/components/admin/AddProductDialog";
 import { useState } from "react";
 import EditProductDialog from "@/components/admin/EditProductDialog";
+import { EditableProductCell } from "@/components/admin/EditableProductCell";
+import { useNavigate } from "react-router-dom";
 
 const fetchProducts = async () => {
   const { data, error } = await supabase
@@ -50,6 +44,7 @@ const fetchProducts = async () => {
 const AdminProducts = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Tables<'products'> | null>(null);
+  const navigate = useNavigate();
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -77,31 +72,14 @@ const AdminProducts = () => {
     }
   });
 
-  const updateFeatureStatusMutation = useMutation({
-    mutationFn: async ({ productId, is_featured }: { productId: string; is_featured: boolean }) => {
-      const { error } = await supabase.from('products').update({ is_featured }).eq('id', productId).select();
+  const updateProductMutation = useMutation({
+    mutationFn: async ({ productId, updates }: { productId: string; updates: Partial<Tables<'products'>> }) => {
+      const { error } = await supabase.from('products').update(updates).eq('id', productId);
       if (error) throw new Error(error.message);
     },
-    onSuccess: (_, { is_featured }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
-      toast({ title: 'Product Updated', description: `Product has been ${is_featured ? 'featured' : 'unfeatured'}.` });
-    },
-    onError: (error: Error) => {
-      toast({ title: 'Error updating product', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  const updateRecommendedStatusMutation = useMutation({
-    mutationFn: async ({ productId, is_recommended }: { productId: string; is_recommended: boolean }) => {
-      const { error } = await supabase.from('products').update({ is_recommended }).eq('id', productId).select();
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: (_, { is_recommended }) => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['recommended-products'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-recommended-products'] });
-      toast({ title: 'Product Updated', description: `Product has been ${is_recommended ? 'marked as recommended' : 'unmarked as recommended'}.` });
+      toast({ title: 'Product Updated', description: 'Product has been updated successfully.' });
     },
     onError: (error: Error) => {
       toast({ title: 'Error updating product', description: error.message, variant: 'destructive' });
@@ -113,11 +91,17 @@ const AdminProducts = () => {
   };
   
   const handleFeatureToggle = (product: Tables<'products'>) => {
-    updateFeatureStatusMutation.mutate({ productId: product.id, is_featured: !product.is_featured });
+    updateProductMutation.mutate({ 
+      productId: product.id, 
+      updates: { is_featured: !product.is_featured } 
+    });
   };
 
   const handleRecommendedToggle = (product: Tables<'products'>) => {
-    updateRecommendedStatusMutation.mutate({ productId: product.id, is_recommended: !product.is_recommended });
+    updateProductMutation.mutate({ 
+      productId: product.id, 
+      updates: { is_recommended: !product.is_recommended } 
+    });
   };
   
   const handleEdit = (product: Tables<'products'>) => {
@@ -125,9 +109,20 @@ const AdminProducts = () => {
     setIsEditDialogOpen(true);
   };
 
-  const formatPrice = (price: number | null) => {
-    if (price === null || price === undefined) return 'Not set';
-    return `$${price.toFixed(2)}`;
+  const handlePriceUpdate = (productId: string, field: 'regular_price' | 'sale_price', value: number | null) => {
+    updateProductMutation.mutate({ 
+      productId, 
+      updates: { [field]: value } 
+    });
+  };
+
+  const handleRowClick = (productId: string, e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons or interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input')) {
+      return;
+    }
+    navigate(`/product/${productId}`);
   };
 
   const getStockStatus = (product: Tables<'products'>) => {
@@ -173,7 +168,7 @@ const AdminProducts = () => {
         <CardHeader>
           <CardTitle>Product List</CardTitle>
           <CardDescription>
-            A list of all products in your store with pricing and inventory information. Use the star and thumbs up buttons to quickly feature or recommend products.
+            A list of all products in your store with pricing and inventory information. Click on any row to view product details.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -188,18 +183,21 @@ const AdminProducts = () => {
                   </TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
+                  <TableHead>Regular Price</TableHead>
+                  <TableHead>Sale Price</TableHead>
                   <TableHead>Stock</TableHead>
-                  <TableHead>Quick Actions</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {products && products.length > 0 ? (
                   products.map((product) => (
-                    <TableRow key={product.id}>
+                    <TableRow 
+                      key={product.id} 
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={(e) => handleRowClick(product.id, e)}
+                    >
                       <TableCell className="hidden sm:table-cell">
                         <img
                           alt="Product image"
@@ -210,28 +208,55 @@ const AdminProducts = () => {
                         />
                       </TableCell>
                       <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                           {product.is_featured && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
-                           {product.is_recommended && <ThumbsUp className="h-4 w-4 text-green-400 fill-green-400" />}
-                           {product.is_on_sale && <DollarSign className="h-4 w-4 text-red-400" />}
-                           <div>
-                             <div>{product.name}</div>
-                             <div className="text-xs text-muted-foreground">{product.subcategory}</div>
-                           </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span>{product.name}</span>
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleFeatureToggle(product);
+                                }}
+                                className="h-6 w-6 p-0"
+                                disabled={updateProductMutation.isPending}
+                                title={product.is_featured ? "Unfeature product" : "Feature product"}
+                              >
+                                <Star className={`h-4 w-4 ${product.is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRecommendedToggle(product);
+                                }}
+                                className="h-6 w-6 p-0"
+                                disabled={updateProductMutation.isPending}
+                                title={product.is_recommended ? "Unrecommend product" : "Recommend product"}
+                              >
+                                <ThumbsUp className={`h-4 w-4 ${product.is_recommended ? 'fill-green-400 text-green-400' : 'text-gray-400'}`} />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">{product.subcategory}</div>
                         </div>
                       </TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className={product.is_on_sale ? "line-through text-muted-foreground text-xs" : ""}>
-                            {formatPrice(product.regular_price)}
-                          </div>
-                          {product.is_on_sale && product.sale_price && (
-                            <div className="text-sm font-medium text-red-600">
-                              {formatPrice(product.sale_price)}
-                            </div>
-                          )}
-                        </div>
+                        <EditableProductCell
+                          value={product.regular_price}
+                          onSave={(value) => handlePriceUpdate(product.id, 'regular_price', value)}
+                          type="currency"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <EditableProductCell
+                          value={product.sale_price}
+                          onSave={(value) => handlePriceUpdate(product.id, 'sale_price', value)}
+                          type="currency"
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
@@ -247,57 +272,51 @@ const AdminProducts = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant={product.is_featured ? "default" : "outline"}
-                            onClick={() => handleFeatureToggle(product)}
-                            className="h-7 px-2"
-                            disabled={updateFeatureStatusMutation.isPending}
-                          >
-                            <Star className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={product.is_recommended ? "default" : "outline"}
-                            onClick={() => handleRecommendedToggle(product)}
-                            className="h-7 px-2"
-                            disabled={updateRecommendedStatusMutation.isPending}
-                          >
-                            <ThumbsUp className="h-3 w-3" />
-                          </Button>
+                          {product.is_on_sale && (
+                            <Badge variant="secondary" className="text-xs">
+                              On Sale
+                            </Badge>
+                          )}
+                          {!product.visible && (
+                            <Badge variant="outline" className="text-xs">
+                              Hidden
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              aria-haspopup="true"
-                              size="icon"
-                              variant="ghost"
-                            >
-                              <MoreHorizontal />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleEdit(product)}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleDelete(product.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(product);
+                            }}
+                            className="h-8 w-8 p-0"
+                            title="Edit product"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(product.id);
+                            }}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            title="Delete product"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">
+                    <TableCell colSpan={8} className="h-24 text-center">
                       No products found. Get started by adding a new one!
                     </TableCell>
                   </TableRow>
