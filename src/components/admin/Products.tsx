@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -223,7 +222,7 @@ const AdminProducts = () => {
                                 disabled={updateProductMutation.isPending}
                                 title={product.is_featured ? "Unfeature product" : "Feature product"}
                               >
-                                <Star className={`h-4 w-4 ${product.is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                                <Star className={`h-4 w-4 ${product.is_featured ? 'fill-accent text-accent' : 'text-gray-400'}`} />
                               </Button>
                               <Button
                                 size="sm"
@@ -236,7 +235,7 @@ const AdminProducts = () => {
                                 disabled={updateProductMutation.isPending}
                                 title={product.is_recommended ? "Unrecommend product" : "Recommend product"}
                               >
-                                <ThumbsUp className={`h-4 w-4 ${product.is_recommended ? 'fill-green-400 text-green-400' : 'text-gray-400'}`} />
+                                <ThumbsUp className={`h-4 w-4 ${product.is_recommended ? 'fill-primary text-primary' : 'text-gray-400'}`} />
                               </Button>
                             </div>
                           </div>

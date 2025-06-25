@@ -82,13 +82,13 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto cyber-card">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 font-display">
+            <ImageIcon className="h-5 w-5 text-primary" />
             Manage Product Images
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="font-mono">
             Upload and manage images for {product.name}. The primary image will be shown in product listings.
           </DialogDescription>
         </DialogHeader>
@@ -96,8 +96,8 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
         <div className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-base font-medium">Product Images</Label>
-              <Button onClick={addImageUrl} size="sm" variant="outline">
+              <Label className="text-base font-medium font-display text-primary">Product Images</Label>
+              <Button onClick={addImageUrl} size="sm" variant="outline" className="cyber-button">
                 <Upload className="h-4 w-4 mr-2" />
                 Add Image
               </Button>
@@ -107,9 +107,9 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
               {imageUrls.map((url, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label className="text-sm">Image {index + 1}</Label>
+                    <Label className="text-sm font-mono">Image {index + 1}</Label>
                     {index === primaryImageIndex && (
-                      <Badge variant="default" className="text-xs">
+                      <Badge variant="default" className="text-xs font-mono">
                         <Star className="h-3 w-3 mr-1" />
                         Primary
                       </Badge>
@@ -122,7 +122,7 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
                       value={url}
                       onChange={(e) => updateImageUrl(index, e.target.value)}
                       placeholder="https://example.com/image.jpg"
-                      className="flex-1"
+                      className="flex-1 cyber-input"
                     />
                     <Button
                       type="button"
@@ -130,75 +130,43 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
                       size="sm"
                       variant={index === primaryImageIndex ? "default" : "outline"}
                       disabled={!url.trim()}
+                      className="cyber-button"
                     >
                       <Star className="h-4 w-4" />
                     </Button>
-                    {imageUrls.length > 1 && (
-                      <Button
-                        type="button"
-                        onClick={() => removeImageUrl(index)}
-                        size="sm"
-                        variant="outline"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      onClick={() => removeImageUrl(index)}
+                      size="sm"
+                      variant="destructive"
+                      disabled={imageUrls.length <= 1}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                   
                   {url && (
-                    <div className="relative w-32 h-32 border rounded-lg overflow-hidden bg-muted">
+                    <div className="mt-2">
                       <img
                         src={url}
                         alt={`Product image ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-32 h-32 object-cover rounded-md neon-border"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          e.currentTarget.style.display = 'none';
                         }}
                       />
-                      {index === primaryImageIndex && (
-                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                          <Star className="h-3 w-3 fill-current" />
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
               ))}
             </div>
           </div>
-
-          <div className="border-t pt-4">
-            <h3 className="font-medium mb-2">Image Preview Grid</h3>
-            <div className="grid grid-cols-4 gap-2">
-              {imageUrls.filter(url => url.trim()).map((url, index) => (
-                <div
-                  key={index}
-                  className={`relative aspect-square border-2 rounded-lg overflow-hidden cursor-pointer transition-colors ${
-                    index === primaryImageIndex ? 'border-primary' : 'border-muted hover:border-border'
-                  }`}
-                  onClick={() => setPrimaryImage(index)}
-                >
-                  <img
-                    src={url}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  {index === primaryImageIndex && (
-                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                      <Star className="h-4 w-4 fill-primary text-primary" />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
+          
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button onClick={() => onOpenChange(false)} variant="outline" className="cyber-button">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={updateProductMutation.isPending}>
+            <Button onClick={handleSave} disabled={updateProductMutation.isPending} className="cyber-button">
               {updateProductMutation.isPending ? "Saving..." : "Save Images"}
             </Button>
           </div>
