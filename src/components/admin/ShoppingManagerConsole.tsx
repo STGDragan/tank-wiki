@@ -26,10 +26,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Star, ThumbsUp, Filter, Eye, Settings, Image } from "lucide-react";
+import { Edit, Trash2, Star, ThumbsUp, Filter, Eye, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import AddProductDialog from "@/components/admin/AddProductDialog";
 import { AmazonProductImportDialog } from "@/components/admin/AmazonProductImportDialog";
 import AffiliateSettings from "@/components/admin/AffiliateSettings";
 import { useState } from "react";
@@ -41,6 +40,7 @@ import { WizardIntegrationPanel } from "./WizardIntegrationPanel";
 import { ProductImageManager } from "./ProductImageManager";
 import { ProductPreviewDialog } from "./ProductPreviewDialog";
 import { SponsorshipManager } from "./SponsorshipManager";
+import { AddProductForm } from "./AddProductForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const fetchProducts = async () => {
@@ -194,7 +194,6 @@ const ShoppingManagerConsole = () => {
         </div>
         <div className="flex gap-2">
           <AmazonProductImportDialog />
-          <AddProductDialog />
         </div>
       </div>
 
@@ -207,7 +206,7 @@ const ShoppingManagerConsole = () => {
         </TabsList>
 
         <TabsContent value="products" className="space-y-6">
-          <AffiliateSettings />
+          <AddProductForm />
           
           <Card>
             <CardHeader>
@@ -244,7 +243,7 @@ const ShoppingManagerConsole = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[100px]">Image</TableHead>
-                      <TableHead>Product Details</TableHead>
+                      <TableHead className="w-[200px]">Product Details</TableHead>
                       <TableHead>Pricing</TableHead>
                       <TableHead>Visibility</TableHead>
                       <TableHead>Stock</TableHead>
@@ -282,11 +281,11 @@ const ShoppingManagerConsole = () => {
                               </Button>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="max-w-[200px]">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium">{product.name}</span>
-                                <div className="flex gap-1">
+                                <span className="font-medium truncate text-sm">{product.name}</span>
+                                <div className="flex gap-1 flex-shrink-0">
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -410,6 +409,8 @@ const ShoppingManagerConsole = () => {
               )}
             </CardContent>
           </Card>
+
+          <AffiliateSettings />
         </TabsContent>
 
         <TabsContent value="visibility">
