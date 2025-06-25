@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -178,19 +177,19 @@ const ShoppingManagerConsole = () => {
 
   const renderSkeleton = () => (
     <div className="space-y-4">
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-12 w-full" />
+      <Skeleton className="h-12 w-full bg-muted/50" />
+      <Skeleton className="h-12 w-full bg-muted/50" />
+      <Skeleton className="h-12 w-full bg-muted/50" />
+      <Skeleton className="h-12 w-full bg-muted/50" />
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-nav-space">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Shopping Manager Console</h1>
-          <p className="text-muted-foreground">Complete control over product visibility and display across the site</p>
+          <h1 className="text-3xl font-display font-bold neon-text">PRODUCT COMMAND CENTER</h1>
+          <p className="text-muted-foreground font-mono">Complete control over product visibility and display across the system</p>
         </div>
         <div className="flex gap-2">
           <AmazonProductImportDialog />
@@ -198,32 +197,32 @@ const ShoppingManagerConsole = () => {
       </div>
 
       <Tabs defaultValue="products" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="visibility">Visibility Controls</TabsTrigger>
-          <TabsTrigger value="wizard">Wizard Integration</TabsTrigger>
-          <TabsTrigger value="sponsorship">Sponsorships</TabsTrigger>
+        <TabsList className="cyber-grid grid-cols-4 glass-panel neon-border">
+          <TabsTrigger value="products" className="cyber-button">Products</TabsTrigger>
+          <TabsTrigger value="visibility" className="cyber-button">Visibility</TabsTrigger>
+          <TabsTrigger value="wizard" className="cyber-button">Wizard</TabsTrigger>
+          <TabsTrigger value="sponsorship" className="cyber-button">Sponsorship</TabsTrigger>
         </TabsList>
 
         <TabsContent value="products" className="space-y-6">
           <AddProductForm />
           
-          <Card>
+          <Card className="cyber-card">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Product Inventory</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="font-display">Product Inventory</CardTitle>
+                  <CardDescription className="font-mono">
                     Manage all products with quick-edit capabilities and visibility controls.
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
+                  <Filter className="h-4 w-4 text-primary" />
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-48 cyber-input">
                       <SelectValue placeholder="Filter by category" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="glass-panel border-border">
                       <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
@@ -241,13 +240,13 @@ const ShoppingManagerConsole = () => {
               ) : (
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[100px]">Image</TableHead>
-                      <TableHead className="w-[200px]">Product Details</TableHead>
-                      <TableHead>Pricing</TableHead>
-                      <TableHead>Visibility</TableHead>
-                      <TableHead>Stock</TableHead>
-                      <TableHead>Actions</TableHead>
+                    <TableRow className="border-border/30">
+                      <TableHead className="w-[100px] font-display text-primary">Image</TableHead>
+                      <TableHead className="w-[150px] font-display text-primary">Product</TableHead>
+                      <TableHead className="font-display text-primary">Pricing</TableHead>
+                      <TableHead className="font-display text-primary">Visibility</TableHead>
+                      <TableHead className="font-display text-primary">Stock</TableHead>
+                      <TableHead className="font-display text-primary">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -255,14 +254,14 @@ const ShoppingManagerConsole = () => {
                       filteredProducts.map((product) => (
                         <TableRow 
                           key={product.id} 
-                          className="cursor-pointer hover:bg-muted/50 transition-colors"
+                          className="cursor-pointer hover:bg-muted/20 transition-colors border-border/20"
                           onClick={(e) => handleRowClick(product.id, e)}
                         >
                           <TableCell>
                             <div className="relative">
                               <img
                                 alt="Product image"
-                                className="aspect-square rounded-md object-cover"
+                                className="aspect-square rounded-sm object-cover neon-border"
                                 height="64"
                                 src={product.image_url || "/placeholder.svg"}
                                 width="64"
@@ -274,17 +273,17 @@ const ShoppingManagerConsole = () => {
                                   e.stopPropagation();
                                   setSelectedProduct(product);
                                 }}
-                                className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-background border"
+                                className="absolute -top-2 -right-2 h-6 w-6 p-0 cyber-button"
                                 title="Manage images"
                               >
                                 <Image className="h-3 w-3" />
                               </Button>
                             </div>
                           </TableCell>
-                          <TableCell className="max-w-[200px]">
+                          <TableCell className="max-w-[150px]">
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium truncate text-sm">{product.name}</span>
+                                <span className="font-medium truncate text-sm font-mono">{product.name}</span>
                                 <div className="flex gap-1 flex-shrink-0">
                                   <Button
                                     size="sm"
@@ -293,11 +292,11 @@ const ShoppingManagerConsole = () => {
                                       e.stopPropagation();
                                       handleFeatureToggle(product);
                                     }}
-                                    className="h-6 w-6 p-0"
+                                    className="h-6 w-6 p-0 cyber-button"
                                     disabled={updateProductMutation.isPending}
                                     title={product.is_featured ? "Unfeature product" : "Feature product"}
                                   >
-                                    <Star className={`h-4 w-4 ${product.is_featured ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                                    <Star className={`h-4 w-4 ${product.is_featured ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
                                   </Button>
                                   <Button
                                     size="sm"
@@ -306,16 +305,16 @@ const ShoppingManagerConsole = () => {
                                       e.stopPropagation();
                                       handleRecommendedToggle(product);
                                     }}
-                                    className="h-6 w-6 p-0"
+                                    className="h-6 w-6 p-0 cyber-button"
                                     disabled={updateProductMutation.isPending}
                                     title={product.is_recommended ? "Unrecommend product" : "Recommend product"}
                                   >
-                                    <ThumbsUp className={`h-4 w-4 ${product.is_recommended ? 'fill-green-400 text-green-400' : 'text-gray-400'}`} />
+                                    <ThumbsUp className={`h-4 w-4 ${product.is_recommended ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
                                   </Button>
                                 </div>
                               </div>
-                              <div className="text-xs text-muted-foreground">{product.category}</div>
-                              <div className="text-xs text-muted-foreground">{product.subcategory}</div>
+                              <div className="text-xs text-muted-foreground font-mono">{product.category}</div>
+                              <div className="text-xs text-muted-foreground font-mono">{product.subcategory}</div>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -334,7 +333,7 @@ const ShoppingManagerConsole = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col gap-1">
-                              {product.visible && <Badge variant="outline" className="text-xs">Shop</Badge>}
+                              {product.visible && <Badge variant="outline" className="text-xs neon-border">Shop</Badge>}
                               {product.is_featured && <Badge variant="secondary" className="text-xs">Homepage</Badge>}
                               {product.is_recommended && <Badge variant="default" className="text-xs">Wizard</Badge>}
                               {product.is_on_sale && <Badge variant="destructive" className="text-xs">Sale</Badge>}
@@ -342,11 +341,11 @@ const ShoppingManagerConsole = () => {
                           </TableCell>
                           <TableCell>
                             <div className="space-y-1">
-                              <Badge variant={getStockBadgeVariant(product) as any}>
+                              <Badge variant={getStockBadgeVariant(product) as any} className="font-mono text-xs">
                                 {getStockStatus(product)}
                               </Badge>
                               {product.track_inventory && (
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-muted-foreground font-mono">
                                   {product.stock_quantity || 0} units
                                 </div>
                               )}
@@ -361,7 +360,7 @@ const ShoppingManagerConsole = () => {
                                   e.stopPropagation();
                                   handlePreview(product, 'shopping');
                                 }}
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 cyber-button"
                                 title="Preview in shopping"
                               >
                                 <Eye className="h-4 w-4" />
@@ -373,19 +372,19 @@ const ShoppingManagerConsole = () => {
                                   e.stopPropagation();
                                   handleEdit(product);
                                 }}
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 cyber-button"
                                 title="Edit product"
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button
                                 size="sm"
-                                variant="outline"
+                                variant="destructive"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDelete(product.id);
                                 }}
-                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                className="h-8 w-8 p-0"
                                 title="Delete product"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -397,10 +396,12 @@ const ShoppingManagerConsole = () => {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={6} className="h-24 text-center">
-                          {selectedCategory !== 'all' ? 
-                            `No products found in the "${selectedCategory}" category.` : 
-                            'No products found. Get started by adding a new one!'
-                          }
+                          <div className="text-muted-foreground font-mono">
+                            {selectedCategory !== 'all' ? 
+                              `No products found in the "${selectedCategory}" category.` : 
+                              'No products found. Initialize by adding a new one!'
+                            }
+                          </div>
                         </TableCell>
                       </TableRow>
                     )}

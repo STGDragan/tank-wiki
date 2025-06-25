@@ -61,16 +61,16 @@ const Dashboard = () => {
 
   if (authLoading || (isLoading && !aquariums)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen bg-background">
         <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-6">
-            <Skeleton className="h-8 w-48 rounded-xl" />
-            <Skeleton className="h-10 w-28 rounded-xl" />
+            <Skeleton className="h-8 w-48 rounded-sm bg-muted/50" />
+            <Skeleton className="h-10 w-28 rounded-sm bg-muted/50" />
           </div>
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-            <Skeleton className="h-48 w-full rounded-2xl" />
-            <Skeleton className="h-48 w-full rounded-2xl" />
-            <Skeleton className="h-48 w-full rounded-2xl" />
+          <div className="cyber-grid">
+            <Skeleton className="h-48 w-full rounded-sm bg-muted/50" />
+            <Skeleton className="h-48 w-full rounded-sm bg-muted/50" />
+            <Skeleton className="h-48 w-full rounded-sm bg-muted/50" />
           </div>
         </div>
       </div>
@@ -79,10 +79,15 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen bg-background">
         <div className="h-full w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-foreground">
-            Error: {error.message}
+          <div className="text-destructive font-mono text-center py-12">
+            <div className="cyber-card p-8 max-w-md mx-auto">
+              <h2 className="font-display text-xl mb-2">SYSTEM ERROR</h2>
+              <p className="text-muted-foreground">
+                {error.message}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -93,18 +98,18 @@ const Dashboard = () => {
   const aquariumCount = ownedAquariums.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-background mobile-nav-space">
       <div className="h-full w-full overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          <div className="animate-fade-in">
+          <div className="animate-slide-in">
             <WelcomeBanner aquariumCount={aquariumCount} />
           </div>
           
-          <div className="w-full h-[200px] rounded-2xl overflow-hidden shadow-lg animate-slide-up">
+          <div className="w-full h-[200px] glass-panel neon-border overflow-hidden shadow-cyber animate-slide-in" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
             <SlideshowSection context="dashboard" />
           </div>
           
-          <div className="animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+          <div className="animate-slide-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
             {aquariumCount === 0 ? (
               <EmptyState aquariumCount={aquariumCount} />
             ) : (
@@ -117,7 +122,7 @@ const Dashboard = () => {
           </div>
           
           {ownedAquariums && ownedAquariums.length > 0 && (
-            <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+            <div className="space-y-6 animate-slide-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
               <QuickAddTask aquariums={ownedAquariums.map(aq => ({ id: aq.id, name: aq.name, type: aq.type, size: aq.size }))} />
               <Recommendations aquariums={ownedAquariums} />
             </div>
