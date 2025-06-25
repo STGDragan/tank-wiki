@@ -71,43 +71,43 @@ const AffiliateSettings = () => {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="cyber-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 font-display text-primary">
+            <Settings className="h-5 w-5 text-primary" />
             Affiliate Settings
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse h-20 bg-muted rounded"></div>
+          <div className="animate-pulse h-20 bg-muted/50 rounded"></div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
+    <Card className="cyber-card">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Settings className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 font-display text-primary">
+          <Settings className="h-5 w-5 text-primary" />
           Amazon Affiliate Settings
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="font-mono text-muted-foreground">
           Configure your global Amazon affiliate tag. This will be automatically applied to all Amazon product URLs.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="affiliate-tag">Amazon Affiliate Tag</Label>
+            <Label htmlFor="affiliate-tag" className="font-display text-primary">Amazon Affiliate Tag</Label>
             <Input
               id="affiliate-tag"
               value={affiliateTag}
               onChange={(e) => setAffiliateTag(e.target.value)}
               placeholder="your-affiliate-tag-20"
-              className="max-w-md"
+              className="max-w-md cyber-input"
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-mono">
               Enter your Amazon Associate tag (e.g., "yourname-20"). This will be appended to all Amazon product URLs.
             </p>
           </div>
@@ -115,16 +115,16 @@ const AffiliateSettings = () => {
           <Button 
             type="submit" 
             disabled={updateSettingsMutation.isPending}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cyber-button"
           >
             <Save className="h-4 w-4" />
             {updateSettingsMutation.isPending ? "Saving..." : "Save Settings"}
           </Button>
         </form>
         
-        <div className="mt-6 p-4 bg-muted rounded-lg">
-          <h4 className="font-medium mb-2">How it works:</h4>
-          <ul className="text-sm text-muted-foreground space-y-1">
+        <div className="mt-6 p-4 glass-panel rounded-lg neon-border">
+          <h4 className="font-medium mb-2 font-display text-primary">How it works:</h4>
+          <ul className="text-sm text-muted-foreground space-y-1 font-mono">
             <li>• When you add Amazon URLs to products, they're automatically formatted with your affiliate tag</li>
             <li>• The system extracts the ASIN (product ID) and creates clean affiliate URLs</li>
             <li>• Original Amazon URLs are preserved in the amazon_url field</li>

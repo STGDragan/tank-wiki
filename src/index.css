@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    /* Dark futuristic theme */
+    /* Dark futuristic theme - NO YELLOW */
     --background: 13 17 23;
     --foreground: 229 231 235;
     --card: 31 41 55;
@@ -22,7 +22,7 @@
     --muted-foreground: 156 163 175;
     --accent: 0 255 127;
     --accent-foreground: 13 17 23;
-    --destructive: 255 76 76;
+    --destructive: 239 68 68;
     --destructive-foreground: 229 231 235;
     --border: 75 85 99;
     --input: 55 65 81;
@@ -37,7 +37,7 @@
     --sidebar-border: 75 85 99;
     --sidebar-ring: 0 255 255;
     
-    /* Neon glow colors */
+    /* Neon glow colors - NO YELLOW */
     --neon-cyan: 0 255 255;
     --neon-green: 0 255 127;
     --neon-blue: 0 191 255;
@@ -45,7 +45,7 @@
   }
 
   .light {
-    /* Light mode as secondary theme */
+    /* Light mode - NO YELLOW */
     --background: 248 250 252;
     --foreground: 13 17 23;
     --card: 255 255 255;
@@ -75,14 +75,12 @@
   
   html {
     @apply bg-background;
-    /* Prevent zooming on mobile */
     touch-action: manipulation;
     font-family: 'Rajdhani', system-ui, -apple-system, sans-serif;
   }
   
   body {
     @apply bg-background text-foreground antialiased;
-    /* Mobile app optimizations */
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -92,32 +90,50 @@
   
   #root {
     @apply bg-background min-h-screen;
-    /* Mobile safe area support */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
   
-  /* Allow text selection in specific areas */
   input, textarea, [contenteditable] {
     -webkit-user-select: text;
     user-select: text;
   }
   
-  /* Smooth scrolling for mobile */
   * {
     -webkit-overflow-scrolling: touch;
   }
   
-  /* Typography hierarchy */
+  /* Typography hierarchy - NO YELLOW */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
+    color: rgb(var(--foreground));
   }
   
-  .mono {
+  .font-display {
+    font-family: 'Orbitron', monospace;
+    color: rgb(var(--foreground));
+  }
+  
+  .font-mono {
     font-family: 'Roboto Mono', monospace;
+    color: rgb(var(--foreground));
+  }
+  
+  .font-sans {
+    font-family: 'Rajdhani', sans-serif;
+    color: rgb(var(--foreground));
+  }
+  
+  /* Override any yellow text */
+  .text-yellow-400,
+  .text-yellow-500,
+  .text-yellow-600,
+  .text-amber-400,
+  .text-amber-500 {
+    color: rgb(var(--primary)) !important;
   }
   
   /* Futuristic gradients */
@@ -139,7 +155,7 @@
   }
   
   .neon-text {
-    color: rgb(var(--neon-cyan));
+    color: rgb(var(--neon-cyan)) !important;
     text-shadow: 0 0 10px rgb(var(--neon-cyan) / 0.5);
   }
   
@@ -161,11 +177,21 @@
   .cyber-card {
     @apply bg-card/90 backdrop-blur-sm border border-border/50 angular-panel shadow-lg hover:shadow-xl transition-all duration-300;
     background: linear-gradient(145deg, rgba(31, 41, 55, 0.9), rgba(55, 65, 81, 0.9));
+    color: rgb(var(--foreground));
   }
   
   .cyber-card:hover {
     @apply neon-glow;
     border-color: rgb(var(--neon-cyan) / 0.5);
+  }
+  
+  .cyber-card h1,
+  .cyber-card h2,
+  .cyber-card h3,
+  .cyber-card h4,
+  .cyber-card h5,
+  .cyber-card h6 {
+    color: rgb(var(--primary)) !important;
   }
   
   .cyber-button {
@@ -184,13 +210,19 @@
   .cyber-input {
     @apply bg-input/50 border border-border/50 rounded-none text-foreground placeholder:text-muted-foreground focus:border-primary/70 focus:ring-1 focus:ring-primary/30 transition-all duration-200;
     font-family: 'Roboto Mono', monospace;
+    color: rgb(var(--foreground)) !important;
   }
   
   .cyber-input:focus {
     @apply neon-glow;
   }
   
-  /* Mobile-first touch zones */
+  /* Force text colors to avoid yellow */
+  .cyber-input::placeholder {
+    color: rgb(var(--muted-foreground)) !important;
+  }
+  
+  /* Touch zones */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
@@ -213,14 +245,13 @@
   }
   
   html {
-    font-size: 16px; /* Prevent zoom on iOS */
+    font-size: 16px;
   }
   
   .cyber-card {
-    @apply rounded-lg; /* Less angular on mobile for better touch interaction */
+    @apply rounded-lg;
   }
   
-  /* Bottom navigation space */
   .mobile-nav-space {
     padding-bottom: 80px;
   }
@@ -270,4 +301,34 @@
       transform: translateX(0);
     }
   }
+}
+
+/* Specific overrides for the products page to remove yellow */
+.products-page * {
+  color: rgb(var(--foreground)) !important;
+}
+
+.products-page .text-yellow-400,
+.products-page .text-yellow-500,
+.products-page .text-yellow-600,
+.products-page .text-amber-400,
+.products-page .text-amber-500 {
+  color: rgb(var(--primary)) !important;
+}
+
+.products-page h1,
+.products-page h2,
+.products-page h3 {
+  color: rgb(var(--primary)) !important;
+}
+
+.products-page .card-title {
+  color: rgb(var(--primary)) !important;
+}
+
+/* Badge overrides */
+.badge-yellow {
+  background-color: rgb(var(--primary) / 0.2) !important;
+  color: rgb(var(--primary)) !important;
+  border-color: rgb(var(--primary) / 0.5) !important;
 }
