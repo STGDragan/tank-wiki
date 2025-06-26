@@ -7,37 +7,37 @@
 
 @layer base {
   :root {
-    /* Dark futuristic theme - COMPLETELY NO YELLOW */
+    /* Dark futuristic theme with better contrast */
     --background: 13 17 23;
-    --foreground: 229 231 235;
+    --foreground: 240 248 255;
     --card: 31 41 55;
-    --card-foreground: 229 231 235;
+    --card-foreground: 240 248 255;
     --popover: 31 41 55;
-    --popover-foreground: 229 231 235;
+    --popover-foreground: 240 248 255;
     --primary: 0 255 255;
     --primary-foreground: 13 17 23;
     --secondary: 55 65 81;
-    --secondary-foreground: 229 231 235;
+    --secondary-foreground: 240 248 255;
     --muted: 55 65 81;
-    --muted-foreground: 156 163 175;
+    --muted-foreground: 200 210 220;
     --accent: 0 255 127;
     --accent-foreground: 13 17 23;
     --destructive: 239 68 68;
-    --destructive-foreground: 229 231 235;
+    --destructive-foreground: 240 248 255;
     --border: 75 85 99;
     --input: 55 65 81;
     --ring: 0 255 255;
     --radius: 0.5rem;
     --sidebar-background: 31 41 55;
-    --sidebar-foreground: 229 231 235;
+    --sidebar-foreground: 240 248 255;
     --sidebar-primary: 0 255 255;
     --sidebar-primary-foreground: 13 17 23;
     --sidebar-accent: 55 65 81;
-    --sidebar-accent-foreground: 229 231 235;
+    --sidebar-accent-foreground: 240 248 255;
     --sidebar-border: 75 85 99;
     --sidebar-ring: 0 255 255;
     
-    /* Neon glow colors - COMPLETELY NO YELLOW */
+    /* Neon glow colors */
     --neon-cyan: 0 255 255;
     --neon-green: 0 255 127;
     --neon-blue: 0 191 255;
@@ -45,7 +45,7 @@
   }
 
   .light {
-    /* Light mode - COMPLETELY NO YELLOW */
+    /* Light mode */
     --background: 248 250 252;
     --foreground: 13 17 23;
     --card: 255 255 255;
@@ -86,8 +86,7 @@
     -webkit-user-select: none;
     user-select: none;
     overscroll-behavior: none;
-    /* Add better text shadow for dark backgrounds */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    color: rgb(var(--foreground));
   }
   
   #root {
@@ -107,105 +106,38 @@
     -webkit-overflow-scrolling: touch;
   }
   
-  /* Typography hierarchy - COMPLETELY NO YELLOW with better shadows */
+  /* Typography hierarchy with better readability */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
     color: rgb(var(--primary)) !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
   
   .font-display {
     font-family: 'Orbitron', monospace;
     color: rgb(var(--primary)) !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
   
   .font-mono {
     font-family: 'Roboto Mono', monospace;
     color: rgb(var(--foreground));
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   }
   
   .font-sans {
     font-family: 'Rajdhani', sans-serif;
     color: rgb(var(--foreground));
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   }
   
-  /* Improve text readability on dark backgrounds */
-  p, span, div, li, td, th {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  /* Improve text readability */
+  p, span, div, li, td, th, label, button {
+    color: rgb(var(--foreground));
   }
   
-  /* COMPLETELY REMOVE ALL YELLOW VARIANTS - FORCE TO CYAN/BLUE */
-  .text-yellow-50,
-  .text-yellow-100,
-  .text-yellow-200,
-  .text-yellow-300,
-  .text-yellow-400,
-  .text-yellow-500,
-  .text-yellow-600,
-  .text-yellow-700,
-  .text-yellow-800,
-  .text-yellow-900,
-  .text-amber-50,
-  .text-amber-100,
-  .text-amber-200,
-  .text-amber-300,
-  .text-amber-400,
-  .text-amber-500,
-  .text-amber-600,
-  .text-amber-700,
-  .text-amber-800,
-  .text-amber-900 {
-    color: rgb(var(--primary)) !important;
-  }
-  
-  .bg-yellow-50,
-  .bg-yellow-100,
-  .bg-yellow-200,
-  .bg-yellow-300,
-  .bg-yellow-400,
-  .bg-yellow-500,
-  .bg-yellow-600,
-  .bg-yellow-700,
-  .bg-yellow-800,
-  .bg-yellow-900,
-  .bg-amber-50,
-  .bg-amber-100,
-  .bg-amber-200,
-  .bg-amber-300,
-  .bg-amber-400,
-  .bg-amber-500,
-  .bg-amber-600,
-  .bg-amber-700,
-  .bg-amber-800,
-  .bg-amber-900 {
-    background-color: rgb(var(--primary) / 0.2) !important;
-  }
-  
-  .border-yellow-50,
-  .border-yellow-100,
-  .border-yellow-200,
-  .border-yellow-300,
-  .border-yellow-400,
-  .border-yellow-500,
-  .border-yellow-600,
-  .border-yellow-700,
-  .border-yellow-800,
-  .border-yellow-900,
-  .border-amber-50,
-  .border-amber-100,
-  .border-amber-200,
-  .border-amber-300,
-  .border-amber-400,
-  .border-amber-500,
-  .border-amber-600,
-  .border-amber-700,
-  .border-amber-800,
-  .border-amber-900 {
-    border-color: rgb(var(--primary) / 0.5) !important;
+  /* Muted text should still be readable */
+  .text-muted-foreground {
+    color: rgb(var(--muted-foreground)) !important;
   }
   
   /* Futuristic gradients */
@@ -219,7 +151,7 @@
   
   /* Neon glow effects */
   .neon-glow {
-    box-shadow: 0 0 10px rgb(var(--neon-cyan) / 0.3), 0 0 20px rgb(var(--neon-cyan) / 0.2), 0 0 30px rgb(var(--neon-cyan) / 0.1);
+    box-shadow: 0 0 10px rgb(var(--neon-cyan) / 0.3), 0 0 20px rgb(var(--neon-cyan) / 0.2);
   }
   
   .neon-border {
@@ -228,12 +160,12 @@
   
   .neon-text {
     color: rgb(var(--neon-cyan)) !important;
-    text-shadow: 0 0 10px rgb(var(--neon-cyan) / 0.5), 0 2px 4px rgba(0, 0, 0, 0.9);
+    text-shadow: 0 0 10px rgb(var(--neon-cyan) / 0.5);
   }
   
   /* Glassmorphism effect */
   .glass-panel {
-    background: rgba(31, 41, 55, 0.8);
+    background: rgba(31, 41, 55, 0.9);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(75, 85, 99, 0.3);
   }
@@ -247,8 +179,8 @@
 /* Enhanced component styles */
 @layer components {
   .cyber-card {
-    @apply bg-card/90 backdrop-blur-sm border border-border/50 angular-panel shadow-lg hover:shadow-xl transition-all duration-300;
-    background: linear-gradient(145deg, rgba(31, 41, 55, 0.9), rgba(55, 65, 81, 0.9));
+    @apply bg-card/95 backdrop-blur-sm border border-border/50 angular-panel shadow-lg hover:shadow-xl transition-all duration-300;
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.95), rgba(55, 65, 81, 0.95));
     color: rgb(var(--foreground));
   }
   
@@ -273,7 +205,6 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: rgb(var(--primary)) !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   }
   
   .cyber-button:hover {
@@ -285,14 +216,12 @@
     @apply bg-input/50 border border-border/50 rounded-none text-foreground placeholder:text-muted-foreground focus:border-primary/70 focus:ring-1 focus:ring-primary/30 transition-all duration-200;
     font-family: 'Roboto Mono', monospace;
     color: rgb(var(--foreground)) !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   }
   
   .cyber-input:focus {
     @apply neon-glow;
   }
   
-  /* Force text colors to avoid yellow */
   .cyber-input::placeholder {
     color: rgb(var(--muted-foreground)) !important;
   }
@@ -312,7 +241,7 @@
     @apply grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3;
   }
   
-  /* Fix slideshow container to prevent white space */
+  /* Fix slideshow container */
   .slideshow-container {
     background: transparent !important;
     overflow: hidden;
@@ -386,30 +315,4 @@
       transform: translateX(0);
     }
   }
-}
-
-/* FORCE NO YELLOW ANYWHERE */
-* {
-  color: inherit !important;
-}
-
-*[class*="yellow"],
-*[class*="amber"] {
-  color: rgb(var(--primary)) !important;
-  background-color: rgb(var(--primary) / 0.1) !important;
-  border-color: rgb(var(--primary) / 0.3) !important;
-}
-
-/* Badge overrides - NO YELLOW ALLOWED */
-.badge-yellow,
-.badge-amber {
-  background-color: rgb(var(--primary) / 0.2) !important;
-  color: rgb(var(--primary)) !important;
-  border-color: rgb(var(--primary) / 0.5) !important;
-}
-
-/* Override any remaining yellow elements */
-[style*="yellow"],
-[style*="amber"] {
-  color: rgb(var(--primary)) !important;
 }

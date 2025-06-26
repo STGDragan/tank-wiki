@@ -22,7 +22,7 @@ export const SlideshowSection = ({ context, autoplayDelay }: SlideshowSectionPro
 
   if (imagesLoading) {
     return (
-      <div className="w-full h-full slideshow-container bg-transparent">
+      <div className="w-full h-full">
         <Skeleton className="w-full h-full bg-muted/20" />
       </div>
     );
@@ -30,31 +30,30 @@ export const SlideshowSection = ({ context, autoplayDelay }: SlideshowSectionPro
 
   if (!images || images.length === 0) {
     return (
-      <div className="w-full h-full slideshow-container bg-transparent flex items-center justify-center">
+      <div className="w-full h-full flex items-center justify-center bg-muted/10">
         <p className="text-muted-foreground font-mono">No images available for slideshow</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full slideshow-container bg-transparent overflow-hidden">
+    <div className="w-full h-full overflow-hidden">
       <Carousel
         plugins={[plugin]}
-        className="w-full h-full bg-transparent"
+        className="w-full h-full"
         opts={{
           align: "start",
           loop: true,
         }}
       >
-        <CarouselContent className="h-full bg-transparent">
+        <CarouselContent className="h-full">
           {images.map((image, index) => (
-            <CarouselItem key={image.id} className="h-full bg-transparent">
-              <div className="w-full h-full bg-transparent">
+            <CarouselItem key={image.id} className="h-full">
+              <div className="w-full h-full">
                 <img
                   src={image.image_url}
                   alt={image.alt_text || `Slideshow image ${index + 1}`}
-                  className="w-full h-full object-cover bg-transparent"
-                  style={{ background: 'transparent' }}
+                  className="w-full h-full object-cover"
                 />
               </div>
             </CarouselItem>

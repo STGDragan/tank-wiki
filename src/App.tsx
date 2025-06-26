@@ -32,6 +32,7 @@ import NotFound from "./pages/NotFound";
 
 // Admin Pages
 import AdminProducts from "./pages/admin/Products";
+import AdminShoppingManager from "./pages/admin/ShoppingManager";
 import AdminKnowledgeBase from "./pages/admin/KnowledgeBase";
 import ArticleEditor from "./pages/admin/ArticleEditor";
 import AdminSlideshow from "./pages/admin/Slideshow";
@@ -77,6 +78,7 @@ function App() {
                   <Route path="/account" element={<Account />} />
                   <Route path="/feedback" element={<Feedback />} />
                   <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
+                  <Route path="/admin/shopping-manager" element={<AdminRoute><AdminShoppingManager /></AdminRoute>} />
                   <Route path="/admin/knowledge-base" element={<AdminRoute><AdminKnowledgeBase /></AdminRoute>} />
                   <Route path="/admin/knowledge-base/article/new" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
                   <Route path="/admin/knowledge-base/article/edit/:slug" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
