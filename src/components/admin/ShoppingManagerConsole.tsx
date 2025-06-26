@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -57,6 +58,7 @@ const fetchProducts = async () => {
 
 const ShoppingManagerConsole = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isImageManagerOpen, setIsImageManagerOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Tables<'products'> | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewProduct, setPreviewProduct] = useState<Tables<'products'> | null>(null);
@@ -134,6 +136,15 @@ const ShoppingManagerConsole = () => {
   const handleEdit = (product: Tables<'products'>) => {
     setSelectedProduct(product);
     setIsEditDialogOpen(true);
+    // Ensure image manager is closed
+    setIsImageManagerOpen(false);
+  };
+
+  const handleImageManager = (product: Tables<'products'>) => {
+    setSelectedProduct(product);
+    setIsImageManagerOpen(true);
+    // Ensure edit dialog is closed
+    setIsEditDialogOpen(false);
   };
 
   const handlePriceUpdate = (productId: string, field: 'regular_price' | 'sale_price', value: number | null) => {
@@ -281,7 +292,7 @@ const ShoppingManagerConsole = () => {
                                 variant="ghost"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSelectedProduct(product);
+                                  handleImageManager(product);
                                 }}
                                 className="absolute -top-2 -right-2 h-6 w-6 p-0 cyber-button"
                                 title="Manage images"
@@ -440,16 +451,20 @@ const ShoppingManagerConsole = () => {
       <EditProductDialog 
         product={selectedProduct}
         open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setSelectedProduct(null);
+        }}
       />
 
-      {selectedProduct && (
-        <ProductImageManager 
-          product={selectedProduct}
-          open={!!selectedProduct}
-          onOpenChange={() => setSelectedProduct(null)}
-        />
-      )}
+      <ProductImageManager 
+        product={selectedProduct}
+        open={isImageManagerOpen}
+        onOpenChange={(open) => {
+          setIsImageManagerOpen(open);
+          if (!open) setSelectedProduct(null);
+        }}
+      />
 
       {previewProduct && (
         <ProductPreviewDialog

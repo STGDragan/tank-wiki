@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Fish, Calendar, Users, Star, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ProUpgradePromptProps {
   isOpen: boolean;
@@ -14,11 +15,17 @@ interface ProUpgradePromptProps {
 
 export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradePromptProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleUpgrade = async () => {
     setIsLoading(true);
-    // Redirect to Stripe checkout or subscription page
-    window.location.href = '/subscription';
+    onClose();
+    navigate('/pro');
+  };
+
+  const handleLearnMore = () => {
+    onClose();
+    navigate('/pro');
   };
 
   const proFeatures = [
@@ -106,12 +113,19 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
               disabled={isLoading}
               className="w-full btn-pro-upgrade text-lg font-semibold py-6"
             >
-              {isLoading ? "Processing..." : "Start Free Trial"}
+              {isLoading ? "Loading..." : "Start Free Trial"}
             </Button>
             <Button 
               variant="outline" 
-              onClick={onClose}
+              onClick={handleLearnMore}
               className="w-full"
+            >
+              Learn More About Pro
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={onClose}
+              className="w-full text-xs"
             >
               Maybe Later
             </Button>

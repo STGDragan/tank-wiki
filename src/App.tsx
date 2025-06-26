@@ -28,6 +28,7 @@ import Account from "./pages/Account";
 import Feedback from "./pages/Feedback";
 import LegalPage from "./pages/LegalPage";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
+import Pro from "./pages/Pro";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
@@ -77,6 +78,7 @@ function App() {
                   <Route path="/species-browser" element={<SpeciesBrowserPage />} />
                   <Route path="/account" element={<Account />} />
                   <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/pro" element={<Pro />} />
                   <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
                   <Route path="/admin/shopping-manager" element={<AdminRoute><AdminShoppingManager /></AdminRoute>} />
                   <Route path="/admin/knowledge-base" element={<AdminRoute><AdminKnowledgeBase /></AdminRoute>} />

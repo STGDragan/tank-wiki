@@ -26,6 +26,8 @@ interface Sponsorship {
   image_url?: string;
   is_active: boolean;
   priority: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const SponsorshipManager = () => {
@@ -43,35 +45,69 @@ export const SponsorshipManager = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Mock data for now - replace with actual query when sponsorship table exists
-  const sponsorships: Sponsorship[] = [
-    {
-      id: '1',
-      title: 'AquaClear Premium Filters',
-      description: 'Advanced filtration systems for crystal clear water',
-      sponsor_url: 'https://example.com/aquaclear',
-      image_url: '/placeholder.svg',
-      is_active: true,
-      priority: 1
-    },
-    {
-      id: '2', 
-      title: 'TankMaster LED Lighting',
-      description: 'Professional aquarium lighting solutions',
-      sponsor_url: 'https://example.com/tankmaster',
-      image_url: '/placeholder.svg',
-      is_active: false,
-      priority: 2
+  // Fetch sponsorships from cms_settings table
+  const { data: sponsorships = [], isLoading } = useQuery({
+    queryKey: ['sponsorships'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cms_settings')
+        .select('*')
+        .eq('key', 'sponsorships')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching sponsorships:', error);
+        throw error;
+      }
+
+      if (!data || !data.value) {
+        return [];
+      }
+
+      return Array.isArray(data.value) ? data.value : [];
     }
-  ];
+  });
+
+  const saveSponsorshipsMutation = useMutation({
+    mutationFn: async (newSponsorships: Sponsorship[]) => {
+      const { error } = await supabase
+        .from('cms_settings')
+        .upsert({
+          key: 'sponsorships',
+          value: newSponsorships,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sponsorships'] });
+      toast({ title: 'Success', description: 'Sponsorships updated successfully.' });
+    },
+    onError: (error) => {
+      console.error('Error saving sponsorships:', error);
+      toast({ title: 'Error', description: 'Failed to update sponsorships.', variant: 'destructive' });
+    }
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementation would go here when backend is ready
-    toast({ 
-      title: 'Sponsorship Saved', 
-      description: 'Sponsorship has been updated successfully.' 
-    });
+    
+    const newSponsorship: Sponsorship = {
+      id: editingId || crypto.randomUUID(),
+      ...formData,
+      created_at: editingId ? sponsorships.find(s => s.id === editingId)?.created_at : new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    let updatedSponsorships;
+    if (editingId) {
+      updatedSponsorships = sponsorships.map(s => s.id === editingId ? newSponsorship : s);
+    } else {
+      updatedSponsorships = [...sponsorships, newSponsorship];
+    }
+
+    saveSponsorshipsMutation.mutate(updatedSponsorships);
     resetForm();
   };
 
@@ -102,20 +138,20 @@ export const SponsorshipManager = () => {
   };
 
   const handleDelete = (id: string) => {
-    // Implementation would go here when backend is ready
-    toast({ 
-      title: 'Sponsorship Deleted', 
-      description: 'Sponsorship has been removed successfully.' 
-    });
+    const updatedSponsorships = sponsorships.filter(s => s.id !== id);
+    saveSponsorshipsMutation.mutate(updatedSponsorships);
   };
 
   const toggleActive = (id: string, isActive: boolean) => {
-    // Implementation would go here when backend is ready
-    toast({ 
-      title: 'Status Updated', 
-      description: `Sponsorship ${isActive ? 'activated' : 'deactivated'} successfully.` 
-    });
+    const updatedSponsorships = sponsorships.map(s => 
+      s.id === id ? { ...s, is_active: isActive, updated_at: new Date().toISOString() } : s
+    );
+    saveSponsorshipsMutation.mutate(updatedSponsorships);
   };
+
+  if (isLoading) {
+    return <div className="text-center py-8 font-mono">Loading sponsorships...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -214,9 +250,13 @@ export const SponsorshipManager = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button type="submit" className="cyber-button">
+                  <Button 
+                    type="submit" 
+                    className="cyber-button"
+                    disabled={saveSponsorshipsMutation.isPending}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
-                    {isEditing ? 'Update Sponsorship' : 'Add Sponsorship'}
+                    {saveSponsorshipsMutation.isPending ? 'Saving...' : (isEditing ? 'Update Sponsorship' : 'Add Sponsorship')}
                   </Button>
                   {isEditing && (
                     <Button type="button" onClick={resetForm} variant="outline" className="cyber-button">
@@ -230,67 +270,77 @@ export const SponsorshipManager = () => {
 
           {/* Sponsorships List */}
           <div className="space-y-4">
-            <h3 className="text-lg font-display text-primary">Active Sponsorships</h3>
+            <h3 className="text-lg font-display text-primary">Sponsorships ({sponsorships.length})</h3>
             
-            {sponsorships.map((sponsorship) => (
-              <Card key={sponsorship.id} className="glass-panel neon-border">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      {sponsorship.image_url && (
-                        <img
-                          src={sponsorship.image_url}
-                          alt={sponsorship.title}
-                          className="w-16 h-16 rounded-md object-cover neon-border"
-                        />
-                      )}
-                      <div>
-                        <h4 className="font-medium font-mono">{sponsorship.title}</h4>
-                        <p className="text-sm text-muted-foreground font-mono">{sponsorship.description}</p>
-                        <div className="flex gap-2 mt-2">
-                          <Badge variant={sponsorship.is_active ? "default" : "secondary"} className="font-mono text-xs">
-                            {sponsorship.is_active ? 'Active' : 'Inactive'}
-                          </Badge>
-                          <Badge variant="outline" className="font-mono text-xs">
-                            Priority {sponsorship.priority}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(sponsorship.sponsor_url, '_blank')}
-                        className="cyber-button"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEdit(sponsorship)}
-                        className="cyber-button"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(sponsorship.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Switch
-                        checked={sponsorship.is_active}
-                        onCheckedChange={(checked) => toggleActive(sponsorship.id, checked)}
-                      />
-                    </div>
-                  </div>
+            {sponsorships.length === 0 ? (
+              <Card className="glass-panel neon-border">
+                <CardContent className="p-8 text-center">
+                  <p className="text-muted-foreground font-mono">No sponsorships created yet.</p>
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              sponsorships.map((sponsorship) => (
+                <Card key={sponsorship.id} className="glass-panel neon-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        {sponsorship.image_url && (
+                          <img
+                            src={sponsorship.image_url}
+                            alt={sponsorship.title}
+                            className="w-16 h-16 rounded-md object-cover neon-border"
+                          />
+                        )}
+                        <div>
+                          <h4 className="font-medium font-mono">{sponsorship.title}</h4>
+                          <p className="text-sm text-muted-foreground font-mono">{sponsorship.description}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant={sponsorship.is_active ? "default" : "secondary"} className="font-mono text-xs">
+                              {sponsorship.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                            <Badge variant="outline" className="font-mono text-xs">
+                              Priority {sponsorship.priority}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open(sponsorship.sponsor_url, '_blank')}
+                          className="cyber-button"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(sponsorship)}
+                          className="cyber-button"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(sponsorship.id)}
+                          disabled={saveSponsorshipsMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <Switch
+                          checked={sponsorship.is_active}
+                          onCheckedChange={(checked) => toggleActive(sponsorship.id, checked)}
+                          disabled={saveSponsorshipsMutation.isPending}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
