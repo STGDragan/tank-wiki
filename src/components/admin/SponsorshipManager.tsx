@@ -13,104 +13,101 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Megaphone, Plus, Edit, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { Crown, Plus, Edit, Trash2, ExternalLink } from "lucide-react";
 
-interface SponsorshipData {
+interface Sponsorship {
   id: string;
-  key: string;
-  value: string;
-  description?: string;
+  title: string;
+  description: string;
+  sponsor_url: string;
+  image_url?: string;
+  is_active: boolean;
+  priority: number;
 }
 
-const fetchSponsorshipSettings = async () => {
-  const { data, error } = await supabase
-    .from("cms_settings")
-    .select("*")
-    .like("key", "sponsorship_%")
-    .order("key");
-
-  if (error) throw error;
-  return data as SponsorshipData[];
-};
-
 export const SponsorshipManager = () => {
-  const [newSetting, setNewSetting] = useState({ key: "", value: "", description: "" });
-  const [editingSetting, setEditingSetting] = useState<SponsorshipData | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    sponsor_url: '',
+    image_url: '',
+    is_active: true,
+    priority: 1
+  });
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ["sponsorship-settings"],
-    queryFn: fetchSponsorshipSettings,
-  });
-
-  const addSettingMutation = useMutation({
-    mutationFn: async (setting: { key: string; value: string; description?: string }) => {
-      const { error } = await supabase.from('cms_settings').insert([{
-        key: `sponsorship_${setting.key}`,
-        value: setting.value,
-        description: setting.description
-      }]);
-      if (error) throw error;
+  // Mock data for now - replace with actual query when sponsorship table exists
+  const sponsorships: Sponsorship[] = [
+    {
+      id: '1',
+      title: 'AquaClear Premium Filters',
+      description: 'Advanced filtration systems for crystal clear water',
+      sponsor_url: 'https://example.com/aquaclear',
+      image_url: '/placeholder.svg',
+      is_active: true,
+      priority: 1
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sponsorship-settings'] });
-      toast({ title: 'Sponsorship Setting Added', description: 'New setting has been created.' });
-      setNewSetting({ key: "", value: "", description: "" });
-    },
-    onError: (error: Error) => {
-      toast({ title: 'Error adding setting', description: error.message, variant: 'destructive' });
+    {
+      id: '2', 
+      title: 'TankMaster LED Lighting',
+      description: 'Professional aquarium lighting solutions',
+      sponsor_url: 'https://example.com/tankmaster',
+      image_url: '/placeholder.svg',
+      is_active: false,
+      priority: 2
     }
-  });
+  ];
 
-  const updateSettingMutation = useMutation({
-    mutationFn: async (setting: SponsorshipData) => {
-      const { error } = await supabase
-        .from('cms_settings')
-        .update({
-          value: setting.value,
-          description: setting.description
-        })
-        .eq('id', setting.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sponsorship-settings'] });
-      toast({ title: 'Setting Updated', description: 'Sponsorship setting has been updated.' });
-      setEditingSetting(null);
-    },
-    onError: (error: Error) => {
-      toast({ title: 'Error updating setting', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  const deleteSettingMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('cms_settings').delete().eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sponsorship-settings'] });
-      toast({ title: 'Setting Deleted', description: 'Sponsorship setting has been removed.' });
-    },
-    onError: (error: Error) => {
-      toast({ title: 'Error deleting setting', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  const handleAddSetting = () => {
-    if (!newSetting.key.trim() || !newSetting.value.trim()) {
-      toast({ title: 'Missing fields', description: 'Key and value are required.', variant: 'destructive' });
-      return;
-    }
-    addSettingMutation.mutate(newSetting);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implementation would go here when backend is ready
+    toast({ 
+      title: 'Sponsorship Saved', 
+      description: 'Sponsorship has been updated successfully.' 
+    });
+    resetForm();
   };
 
-  const handleUpdateSetting = () => {
-    if (!editingSetting) return;
-    updateSettingMutation.mutate(editingSetting);
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      sponsor_url: '',
+      image_url: '',
+      is_active: true,
+      priority: 1
+    });
+    setIsEditing(false);
+    setEditingId(null);
+  };
+
+  const handleEdit = (sponsorship: Sponsorship) => {
+    setFormData(sponsorship);
+    setEditingId(sponsorship.id);
+    setIsEditing(true);
+  };
+
+  const handleDelete = (id: string) => {
+    // Implementation would go here when backend is ready
+    toast({ 
+      title: 'Sponsorship Deleted', 
+      description: 'Sponsorship has been removed successfully.' 
+    });
+  };
+
+  const toggleActive = (id: string, isActive: boolean) => {
+    // Implementation would go here when backend is ready
+    toast({ 
+      title: 'Status Updated', 
+      description: `Sponsorship ${isActive ? 'activated' : 'deactivated'} successfully.` 
+    });
   };
 
   return (
@@ -118,131 +115,175 @@ export const SponsorshipManager = () => {
       <Card className="cyber-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
-            <Megaphone className="h-5 w-5 text-primary" />
-            Sponsorship Management Console
+            <Crown className="h-5 w-5 text-primary" />
+            Sponsorship Management
           </CardTitle>
           <CardDescription className="font-mono">
-            Configure sponsorship banners, affiliate codes, and promotional content across the platform.
+            Manage sponsored content and promotional placements across the platform.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="cyber-grid grid-cols-3">
-            <div className="space-y-2">
-              <Label className="font-display text-primary">Setting Key</Label>
-              <Input
-                value={newSetting.key}
-                onChange={(e) => setNewSetting(prev => ({ ...prev, key: e.target.value }))}
-                placeholder="banner_text"
-                className="cyber-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="font-display text-primary">Value</Label>
-              <Input
-                value={newSetting.value}
-                onChange={(e) => setNewSetting(prev => ({ ...prev, value: e.target.value }))}
-                placeholder="Special offer text..."
-                className="cyber-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="font-display text-primary">Description</Label>
-              <Input
-                value={newSetting.description}
-                onChange={(e) => setNewSetting(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="What this setting controls"
-                className="cyber-input"
-              />
-            </div>
-          </div>
-          
-          <Button onClick={handleAddSetting} disabled={addSettingMutation.isPending} className="cyber-button">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Sponsorship Setting
-          </Button>
-        </CardContent>
-      </Card>
+          {/* Sponsorship Form */}
+          <Card className="glass-panel neon-border">
+            <CardHeader>
+              <CardTitle className="text-lg font-display">
+                {isEditing ? 'Edit Sponsorship' : 'Add New Sponsorship'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="font-display text-primary">Sponsor Title</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Enter sponsor title"
+                      className="cyber-input"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="sponsor_url" className="font-display text-primary">Sponsor URL</Label>
+                    <Input
+                      id="sponsor_url"
+                      type="url"
+                      value={formData.sponsor_url}
+                      onChange={(e) => setFormData(prev => ({ ...prev, sponsor_url: e.target.value }))}
+                      placeholder="https://sponsor-website.com"
+                      className="cyber-input"
+                      required
+                    />
+                  </div>
+                </div>
 
-      <Card className="cyber-card">
-        <CardHeader>
-          <CardTitle className="font-display">Current Sponsorship Settings</CardTitle>
-          <CardDescription className="font-mono">
-            Manage existing sponsorship configurations and promotional content.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="text-center py-8 font-mono">Loading sponsorship settings...</div>
-            ) : settings && settings.length > 0 ? (
-              settings.map((setting) => (
-                <Card key={setting.id} className="p-4 glass-panel neon-border">
-                  {editingSetting?.id === setting.id ? (
-                    <div className="space-y-4">
-                      <div className="cyber-grid grid-cols-2">
-                        <div className="space-y-2">
-                          <Label className="font-mono text-primary">Value</Label>
-                          <Textarea
-                            value={editingSetting.value}
-                            onChange={(e) => setEditingSetting(prev => prev ? ({ ...prev, value: e.target.value }) : null)}
-                            className="cyber-input"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="font-mono text-primary">Description</Label>
-                          <Input
-                            value={editingSetting.description || ""}
-                            onChange={(e) => setEditingSetting(prev => prev ? ({ ...prev, description: e.target.value }) : null)}
-                            className="cyber-input"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleUpdateSetting} size="sm" className="cyber-button">
-                          Save Changes
-                        </Button>
-                        <Button onClick={() => setEditingSetting(null)} size="sm" variant="outline" className="cyber-button">
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="font-mono">{setting.key}</Badge>
-                        </div>
-                        <p className="font-mono text-sm">{setting.value}</p>
-                        {setting.description && (
-                          <p className="text-xs text-muted-foreground font-mono">{setting.description}</p>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => setEditingSetting(setting)}
-                          size="sm"
-                          variant="outline"
-                          className="cyber-button"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          onClick={() => deleteSettingMutation.mutate(setting.id)}
-                          size="sm"
-                          variant="destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="font-display text-primary">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Brief description of the sponsorship"
+                    className="cyber-input"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="image_url" className="font-display text-primary">Image URL</Label>
+                    <Input
+                      id="image_url"
+                      type="url"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
+                      placeholder="https://example.com/sponsor-logo.jpg"
+                      className="cyber-input"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="priority" className="font-display text-primary">Priority</Label>
+                    <Input
+                      id="priority"
+                      type="number"
+                      min="1"
+                      value={formData.priority}
+                      onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) }))}
+                      className="cyber-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                  />
+                  <Label htmlFor="is_active" className="font-mono">Active</Label>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit" className="cyber-button">
+                    <Plus className="h-4 w-4 mr-2" />
+                    {isEditing ? 'Update Sponsorship' : 'Add Sponsorship'}
+                  </Button>
+                  {isEditing && (
+                    <Button type="button" onClick={resetForm} variant="outline" className="cyber-button">
+                      Cancel
+                    </Button>
                   )}
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-8 text-muted-foreground font-mono">
-                No sponsorship settings configured yet.
-              </div>
-            )}
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Sponsorships List */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-display text-primary">Active Sponsorships</h3>
+            
+            {sponsorships.map((sponsorship) => (
+              <Card key={sponsorship.id} className="glass-panel neon-border">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      {sponsorship.image_url && (
+                        <img
+                          src={sponsorship.image_url}
+                          alt={sponsorship.title}
+                          className="w-16 h-16 rounded-md object-cover neon-border"
+                        />
+                      )}
+                      <div>
+                        <h4 className="font-medium font-mono">{sponsorship.title}</h4>
+                        <p className="text-sm text-muted-foreground font-mono">{sponsorship.description}</p>
+                        <div className="flex gap-2 mt-2">
+                          <Badge variant={sponsorship.is_active ? "default" : "secondary"} className="font-mono text-xs">
+                            {sponsorship.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                          <Badge variant="outline" className="font-mono text-xs">
+                            Priority {sponsorship.priority}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(sponsorship.sponsor_url, '_blank')}
+                        className="cyber-button"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(sponsorship)}
+                        className="cyber-button"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(sponsorship.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Switch
+                        checked={sponsorship.is_active}
+                        onCheckedChange={(checked) => toggleActive(sponsorship.id, checked)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>

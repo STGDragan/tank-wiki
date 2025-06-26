@@ -30,10 +30,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AmazonProductImportDialog } from "@/components/admin/AmazonProductImportDialog";
 import AffiliateSettings from "@/components/admin/AffiliateSettings";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditProductDialog from "@/components/admin/EditProductDialog";
 import { EditableProductCell } from "@/components/admin/EditableProductCell";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ProductVisibilityControls } from "./ProductVisibilityControls";
 import { WizardIntegrationPanel } from "./WizardIntegrationPanel";
 import { ProductImageManager } from "./ProductImageManager";
@@ -61,10 +61,20 @@ const ShoppingManagerConsole = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewProduct, setPreviewProduct] = useState<Tables<'products'> | null>(null);
   const [previewContext, setPreviewContext] = useState<string>('shopping');
+  const [searchParams] = useSearchParams();
+  const [currentTab, setCurrentTab] = useState('products');
   const navigate = useNavigate();
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Handle URL tab parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['products', 'visibility', 'wizard', 'sponsorship'].includes(tab)) {
+      setCurrentTab(tab);
+    }
+  }, [searchParams]);
 
   const {
     data: products,
@@ -196,7 +206,7 @@ const ShoppingManagerConsole = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="products" className="space-y-6">
+      <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
         <TabsList className="cyber-grid grid-cols-4 glass-panel neon-border">
           <TabsTrigger value="products" className="cyber-button">Products</TabsTrigger>
           <TabsTrigger value="visibility" className="cyber-button">Visibility</TabsTrigger>

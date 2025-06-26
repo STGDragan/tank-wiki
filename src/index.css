@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    /* Dark futuristic theme - NO YELLOW */
+    /* Dark futuristic theme - COMPLETELY NO YELLOW */
     --background: 13 17 23;
     --foreground: 229 231 235;
     --card: 31 41 55;
@@ -37,7 +37,7 @@
     --sidebar-border: 75 85 99;
     --sidebar-ring: 0 255 255;
     
-    /* Neon glow colors - NO YELLOW */
+    /* Neon glow colors - COMPLETELY NO YELLOW */
     --neon-cyan: 0 255 255;
     --neon-green: 0 255 127;
     --neon-blue: 0 191 255;
@@ -45,7 +45,7 @@
   }
 
   .light {
-    /* Light mode - NO YELLOW */
+    /* Light mode - COMPLETELY NO YELLOW */
     --background: 248 250 252;
     --foreground: 13 17 23;
     --card: 255 255 255;
@@ -105,16 +105,16 @@
     -webkit-overflow-scrolling: touch;
   }
   
-  /* Typography hierarchy - NO YELLOW */
+  /* Typography hierarchy - COMPLETELY NO YELLOW */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
-    color: rgb(var(--foreground));
+    color: rgb(var(--primary)) !important;
   }
   
   .font-display {
     font-family: 'Orbitron', monospace;
-    color: rgb(var(--foreground));
+    color: rgb(var(--primary)) !important;
   }
   
   .font-mono {
@@ -127,13 +127,74 @@
     color: rgb(var(--foreground));
   }
   
-  /* Override any yellow text */
+  /* COMPLETELY REMOVE ALL YELLOW VARIANTS - FORCE TO CYAN/BLUE */
+  .text-yellow-50,
+  .text-yellow-100,
+  .text-yellow-200,
+  .text-yellow-300,
   .text-yellow-400,
   .text-yellow-500,
   .text-yellow-600,
+  .text-yellow-700,
+  .text-yellow-800,
+  .text-yellow-900,
+  .text-amber-50,
+  .text-amber-100,
+  .text-amber-200,
+  .text-amber-300,
   .text-amber-400,
-  .text-amber-500 {
+  .text-amber-500,
+  .text-amber-600,
+  .text-amber-700,
+  .text-amber-800,
+  .text-amber-900 {
     color: rgb(var(--primary)) !important;
+  }
+  
+  .bg-yellow-50,
+  .bg-yellow-100,
+  .bg-yellow-200,
+  .bg-yellow-300,
+  .bg-yellow-400,
+  .bg-yellow-500,
+  .bg-yellow-600,
+  .bg-yellow-700,
+  .bg-yellow-800,
+  .bg-yellow-900,
+  .bg-amber-50,
+  .bg-amber-100,
+  .bg-amber-200,
+  .bg-amber-300,
+  .bg-amber-400,
+  .bg-amber-500,
+  .bg-amber-600,
+  .bg-amber-700,
+  .bg-amber-800,
+  .bg-amber-900 {
+    background-color: rgb(var(--primary) / 0.2) !important;
+  }
+  
+  .border-yellow-50,
+  .border-yellow-100,
+  .border-yellow-200,
+  .border-yellow-300,
+  .border-yellow-400,
+  .border-yellow-500,
+  .border-yellow-600,
+  .border-yellow-700,
+  .border-yellow-800,
+  .border-yellow-900,
+  .border-amber-50,
+  .border-amber-100,
+  .border-amber-200,
+  .border-amber-300,
+  .border-amber-400,
+  .border-amber-500,
+  .border-amber-600,
+  .border-amber-700,
+  .border-amber-800,
+  .border-amber-900 {
+    border-color: rgb(var(--primary) / 0.5) !important;
   }
   
   /* Futuristic gradients */
@@ -200,6 +261,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: rgb(var(--primary)) !important;
   }
   
   .cyber-button:hover {
@@ -303,32 +365,28 @@
   }
 }
 
-/* Specific overrides for the products page to remove yellow */
-.products-page * {
-  color: rgb(var(--foreground)) !important;
+/* FORCE NO YELLOW ANYWHERE */
+* {
+  color: inherit !important;
 }
 
-.products-page .text-yellow-400,
-.products-page .text-yellow-500,
-.products-page .text-yellow-600,
-.products-page .text-amber-400,
-.products-page .text-amber-500 {
+*[class*="yellow"],
+*[class*="amber"] {
   color: rgb(var(--primary)) !important;
+  background-color: rgb(var(--primary) / 0.1) !important;
+  border-color: rgb(var(--primary) / 0.3) !important;
 }
 
-.products-page h1,
-.products-page h2,
-.products-page h3 {
-  color: rgb(var(--primary)) !important;
-}
-
-.products-page .card-title {
-  color: rgb(var(--primary)) !important;
-}
-
-/* Badge overrides */
-.badge-yellow {
+/* Badge overrides - NO YELLOW ALLOWED */
+.badge-yellow,
+.badge-amber {
   background-color: rgb(var(--primary) / 0.2) !important;
   color: rgb(var(--primary)) !important;
   border-color: rgb(var(--primary) / 0.5) !important;
+}
+
+/* Override any remaining yellow elements */
+[style*="yellow"],
+[style*="amber"] {
+  color: rgb(var(--primary)) !important;
 }
