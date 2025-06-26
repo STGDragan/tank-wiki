@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSlideshowImages } from "@/hooks/useSlideshowImages";
 import { useSlideshowSettings } from "@/hooks/useSlideshowSettings";
-import { useAutoplay } from "embla-carousel-autoplay";
+import Autoplay from "embla-carousel-autoplay";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -18,7 +18,7 @@ export const SlideshowSection = ({ context, autoplayDelay }: SlideshowSectionPro
   
   const effectiveDelay = autoplayDelay || settings?.autoplay_delay || 3000;
   
-  const plugin = useAutoplay({ delay: effectiveDelay });
+  const plugin = Autoplay({ delay: effectiveDelay });
 
   if (imagesLoading) {
     return (
