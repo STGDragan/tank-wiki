@@ -89,7 +89,14 @@ export const SponsorshipManager = () => {
   };
 
   const handleEdit = (sponsorship: Sponsorship) => {
-    setFormData(sponsorship);
+    setFormData({
+      title: sponsorship.title,
+      description: sponsorship.description,
+      sponsor_url: sponsorship.sponsor_url,
+      image_url: sponsorship.image_url || '',
+      is_active: sponsorship.is_active,
+      priority: sponsorship.priority
+    });
     setEditingId(sponsorship.id);
     setIsEditing(true);
   };
