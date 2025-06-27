@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,12 +102,21 @@ export const SponsorshipManager = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sponsorships'] });
-      toast({ title: 'Success', description: 'Sponsorships updated successfully.' });
+      toast({ 
+        title: 'Success', 
+        description: 'Sponsorships updated successfully.',
+        duration: 3000
+      });
       console.log('Sponsorships mutation successful');
     },
     onError: (error) => {
       console.error('Error saving sponsorships:', error);
-      toast({ title: 'Error', description: 'Failed to update sponsorships.', variant: 'destructive' });
+      toast({ 
+        title: 'Error', 
+        description: `Failed to update sponsorships: ${error.message}`, 
+        variant: 'destructive',
+        duration: 5000
+      });
     }
   });
 
@@ -114,7 +124,12 @@ export const SponsorshipManager = () => {
     e.preventDefault();
     
     if (!formData.title.trim() || !formData.sponsor_url.trim()) {
-      toast({ title: 'Error', description: 'Title and URL are required.', variant: 'destructive' });
+      toast({ 
+        title: 'Validation Error', 
+        description: 'Title and URL are required fields.', 
+        variant: 'destructive',
+        duration: 3000
+      });
       return;
     }
     
@@ -203,7 +218,7 @@ export const SponsorshipManager = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title" className="font-display text-primary">Sponsor Title</Label>
+                    <Label htmlFor="title" className="font-display text-primary">Sponsor Title *</Label>
                     <Input
                       id="title"
                       value={formData.title}
@@ -215,7 +230,7 @@ export const SponsorshipManager = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="sponsor_url" className="font-display text-primary">Sponsor URL</Label>
+                    <Label htmlFor="sponsor_url" className="font-display text-primary">Sponsor URL *</Label>
                     <Input
                       id="sponsor_url"
                       type="url"
@@ -296,12 +311,16 @@ export const SponsorshipManager = () => {
 
           {/* Sponsorships List */}
           <div className="space-y-4">
-            <h3 className="text-lg font-display text-primary">Sponsorships ({sponsorships.length})</h3>
+            <h3 className="text-lg font-display text-primary">
+              Current Sponsorships ({sponsorships.length})
+            </h3>
             
             {sponsorships.length === 0 ? (
               <Card className="glass-panel neon-border">
                 <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground font-mono">No sponsorships created yet.</p>
+                  <Crown className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground font-mono mb-2">No sponsorships created yet</p>
+                  <p className="text-sm text-muted-foreground font-mono">Add your first sponsorship using the form above.</p>
                 </CardContent>
               </Card>
             ) : (
@@ -315,6 +334,9 @@ export const SponsorshipManager = () => {
                             src={sponsorship.image_url}
                             alt={sponsorship.title}
                             className="w-16 h-16 rounded-md object-cover neon-border"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
                           />
                         )}
                         <div>
