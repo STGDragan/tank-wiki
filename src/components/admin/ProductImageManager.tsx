@@ -18,19 +18,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, Star, Image as ImageIcon } from "lucide-react";
 
 interface ProductImageManagerProps {
-  product: Tables<'products'>;
+  product: Tables<'products'> | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const ProductImageManager = ({ product, open, onOpenChange }: ProductImageManagerProps) => {
-  const [imageUrls, setImageUrls] = useState<string[]>(product.images || [product.image_url].filter(Boolean) || [""]);
+  const [imageUrls, setImageUrls] = useState<string[]>(() => {
+    if (!product) return [""];
+    return product.images || [product.image_url].filter(Boolean) || [""];
+  });
   const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const updateProductMutation = useMutation({
     mutationFn: async (updates: Partial<Tables<'products'>>) => {
+      if (!product) throw new Error("No product selected");
+      
       const { error } = await supabase
         .from('products')
         .update(updates)
@@ -71,6 +76,11 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
   };
 
   const handleSave = () => {
+    if (!product) {
+      toast({ title: 'Error', description: 'No product selected', variant: 'destructive' });
+      return;
+    }
+
     const filteredUrls = imageUrls.filter(url => url.trim() !== "");
     const primaryUrl = filteredUrls[primaryImageIndex] || filteredUrls[0] || null;
     
@@ -79,6 +89,11 @@ export const ProductImageManager = ({ product, open, onOpenChange }: ProductImag
       images: filteredUrls.length > 0 ? filteredUrls : null
     });
   };
+
+  // Don't render if no product is selected
+  if (!product) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

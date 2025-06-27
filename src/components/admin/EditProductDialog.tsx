@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -13,10 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import SanitizeAmazonLinkButton from "./SanitizeAmazonLinkButton";
+import { ProductImageManager } from "./ProductImageManager";
+import { Images, Package } from "lucide-react";
 
 interface EditProductDialogProps {
   product: Tables<'products'> | null;
@@ -25,72 +33,66 @@ interface EditProductDialogProps {
 }
 
 const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
+  const [imageManagerOpen, setImageManagerOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    category: "",
-    subcategory: "",
-    brand: "",
-    model: "",
-    sku: "",
-    regular_price: "",
-    sale_price: "",
-    is_on_sale: false,
+    name: '',
+    description: '',
+    category: '',
+    subcategory: '',
+    brand: '',
+    model: '',
+    regular_price: '',
+    sale_price: '',
+    stock_quantity: '',
+    condition: 'new',
+    visible: true,
     is_featured: false,
     is_recommended: false,
-    stock_quantity: "",
+    is_on_sale: false,
     track_inventory: true,
-    low_stock_threshold: "",
-    condition: "new",
-    image_url: "",
-    amazon_url: "",
-    visible: true,
+    low_stock_threshold: '5'
   });
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Reset form when product changes
   useEffect(() => {
     if (product) {
       setFormData({
-        name: product.name || "",
-        description: product.description || "",
-        category: product.category || "",
-        subcategory: product.subcategory || "",
-        brand: product.brand || "",
-        model: product.model || "",
-        sku: product.sku || "",
-        regular_price: product.regular_price?.toString() || "",
-        sale_price: product.sale_price?.toString() || "",
-        is_on_sale: product.is_on_sale || false,
+        name: product.name || '',
+        description: product.description || '',
+        category: product.category || '',
+        subcategory: product.subcategory || '',
+        brand: product.brand || '',
+        model: product.model || '',
+        regular_price: product.regular_price?.toString() || '',
+        sale_price: product.sale_price?.toString() || '',
+        stock_quantity: product.stock_quantity?.toString() || '',
+        condition: product.condition || 'new',
+        visible: product.visible ?? true,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
-        stock_quantity: product.stock_quantity?.toString() || "",
+        is_on_sale: product.is_on_sale || false,
         track_inventory: product.track_inventory ?? true,
-        low_stock_threshold: product.low_stock_threshold?.toString() || "",
-        condition: product.condition || "new",
-        image_url: product.image_url || "",
-        amazon_url: (product as any).amazon_url || "",
-        visible: product.visible ?? true,
+        low_stock_threshold: product.low_stock_threshold?.toString() || '5'
       });
     }
   }, [product]);
 
   const updateProductMutation = useMutation({
-    mutationFn: async (productData: any) => {
-      if (!product) throw new Error('No product selected');
+    mutationFn: async (updates: Partial<Tables<'products'>>) => {
+      if (!product) throw new Error("No product selected");
       
       const { error } = await supabase
         .from('products')
-        .update(productData)
+        .update(updates)
         .eq('id', product.id);
       
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast({ title: 'Product Updated', description: 'The product has been successfully updated.' });
+      toast({ title: 'Product Updated', description: 'Product has been updated successfully.' });
       onOpenChange(false);
     },
     onError: (error: Error) => {
@@ -101,265 +103,220 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const productData = {
-      ...formData,
+    if (!product) {
+      toast({ title: 'Error', description: 'No product selected', variant: 'destructive' });
+      return;
+    }
+
+    const updates: Partial<Tables<'products'>> = {
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      brand: formData.brand,
+      model: formData.model,
       regular_price: formData.regular_price ? parseFloat(formData.regular_price) : null,
       sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
-      stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : 0,
-      low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold) : 5,
+      stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : null,
+      condition: formData.condition,
+      visible: formData.visible,
+      is_featured: formData.is_featured,
+      is_recommended: formData.is_recommended,
+      is_on_sale: formData.is_on_sale,
+      track_inventory: formData.track_inventory,
+      low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold) : null,
     };
 
-    updateProductMutation.mutate(productData);
+    updateProductMutation.mutate(updates);
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  if (!product) return null;
+  if (!product) {
+    return null;
+  }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Product</DialogTitle>
-          <DialogDescription>
-            Update the product information.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Product Name*</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-brand">Brand</Label>
-              <Input
-                id="edit-brand"
-                value={formData.brand}
-                onChange={(e) => handleInputChange('brand', e.target.value)}
-              />
-            </div>
-          </div>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Edit Product
+            </DialogTitle>
+            <DialogDescription>
+              Update product information and settings.
+            </DialogDescription>
+          </DialogHeader>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-description">Description</Label>
-            <Textarea
-              id="edit-description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              rows={3}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Product Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Aquarium Equipment">Aquarium Equipment</SelectItem>
-                  <SelectItem value="Fish Food">Fish Food</SelectItem>
-                  <SelectItem value="Water Treatment">Water Treatment</SelectItem>
-                  <SelectItem value="Lighting">Lighting</SelectItem>
-                  <SelectItem value="Filtration">Filtration</SelectItem>
-                  <SelectItem value="Decoration">Decoration</SelectItem>
-                  <SelectItem value="Testing Kits">Testing Kits</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label htmlFor="brand">Brand</Label>
+                <Input
+                  id="brand"
+                  value={formData.brand}
+                  onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-subcategory">Subcategory</Label>
-              <Input
-                id="edit-subcategory"
-                value={formData.subcategory}
-                onChange={(e) => handleInputChange('subcategory', e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-sku">SKU</Label>
-              <Input
-                id="edit-sku"
-                value={formData.sku}
-                onChange={(e) => handleInputChange('sku', e.target.value)}
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-model">Model</Label>
-              <Input
-                id="edit-model"
-                value={formData.model}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-condition">Condition</Label>
-              <Select value={formData.condition} onValueChange={(value) => handleInputChange('condition', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="used">Used</SelectItem>
-                  <SelectItem value="refurbished">Refurbished</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-regular_price">Regular Price ($)</Label>
-              <Input
-                id="edit-regular_price"
-                type="number"
-                step="0.01"
-                value={formData.regular_price}
-                onChange={(e) => handleInputChange('regular_price', e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-sale_price">Sale Price ($)</Label>
-              <Input
-                id="edit-sale_price"
-                type="number"
-                step="0.01"
-                value={formData.sale_price}
-                onChange={(e) => handleInputChange('sale_price', e.target.value)}
-              />
-            </div>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-image_url">Image URL</Label>
-            <Input
-              id="edit-image_url"
-              type="url"
-              value={formData.image_url}
-              onChange={(e) => handleInputChange('image_url', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="subcategory">Subcategory</Label>
+                <Input
+                  id="subcategory"
+                  value={formData.subcategory}
+                  onChange={(e) => setFormData(prev => ({ ...prev, subcategory: e.target.value }))}
+                />
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-amazon_url">Amazon URL</Label>
-            <div className="flex gap-2">
-              <Input
-                id="edit-amazon_url"
-                type="url"
-                value={formData.amazon_url}
-                onChange={(e) => handleInputChange('amazon_url', e.target.value)}
-                placeholder="https://amazon.com/dp/ASIN123456"
-                className="flex-1"
-              />
-              <SanitizeAmazonLinkButton
-                url={formData.amazon_url}
-                onUrlChange={(cleanedUrl) => handleInputChange('amazon_url', cleanedUrl)}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Enter any Amazon product URL. Use the sanitize button to clean it and add your affiliate tag.
-            </p>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="regular_price">Regular Price</Label>
+                <Input
+                  id="regular_price"
+                  type="number"
+                  step="0.01"
+                  value={formData.regular_price}
+                  onChange={(e) => setFormData(prev => ({ ...prev, regular_price: e.target.value }))}
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-stock_quantity">Stock Quantity</Label>
-              <Input
-                id="edit-stock_quantity"
-                type="number"
-                value={formData.stock_quantity}
-                onChange={(e) => handleInputChange('stock_quantity', e.target.value)}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="sale_price">Sale Price</Label>
+                <Input
+                  id="sale_price"
+                  type="number"
+                  step="0.01"
+                  value={formData.sale_price}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sale_price: e.target.value }))}
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="edit-low_stock_threshold">Low Stock Threshold</Label>
-              <Input
-                id="edit-low_stock_threshold"
-                type="number"
-                value={formData.low_stock_threshold}
-                onChange={(e) => handleInputChange('low_stock_threshold', e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div className="flex flex-wrap gap-6">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-track_inventory"
-                checked={formData.track_inventory}
-                onCheckedChange={(checked) => handleInputChange('track_inventory', checked)}
-              />
-              <Label htmlFor="edit-track_inventory">Track Inventory</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-is_on_sale"
-                checked={formData.is_on_sale}
-                onCheckedChange={(checked) => handleInputChange('is_on_sale', checked)}
-              />
-              <Label htmlFor="edit-is_on_sale">On Sale</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-is_featured"
-                checked={formData.is_featured}
-                onCheckedChange={(checked) => handleInputChange('is_featured', checked)}
-              />
-              <Label htmlFor="edit-is_featured">Featured</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-is_recommended"
-                checked={formData.is_recommended}
-                onCheckedChange={(checked) => handleInputChange('is_recommended', checked)}
-              />
-              <Label htmlFor="edit-is_recommended">Recommended</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-visible"
-                checked={formData.visible}
-                onCheckedChange={(checked) => handleInputChange('visible', checked)}
-              />
-              <Label htmlFor="edit-visible">Visible</Label>
-            </div>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="stock_quantity">Stock Quantity</Label>
+                <Input
+                  id="stock_quantity"
+                  type="number"
+                  value={formData.stock_quantity}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stock_quantity: e.target.value }))}
+                />
+              </div>
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateProductMutation.isPending}>
-              {updateProductMutation.isPending ? "Updating..." : "Update Product"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <div className="space-y-2">
+                <Label htmlFor="condition">Condition</Label>
+                <Select value={formData.condition} onValueChange={(value) => setFormData(prev => ({ ...prev, condition: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="used">Used</SelectItem>
+                    <SelectItem value="refurbished">Refurbished</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="visible"
+                  checked={formData.visible}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, visible: checked }))}
+                />
+                <Label htmlFor="visible">Visible in store</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_featured"
+                  checked={formData.is_featured}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_featured: checked }))}
+                />
+                <Label htmlFor="is_featured">Featured product</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_recommended"
+                  checked={formData.is_recommended}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_recommended: checked }))}
+                />
+                <Label htmlFor="is_recommended">Recommended product</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="is_on_sale"
+                  checked={formData.is_on_sale}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_on_sale: checked }))}
+                />
+                <Label htmlFor="is_on_sale">On sale</Label>
+              </div>
+            </div>
+
+            <div className="flex justify-between pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setImageManagerOpen(true)}
+              >
+                <Images className="h-4 w-4 mr-2" />
+                Manage Images
+              </Button>
+              
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateProductMutation.isPending}>
+                  {updateProductMutation.isPending ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <ProductImageManager
+        product={product}
+        open={imageManagerOpen}
+        onOpenChange={setImageManagerOpen}
+      />
+    </>
   );
 };
 
