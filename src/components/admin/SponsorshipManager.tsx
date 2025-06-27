@@ -64,7 +64,14 @@ export const SponsorshipManager = () => {
         return [];
       }
 
-      return Array.isArray(data.value) ? data.value : [];
+      // Parse the JSON string back to array
+      try {
+        const parsedValue = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+        return Array.isArray(parsedValue) ? parsedValue : [];
+      } catch (parseError) {
+        console.error('Error parsing sponsorships JSON:', parseError);
+        return [];
+      }
     }
   });
 
@@ -74,7 +81,7 @@ export const SponsorshipManager = () => {
         .from('cms_settings')
         .upsert({
           key: 'sponsorships',
-          value: newSponsorships,
+          value: JSON.stringify(newSponsorships), // Convert array to JSON string
           updated_at: new Date().toISOString()
         });
 
