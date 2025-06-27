@@ -5,8 +5,8 @@ export function Logo() {
       <img 
         src="/lovable-uploads/df6256f2-55dd-4dc7-981c-3f0d17693096.png"
         alt="TankWiki Logo"
-        width="24" 
-        height="24" 
+        width="32" 
+        height="32" 
         className="flex-shrink-0"
       />
       <span className="font-semibold text-lg text-foreground">TankWiki</span>

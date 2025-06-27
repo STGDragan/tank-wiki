@@ -46,7 +46,7 @@ export const SponsorshipManager = () => {
   const queryClient = useQueryClient();
 
   // Fetch sponsorships from cms_settings table
-  const { data: sponsorships = [], isLoading } = useQuery({
+  const { data: sponsorships = [], isLoading, error } = useQuery({
     queryKey: ['sponsorships'],
     queryFn: async () => {
       console.log('Fetching sponsorships...');
@@ -119,6 +119,30 @@ export const SponsorshipManager = () => {
       });
     }
   });
+
+  // Show error state if there's a fetch error
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card className="cyber-card">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-red-600 mb-2">Error Loading Sponsorships</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {error.message || 'Unable to load sponsorship data'}
+              </p>
+              <Button 
+                onClick={() => queryClient.invalidateQueries({ queryKey: ['sponsorships'] })}
+                variant="outline"
+              >
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
