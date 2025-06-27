@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +48,7 @@ export const SponsorshipManager = () => {
   const { data: sponsorships = [], isLoading } = useQuery({
     queryKey: ['sponsorships'],
     queryFn: async () => {
+      console.log('Fetching sponsorships...');
       const { data, error } = await supabase
         .from('cms_settings')
         .select('*')
@@ -61,12 +61,14 @@ export const SponsorshipManager = () => {
       }
 
       if (!data || !data.value) {
+        console.log('No sponsorships found, returning empty array');
         return [];
       }
 
       // Parse the JSON string back to array
       try {
         const parsedValue = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+        console.log('Parsed sponsorships:', parsedValue);
         return Array.isArray(parsedValue) ? parsedValue : [];
       } catch (parseError) {
         console.error('Error parsing sponsorships JSON:', parseError);
@@ -77,19 +79,30 @@ export const SponsorshipManager = () => {
 
   const saveSponsorshipsMutation = useMutation({
     mutationFn: async (newSponsorships: Sponsorship[]) => {
-      const { error } = await supabase
+      console.log('Saving sponsorships:', newSponsorships);
+      
+      const { data, error } = await supabase
         .from('cms_settings')
         .upsert({
           key: 'sponsorships',
-          value: JSON.stringify(newSponsorships), // Convert array to JSON string
+          value: JSON.stringify(newSponsorships),
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'key'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving sponsorships:', error);
+        throw error;
+      }
+      
+      console.log('Sponsorships saved successfully:', data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sponsorships'] });
       toast({ title: 'Success', description: 'Sponsorships updated successfully.' });
+      console.log('Sponsorships mutation successful');
     },
     onError: (error) => {
       console.error('Error saving sponsorships:', error);
@@ -99,6 +112,11 @@ export const SponsorshipManager = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.title.trim() || !formData.sponsor_url.trim()) {
+      toast({ title: 'Error', description: 'Title and URL are required.', variant: 'destructive' });
+      return;
+    }
     
     const newSponsorship: Sponsorship = {
       id: editingId || crypto.randomUUID(),
@@ -114,6 +132,7 @@ export const SponsorshipManager = () => {
       updatedSponsorships = [...sponsorships, newSponsorship];
     }
 
+    console.log('Submitting sponsorship:', newSponsorship);
     saveSponsorshipsMutation.mutate(updatedSponsorships);
     resetForm();
   };

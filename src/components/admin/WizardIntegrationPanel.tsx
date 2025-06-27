@@ -1,5 +1,7 @@
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import {
   Card,
@@ -14,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Settings, Wand2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface WizardIntegrationPanelProps {
   products: Tables<'products'>[];
@@ -22,6 +25,31 @@ interface WizardIntegrationPanelProps {
 
 export const WizardIntegrationPanel = ({ products, onUpdate }: WizardIntegrationPanelProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateProductMutation = useMutation({
+    mutationFn: async ({ productId, updates }: { productId: string; updates: Partial<Tables<'products'>> }) => {
+      console.log('Updating product:', productId, updates);
+      const { error } = await supabase
+        .from('products')
+        .update(updates)
+        .eq('id', productId);
+
+      if (error) {
+        console.error('Error updating product:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast({ title: 'Success', description: 'Product updated successfully.' });
+    },
+    onError: (error) => {
+      console.error('Error updating product:', error);
+      toast({ title: 'Error', description: 'Failed to update product.', variant: 'destructive' });
+    }
+  });
 
   const filteredProducts = products.filter(product => 
     product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -29,6 +57,12 @@ export const WizardIntegrationPanel = ({ products, onUpdate }: WizardIntegration
   );
 
   const handleRecommendedToggle = (product: Tables<'products'>, value: boolean) => {
+    console.log('Toggling recommended for product:', product.id, value);
+    updateProductMutation.mutate({
+      productId: product.id,
+      updates: { is_recommended: value }
+    });
+    // Also call the parent's onUpdate for immediate UI feedback
     onUpdate({
       productId: product.id,
       updates: { is_recommended: value }
@@ -37,7 +71,7 @@ export const WizardIntegrationPanel = ({ products, onUpdate }: WizardIntegration
 
   const bulkEnableRecommended = () => {
     filteredProducts.forEach(product => {
-      onUpdate({
+      updateProductMutation.mutate({
         productId: product.id,
         updates: { is_recommended: true }
       });
@@ -46,7 +80,7 @@ export const WizardIntegrationPanel = ({ products, onUpdate }: WizardIntegration
 
   const bulkDisableRecommended = () => {
     filteredProducts.forEach(product => {
-      onUpdate({
+      updateProductMutation.mutate({
         productId: product.id,
         updates: { is_recommended: false }
       });
@@ -111,6 +145,7 @@ export const WizardIntegrationPanel = ({ products, onUpdate }: WizardIntegration
                     <Switch
                       checked={product.is_recommended || false}
                       onCheckedChange={(checked) => handleRecommendedToggle(product, checked)}
+                      disabled={updateProductMutation.isPending}
                     />
                     <Label className="text-sm font-mono">Show in Wizard</Label>
                   </div>

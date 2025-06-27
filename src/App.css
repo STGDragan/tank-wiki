@@ -23,7 +23,7 @@
 
 /* Animated gradient for hero sections */
 .hero-gradient {
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background: linear-gradient(-45deg, #00d4ff, #0066cc, #0099ff, #00ccff);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
 }
@@ -34,7 +34,7 @@
   100% { background-position: 0% 50%; }
 }
 
-/* Card enhancements for vibrant theme */
+/* Card enhancements for cyber theme */
 .vibrant-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -49,29 +49,70 @@
 
 /* Button enhancements */
 .btn-vibrant {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0066cc 0%, #00ccff 100%);
   border: none;
   color: white;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.4);
 }
 
 .btn-vibrant:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 8px 25px rgba(0, 102, 204, 0.6);
 }
 
 .btn-pro-upgrade {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #00d4ff 0%, #0066cc 100%);
   border: none;
   color: white;
   font-weight: bold;
   animation: pulse 2s infinite;
-  box-shadow: 0 4px 20px rgba(240, 147, 251, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.5);
 }
 
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
+}
+
+/* Cyber theme additions */
+.cyber-card {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.neon-border {
+  border: 1px solid rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+.cyber-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+}
+
+.cyber-input:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.cyber-button {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 102, 204, 0.2));
+  border: 1px solid rgba(0, 212, 255, 0.5);
+  color: #00d4ff;
+  transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 102, 204, 0.3));
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
 }
