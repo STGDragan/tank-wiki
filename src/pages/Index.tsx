@@ -7,6 +7,7 @@ import { SlideshowSection } from "@/components/landing/SlideshowSection";
 import { SupportSection } from "@/components/landing/SupportSection";
 import SocialMediaFooter from "@/components/layout/SocialMediaFooter";
 import MobileInstructions from "@/components/layout/MobileInstructions";
+import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 
 const Index = () => {
   const scrollToFeatures = () => {
@@ -79,18 +80,21 @@ const Index = () => {
         <SupportSection />
       </main>
       
-      <footer className="container mx-auto py-6 px-4 md:px-6 border-t border-border/30 space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-muted-foreground text-sm font-mono">&copy; {new Date().getFullYear()} TankWiki. All systems operational.</p>
-            <div className="flex gap-4 mt-4 md:mt-0">
-                <Button variant="link" size="sm" asChild><Link to="/legal/terms-of-service">Terms of Service</Link></Button>
-                <Button variant="link" size="sm" asChild><Link to="/legal/privacy-policy">Privacy Policy</Link></Button>
-            </div>
+      <footer className="border-t border-border/30">
+        <SponsorshipBanner page="landing" maxDisplay={1} />
+        <div className="container mx-auto py-6 px-4 md:px-6 space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-muted-foreground text-sm font-mono">&copy; {new Date().getFullYear()} TankWiki. All systems operational.</p>
+              <div className="flex gap-4 mt-4 md:mt-0">
+                  <Button variant="link" size="sm" asChild><Link to="/legal/terms-of-service">Terms of Service</Link></Button>
+                  <Button variant="link" size="sm" asChild><Link to="/legal/privacy-policy">Privacy Policy</Link></Button>
+              </div>
+          </div>
+          
+          <SocialMediaFooter />
+          
+          <MobileInstructions />
         </div>
-        
-        <SocialMediaFooter />
-        
-        <MobileInstructions />
       </footer>
     </div>
   );

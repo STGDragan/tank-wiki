@@ -6,6 +6,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { InstallBanner } from "../mobile/InstallBanner";
 import SocialMediaFooter from "./SocialMediaFooter";
 import MobileInstructions from "./MobileInstructions";
+import { SponsorshipBanner } from "../sponsorship/SponsorshipBanner";
 
 export const AppLayout = () => {
   return (
@@ -19,9 +20,12 @@ export const AppLayout = () => {
           <main className="flex-1 overflow-auto pb-32 md:pb-16">
             <Outlet />
           </main>
-          <footer className="hidden md:block border-t bg-background p-4 space-y-4">
-            <SocialMediaFooter />
-            <MobileInstructions />
+          <footer className="hidden md:block border-t bg-background">
+            <SponsorshipBanner page="global" maxDisplay={1} />
+            <div className="p-4 space-y-4">
+              <SocialMediaFooter />
+              <MobileInstructions />
+            </div>
           </footer>
           <MobileBottomNav />
           <InstallBanner />

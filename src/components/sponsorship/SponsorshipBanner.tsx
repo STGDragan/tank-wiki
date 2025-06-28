@@ -1,7 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -65,87 +64,74 @@ export const SponsorshipBanner = ({
 
   // Auto-scroll functionality
   useEffect(() => {
-    if (!autoScroll || sponsorships.length <= maxDisplay) return;
+    if (!autoScroll || sponsorships.length <= 1) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const maxIndex = Math.max(0, sponsorships.length - maxDisplay);
-        return prev >= maxIndex ? 0 : prev + 1;
-      });
+      setCurrentIndex((prev) => (prev + 1) % sponsorships.length);
     }, scrollInterval);
 
     return () => clearInterval(interval);
-  }, [autoScroll, sponsorships.length, maxDisplay, scrollInterval]);
+  }, [autoScroll, sponsorships.length, scrollInterval]);
 
   if (isLoading || sponsorships.length === 0) {
     return null;
   }
 
-  const visibleSponsorships = sponsorships.slice(currentIndex, currentIndex + maxDisplay);
-  
-  // If we don't have enough items from the slice, wrap around
-  if (visibleSponsorships.length < maxDisplay && sponsorships.length > maxDisplay) {
-    const remaining = maxDisplay - visibleSponsorships.length;
-    visibleSponsorships.push(...sponsorships.slice(0, remaining));
-  }
+  const currentSponsorship = sponsorships[currentIndex];
 
   return (
-    <div className="w-full py-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-muted-foreground">Sponsored</h3>
-        {sponsorships.length > maxDisplay && (
-          <div className="flex gap-1">
-            {Array.from({ length: Math.ceil(sponsorships.length / maxDisplay) }).map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  Math.floor(currentIndex / maxDisplay) === index
-                    ? 'bg-primary'
-                    : 'bg-muted-foreground/30'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {visibleSponsorships.map((sponsorship: Sponsorship) => (
-          <Card
-            key={`${sponsorship.id}-${currentIndex}`}
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => window.open(sponsorship.sponsor_url, '_blank')}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                {sponsorship.image_url && (
-                  <img
-                    src={sponsorship.image_url}
-                    alt={sponsorship.title}
-                    className="w-12 h-12 rounded object-cover flex-shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+    <div className="w-full bg-muted/30 border-y border-border/50">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="text-xs bg-background">
+              Sponsored
+            </Badge>
+            <div 
+              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => window.open(currentSponsorship.sponsor_url, '_blank')}
+            >
+              {currentSponsorship.image_url && (
+                <img
+                  src={currentSponsorship.image_url}
+                  alt={currentSponsorship.title}
+                  className="w-8 h-8 rounded object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">{currentSponsorship.title}</span>
+                {currentSponsorship.description && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-sm text-muted-foreground hidden md:inline">
+                      {currentSponsorship.description}
+                    </span>
+                  </>
                 )}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-medium text-sm truncate">{sponsorship.title}</h4>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  </div>
-                  {sponsorship.description && (
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {sponsorship.description}
-                    </p>
-                  )}
-                  <Badge variant="outline" className="text-xs mt-2">
-                    Sponsored
-                  </Badge>
-                </div>
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          </div>
+          
+          {sponsorships.length > 1 && (
+            <div className="flex gap-1">
+              {sponsorships.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors cursor-pointer ${
+                    currentIndex === index
+                      ? 'bg-primary'
+                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  }`}
+                  onClick={() => setCurrentIndex(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

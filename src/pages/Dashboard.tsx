@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
-import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -74,9 +73,6 @@ const Dashboard = () => {
           Manage your aquarium journey with ease
         </p>
       </div>
-
-      {/* Sponsorship Banner */}
-      <SponsorshipBanner page="dashboard" maxDisplay={2} />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
