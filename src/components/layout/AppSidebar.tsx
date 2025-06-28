@@ -71,8 +71,8 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="w-80">
-      <SidebarHeader>
+    <Sidebar className="w-64 border-r">
+      <SidebarHeader className="p-4">
         <Logo />
       </SidebarHeader>
       <SidebarContent>
@@ -82,9 +82,9 @@ export function AppSidebar() {
               {mainNav.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
-                    <Link to={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.name}</span>
+                    <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -95,15 +95,15 @@ export function AppSidebar() {
         
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Management</SidebarGroupLabel>
+            <SidebarGroupLabel className="px-3">Management</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminNav.map((item) => (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
-                      <Link to={item.href}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.name}</span>
+                      <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -117,7 +117,7 @@ export function AppSidebar() {
           <>
             <SidebarSeparator />
             <SidebarGroup>
-              <SidebarGroupLabel>Follow Us</SidebarGroupLabel>
+              <SidebarGroupLabel className="px-3">Follow Us</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {socialLinks.map((link) => {
@@ -128,9 +128,9 @@ export function AppSidebar() {
                     
                     return (
                       <SidebarMenuItem key={link.platform}>
-                        <SidebarMenuButton onClick={() => handleSocialClick(link.url)}>
-                          <Icon className="h-4 w-4" />
-                          <span>{config.label}</span>
+                        <SidebarMenuButton onClick={() => handleSocialClick(link.url)} className="flex items-center gap-3 px-3 py-2">
+                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{config.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );
@@ -141,13 +141,13 @@ export function AppSidebar() {
           </>
         )}
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="p-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={location.pathname.startsWith("/account")}>
-              <Link to="/account">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
+              <Link to="/account" className="flex items-center gap-3 px-3 py-2">
+                <Settings className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Settings</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

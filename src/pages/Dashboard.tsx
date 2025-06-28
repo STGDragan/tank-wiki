@@ -75,10 +75,76 @@ const Dashboard = () => {
         </p>
       </div>
 
+      {/* My Aquariums - moved above system health */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Fish className="h-5 w-5" />
+              My Aquariums ({aquariums.length})
+            </CardTitle>
+            <div className="flex gap-2">
+              <AquariumSetupWizard aquariumCount={aquariums.length} />
+              <Button onClick={() => navigate("/aquariums/new")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Aquarium
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {aquariums.length > 0 ? (
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {aquariums.slice(0, 6).map((aquarium) => (
+                <Card
+                  key={aquarium.id}
+                  className="cursor-pointer hover:shadow-md transition-shadow group"
+                  onClick={() => navigate(`/aquarium/${aquarium.id}`)}
+                >
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {aquarium.image_url && (
+                        <div className="w-full h-48 rounded-lg overflow-hidden">
+                          <img
+                            src={aquarium.image_url}
+                            alt={aquarium.name}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-lg">{aquarium.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {aquarium.type} • {aquarium.size} gallons
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {aquariums.length > 6 && (
+                <Button variant="outline" onClick={() => navigate("/aquariums")}>
+                  View All Aquariums ({aquariums.length})
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Fish className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-semibold mb-2">No aquariums yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Get started by creating your first aquarium
+              </p>
+              <AquariumSetupWizard aquariumCount={0} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* System Health Bar */}
       <SystemHealthBar />
 
-      {/* Quick Actions */}
+      {/* Quick Actions - 2x2 grid */}
       <QuickActions />
 
       {/* Upcoming Tasks */}
@@ -122,70 +188,6 @@ const Dashboard = () => {
 
       {/* Recommended Products */}
       <RecommendedProducts />
-
-      {/* My Aquariums */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Fish className="h-5 w-5" />
-              My Aquariums ({aquariums.length})
-            </CardTitle>
-            <div className="flex gap-2">
-              <AquariumSetupWizard aquariumCount={aquariums.length} />
-              <Button onClick={() => navigate("/aquariums/new")}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Aquarium
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {aquariums.length > 0 ? (
-            <div className="grid gap-4">
-              {aquariums.slice(0, 6).map((aquarium) => (
-                <Card
-                  key={aquarium.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => navigate(`/aquarium/${aquarium.id}`)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      {aquarium.image_url && (
-                        <img
-                          src={aquarium.image_url}
-                          alt={aquarium.name}
-                          className="w-16 h-16 rounded-lg object-cover"
-                        />
-                      )}
-                      <div>
-                        <h3 className="font-semibold">{aquarium.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {aquarium.type} • {aquarium.size} gallons
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {aquariums.length > 6 && (
-                <Button variant="outline" onClick={() => navigate("/aquariums")}>
-                  View All Aquariums ({aquariums.length})
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Fish className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-semibold mb-2">No aquariums yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Get started by creating your first aquarium
-              </p>
-              <AquariumSetupWizard aquariumCount={0} />
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };

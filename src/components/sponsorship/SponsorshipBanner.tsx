@@ -78,10 +78,10 @@ export const SponsorshipBanner = ({
   const currentSponsorship = sponsorships[currentIndex];
 
   return (
-    <div className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+    <div className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden py-4">
       <div className="absolute inset-0 bg-black/20" />
-      <div className="relative px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <div className="relative px-6">
+        <div className="flex items-center justify-center max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <Badge variant="secondary" className="text-xs bg-white/90 text-gray-800 font-medium">
               SPONSORED
@@ -94,7 +94,8 @@ export const SponsorshipBanner = ({
                 <img
                   src={currentSponsorship.image_url}
                   alt={currentSponsorship.title}
-                  className="w-12 h-12 rounded-lg object-cover border-2 border-white/20"
+                  className="h-[90px] w-[728px] object-contain rounded border-2 border-white/20"
+                  style={{ maxWidth: '728px', maxHeight: '90px' }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
@@ -116,7 +117,7 @@ export const SponsorshipBanner = ({
           </div>
           
           {sponsorships.length > 1 && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-6">
               {sponsorships.map((_, index) => (
                 <button
                   key={index}

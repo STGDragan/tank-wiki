@@ -18,15 +18,15 @@ export const SystemHealthBar = () => {
   });
 
   const getHealthColor = (score: number) => {
-    if (score >= 80) return "from-green-500 to-emerald-400";
-    if (score >= 60) return "from-yellow-500 to-amber-400";
-    return "from-red-500 to-orange-400";
+    if (score >= 80) return "from-green-400 to-green-600";
+    if (score >= 60) return "from-yellow-400 to-yellow-600";
+    return "from-red-400 to-red-600";
   };
 
   const getGlowColor = (score: number) => {
-    if (score >= 80) return "shadow-green-500/50";
-    if (score >= 60) return "shadow-yellow-500/50";
-    return "shadow-red-500/50";
+    if (score >= 80) return "shadow-green-400/60";
+    if (score >= 60) return "shadow-yellow-400/60";
+    return "shadow-red-400/60";
   };
 
   return (
@@ -39,23 +39,23 @@ export const SystemHealthBar = () => {
       </CardHeader>
       <CardContent>
         <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden border border-gray-600">
-          {/* Background gradient track */}
-          <div className="absolute inset-0 bg-gradient-to-r from-red-900/30 via-yellow-900/30 to-green-900/30" />
+          {/* Full gradient background - red to yellow to green across entire width */}
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 opacity-20" />
           
-          {/* Health bar fill */}
+          {/* Health bar fill with LED-like brightness */}
           <div 
-            className={`absolute left-0 top-0 h-full bg-gradient-to-r ${getHealthColor(healthScore)} transition-all duration-1000 ease-out ${getGlowColor(healthScore)} shadow-lg`}
+            className={`absolute left-0 top-0 h-full bg-gradient-to-r ${getHealthColor(healthScore)} transition-all duration-1000 ease-out ${getGlowColor(healthScore)} shadow-lg brightness-125`}
             style={{ width: `${healthScore}%` }}
           />
           
-          {/* Animated glow effect */}
+          {/* Animated LED glow effect */}
           <div 
-            className={`absolute left-0 top-0 h-full bg-gradient-to-r ${getHealthColor(healthScore)} opacity-60 blur-sm transition-all duration-1000 ease-out`}
+            className={`absolute left-0 top-0 h-full bg-gradient-to-r ${getHealthColor(healthScore)} opacity-80 blur-sm transition-all duration-1000 ease-out brightness-150`}
             style={{ width: `${healthScore}%` }}
           />
           
           {/* Sci-fi grid overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           
           {/* Score indicator */}
           <div 
