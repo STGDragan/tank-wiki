@@ -9,7 +9,8 @@ import { AddNotesEntryForm } from '@/components/aquarium/AddNotesEntryForm';
 import { AddMedicationForm } from '@/components/aquarium/AddMedicationForm';
 import { NotesEntryCard } from '@/components/aquarium/NotesEntryCard';
 import { MedicationCard } from '@/components/aquarium/MedicationCard';
-import { PlusCircle, Wrench, Fish, Droplets, FileText, Pill } from 'lucide-react';
+import { ActivityLogTimeline } from '@/components/aquarium/ActivityLogTimeline';
+import { PlusCircle, Wrench, Fish, Droplets, FileText, Pill, Activity } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { useLogEntries } from '@/hooks/useLogEntries';
@@ -100,7 +101,7 @@ export const JournalTab = ({
   equipment,
   aquariumType
 }: JournalTabProps) => {
-  const [activeView, setActiveView] = useState<'notes' | 'medications' | 'log'>('notes');
+  const [activeView, setActiveView] = useState<'notes' | 'medications' | 'activity' | 'log'>('notes');
   const [isAddEntryOpen, setAddEntryOpen] = useState(false);
   const [isAddMedicationOpen, setAddMedicationOpen] = useState(false);
   const [logFilter, setLogFilter] = useState<LogEntry['type'] | 'all'>('all');
@@ -132,19 +133,29 @@ export const JournalTab = ({
             variant={activeView === 'notes' ? 'default' : 'outline'}
             onClick={() => setActiveView('notes')}
           >
+            <FileText className="mr-2 h-4 w-4" />
             Notes
           </Button>
           <Button
             variant={activeView === 'medications' ? 'default' : 'outline'}
             onClick={() => setActiveView('medications')}
           >
+            <Pill className="mr-2 h-4 w-4" />
             Medications
+          </Button>
+          <Button
+            variant={activeView === 'activity' ? 'default' : 'outline'}
+            onClick={() => setActiveView('activity')}
+          >
+            <Activity className="mr-2 h-4 w-4" />
+            Activity Log
           </Button>
           <Button
             variant={activeView === 'log' ? 'default' : 'outline'}
             onClick={() => setActiveView('log')}
           >
-            Log
+            <Wrench className="mr-2 h-4 w-4" />
+            Legacy Log
           </Button>
         </div>
 
@@ -253,11 +264,21 @@ export const JournalTab = ({
         </>
       )}
 
-      {/* Log View */}
+      {/* Activity Log View - New integrated activity log */}
+      {activeView === 'activity' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold">Activity Log</h3>
+          </div>
+          <ActivityLogTimeline aquariumId={aquariumId} canEdit={canEdit} />
+        </div>
+      )}
+
+      {/* Legacy Log View */}
       {activeView === 'log' && (
         <>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Activity Log</h3>
+            <h3 className="text-xl font-semibold">Legacy Activity Log</h3>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
@@ -274,7 +295,7 @@ export const JournalTab = ({
           </div>
 
           {logEntries.length === 0 ? (
-            <p className="text-muted-foreground mt-4">No log entries yet. This log will show completed maintenance, livestock additions, water tests, medications, and notes.</p>
+            <p className="text-muted-foreground mt-4">No log entries yet. This log shows completed maintenance, livestock additions, water tests, medications, and notes.</p>
           ) : filteredLogEntries.length === 0 ? (
             <p className="text-muted-foreground mt-4 text-center">No entries found for this filter.</p>
           ) : (

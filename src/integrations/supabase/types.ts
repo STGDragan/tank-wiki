@@ -649,6 +649,70 @@ export type Database = {
         }
         Relationships: []
       }
+      grades: {
+        Row: {
+          details: string | null
+          grade_label: string
+          id: string
+          strain_id: string | null
+        }
+        Insert: {
+          details?: string | null
+          grade_label: string
+          id?: string
+          strain_id?: string | null
+        }
+        Update: {
+          details?: string | null
+          grade_label?: string
+          id?: string
+          strain_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grades_strain_id_fkey"
+            columns: ["strain_id"]
+            isOneToOne: false
+            referencedRelation: "strains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      images: {
+        Row: {
+          contributor: string | null
+          grade_id: string | null
+          id: string
+          image_url: string
+          license: string | null
+          source: string | null
+        }
+        Insert: {
+          contributor?: string | null
+          grade_id?: string | null
+          id?: string
+          image_url: string
+          license?: string | null
+          source?: string | null
+        }
+        Update: {
+          contributor?: string | null
+          grade_id?: string | null
+          id?: string
+          image_url?: string
+          license?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "images_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "grades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journal_entries: {
         Row: {
           aquarium_id: string
@@ -1625,6 +1689,53 @@ export type Database = {
           url?: string
         }
         Relationships: []
+      }
+      species: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      strains: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+          species_id: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          name: string
+          species_id?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+          species_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strains_species_id_fkey"
+            columns: ["species_id"]
+            isOneToOne: false
+            referencedRelation: "species"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscribers: {
         Row: {

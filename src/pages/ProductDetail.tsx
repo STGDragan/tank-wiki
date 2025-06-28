@@ -1,13 +1,12 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, ExternalLink, Star, ShoppingCart, Heart, Package, Hash, DollarSign } from "lucide-react";
+import { ArrowLeft, ExternalLink, ShoppingCart, Heart, Package, Hash, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ProductImageGallery } from "@/components/shopping/ProductImageGallery";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -149,11 +148,10 @@ const ProductDetail = () => {
   const effectivePrice = getEffectivePrice();
   const originalCost = getOriginalCost();
   const savings = calculateSavings();
-  const images = Array.isArray(product.imageurls) ? product.imageurls as string[] : [];
-  const primaryImage = images[0] || product.image_url || '/placeholder.svg';
+  const images = Array.isArray(product.images) ? product.images as string[] : [];
+  const primaryImage = product.image_url || '/placeholder.svg';
   const asin = extractAsinFromUrl(product.amazon_url) || extractAsinFromUrl(product.affiliate_url);
 
-  // Determine the purchase provider text
   const getPurchaseProvider = () => {
     if (product.affiliate_url && product.affiliate_url.includes('amazon.')) {
       return 'Amazon';
@@ -180,32 +178,14 @@ const ProductDetail = () => {
       </Button>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Product Images */}
-        <div className="space-y-4">
-          <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
-            <img
-              src={primaryImage}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          {images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {images.slice(1, 5).map((image, index) => (
-                <div key={index} className="aspect-square overflow-hidden rounded border bg-muted">
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 2}`}
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Product Images - Updated to use new gallery component */}
+        <ProductImageGallery
+          images={images}
+          productName={product.name}
+          primaryImage={primaryImage}
+        />
 
-        {/* Product Details */}
+        {/* Product Details - Keep existing code */}
         <div className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
