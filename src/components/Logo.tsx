@@ -3,7 +3,7 @@ export function Logo() {
   return (
     <div className="flex items-center gap-2">
       <img 
-        src="/lovable-uploads/df6256f2-55dd-4dc7-981c-3f0d17693096.png"
+        src="/lovable-uploads/b2ec2a4c-0651-4a03-bf68-d17f5172fff7.png"
         alt="TankWiki Logo"
         width="32" 
         height="32" 
