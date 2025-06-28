@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { SlideshowSection } from "@/components/landing/SlideshowSection";
 import { SupportSection } from "@/components/landing/SupportSection";
-import SocialMediaFooter from "@/components/layout/SocialMediaFooter";
 import MobileInstructions from "@/components/layout/MobileInstructions";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 
@@ -90,8 +89,6 @@ const Index = () => {
                   <Button variant="link" size="sm" asChild><Link to="/legal/privacy-policy">Privacy Policy</Link></Button>
               </div>
           </div>
-          
-          <SocialMediaFooter />
           
           <MobileInstructions />
         </div>

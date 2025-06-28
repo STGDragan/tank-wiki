@@ -51,7 +51,6 @@ export const SponsorshipBanner = ({
         const parsedValue = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
         const allSponsorships = Array.isArray(parsedValue) ? parsedValue : [];
         
-        // Filter active sponsorships and sort by priority
         return allSponsorships
           .filter((s: Sponsorship) => s.is_active)
           .sort((a: Sponsorship, b: Sponsorship) => a.priority - b.priority);
@@ -62,7 +61,6 @@ export const SponsorshipBanner = ({
     }
   });
 
-  // Auto-scroll functionality
   useEffect(() => {
     if (!autoScroll || sponsorships.length <= 1) return;
 
@@ -80,51 +78,52 @@ export const SponsorshipBanner = ({
   const currentSponsorship = sponsorships[currentIndex];
 
   return (
-    <div className="w-full bg-muted/30 border-y border-border/50">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-xs bg-background">
-              Sponsored
+    <div className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="relative px-6 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <Badge variant="secondary" className="text-xs bg-white/90 text-gray-800 font-medium">
+              SPONSORED
             </Badge>
             <div 
-              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => window.open(currentSponsorship.sponsor_url, '_blank')}
             >
               {currentSponsorship.image_url && (
                 <img
                   src={currentSponsorship.image_url}
                   alt={currentSponsorship.title}
-                  className="w-8 h-8 rounded object-cover"
+                  className="w-12 h-12 rounded-lg object-cover border-2 border-white/20"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
               )}
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">{currentSponsorship.title}</span>
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-white text-lg">{currentSponsorship.title}</span>
                 {currentSponsorship.description && (
                   <>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="text-sm text-muted-foreground hidden md:inline">
+                    <span className="text-white/60 text-2xl">•</span>
+                    <span className="text-white/90 hidden md:inline-block font-medium">
                       {currentSponsorship.description}
                     </span>
                   </>
                 )}
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                <ExternalLink className="h-5 w-5 text-white/80" />
               </div>
             </div>
           </div>
           
           {sponsorships.length > 1 && (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {sponsorships.map((_, index) => (
-                <div
+                <button
                   key={index}
-                  className={`w-2 h-2 rounded-full transition-colors cursor-pointer ${
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     currentIndex === index
-                      ? 'bg-primary'
-                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                      ? 'bg-white shadow-lg scale-110'
+                      : 'bg-white/40 hover:bg-white/60'
                   }`}
                   onClick={() => setCurrentIndex(index)}
                 />
