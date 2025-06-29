@@ -4,103 +4,95 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@/providers/ThemeProvider";
-import { AuthProvider } from "@/providers/AuthProvider";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { AdminRoute } from "@/components/admin/AdminRoute";
-
-// Pages
+import { AuthProvider } from "./providers/AuthProvider";
+import { ThemeProvider } from "./providers/ThemeProvider";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import Account from "./pages/Account";
 import AquariumDetail from "./pages/AquariumDetail";
-import SharedWithMe from "./pages/SharedWithMe";
-import AcceptInvitation from "./pages/AcceptInvitation";
 import Shopping from "./pages/Shopping";
 import ProductDetail from "./pages/ProductDetail";
 import PlaceholderProduct from "./pages/PlaceholderProduct";
+import SharedWithMe from "./pages/SharedWithMe";
+import AcceptInvitation from "./pages/AcceptInvitation";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import KnowledgeBaseArticle from "./pages/KnowledgeBaseArticle";
-import SpeciesBrowserPage from "./pages/SpeciesBrowser";
-import Account from "./pages/Account";
+import SpeciesBrowser from "./pages/SpeciesBrowser";
 import Feedback from "./pages/Feedback";
 import LegalPage from "./pages/LegalPage";
 import LegalDocumentPage from "./pages/LegalDocumentPage";
-import Pro from "./pages/Pro";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
-
-// Admin Pages
-import AdminProducts from "./pages/admin/Products";
-import AdminShoppingManager from "./pages/admin/ShoppingManager";
-import AdminKnowledgeBase from "./pages/admin/KnowledgeBase";
+import Pro from "./pages/Pro";
+import Upgrade from "./pages/Upgrade";
+import AdminRoute from "./components/admin/AdminRoute";
+import Products from "./pages/admin/Products";
+import KnowledgeBaseAdmin from "./pages/admin/KnowledgeBase";
 import ArticleEditor from "./pages/admin/ArticleEditor";
-import AdminSlideshow from "./pages/admin/Slideshow";
-import AdminLegal from "./pages/admin/Legal";
-import AdminFeedback from "./pages/admin/Feedback";
-import AdminSubscriptions from "./pages/admin/SubscriptionManager";
+import Slideshow from "./pages/admin/Slideshow";
+import Legal from "./pages/admin/Legal";
+import FeedbackAdmin from "./pages/admin/Feedback";
 import AdminManagement from "./pages/admin/AdminManagement";
-import AdminSocialMedia from "./pages/admin/SocialMedia";
+import ShoppingManager from "./pages/admin/ShoppingManager";
+import SocialMedia from "./pages/admin/SocialMedia";
+import SubscriptionManager from "./pages/admin/SubscriptionManager";
+import { AppLayout } from "./components/layout/AppLayout";
 
 const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <TooltipProvider>
-          <BrowserRouter>
-            <AuthProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/legal" element={<LegalPage />} />
-                <Route path="/legal/:slug" element={<LegalDocumentPage />} />
-                <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
-                <Route element={<AppLayout />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/aquarium/:id" element={<AquariumDetail />} />
-                  <Route path="/aquariums/:id" element={<AquariumDetail />} />
-                  <Route path="/shared-with-me" element={<SharedWithMe />} />
-                  <Route path="/shopping" element={<Shopping />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/placeholder-product/:id" element={<PlaceholderProduct />} />
-                  <Route path="/knowledge-base" element={<KnowledgeBase />} />
-                  <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
-                  <Route path="/species-browser" element={<SpeciesBrowserPage />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/feedback" element={<Feedback />} />
-                  <Route path="/pro" element={<Pro />} />
-                  <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
-                  <Route path="/admin/shopping-manager" element={<AdminRoute><AdminShoppingManager /></AdminRoute>} />
-                  <Route path="/admin/knowledge-base" element={<AdminRoute><AdminKnowledgeBase /></AdminRoute>} />
-                  <Route path="/admin/knowledge-base/article/new" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
-                  <Route path="/admin/knowledge-base/article/edit/:slug" element={<AdminRoute><ArticleEditor /></AdminRoute>} />
-                  <Route path="/admin/slideshow" element={<AdminRoute><AdminSlideshow /></AdminRoute>} />
-                  <Route path="/admin/legal" element={<AdminRoute><AdminLegal /></AdminRoute>} />
-                  <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
-                  <Route path="/admin/subscriptions" element={<AdminRoute><AdminSubscriptions /></AdminRoute>} />
-                  <Route path="/admin/management" element={<AdminRoute><AdminManagement /></AdminRoute>} />
-                  <Route path="/admin/social-media" element={<AdminRoute><AdminSocialMedia /></AdminRoute>} />
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/legal" element={<LegalPage />} />
+              <Route path="/legal/:documentType" element={<LegalDocumentPage />} />
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/aquarium/:id" element={<AquariumDetail />} />
+                <Route path="/aquariums/:id" element={<AquariumDetail />} />
+                <Route path="/shopping" element={<Shopping />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/placeholder-product" element={<PlaceholderProduct />} />
+                <Route path="/shared-with-me" element={<SharedWithMe />} />
+                <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
+                <Route path="/species-browser" element={<SpeciesBrowser />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/pro" element={<Pro />} />
+                <Route path="/upgrade" element={<Upgrade />} />
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin/products" element={<Products />} />
+                  <Route path="/admin/knowledge-base" element={<KnowledgeBaseAdmin />} />
+                  <Route path="/admin/knowledge-base/article/:id?" element={<ArticleEditor />} />
+                  <Route path="/admin/slideshow" element={<Slideshow />} />
+                  <Route path="/admin/legal" element={<Legal />} />
+                  <Route path="/admin/feedback" element={<FeedbackAdmin />} />
+                  <Route path="/admin/management" element={<AdminManagement />} />
+                  <Route path="/admin/shopping" element={<ShoppingManager />} />
+                  <Route path="/admin/social-media" element={<SocialMedia />} />
+                  <Route path="/admin/subscriptions" element={<SubscriptionManager />} />
                 </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-              <Sonner />
-            </AuthProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
-}
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
 
 export default App;

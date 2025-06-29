@@ -1,19 +1,21 @@
 
 import { useAuth } from "@/providers/AuthProvider";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Fish, Calendar } from "lucide-react";
+import { Plus, Fish, Calendar, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
 import { SystemHealthBar } from "@/components/dashboard/SystemHealthBar";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: aquariums = [], isLoading: aquariumsLoading } = useQuery({
     queryKey: ["aquariums", user?.id],
@@ -49,6 +51,37 @@ const Dashboard = () => {
     },
     enabled: !!user?.id,
   });
+
+  const deleteAquariumMutation = useMutation({
+    mutationFn: async (aquariumId: string) => {
+      const { error } = await supabase
+        .from("aquariums")
+        .delete()
+        .eq("id", aquariumId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["aquariums"] });
+      toast({
+        title: "Aquarium deleted",
+        description: "Your aquarium has been successfully removed.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete aquarium. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteAquarium = (aquariumId: string) => {
+    if (window.confirm("Are you sure you want to delete this aquarium? This action cannot be undone.")) {
+      deleteAquariumMutation.mutate(aquariumId);
+    }
+  };
 
   if (aquariumsLoading) {
     return (
@@ -98,10 +131,23 @@ const Dashboard = () => {
               {aquariums.slice(0, 6).map((aquarium) => (
                 <Card
                   key={aquarium.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow group"
-                  onClick={() => navigate(`/aquarium/${aquarium.id}`)}
+                  className="cursor-pointer hover:shadow-md transition-shadow group relative"
                 >
-                  <CardContent className="p-6">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteAquarium(aquarium.id);
+                    }}
+                    className="absolute top-2 right-2 h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <CardContent 
+                    className="p-6"
+                    onClick={() => navigate(`/aquarium/${aquarium.id}`)}
+                  >
                     <div className="space-y-4">
                       {aquarium.image_url && (
                         <div className="w-full h-48 rounded-lg overflow-hidden">

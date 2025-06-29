@@ -25,6 +25,7 @@ const mainNav = [
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
   { name: "Feedback", href: "/feedback", icon: MessageSquare },
+  { name: "Upgrade to Pro", href: "/upgrade", icon: Crown },
 ];
 
 const adminNav = [
@@ -83,8 +84,8 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
                     <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{item.name}</span>
+                      <item.icon className={`h-4 w-4 flex-shrink-0 ${item.name === 'Upgrade to Pro' ? 'text-yellow-500' : ''}`} />
+                      <span className={`truncate ${item.name === 'Upgrade to Pro' ? 'text-yellow-600 font-semibold' : ''}`}>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
