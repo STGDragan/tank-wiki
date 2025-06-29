@@ -8,6 +8,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
+import "@/styles/globals.css"; // Make sure Tailwind styles are loaded
+
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -21,9 +23,11 @@ export default function App({ Component, pageProps }: AppProps) {
       >
         <TooltipProvider>
           <AuthProvider>
-            <Component {...pageProps} />
-            <Toaster />
-            <Sonner />
+            <div className="min-h-screen bg-black text-sci-fi-cyan font-sci antialiased">
+              <Component {...pageProps} />
+              <Toaster />
+              <Sonner />
+            </div>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
