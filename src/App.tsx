@@ -27,7 +27,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Pro from "./pages/Pro";
 import Upgrade from "./pages/Upgrade";
-import AdminRoute from "./components/admin/AdminRoute";
+import { AdminRoute } from "./components/admin/AdminRoute";
 import Products from "./pages/admin/Products";
 import KnowledgeBaseAdmin from "./pages/admin/KnowledgeBase";
 import ArticleEditor from "./pages/admin/ArticleEditor";
