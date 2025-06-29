@@ -187,11 +187,13 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
-      {/* System Health Bar */}
-      <SystemHealthBar />
-
-      {/* Quick Actions - 2x2 grid */}
-      <QuickActions />
+      {/* Combined System Health and Quick Actions */}
+      <Card className="bg-gray-900 border-gray-700">
+        <CardContent className="p-6 space-y-6">
+          <SystemHealthBar />
+          <QuickActions />
+        </CardContent>
+      </Card>
 
       {/* Upcoming Tasks */}
       <Card>
