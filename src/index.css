@@ -7,10 +7,10 @@
 
 @layer base {
   :root {
-    /* Dark futuristic theme with cyan accents */
-    --background: 17 24 39;  /* gray-900 */
-    --foreground: 255 255 255;  /* white */
-    --card: 31 41 55;  /* gray-800 */
+    /* Dark futuristic theme with cyan accents - FORCED DARK MODE */
+    --background: 17 24 39;  /* gray-900 - black background */
+    --foreground: 255 255 255;  /* white text */
+    --card: 31 41 55;  /* gray-800 - blue tiles */
     --card-foreground: 255 255 255;
     --popover: 31 41 55;
     --popover-foreground: 255 255 255;
@@ -44,27 +44,28 @@
     --cta-highlight: 56 189 248;
   }
 
+  /* Remove light mode - force dark mode everywhere */
   .light {
-    /* Light mode */
-    --background: 248 250 252;
-    --foreground: 13 17 23;
-    --card: 255 255 255;
-    --card-foreground: 13 17 23;
-    --popover: 255 255 255;
-    --popover-foreground: 13 17 23;
-    --primary: 0 191 255;
+    /* Force dark mode values even in light mode */
+    --background: 17 24 39;
+    --foreground: 255 255 255;
+    --card: 31 41 55;
+    --card-foreground: 255 255 255;
+    --popover: 31 41 55;
+    --popover-foreground: 255 255 255;
+    --primary: 6 182 212;
     --primary-foreground: 255 255 255;
-    --secondary: 241 245 249;
-    --secondary-foreground: 13 17 23;
-    --muted: 241 245 249;
-    --muted-foreground: 100 116 139;
-    --accent: 0 191 255;
+    --secondary: 55 65 81;
+    --secondary-foreground: 255 255 255;
+    --muted: 55 65 81;
+    --muted-foreground: 156 163 175;
+    --accent: 6 182 212;
     --accent-foreground: 255 255 255;
     --destructive: 239 68 68;
     --destructive-foreground: 255 255 255;
-    --border: 226 232 240;
-    --input: 226 232 240;
-    --ring: 0 191 255;
+    --border: 75 85 99;
+    --input: 55 65 81;
+    --ring: 6 182 212;
   }
 }
 
@@ -77,6 +78,7 @@
     @apply bg-background;
     touch-action: manipulation;
     font-family: 'Rajdhani', system-ui, -apple-system, sans-serif;
+    background-color: rgb(17, 24, 39) !important; /* Force black background */
   }
   
   body {
@@ -86,17 +88,45 @@
     -webkit-user-select: none;
     user-select: none;
     overscroll-behavior: none;
-    color: rgb(var(--foreground));
-    background-color: rgb(17, 24, 39); /* Force gray-900 background */
+    color: rgb(255, 255, 255) !important; /* Force white text */
+    background-color: rgb(17, 24, 39) !important; /* Force black background */
   }
   
   #root {
     @apply min-h-screen;
-    background-color: rgb(17, 24, 39); /* Force gray-900 background */
+    background-color: rgb(17, 24, 39) !important; /* Force black background */
+    color: rgb(255, 255, 255) !important; /* Force white text */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Force dark backgrounds on all major containers */
+  .min-h-screen {
+    background-color: rgb(17, 24, 39) !important;
+  }
+  
+  /* Override any light backgrounds */
+  .bg-white, .bg-gray-50, .bg-blue-50, .bg-purple-50, .bg-slate-50 {
+    background-color: rgb(17, 24, 39) !important;
+  }
+  
+  .bg-gray-100, .bg-blue-100, .bg-purple-100, .bg-slate-100 {
+    background-color: rgb(31, 41, 55) !important;
+  }
+  
+  /* Force white text on dark backgrounds */
+  .text-gray-900, .text-slate-900, .text-black {
+    color: rgb(255, 255, 255) !important;
+  }
+  
+  .text-gray-800, .text-slate-800 {
+    color: rgb(229, 231, 235) !important;
+  }
+  
+  .text-gray-700, .text-slate-700 {
+    color: rgb(209, 213, 219) !important;
   }
   
   input, textarea, [contenteditable] {
@@ -122,22 +152,22 @@
   
   .font-mono {
     font-family: 'Roboto Mono', monospace;
-    color: rgb(var(--foreground));
+    color: rgb(255, 255, 255) !important;
   }
   
   .font-sans {
     font-family: 'Rajdhani', sans-serif;
-    color: rgb(var(--foreground));
+    color: rgb(255, 255, 255) !important;
   }
   
-  /* Improve text readability */
+  /* Improve text readability - force white text */
   p, span, div, li, td, th, label, button {
-    color: rgb(var(--foreground));
+    color: rgb(255, 255, 255) !important;
   }
   
   /* Muted text should still be readable */
   .text-muted-foreground {
-    color: rgb(var(--muted-foreground)) !important;
+    color: rgb(156, 163, 175) !important;
   }
   
   /* Futuristic gradients */
@@ -180,13 +210,14 @@
 @layer components {
   .cyber-card {
     @apply bg-card/95 backdrop-blur-sm border border-border/50 angular-panel shadow-lg hover:shadow-xl transition-all duration-300;
-    background: linear-gradient(145deg, rgba(31, 41, 55, 0.95), rgba(55, 65, 81, 0.95));
-    color: rgb(var(--foreground));
+    background: linear-gradient(145deg, rgba(31, 41, 55, 0.95), rgba(55, 65, 81, 0.95)) !important;
+    color: rgb(255, 255, 255) !important;
+    border: 2px solid rgba(6, 182, 212, 0.5) !important; /* Blue border for tiles */
   }
   
   .cyber-card:hover {
     @apply neon-glow;
-    border-color: rgb(var(--neon-cyan) / 0.5);
+    border-color: rgb(var(--neon-cyan) / 0.7) !important;
   }
   
   .cyber-card h1,
@@ -215,7 +246,8 @@
   .cyber-input {
     @apply bg-input/50 border border-border/50 rounded-none text-foreground placeholder:text-muted-foreground focus:border-primary/70 focus:ring-1 focus:ring-primary/30 transition-all duration-200;
     font-family: 'Roboto Mono', monospace;
-    color: rgb(var(--foreground)) !important;
+    color: rgb(255, 255, 255) !important;
+    background-color: rgba(55, 65, 81, 0.5) !important;
   }
   
   .cyber-input:focus {
@@ -223,7 +255,7 @@
   }
   
   .cyber-input::placeholder {
-    color: rgb(var(--muted-foreground)) !important;
+    color: rgb(156, 163, 175) !important;
   }
   
   /* Touch zones */
@@ -243,7 +275,7 @@
   
   /* Fix slideshow container */
   .slideshow-container {
-    background: transparent !important;
+    background: rgb(17, 24, 39) !important;
     overflow: hidden;
   }
   

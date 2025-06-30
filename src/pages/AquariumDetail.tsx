@@ -1,4 +1,3 @@
-
 import { useParams, Navigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,12 +47,12 @@ const AquariumDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen bg-gray-900 text-white">
         <div className="space-y-6 p-6">
-          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-8 w-64 bg-gray-800" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-48 w-full" />
+              <Skeleton key={i} className="h-48 w-full bg-gray-800" />
             ))}
           </div>
         </div>
@@ -63,10 +62,10 @@ const AquariumDetail = () => {
 
   if (error || !aquarium) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen bg-gray-900 text-white">
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-foreground">Aquarium not found</h2>
-          <p className="text-muted-foreground mt-2">
+          <h2 className="text-2xl font-bold text-white">Aquarium not found</h2>
+          <p className="text-gray-400 mt-2">
             {error?.message || "The aquarium you're looking for doesn't exist."}
           </p>
         </div>
@@ -78,7 +77,7 @@ const AquariumDetail = () => {
   const latestWaterReading = waterParameters && waterParameters.length > 0 ? waterParameters[0] : undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen bg-gray-900 text-white">
       <div className="space-y-6 p-6">
         <AquariumHeader aquarium={aquarium} />
 
@@ -93,16 +92,16 @@ const AquariumDetail = () => {
         />
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 bg-white/80 backdrop-blur-sm border shadow-sm dark:bg-slate-800/80 dark:border-slate-700">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Overview</TabsTrigger>
-            <TabsTrigger value="progress" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Progress</TabsTrigger>
-            <TabsTrigger value="livestock" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Livestock</TabsTrigger>
-            <TabsTrigger value="equipment" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Equipment</TabsTrigger>
-            <TabsTrigger value="maintenance" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Maintenance</TabsTrigger>
-            <TabsTrigger value="water" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Water Tests</TabsTrigger>
-            <TabsTrigger value="timeline" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Timeline</TabsTrigger>
-            <TabsTrigger value="wishlist" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Wishlist</TabsTrigger>
-            <TabsTrigger value="journal" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Journal</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-9 bg-gray-800 backdrop-blur-sm border border-gray-600 shadow-sm">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Overview</TabsTrigger>
+            <TabsTrigger value="progress" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Progress</TabsTrigger>
+            <TabsTrigger value="livestock" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Livestock</TabsTrigger>
+            <TabsTrigger value="equipment" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Equipment</TabsTrigger>
+            <TabsTrigger value="maintenance" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Maintenance</TabsTrigger>
+            <TabsTrigger value="water" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Water Tests</TabsTrigger>
+            <TabsTrigger value="timeline" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Timeline</TabsTrigger>
+            <TabsTrigger value="wishlist" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Wishlist</TabsTrigger>
+            <TabsTrigger value="journal" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white">Journal</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
