@@ -7,38 +7,38 @@
 
 @layer base {
   :root {
-    /* Dark futuristic theme with better contrast */
-    --background: 13 17 23;
-    --foreground: 240 248 255;
-    --card: 31 41 55;
-    --card-foreground: 240 248 255;
+    /* Dark futuristic theme with cyan accents */
+    --background: 17 24 39;  /* gray-900 */
+    --foreground: 255 255 255;  /* white */
+    --card: 31 41 55;  /* gray-800 */
+    --card-foreground: 255 255 255;
     --popover: 31 41 55;
-    --popover-foreground: 240 248 255;
-    --primary: 0 255 255;
-    --primary-foreground: 13 17 23;
-    --secondary: 55 65 81;
-    --secondary-foreground: 240 248 255;
+    --popover-foreground: 255 255 255;
+    --primary: 6 182 212;  /* cyan-500 */
+    --primary-foreground: 255 255 255;
+    --secondary: 55 65 81;  /* gray-700 */
+    --secondary-foreground: 255 255 255;
     --muted: 55 65 81;
-    --muted-foreground: 200 210 220;
-    --accent: 0 255 127;
-    --accent-foreground: 13 17 23;
+    --muted-foreground: 156 163 175;  /* gray-400 */
+    --accent: 6 182 212;  /* cyan-500 */
+    --accent-foreground: 255 255 255;
     --destructive: 239 68 68;
-    --destructive-foreground: 240 248 255;
-    --border: 75 85 99;
+    --destructive-foreground: 255 255 255;
+    --border: 75 85 99;  /* gray-600 */
     --input: 55 65 81;
-    --ring: 0 255 255;
+    --ring: 6 182 212;  /* cyan-500 */
     --radius: 0.5rem;
     --sidebar-background: 31 41 55;
-    --sidebar-foreground: 240 248 255;
-    --sidebar-primary: 0 255 255;
-    --sidebar-primary-foreground: 13 17 23;
+    --sidebar-foreground: 255 255 255;
+    --sidebar-primary: 6 182 212;
+    --sidebar-primary-foreground: 255 255 255;
     --sidebar-accent: 55 65 81;
-    --sidebar-accent-foreground: 240 248 255;
+    --sidebar-accent-foreground: 255 255 255;
     --sidebar-border: 75 85 99;
-    --sidebar-ring: 0 255 255;
+    --sidebar-ring: 6 182 212;
     
     /* Neon glow colors */
-    --neon-cyan: 0 255 255;
+    --neon-cyan: 6 182 212;
     --neon-green: 0 255 127;
     --neon-blue: 0 191 255;
     --cta-highlight: 56 189 248;
@@ -87,10 +87,12 @@
     user-select: none;
     overscroll-behavior: none;
     color: rgb(var(--foreground));
+    background-color: rgb(17, 24, 39); /* Force gray-900 background */
   }
   
   #root {
-    @apply bg-background min-h-screen;
+    @apply min-h-screen;
+    background-color: rgb(17, 24, 39); /* Force gray-900 background */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
@@ -110,14 +112,12 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Orbitron', monospace;
     font-weight: 700;
-    color: rgb(var(--primary)) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    color: rgb(255, 255, 255) !important;
   }
   
   .font-display {
     font-family: 'Orbitron', monospace;
-    color: rgb(var(--primary)) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    color: rgb(255, 255, 255) !important;
   }
   
   .font-mono {
@@ -195,7 +195,7 @@
   .cyber-card h4,
   .cyber-card h5,
   .cyber-card h6 {
-    color: rgb(var(--primary)) !important;
+    color: rgb(255, 255, 255) !important;
   }
   
   .cyber-button {

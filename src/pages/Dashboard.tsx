@@ -4,12 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Fish, Calendar, Trash2 } from "lucide-react";
+import { Plus, Fish, Calendar, Trash2, TestTube, Droplets, Filter, Wrench, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
-import { QuickActions } from "@/components/dashboard/QuickActions";
-import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
-import { SystemHealthBar } from "@/components/dashboard/SystemHealthBar";
 import { toast } from "@/hooks/use-toast";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 
@@ -44,8 +41,25 @@ const Dashboard = () => {
         .eq("user_id", user.id)
         .is("completed_date", null)
         .gte("due_date", new Date().toISOString().split('T')[0])
-        .lte("due_date", new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .lte("due_date", new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
         .order("due_date", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: latestWaterParameters } = useQuery({
+    queryKey: ["latest-water-parameters", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("water_parameters")
+        .select("*, aquariums(name)")
+        .eq("user_id", user.id)
+        .order("recorded_at", { ascending: false })
+        .limit(1);
 
       if (error) throw error;
       return data;
@@ -89,9 +103,9 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-muted rounded w-1/4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-48 bg-muted rounded-lg"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-96 bg-muted rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -99,147 +113,210 @@ const Dashboard = () => {
     );
   }
 
+  const firstAquarium = aquariums[0];
+  const latestWater = latestWaterParameters?.[0];
+
   return (
-    <div className="container mx-auto px-6 py-8 space-y-8">
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="flex justify-between items-center p-6 border-b border-gray-700">
+        <h1 className="text-2xl font-bold text-white">TANKWIKI</h1>
+        <div className="flex space-x-8">
+          <button className="text-cyan-400 font-semibold">Dashboard</button>
+          <button className="text-gray-400 hover:text-cyan-400">Livestock</button>
+          <button className="text-gray-400 hover:text-cyan-400">Equipment</button>
+        </div>
+      </div>
+
       {/* Sponsorship Banner */}
       <SponsorshipBanner page="dashboard" />
 
-      {/* Welcome Section */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight">Welcome to Your Dashboard</h1>
-        <p className="text-xl text-muted-foreground">
-          Manage your aquarium journey with ease
-        </p>
-      </div>
-
-      {/* My Aquariums - moved above system health */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Fish className="h-5 w-5" />
-              My Aquariums ({aquariums.length})
-            </CardTitle>
-            <div className="flex gap-2">
-              <AquariumSetupWizard aquariumCount={aquariums.length} />
-              <Button onClick={() => navigate("/aquariums/new")}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Aquarium
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {aquariums.length > 0 ? (
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-              {aquariums.slice(0, 6).map((aquarium) => (
-                <Card
-                  key={aquarium.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow group relative"
+      {/* Main Dashboard Grid */}
+      <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* My Aquarium */}
+        <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-white text-xl">My Aquarium</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {firstAquarium ? (
+              <div className="space-y-4">
+                {firstAquarium.image_url && (
+                  <div className="w-full h-48 rounded-lg overflow-hidden">
+                    <img
+                      src={firstAquarium.image_url}
+                      alt={firstAquarium.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-white text-lg font-semibold">{firstAquarium.name}</h3>
+                  <p className="text-gray-400">Started on {new Date(firstAquarium.created_at).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                  })}</p>
+                </div>
+                <Button
+                  onClick={() => navigate(`/aquarium/${firstAquarium.id}`)}
+                  className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
                 >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteAquarium(aquarium.id);
-                    }}
-                    className="absolute top-2 right-2 h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <CardContent 
-                    className="p-6"
-                    onClick={() => navigate(`/aquarium/${aquarium.id}`)}
-                  >
-                    <div className="space-y-4">
-                      {aquarium.image_url && (
-                        <div className="w-full h-48 rounded-lg overflow-hidden">
-                          <img
-                            src={aquarium.image_url}
-                            alt={aquarium.name}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-semibold text-lg">{aquarium.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {aquarium.type} • {aquarium.size} gallons
-                        </p>
+                  View Details
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Fish className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-semibold mb-2 text-white">No aquariums yet</h3>
+                <p className="text-gray-400 mb-4">
+                  Get started by creating your first aquarium
+                </p>
+                <AquariumSetupWizard aquariumCount={0} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Water Tests */}
+        <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-white text-xl">Water Tests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {latestWater ? (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
+                      <div className="text-gray-400 text-sm">Temperature</div>
+                      <div className="text-white font-semibold">
+                        {latestWater.temperature ? `${latestWater.temperature}°F` : 'N/A'}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {aquariums.length > 6 && (
-                <Button variant="outline" onClick={() => navigate("/aquariums")}>
-                  View All Aquariums ({aquariums.length})
-                </Button>
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
+                      <div className="text-gray-400 text-sm">pH</div>
+                      <div className="text-white font-semibold">
+                        {latestWater.ph || 'N/A'}
+                      </div>
+                    </div>
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
+                      <div className="text-gray-400 text-sm">Ammonia</div>
+                      <div className="text-white font-semibold">
+                        {latestWater.ammonia ? `${latestWater.ammonia} ppm` : 'N/A'}
+                      </div>
+                    </div>
+                    <div className="bg-gray-700 rounded-lg p-3 border border-gray-600">
+                      <div className="text-gray-400 text-sm">Nitrate</div>
+                      <div className="text-white font-semibold">
+                        {latestWater.nitrate ? `${latestWater.nitrate} ppm` : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    LOG TEST
+                  </Button>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <TestTube className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-gray-400 mb-4">No water tests recorded yet</p>
+                  <Button 
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Log First Test
+                  </Button>
+                </div>
               )}
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <Fish className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-semibold mb-2">No aquariums yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Get started by creating your first aquarium
-              </p>
-              <AquariumSetupWizard aquariumCount={0} />
+          </CardContent>
+        </Card>
+
+        {/* Maintenance */}
+        <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-white text-xl">Maintenance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {upcomingTasks.length > 0 ? (
+                <>
+                  {upcomingTasks.slice(0, 3).map((task) => (
+                    <div key={task.id} className="flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0">
+                      <div>
+                        <div className="text-white font-medium">{task.task}</div>
+                        <div className="text-gray-400 text-sm">{task.aquariums?.name}</div>
+                      </div>
+                      <div className="text-gray-400 text-sm">
+                        {task.due_date === new Date().toISOString().split('T')[0] ? 'Today' : 
+                         task.due_date === new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] ? 'Tomorrow' :
+                         new Date(task.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </div>
+                    </div>
+                  ))}
+                  <Button 
+                    className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    ADD TASK
+                  </Button>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-gray-400 mb-4">No upcoming maintenance tasks</p>
+                  <Button 
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Add Task
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Combined System Health and Quick Actions */}
-      <Card className="bg-gray-900 border-gray-700">
-        <CardContent className="p-6 space-y-6">
-          <SystemHealthBar />
-          <QuickActions />
-        </CardContent>
-      </Card>
-
-      {/* Upcoming Tasks */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Upcoming Tasks
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {upcomingTasks.length > 0 ? (
-            <div className="space-y-3">
-              {upcomingTasks.slice(0, 5).map((task) => (
-                <div key={task.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex-1">
-                    <p className="font-medium">{task.task}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {task.aquariums?.name} • Due {new Date(task.due_date).toLocaleDateString()}
-                    </p>
+        {/* Shopping */}
+        <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-white text-xl">Shopping</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg border border-gray-600">
+                <div className="flex items-center space-x-3">
+                  <Filter className="h-6 w-6 text-cyan-400" />
+                  <div>
+                    <div className="text-white font-medium">Canister Filter</div>
+                    <div className="w-32 h-2 bg-gray-600 rounded-full mt-2">
+                      <div className="w-3/4 h-2 bg-cyan-500 rounded-full"></div>
+                    </div>
                   </div>
                 </div>
-              ))}
-              {upcomingTasks.length > 5 && (
-                <p className="text-sm text-muted-foreground text-center pt-2">
-                  +{upcomingTasks.length - 5} more tasks
-                </p>
-              )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/shopping')}
+                  className="text-cyan-400 hover:text-cyan-300"
+                >
+                  <span className="text-xl">›</span>
+                </Button>
+              </div>
+              <Button 
+                className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
+                onClick={() => navigate('/shopping')}
+              >
+                ADD TASK
+              </Button>
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">No upcoming tasks</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Recommended Products */}
-      <RecommendedProducts />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
