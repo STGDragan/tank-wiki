@@ -30,13 +30,13 @@ export function SharedTankCard({ id, name, type, size, image_url, ownerName }: S
   };
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full bg-gray-800 border-2 border-cyan-500/50">
       <CardHeader>
-        <CardTitle>{name}</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-white">{name}</CardTitle>
+        <CardDescription className="text-gray-400">
           {size} Gallon {type} Tank
         </CardDescription>
-        {ownerName && <CardDescription>Owner: {ownerName}</CardDescription>}
+        {ownerName && <CardDescription className="text-gray-400">Owner: {ownerName}</CardDescription>}
       </CardHeader>
       <CardContent className="flex-grow">
         <Link to={`/aquarium/${id}`}>
@@ -50,7 +50,9 @@ export function SharedTankCard({ id, name, type, size, image_url, ownerName }: S
         </Link>
       </CardContent>
       <CardFooter>
-        <Badge variant={getBadgeVariant()}>{type}</Badge>
+        <Badge variant={getBadgeVariant()} className="bg-cyan-600/20 text-cyan-400 border-cyan-500/50">
+          {type}
+        </Badge>
       </CardFooter>
     </Card>
   );

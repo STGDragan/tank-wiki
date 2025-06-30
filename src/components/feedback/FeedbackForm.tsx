@@ -63,32 +63,32 @@ export function FeedbackForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto bg-gray-800 border-2 border-cyan-500/50">
       <CardHeader>
-        <CardTitle>Submit Feedback</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-white">Submit Feedback</CardTitle>
+        <CardDescription className="text-gray-400">
           Help us improve by sharing your feedback, reporting bugs, or suggesting new features.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="type">Feedback Type</Label>
+            <Label htmlFor="type" className="text-white">Feedback Type</Label>
             <Select
               value={formData.type}
               onValueChange={(value: FeedbackType) => 
                 setFormData({ ...formData, type: value })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-700 border-gray-600">
                 {feedbackTypes.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
+                  <SelectItem key={type.value} value={type.value} className="text-white hover:bg-gray-600">
                     <div>
                       <div className="font-medium">{type.label}</div>
-                      <div className="text-sm text-muted-foreground">{type.description}</div>
+                      <div className="text-sm text-gray-400">{type.description}</div>
                     </div>
                   </SelectItem>
                 ))}
@@ -97,18 +97,19 @@ export function FeedbackForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title" className="text-white">Title</Label>
             <Input
               id="title"
               placeholder="Brief summary of your feedback"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
+              className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="text-white">Description</Label>
             <Textarea
               id="description"
               placeholder="Provide detailed information about your feedback..."
@@ -116,18 +117,19 @@ export function FeedbackForm() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
+              className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Attachment (Optional)</Label>
+            <Label className="text-white">Attachment (Optional)</Label>
             <div className="space-y-4">
               {imagePreview ? (
                 <div className="relative inline-block">
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="max-w-full h-48 object-cover rounded-lg border"
+                    className="max-w-full h-48 object-cover rounded-lg border border-gray-600"
                   />
                   <Button
                     type="button"
@@ -140,15 +142,15 @@ export function FeedbackForm() {
                   </Button>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 bg-gray-700/30">
                   <div className="text-center">
                     <ImagePlus className="mx-auto h-12 w-12 text-gray-400" />
                     <div className="mt-4">
                       <Label htmlFor="image" className="cursor-pointer">
-                        <span className="mt-2 block text-sm font-medium text-gray-900">
+                        <span className="mt-2 block text-sm font-medium text-white">
                           Upload an image
                         </span>
-                        <span className="mt-1 block text-sm text-gray-500">
+                        <span className="mt-1 block text-sm text-gray-400">
                           PNG, JPG, GIF up to 10MB
                         </span>
                       </Label>
@@ -168,7 +170,7 @@ export function FeedbackForm() {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
             disabled={isSubmitting || !formData.title.trim() || !formData.description.trim()}
           >
             {isSubmitting ? "Submitting..." : "Submit Feedback"}

@@ -27,7 +27,11 @@ export function AccessibleTanks() {
   const isLoading = aquariumsLoading || profilesLoading;
 
   if (isLoading) {
-    return <div>Loading accessible tanks...</div>;
+    return (
+      <div className="bg-gray-800 border-2 border-cyan-500/50 rounded-lg p-6">
+        <div className="text-white">Loading accessible tanks...</div>
+      </div>
+    );
   }
   
   const sharedAquariums = aquariums?.filter(aq => aq.user_id !== user?.id) || [];
@@ -39,20 +43,20 @@ export function AccessibleTanks() {
 
   if (sharedAquariums.length === 0) {
     return (
-      <Card>
+      <Card className="bg-gray-800 border-2 border-cyan-500/50">
         <CardHeader>
-          <CardTitle>Tanks Shared With You</CardTitle>
-          <CardDescription>No tanks have been shared with you yet.</CardDescription>
+          <CardTitle className="text-white">Tanks Shared With You</CardTitle>
+          <CardDescription className="text-gray-400">No tanks have been shared with you yet.</CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   return (
-    <Card>
+    <Card className="bg-gray-800 border-2 border-cyan-500/50">
       <CardHeader>
-        <CardTitle>Tanks Shared With You</CardTitle>
-        <CardDescription>Aquariums that others have shared with you.</CardDescription>
+        <CardTitle className="text-white">Tanks Shared With You</CardTitle>
+        <CardDescription className="text-gray-400">Aquariums that others have shared with you.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

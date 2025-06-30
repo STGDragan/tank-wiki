@@ -68,74 +68,82 @@ const KnowledgeBase = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="w-full h-[250px] rounded-lg overflow-hidden">
-        <SlideshowSection context="knowledge-base" />
-      </div>
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Knowledge Base</h1>
-        <p className="text-muted-foreground">
-          Explore articles, guides, and a glossary to enhance your aquarium hobby.
-        </p>
-      </div>
-      
-      <SearchBar onSearch={handleSearch} placeholder="Search articles by title, content, or tags..." />
-      
-      {isLoading && (
-        <div className="space-y-4">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="space-y-8 p-6">
+        <div className="w-full h-[250px] rounded-lg overflow-hidden">
+          <SlideshowSection context="knowledge-base" />
         </div>
-      )}
-
-      {error && (
-        <Card>
-            <CardHeader>
-                <CardTitle>Error</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-destructive">Could not load knowledge base articles. Please try again later.</p>
-                <p className="text-xs text-muted-foreground mt-2">{error.message}</p>
-            </CardContent>
-        </Card>
-      )}
-
-      {categories && categories.length > 0 && (
-        <Accordion type="single" collapsible className="w-full" defaultValue={categories[0].id}>
-          {categories.map(category => (
-            <AccordionItem value={category.id} key={category.id}>
-              <AccordionTrigger className="text-xl font-semibold">{category.name}</AccordionTrigger>
-              <AccordionContent>
-                <p className="text-muted-foreground mb-4">{category.description}</p>
-                <ul className="space-y-2">
-                  {category.knowledge_articles.map(article => (
-                    <li key={article.id}>
-                      <Link to={`/knowledge-base/${article.slug}`} className="text-primary hover:underline">
-                        {article.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      )}
-
-      {categories && categories.length === 0 && !isLoading && (
-        <div className="text-center py-12 border-2 border-dashed rounded-lg">
-            <h2 className="text-xl font-semibold">
-              {searchQuery ? 'No articles found' : 'No Articles Yet'}
-            </h2>
-            <p className="text-muted-foreground mt-2">
-                {searchQuery 
-                  ? `No articles match your search for "${searchQuery}". Try different keywords.`
-                  : 'We\'re working on bringing you insightful articles. Check back soon!'
-                }
-            </p>
+        
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-white">Knowledge Base</h1>
+          <p className="text-gray-400">
+            Explore articles, guides, and a glossary to enhance your aquarium hobby.
+          </p>
         </div>
-      )}
+        
+        <SearchBar onSearch={handleSearch} placeholder="Search articles by title, content, or tags..." />
+        
+        {isLoading && (
+          <div className="space-y-4">
+              <Skeleton className="h-12 w-full bg-gray-800" />
+              <Skeleton className="h-12 w-full bg-gray-800" />
+              <Skeleton className="h-12 w-full bg-gray-800" />
+          </div>
+        )}
+
+        {error && (
+          <Card className="bg-gray-800 border-2 border-cyan-500/50">
+              <CardHeader>
+                  <CardTitle className="text-white">Error</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-red-400">Could not load knowledge base articles. Please try again later.</p>
+                  <p className="text-xs text-gray-400 mt-2">{error.message}</p>
+              </CardContent>
+          </Card>
+        )}
+
+        {categories && categories.length > 0 && (
+          <Accordion type="single" collapsible className="w-full" defaultValue={categories[0].id}>
+            {categories.map(category => (
+              <AccordionItem value={category.id} key={category.id} className="border-gray-700">
+                <AccordionTrigger className="text-xl font-semibold text-white hover:text-cyan-400">
+                  {category.name}
+                </AccordionTrigger>
+                <AccordionContent className="bg-gray-800/50 rounded-lg p-4 mt-2">
+                  <p className="text-gray-400 mb-4">{category.description}</p>
+                  <ul className="space-y-2">
+                    {category.knowledge_articles.map(article => (
+                      <li key={article.id}>
+                        <Link 
+                          to={`/knowledge-base/${article.slug}`} 
+                          className="text-cyan-400 hover:text-cyan-300 hover:underline transition-colors"
+                        >
+                          {article.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        )}
+
+        {categories && categories.length === 0 && !isLoading && (
+          <div className="text-center py-12 border-2 border-dashed border-gray-600 rounded-lg bg-gray-800/30">
+              <h2 className="text-xl font-semibold text-white">
+                {searchQuery ? 'No articles found' : 'No Articles Yet'}
+              </h2>
+              <p className="text-gray-400 mt-2">
+                  {searchQuery 
+                    ? `No articles match your search for "${searchQuery}". Try different keywords.`
+                    : 'We\'re working on bringing you insightful articles. Check back soon!'
+                  }
+              </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

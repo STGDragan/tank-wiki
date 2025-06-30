@@ -19,39 +19,53 @@ const SharedWithMe = () => {
 
   if (authLoading) {
     return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
+      <div className="min-h-screen bg-gray-900 text-white">
+        <div className="space-y-8 p-6">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-8 w-48 bg-gray-800" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Skeleton className="h-48 w-full bg-gray-800" />
+            <Skeleton className="h-48 w-full bg-gray-800" />
+            <Skeleton className="h-48 w-full bg-gray-800" />
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Shared Tanks</h1>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <div className="space-y-8 p-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-white">Shared Tanks</h1>
+        </div>
+        
+        <Tabs defaultValue="accessible" className="space-y-6">
+          <TabsList className="bg-gray-800 backdrop-blur-sm border border-gray-600">
+            <TabsTrigger 
+              value="accessible" 
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white"
+            >
+              Tanks I Can Access
+            </TabsTrigger>
+            <TabsTrigger 
+              value="invitations" 
+              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white"
+            >
+              My Sent Invitations
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="accessible">
+            <AccessibleTanks />
+          </TabsContent>
+          
+          <TabsContent value="invitations">
+            <SentInvitations />
+          </TabsContent>
+        </Tabs>
       </div>
-      
-      <Tabs defaultValue="accessible" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="accessible">Tanks I Can Access</TabsTrigger>
-          <TabsTrigger value="invitations">My Sent Invitations</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="accessible">
-          <AccessibleTanks />
-        </TabsContent>
-        
-        <TabsContent value="invitations">
-          <SentInvitations />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 };
