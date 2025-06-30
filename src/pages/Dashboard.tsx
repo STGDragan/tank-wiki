@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
 import { toast } from "@/hooks/use-toast";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
+import { TankHealthIndicator } from "@/components/aquarium/TankHealthIndicator";
+import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
+import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -67,6 +70,31 @@ const Dashboard = () => {
     enabled: !!user?.id,
   });
 
+  // Fetch data for tank health indicator
+  const { data: tankHealthData } = useQuery({
+    queryKey: ["tank-health-data", user?.id],
+    queryFn: async () => {
+      if (!user?.id || !aquariums[0]) return null;
+      
+      const aquariumId = aquariums[0].id;
+      
+      const [waterParams, maintenance, livestock, equipment] = await Promise.all([
+        supabase.from("water_parameters").select("*").eq("aquarium_id", aquariumId).order("recorded_at", { ascending: false }).limit(5),
+        supabase.from("maintenance").select("*").eq("aquarium_id", aquariumId),
+        supabase.from("livestock").select("*").eq("aquarium_id", aquariumId),
+        supabase.from("equipment").select("*").eq("aquarium_id", aquariumId)
+      ]);
+
+      return {
+        waterParameters: waterParams.data || [],
+        maintenance: maintenance.data || [],
+        livestock: livestock.data || [],
+        equipment: equipment.data || []
+      };
+    },
+    enabled: !!user?.id && !!aquariums[0],
+  });
+
   const deleteAquariumMutation = useMutation({
     mutationFn: async (aquariumId: string) => {
       const { error } = await supabase
@@ -95,6 +123,30 @@ const Dashboard = () => {
   const handleDeleteAquarium = (aquariumId: string) => {
     if (window.confirm("Are you sure you want to delete this aquarium? This action cannot be undone.")) {
       deleteAquariumMutation.mutate(aquariumId);
+    }
+  };
+
+  const handleLogTest = () => {
+    if (aquariums[0]) {
+      navigate(`/aquarium/${aquariums[0].id}?tab=water`);
+    } else {
+      toast({
+        title: "No Aquarium",
+        description: "Please create an aquarium first to log water tests.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddTask = () => {
+    if (aquariums[0]) {
+      navigate(`/aquarium/${aquariums[0].id}?tab=maintenance`);
+    } else {
+      toast({
+        title: "No Aquarium",
+        description: "Please create an aquarium first to add maintenance tasks.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -130,6 +182,27 @@ const Dashboard = () => {
 
       {/* Sponsorship Banner */}
       <SponsorshipBanner page="dashboard" />
+
+      {/* Tank Health Indicator */}
+      {firstAquarium && tankHealthData && (
+        <div className="p-6">
+          <TankHealthIndicator
+            waterParameters={tankHealthData.waterParameters}
+            maintenanceTasks={tankHealthData.maintenance}
+            livestock={tankHealthData.livestock}
+            equipment={tankHealthData.equipment}
+            aquariumType={firstAquarium.type}
+            aquariumSize={firstAquarium.size}
+          />
+        </div>
+      )}
+
+      {/* Quick Add Task Section */}
+      {aquariums.length > 0 && (
+        <div className="px-6 pb-6">
+          <QuickAddTask aquariums={aquariums} />
+        </div>
+      )}
 
       {/* Main Dashboard Grid */}
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -215,7 +288,7 @@ const Dashboard = () => {
                   </div>
                   <Button 
                     className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={handleLogTest}
                   >
                     LOG TEST
                   </Button>
@@ -226,7 +299,7 @@ const Dashboard = () => {
                   <p className="text-gray-400 mb-4">No water tests recorded yet</p>
                   <Button 
                     className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={handleLogTest}
                   >
                     Log First Test
                   </Button>
@@ -260,7 +333,7 @@ const Dashboard = () => {
                   ))}
                   <Button 
                     className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={handleAddTask}
                   >
                     ADD TASK
                   </Button>
@@ -271,7 +344,7 @@ const Dashboard = () => {
                   <p className="text-gray-400 mb-4">No upcoming maintenance tasks</p>
                   <Button 
                     className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={handleAddTask}
                   >
                     Add Task
                   </Button>
@@ -290,12 +363,10 @@ const Dashboard = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-700 rounded-lg border border-gray-600">
                 <div className="flex items-center space-x-3">
-                  <Filter className="h-6 w-6 text-cyan-400" />
+                  <ShoppingCart className="h-6 w-6 text-cyan-400" />
                   <div>
-                    <div className="text-white font-medium">Canister Filter</div>
-                    <div className="w-32 h-2 bg-gray-600 rounded-full mt-2">
-                      <div className="w-3/4 h-2 bg-cyan-500 rounded-full"></div>
-                    </div>
+                    <div className="text-white font-medium">Recommended Products</div>
+                    <div className="text-gray-400 text-sm">Browse aquarium supplies</div>
                   </div>
                 </div>
                 <Button
@@ -311,11 +382,16 @@ const Dashboard = () => {
                 className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
                 onClick={() => navigate('/shopping')}
               >
-                ADD TASK
+                BROWSE PRODUCTS
               </Button>
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Recommended Products Section */}
+      <div className="px-6 pb-6">
+        <RecommendedProducts />
       </div>
     </div>
   );
