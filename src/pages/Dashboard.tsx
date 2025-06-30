@@ -11,6 +11,7 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
 import { SystemHealthBar } from "@/components/dashboard/SystemHealthBar";
 import { toast } from "@/hooks/use-toast";
+import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -100,6 +101,9 @@ const Dashboard = () => {
 
   return (
     <div className="container mx-auto px-6 py-8 space-y-8">
+      {/* Sponsorship Banner */}
+      <SponsorshipBanner page="dashboard" />
+
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold tracking-tight">Welcome to Your Dashboard</h1>

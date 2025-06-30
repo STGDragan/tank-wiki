@@ -14,7 +14,6 @@ import WishlistTab from "@/components/aquarium/WishlistTab";
 import { TimelineTab } from "@/components/aquarium/TimelineTab";
 import { AquariumRecommendationsContainer } from "@/components/aquarium/AquariumRecommendationsContainer";
 import { JournalTab } from "@/components/aquarium/JournalTab";
-import { LogTab } from "@/components/aquarium/LogTab";
 import { WizardProgressTracker } from "@/components/aquarium/WizardProgressTracker";
 import { TankHealthIndicator } from "@/components/aquarium/TankHealthIndicator";
 
@@ -94,7 +93,7 @@ const AquariumDetail = () => {
         />
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10 bg-white/80 backdrop-blur-sm border shadow-sm dark:bg-slate-800/80 dark:border-slate-700">
+          <TabsList className="grid w-full grid-cols-9 bg-white/80 backdrop-blur-sm border shadow-sm dark:bg-slate-800/80 dark:border-slate-700">
             <TabsTrigger value="overview" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Overview</TabsTrigger>
             <TabsTrigger value="progress" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Progress</TabsTrigger>
             <TabsTrigger value="livestock" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Livestock</TabsTrigger>
@@ -104,7 +103,6 @@ const AquariumDetail = () => {
             <TabsTrigger value="timeline" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Timeline</TabsTrigger>
             <TabsTrigger value="wishlist" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Wishlist</TabsTrigger>
             <TabsTrigger value="journal" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Journal</TabsTrigger>
-            <TabsTrigger value="log" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-300">Activity Log</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -213,21 +211,6 @@ const AquariumDetail = () => {
               livestock={livestock}
               waterParameters={waterParameters}
               equipment={equipment}
-            />
-          </TabsContent>
-
-          <TabsContent value="log">
-            <LogTab
-              aquariumId={aquarium.id}
-              canEdit={canEdit}
-              userId={user.id}
-              tasks={tasks}
-              livestock={livestock}
-              waterParameters={waterParameters}
-              equipment={equipment}
-              journalEntries={journalEntries}
-              aquariumType={aquarium.type}
-              medications={medications}
             />
           </TabsContent>
         </Tabs>

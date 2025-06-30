@@ -13,28 +13,28 @@ export const QuickActions = () => {
       description: "Create a new tank",
       icon: Plus,
       action: () => navigate("/aquariums/new"),
-      color: "text-blue-400 bg-blue-900/30 hover:bg-blue-800/40 border-blue-700/50"
+      color: "text-blue-100 bg-blue-600/40 hover:bg-blue-600/60 border-blue-400/60"
     },
     {
       title: "Log Parameters",
       description: "Record water tests",
       icon: TestTube,
       action: () => navigate("/dashboard"),
-      color: "text-green-400 bg-green-900/30 hover:bg-green-800/40 border-green-700/50"
+      color: "text-green-100 bg-green-600/40 hover:bg-green-600/60 border-green-400/60"
     },
     {
       title: "Schedule Maintenance",
       description: "Plan tank care",
       icon: Calendar,
       action: () => navigate("/dashboard"),
-      color: "text-cyan-400 bg-cyan-900/30 hover:bg-cyan-800/40 border-cyan-700/50"
+      color: "text-cyan-100 bg-cyan-600/40 hover:bg-cyan-600/60 border-cyan-400/60"
     },
     {
       title: "Add Equipment",
       description: "Track new gear",
       icon: Wrench,
       action: () => navigate("/dashboard"),
-      color: "text-purple-400 bg-purple-900/30 hover:bg-purple-800/40 border-purple-700/50"
+      color: "text-purple-100 bg-purple-600/40 hover:bg-purple-600/60 border-purple-400/60"
     }
   ];
 
@@ -54,7 +54,7 @@ export const QuickActions = () => {
             <action.icon className="h-6 w-6" />
             <div className="text-center">
               <div className="font-medium text-sm">{action.title}</div>
-              <div className="text-xs opacity-75">{action.description}</div>
+              <div className="text-xs opacity-90">{action.description}</div>
             </div>
           </Button>
         ))}

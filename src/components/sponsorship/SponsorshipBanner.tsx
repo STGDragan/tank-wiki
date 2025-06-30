@@ -1,7 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -71,6 +70,7 @@ export const SponsorshipBanner = ({
     return () => clearInterval(interval);
   }, [autoScroll, sponsorships.length, scrollInterval]);
 
+  // Don't render if loading or no sponsorships
   if (isLoading || sponsorships.length === 0) {
     return null;
   }
@@ -83,9 +83,6 @@ export const SponsorshipBanner = ({
       <div className="relative px-6">
         <div className="flex items-center justify-center max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-xs bg-white/90 text-gray-800 font-medium">
-              SPONSORED
-            </Badge>
             <div 
               className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => window.open(currentSponsorship.sponsor_url, '_blank')}
