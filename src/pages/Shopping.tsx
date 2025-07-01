@@ -2,52 +2,62 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ProductCard } from "@/components/shopping/ProductCard";
-import { FilterSidebar } from "@/components/shopping/FilterSidebar";
-import { MobileFilterDialog } from "@/components/shopping/MobileFilterDialog";
-import { SearchBar } from "@/components/shopping/SearchBar";
-import { SortingControls } from "@/components/shopping/SortingControls";
+import ProductCard from "@/components/shopping/ProductCard";
+import FilterSidebar from "@/components/shopping/FilterSidebar";
+import MobileFilterDialog from "@/components/shopping/MobileFilterDialog";
+import SearchBar from "@/components/shopping/SearchBar";
+import SortingControls from "@/components/shopping/SortingControls";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image_url: string;
-  category: string;
-  subcategory: string;
-  brand: string;
-  availability: string;
-  is_featured: boolean;
-  compatibility_tags: string[];
-  affiliate_links: Array<{
+type Product = Tables<'products'> & {
+  affiliate_links?: Array<{
     provider: string;
     link_url: string;
   }>;
-}
+  category_info?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  compatibility_tags?: Array<{
+    id: string;
+    name: string;
+    tag_type: string;
+  }>;
+};
 
 interface FilterState {
   categories: string[];
+  subcategories: string[];
   priceRange: [number, number];
-  brands: string[];
-  availability: string[];
+  tags: string[];
+  condition: string[];
+  tankTypes: string[];
+  sizeClass: string[];
+  temperament: string[];
+  difficultyLevel: string[];
   compatibilityTags: string[];
 }
 
 const Shopping = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState<'popularity' | 'price_low' | 'price_high' | 'newest' | 'name'>("name");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>("grid");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
+    subcategories: [],
     priceRange: [0, 1000],
-    brands: [],
-    availability: [],
+    tags: [],
+    condition: [],
+    tankTypes: [],
+    sizeClass: [],
+    temperament: [],
+    difficultyLevel: [],
     compatibilityTags: [],
   });
 
@@ -71,6 +81,39 @@ const Shopping = () => {
     },
   });
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["product-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_categories_new")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: compatibilityTags = [] } = useQuery({
+    queryKey: ["compatibility-tags"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("compatibility_tags")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const maxPrice = useMemo(() => {
+    if (products.length === 0) return 1000;
+    return Math.max(...products.map(p => p.regular_price || 0));
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     let filtered = products.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -78,43 +121,54 @@ const Shopping = () => {
         product.brand?.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory = filters.categories.length === 0 || 
-        filters.categories.includes(product.category);
+        filters.categories.includes(product.category || '');
 
-      const matchesPrice = product.price >= filters.priceRange[0] && 
-        product.price <= filters.priceRange[1];
+      const effectivePrice = product.regular_price || 0;
+      const matchesPrice = effectivePrice >= filters.priceRange[0] && 
+        effectivePrice <= filters.priceRange[1];
 
-      const matchesBrand = filters.brands.length === 0 || 
-        filters.brands.includes(product.brand || '');
+      const matchesBrand = filters.tags.length === 0 || 
+        filters.tags.includes(product.brand || '');
 
-      const matchesAvailability = filters.availability.length === 0 || 
-        filters.availability.includes(product.availability || '');
+      const matchesCondition = filters.condition.length === 0 || 
+        filters.condition.includes(product.condition || '');
 
-      const matchesCompatibility = filters.compatibilityTags.length === 0 ||
-        filters.compatibilityTags.some(tag => 
-          product.compatibility_tags?.includes(tag)
-        );
+      const matchesTankTypes = filters.tankTypes.length === 0 ||
+        (product.tank_types && filters.tankTypes.some(type => 
+          product.tank_types?.includes(type)
+        ));
 
       return matchesSearch && matchesCategory && matchesPrice && 
-             matchesBrand && matchesAvailability && matchesCompatibility;
+             matchesBrand && matchesCondition && matchesTankTypes;
     });
 
     // Sort products
     filtered.sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
-        case "price":
-          comparison = a.price - b.price;
+        case "price_low":
+          comparison = (a.regular_price || 0) - (b.regular_price || 0);
+          break;
+        case "price_high":
+          comparison = (b.regular_price || 0) - (a.regular_price || 0);
+          break;
+        case "newest":
+          comparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
           break;
         case "name":
         default:
           comparison = a.name.localeCompare(b.name);
           break;
       }
-      return sortOrder === "desc" ? -comparison : comparison;
+      return comparison;
     });
 
     return filtered;
-  }, [products, searchQuery, sortBy, sortOrder, filters]);
+  }, [products, searchQuery, sortBy, filters]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
 
   return (
     <div className="bg-gray-900 text-white min-h-screen">
@@ -135,7 +189,9 @@ const Shopping = () => {
               <FilterSidebar 
                 filters={filters} 
                 onFiltersChange={setFilters}
-                products={products}
+                categories={categories}
+                compatibilityTags={compatibilityTags}
+                maxPrice={maxPrice}
               />
             </div>
 
@@ -145,8 +201,7 @@ const Shopping = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                 <div className="flex-1 max-w-md">
                   <SearchBar 
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
+                    onSearch={handleSearch}
                   />
                 </div>
                 
@@ -163,16 +218,12 @@ const Shopping = () => {
                   
                   <SortingControls
                     sortBy={sortBy}
-                    sortOrder={sortOrder}
                     onSortChange={setSortBy}
-                    onOrderChange={setSortOrder}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    resultCount={filteredProducts.length}
                   />
                 </div>
-              </div>
-
-              {/* Results Count */}
-              <div className="text-sm text-gray-400">
-                {isLoading ? "Loading..." : `${filteredProducts.length} products found`}
               </div>
 
               {/* Products Grid */}
@@ -203,11 +254,13 @@ const Shopping = () => {
 
       {/* Mobile Filter Dialog */}
       <MobileFilterDialog
-        isOpen={isMobileFilterOpen}
-        onClose={() => setIsMobileFilterOpen(false)}
+        open={isMobileFilterOpen}
+        onOpenChange={setIsMobileFilterOpen}
         filters={filters}
         onFiltersChange={setFilters}
-        products={products}
+        categories={categories}
+        compatibilityTags={compatibilityTags}
+        maxPrice={maxPrice}
       />
     </div>
   );
