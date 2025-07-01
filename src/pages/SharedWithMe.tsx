@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccessibleTanks } from "@/components/sharing/AccessibleTanks";
@@ -19,7 +19,7 @@ const SharedWithMe = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white">
+      <div className="bg-gray-900 text-white min-h-screen">
         <div className="space-y-8 p-6">
           <div className="flex items-center justify-between">
             <Skeleton className="h-8 w-48 bg-gray-800" />
@@ -35,7 +35,7 @@ const SharedWithMe = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="bg-gray-900 text-white min-h-screen">
       <div className="space-y-8 p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-white">Shared Tanks</h1>

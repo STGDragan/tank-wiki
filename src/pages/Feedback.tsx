@@ -5,7 +5,7 @@ import { Bug, Lightbulb, MessageSquare, AlertTriangle } from "lucide-react";
 
 const Feedback = () => {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="bg-gray-900 text-white min-h-screen">
       <div className="container mx-auto px-4 py-8 space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-white">We Value Your Feedback</h1>

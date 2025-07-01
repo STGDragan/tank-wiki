@@ -68,7 +68,7 @@ const KnowledgeBase = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="bg-gray-900 text-white min-h-screen">
       <div className="space-y-8 p-6">
         <div className="w-full h-[250px] rounded-lg overflow-hidden">
           <SlideshowSection context="knowledge-base" />

@@ -4,7 +4,6 @@ import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PlusCircle, Fish, Droplets, Wrench, TestTube, Filter } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
@@ -66,12 +65,12 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   
   return (
     <>
-      <Card>
+      <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>Quick Add</CardTitle>
-              <CardDescription>Quickly log activities or add livestock to your aquariums.</CardDescription>
+              <CardTitle className="text-white text-xl">Quick Add</CardTitle>
+              <CardDescription className="text-gray-400">Quickly log activities or add livestock to your aquariums.</CardDescription>
             </div>
             <VolumeUnitSelector />
           </div>
@@ -88,7 +87,7 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
             </SelectContent>
           </Select>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
               {quickActions.map((action) => (
                   <Button 
                       key={action.id}

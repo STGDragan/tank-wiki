@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/providers/AuthProvider";
-import { Footer } from "@/components/layout/Footer";
+import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -31,26 +31,23 @@ function App() {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <div className="min-h-screen bg-gray-900 flex flex-col">
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/aquarium/:id" element={<AquariumDetail />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/admin/shopping" element={<AdminShoppingManager />} />
-                  <Route path="/knowledge-base" element={<KnowledgeBase />} />
-                  <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
-                  <Route path="/shopping" element={<Shopping />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/feedback" element={<Feedback />} />
-                  <Route path="/shared-with-me" element={<SharedWithMe />} />
-                  <Route path="/legal/:type" element={<LegalPage />} />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/aquarium/:id" element={<AquariumDetail />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/admin/shopping" element={<AdminShoppingManager />} />
+                <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
+                <Route path="/shopping" element={<Shopping />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/shared-with-me" element={<SharedWithMe />} />
+                <Route path="/legal/:type" element={<LegalPage />} />
+              </Route>
+            </Routes>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
