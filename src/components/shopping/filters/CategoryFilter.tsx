@@ -1,10 +1,6 @@
-
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FilterState } from "../FilterSidebar";
-import { Tables } from "@/integrations/supabase/types";
-
-type Category = Tables<'product_categories_new'>;
+import { FilterState, Category } from "../types";
 
 interface CategoryFilterProps {
   categories: Category[];

@@ -7,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import FilterSidebar, { FilterState } from "./FilterSidebar";
+import FilterSidebar from "./FilterSidebar";
+import { FilterState, Category } from "./types";
 import { Tables } from "@/integrations/supabase/types";
 
-type Category = Tables<'product_categories_new'>;
 type CompatibilityTag = Tables<'compatibility_tags'>;
 
 interface MobileFilterDialogProps {

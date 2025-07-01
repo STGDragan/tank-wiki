@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -6,22 +5,9 @@ import CategoryFilter from "./filters/CategoryFilter";
 import CheckboxFilter from "./filters/CheckboxFilter";
 import PriceRangeFilter from "./filters/PriceRangeFilter";
 import CompatibilityTagsFilter from "./filters/CompatibilityTagsFilter";
+import { FilterState, Category } from "./types";
 import { Tables } from "@/integrations/supabase/types";
 
-export interface FilterState {
-  categories: string[];
-  subcategories: string[];
-  priceRange: [number, number];
-  tags: string[];
-  condition: string[];
-  tankTypes: string[];
-  sizeClass: string[];
-  temperament: string[];
-  difficultyLevel: string[];
-  compatibilityTags: string[];
-}
-
-type Category = Tables<'product_categories_new'>;
 type CompatibilityTag = Tables<'compatibility_tags'>;
 
 interface FilterSidebarProps {

@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,39 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
-import { Tables } from "@/integrations/supabase/types";
-
-type Product = Tables<'products'> & {
-  affiliate_links?: Array<{
-    provider: string;
-    link_url: string;
-  }>;
-  category_info?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  compatibility_tags?: Array<{
-    id: string;
-    name: string;
-    tag_type: string;
-  }>;
-};
-
-type Category = Tables<'product_categories_new'>;
-
-interface FilterState {
-  categories: string[];
-  subcategories: string[];
-  priceRange: [number, number];
-  tags: string[];
-  condition: string[];
-  tankTypes: string[];
-  sizeClass: string[];
-  temperament: string[];
-  difficultyLevel: string[];
-  compatibilityTags: string[];
-}
+import { Product, Category, FilterState } from "@/components/shopping/types";
 
 const Shopping = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,7 +60,7 @@ const Shopping = () => {
         .order("name");
 
       if (error) throw error;
-      return data;
+      return data as Category[];
     },
   });
 
