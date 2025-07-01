@@ -280,7 +280,7 @@ const Dashboard = () => {
                       
                       <Button
                         onClick={() => navigate(`/aquarium/${aquarium.id}`)}
-                        className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
+                        className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white hover:shadow-[0_0_15px_rgba(6,182,212,0.4)]"
                       >
                         View Details
                       </Button>
