@@ -32,7 +32,7 @@ const Shopping = () => {
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
-    queryFn: async (): Promise<Product[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select(`
@@ -46,7 +46,12 @@ const Shopping = () => {
         .order("name");
 
       if (error) throw error;
-      return data as Product[];
+      
+      // Transform the data to match our simplified Product type
+      return (data || []).map(item => ({
+        ...item,
+        affiliate_links: item.affiliate_links || []
+      })) as Product[];
     },
   });
 
