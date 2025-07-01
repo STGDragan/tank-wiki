@@ -32,7 +32,7 @@ const Shopping = () => {
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Product[]> => {
       const { data, error } = await supabase
         .from("products")
         .select(`
@@ -47,8 +47,8 @@ const Shopping = () => {
 
       if (error) throw error;
       
-      // Return the data with proper typing
-      return (data || []).map(item => ({
+      // Explicitly cast to our Product type to avoid deep type instantiation
+      return (data as any[]).map(item => ({
         ...item,
         affiliate_links: item.affiliate_links || []
       })) as Product[];
