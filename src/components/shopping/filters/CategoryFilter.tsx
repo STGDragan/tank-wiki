@@ -2,19 +2,12 @@
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FilterState } from "../FilterSidebar";
+import { Tables } from "@/integrations/supabase/types";
 
-interface CategoryHierarchy {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  parent_id: string | null;
-  level: number;
-  path: string[];
-}
+type Category = Tables<'product_categories_new'>;
 
 interface CategoryFilterProps {
-  categories: CategoryHierarchy[];
+  categories: Category[];
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
 }
@@ -36,11 +29,7 @@ const CategoryFilter = ({ categories, filters, onFiltersChange }: CategoryFilter
       acc[cat.parent_id].push(cat);
     }
     return acc;
-  }, {} as Record<string, CategoryHierarchy[]>);
-
-  console.log('All categories:', categories);
-  console.log('Root categories:', rootCategories);
-  console.log('Subcategories by parent:', subcategoriesByParent);
+  }, {} as Record<string, Category[]>);
 
   return (
     <div className="space-y-3">

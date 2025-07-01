@@ -30,6 +30,8 @@ type Product = Tables<'products'> & {
   }>;
 };
 
+type Category = Tables<'product_categories_new'>;
+
 interface FilterState {
   categories: string[];
   subcategories: string[];
@@ -134,9 +136,8 @@ const Shopping = () => {
         filters.condition.includes(product.condition || '');
 
       const matchesTankTypes = filters.tankTypes.length === 0 ||
-        (product.tank_types && filters.tankTypes.some(type => 
-          product.tank_types?.includes(type)
-        ));
+        (product.tank_types && Array.isArray(product.tank_types) && 
+         filters.tankTypes.some(type => product.tank_types?.includes(type)));
 
       return matchesSearch && matchesCategory && matchesPrice && 
              matchesBrand && matchesCondition && matchesTankTypes;

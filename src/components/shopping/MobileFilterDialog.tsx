@@ -6,33 +6,17 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
 import FilterSidebar, { FilterState } from "./FilterSidebar";
+import { Tables } from "@/integrations/supabase/types";
 
-interface CategoryHierarchy {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  parent_id: string | null;
-  level: number;
-  path: string[];
-}
-
-interface CompatibilityTag {
-  id: string;
-  name: string;
-  description: string;
-  tag_type: string;
-}
+type Category = Tables<'product_categories_new'>;
+type CompatibilityTag = Tables<'compatibility_tags'>;
 
 interface MobileFilterDialogProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  categories: CategoryHierarchy[];
+  categories: Category[];
   compatibilityTags: CompatibilityTag[];
   maxPrice: number;
   open: boolean;
@@ -59,17 +43,6 @@ const MobileFilterDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="relative">
-          <Filter className="h-4 w-4 mr-2" />
-          Filters
-          {activeFilterCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full text-xs w-5 h-5 flex items-center justify-center">
-              {activeFilterCount}
-            </span>
-          )}
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Filter Products</DialogTitle>
@@ -91,4 +64,3 @@ const MobileFilterDialog = ({
 };
 
 export default MobileFilterDialog;
-
