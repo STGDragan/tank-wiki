@@ -47,7 +47,7 @@ const Shopping = () => {
 
       if (error) throw error;
       
-      // Transform the data to match our simplified Product type
+      // Return the data with proper typing
       return (data || []).map(item => ({
         ...item,
         affiliate_links: item.affiliate_links || []
