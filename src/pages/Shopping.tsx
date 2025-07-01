@@ -137,7 +137,7 @@ const Shopping = () => {
 
       const matchesTankTypes = filters.tankTypes.length === 0 ||
         (product.tank_types && Array.isArray(product.tank_types) && 
-         filters.tankTypes.some(type => product.tank_types?.includes(type)));
+         filters.tankTypes.some(type => (product.tank_types as string[])?.includes(type)));
 
       return matchesSearch && matchesCategory && matchesPrice && 
              matchesBrand && matchesCondition && matchesTankTypes;

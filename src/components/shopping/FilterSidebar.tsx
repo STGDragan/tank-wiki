@@ -1,8 +1,7 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import FilterSection from "./filters/FilterSection";
 import CategoryFilter from "./filters/CategoryFilter";
 import CheckboxFilter from "./filters/CheckboxFilter";
 import PriceRangeFilter from "./filters/PriceRangeFilter";
@@ -42,12 +41,16 @@ const FilterSidebar = ({
   maxPrice,
   isMobile = false 
 }: FilterSidebarProps) => {
-  const toggleArrayFilter = (key: keyof FilterState, value: string) => {
-    const currentArray = filters[key] as string[];
-    const newArray = currentArray.includes(value)
-      ? currentArray.filter(item => item !== value)
-      : [...currentArray, value];
-    onFiltersChange({ ...filters, [key]: newArray });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    price: true,
+    categories: true,
+    condition: true,
+    tankTypes: true,
+    compatibility: true,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   const clearAllFilters = () => {
@@ -77,63 +80,132 @@ const FilterSidebar = ({
         </button>
       </div>
 
-      <FilterSection title="Price Range">
-        <PriceRangeFilter
-          value={filters.priceRange}
-          onChange={(value) => onFiltersChange({ ...filters, priceRange: value })}
-          max={maxPrice}
-        />
-      </FilterSection>
+      <div className="space-y-4">
+        <div>
+          <button
+            onClick={() => toggleSection('price')}
+            className="flex w-full justify-between items-center text-left font-medium"
+          >
+            Price Range
+            <span className={`transform transition-transform ${openSections.price ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {openSections.price && (
+            <div className="mt-3">
+              <PriceRangeFilter
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                maxPrice={maxPrice}
+              />
+            </div>
+          )}
+        </div>
 
-      <Separator />
+        <Separator />
 
-      <FilterSection title="Categories">
-        <CategoryFilter
-          categories={categories}
-          filters={filters}
-          onFiltersChange={onFiltersChange}
-        />
-      </FilterSection>
+        <div>
+          <button
+            onClick={() => toggleSection('categories')}
+            className="flex w-full justify-between items-center text-left font-medium"
+          >
+            Categories
+            <span className={`transform transition-transform ${openSections.categories ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {openSections.categories && (
+            <div className="mt-3">
+              <CategoryFilter
+                categories={categories}
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </div>
+          )}
+        </div>
 
-      <Separator />
+        <Separator />
 
-      <FilterSection title="Condition">
-        <CheckboxFilter
-          options={[
-            { value: "new", label: "New" },
-            { value: "used", label: "Used" },
-            { value: "refurbished", label: "Refurbished" }
-          ]}
-          selectedValues={filters.condition}
-          onToggle={(value) => toggleArrayFilter('condition', value)}
-        />
-      </FilterSection>
+        <div>
+          <button
+            onClick={() => toggleSection('condition')}
+            className="flex w-full justify-between items-center text-left font-medium"
+          >
+            Condition
+            <span className={`transform transition-transform ${openSections.condition ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {openSections.condition && (
+            <div className="mt-3">
+              <CheckboxFilter
+                options={[
+                  { value: "new", label: "New" },
+                  { value: "used", label: "Used" },
+                  { value: "refurbished", label: "Refurbished" }
+                ]}
+                filterKey="condition"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </div>
+          )}
+        </div>
 
-      <Separator />
+        <Separator />
 
-      <FilterSection title="Tank Types">
-        <CheckboxFilter
-          options={[
-            { value: "freshwater", label: "Freshwater" },
-            { value: "saltwater", label: "Saltwater" },
-            { value: "reef", label: "Reef" },
-            { value: "planted", label: "Planted" },
-            { value: "nano", label: "Nano" }
-          ]}
-          selectedValues={filters.tankTypes}
-          onToggle={(value) => toggleArrayFilter('tankTypes', value)}
-        />
-      </FilterSection>
+        <div>
+          <button
+            onClick={() => toggleSection('tankTypes')}
+            className="flex w-full justify-between items-center text-left font-medium"
+          >
+            Tank Types
+            <span className={`transform transition-transform ${openSections.tankTypes ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {openSections.tankTypes && (
+            <div className="mt-3">
+              <CheckboxFilter
+                options={[
+                  { value: "freshwater", label: "Freshwater" },
+                  { value: "saltwater", label: "Saltwater" },
+                  { value: "reef", label: "Reef" },
+                  { value: "planted", label: "Planted" },
+                  { value: "nano", label: "Nano" }
+                ]}
+                filterKey="tankTypes"
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </div>
+          )}
+        </div>
 
-      <Separator />
+        <Separator />
 
-      <FilterSection title="Compatibility">
-        <CompatibilityTagsFilter
-          compatibilityTags={compatibilityTags}
-          selectedTags={filters.compatibilityTags}
-          onToggle={(value) => toggleArrayFilter('compatibilityTags', value)}
-        />
-      </FilterSection>
+        <div>
+          <button
+            onClick={() => toggleSection('compatibility')}
+            className="flex w-full justify-between items-center text-left font-medium"
+          >
+            Compatibility
+            <span className={`transform transition-transform ${openSections.compatibility ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+          {openSections.compatibility && (
+            <div className="mt-3">
+              <CompatibilityTagsFilter
+                compatibilityTags={compatibilityTags}
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 
