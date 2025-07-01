@@ -32,7 +32,7 @@ const Shopping = () => {
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
-    queryFn: async (): Promise<Product[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select(`
@@ -47,17 +47,45 @@ const Shopping = () => {
 
       if (error) throw error;
       
-      // Explicitly cast to our Product type to avoid deep type instantiation
-      return (data as any[]).map(item => ({
-        ...item,
+      // Transform the data to match our Product interface
+      const transformedProducts: Product[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        regular_price: item.regular_price,
+        sale_price: item.sale_price,
+        is_on_sale: item.is_on_sale,
+        sale_start_date: item.sale_start_date,
+        sale_end_date: item.sale_end_date,
+        image_url: item.image_url,
+        imageurls: item.imageurls,
+        brand: item.brand,
+        category: item.category,
+        subcategory: item.subcategory,
+        condition: item.condition,
+        tank_types: item.tank_types,
+        is_visible: item.is_visible,
+        is_livestock: item.is_livestock,
+        size_class: item.size_class,
+        temperament: item.temperament,
+        difficulty_level: item.difficulty_level,
+        max_size: item.max_size,
+        min_tank_size: item.min_tank_size,
+        track_inventory: item.track_inventory,
+        stock_quantity: item.stock_quantity,
+        low_stock_threshold: item.low_stock_threshold,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
         affiliate_links: item.affiliate_links || []
-      })) as Product[];
+      }));
+      
+      return transformedProducts;
     },
   });
 
   const { data: categories = [] } = useQuery({
     queryKey: ["product-categories"],
-    queryFn: async (): Promise<Category[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("product_categories_new")
         .select("*")
@@ -65,7 +93,21 @@ const Shopping = () => {
         .order("name");
 
       if (error) throw error;
-      return data;
+      
+      // Transform to match our Category interface
+      const transformedCategories: Category[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        slug: item.slug,
+        description: item.description,
+        parent_id: item.parent_id,
+        is_active: item.is_active,
+        display_order: item.display_order,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }));
+      
+      return transformedCategories;
     },
   });
 
@@ -79,7 +121,7 @@ const Shopping = () => {
         .order("name");
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
