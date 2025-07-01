@@ -32,7 +32,7 @@ const Shopping = () => {
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Product[]> => {
       const { data, error } = await supabase
         .from("products")
         .select(`
@@ -52,7 +52,7 @@ const Shopping = () => {
 
   const { data: categories = [] } = useQuery({
     queryKey: ["product-categories"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Category[]> => {
       const { data, error } = await supabase
         .from("product_categories_new")
         .select("*")
@@ -60,7 +60,7 @@ const Shopping = () => {
         .order("name");
 
       if (error) throw error;
-      return data as Category[];
+      return data;
     },
   });
 

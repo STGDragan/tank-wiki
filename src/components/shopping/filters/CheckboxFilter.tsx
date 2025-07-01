@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FilterState } from "../FilterSidebar";
+import { FilterState } from "../types";
 
 interface CheckboxOption {
   value: string;
@@ -29,12 +29,12 @@ const CheckboxFilter = ({ options, filterKey, filters, onFiltersChange }: Checkb
       {options.map((option) => (
         <div key={option.value} className="flex items-center space-x-2">
           <Checkbox
-            id={`${filterKey}-${option.value}`}
+            id={`${String(filterKey)}-${option.value}`}
             checked={(filters[filterKey] as string[]).includes(option.value)}
             onCheckedChange={() => toggleArrayFilter(filterKey, option.value)}
           />
           <label
-            htmlFor={`${filterKey}-${option.value}`}
+            htmlFor={`${String(filterKey)}-${option.value}`}
             className="text-sm font-medium leading-none cursor-pointer"
           >
             {option.label}
