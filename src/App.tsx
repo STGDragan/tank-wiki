@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AdminRoute } from "@/components/admin/AdminRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -19,6 +20,7 @@ import Feedback from "./pages/Feedback";
 import SharedWithMe from "./pages/SharedWithMe";
 import LegalPage from "./pages/LegalPage";
 import AdminShoppingManager from "./pages/admin/ShoppingManager";
+import AdminProducts from "./pages/admin/Products";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -38,7 +40,10 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/aquarium/:id" element={<AquariumDetail />} />
                 <Route path="/account" element={<Account />} />
-                <Route path="/admin/shopping" element={<AdminShoppingManager />} />
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin/shopping" element={<AdminShoppingManager />} />
+                  <Route path="/admin/products" element={<AdminProducts />} />
+                </Route>
                 <Route path="/knowledge-base" element={<KnowledgeBase />} />
                 <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
                 <Route path="/shopping" element={<Shopping />} />
