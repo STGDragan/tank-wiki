@@ -14,19 +14,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
 import SanitizeAmazonLinkButton from "./SanitizeAmazonLinkButton";
+import MultiCategorySelector from "./MultiCategorySelector";
+
+interface CategoryAssignment {
+  categoryId: string;
+  categoryName: string;
+  subcategory: string;
+}
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    category: "",
-    subcategory: "",
     brand: "",
     model: "",
     regular_price: "",
@@ -39,16 +43,46 @@ const AddProductDialog = () => {
     low_stock_threshold: "5",
     image_urls: [""],
     amazon_url: "",
-    visible: true,
   });
+
+  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[]>([
+    { categoryId: "", categoryName: "", subcategory: "" }
+  ]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addProductMutation = useMutation({
     mutationFn: async (productData: any) => {
-      const { error } = await supabase.from('products').insert([productData]);
-      if (error) throw error;
+      // Create the product first
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .insert([productData])
+        .select()
+        .single();
+      
+      if (productError) throw productError;
+
+      // Create category assignments
+      const validAssignments = categoryAssignments.filter(
+        assignment => assignment.categoryId && assignment.categoryName
+      );
+
+      if (validAssignments.length > 0) {
+        const assignments = validAssignments.map(assignment => ({
+          product_id: product.id,
+          category_id: assignment.categoryId,
+          subcategory_name: assignment.subcategory || null
+        }));
+
+        const { error: assignmentError } = await supabase
+          .from('product_category_assignments')
+          .insert(assignments);
+
+        if (assignmentError) throw assignmentError;
+      }
+
+      return product;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -65,8 +99,6 @@ const AddProductDialog = () => {
     setFormData({
       name: "",
       description: "",
-      category: "",
-      subcategory: "",
       brand: "",
       model: "",
       regular_price: "",
@@ -79,8 +111,8 @@ const AddProductDialog = () => {
       low_stock_threshold: "5",
       image_urls: [""],
       amazon_url: "",
-      visible: true,
     });
+    setCategoryAssignments([{ categoryId: "", categoryName: "", subcategory: "" }]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -95,10 +127,11 @@ const AddProductDialog = () => {
       stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : 0,
       low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold) : 5,
       image_url: filteredImageUrls[0] || null,
-      images: filteredImageUrls.length > 0 ? filteredImageUrls : null,
+      imageurls: filteredImageUrls.length > 0 ? filteredImageUrls : null,
+      visible: true, // Always visible when creating
     };
 
-    // Remove image_urls from the final data since we use image_url and images
+    // Remove image_urls from the final data since we use image_url and imageurls
     delete productData.image_urls;
 
     addProductMutation.mutate(productData);
@@ -137,7 +170,7 @@ const AddProductDialog = () => {
           Add Product
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Product</DialogTitle>
           <DialogDescription>
@@ -145,7 +178,7 @@ const AddProductDialog = () => {
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name*</Label>
@@ -177,35 +210,11 @@ const AddProductDialog = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Aquarium Equipment">Aquarium Equipment</SelectItem>
-                  <SelectItem value="Fish Food">Fish Food</SelectItem>
-                  <SelectItem value="Water Treatment">Water Treatment</SelectItem>
-                  <SelectItem value="Lighting">Lighting</SelectItem>
-                  <SelectItem value="Filtration">Filtration</SelectItem>
-                  <SelectItem value="Decoration">Decoration</SelectItem>
-                  <SelectItem value="Testing Kits">Testing Kits</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="subcategory">Subcategory</Label>
-              <Input
-                id="subcategory"
-                value={formData.subcategory}
-                onChange={(e) => handleInputChange('subcategory', e.target.value)}
-              />
-            </div>
-          </div>
+          {/* Categories & Subcategories */}
+          <MultiCategorySelector
+            value={categoryAssignments}
+            onChange={setCategoryAssignments}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="model">Model</Label>
@@ -349,15 +358,6 @@ const AddProductDialog = () => {
                 onCheckedChange={(checked) => handleInputChange('is_recommended', checked)}
               />
               <Label htmlFor="is_recommended">Recommended</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="visible"
-                checked={formData.visible}
-                onCheckedChange={(checked) => handleInputChange('visible', checked)}
-              />
-              <Label htmlFor="visible">Visible</Label>
             </div>
           </div>
 

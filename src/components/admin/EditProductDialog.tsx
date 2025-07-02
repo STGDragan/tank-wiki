@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import {
@@ -25,6 +25,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ProductImageManager } from "./ProductImageManager";
 import { Images, Package } from "lucide-react";
+import MultiCategorySelector from "./MultiCategorySelector";
+
+interface CategoryAssignment {
+  categoryId: string;
+  categoryName: string;
+  subcategory: string;
+}
 
 interface EditProductDialogProps {
   product: Tables<'products'> | null;
@@ -37,15 +44,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: '',
-    subcategory: '',
     brand: '',
     model: '',
     regular_price: '',
     sale_price: '',
     stock_quantity: '',
     condition: 'new',
-    visible: true,
     is_featured: false,
     is_recommended: false,
     is_on_sale: false,
@@ -53,23 +57,42 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     low_stock_threshold: '5'
   });
 
+  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[]>([
+    { categoryId: "", categoryName: "", subcategory: "" }
+  ]);
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch existing category assignments
+  const { data: existingAssignments } = useQuery({
+    queryKey: ["product-category-assignments", product?.id],
+    queryFn: async () => {
+      if (!product?.id) return [];
+      const { data, error } = await supabase
+        .from("product_category_assignments")
+        .select(`
+          *,
+          product_categories_new!inner(name)
+        `)
+        .eq("product_id", product.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!product?.id && open,
+  });
 
   useEffect(() => {
     if (product) {
       setFormData({
         name: product.name || '',
         description: product.description || '',
-        category: product.category || '',
-        subcategory: product.subcategory || '',
         brand: product.brand || '',
         model: product.model || '',
         regular_price: product.regular_price?.toString() || '',
         sale_price: product.sale_price?.toString() || '',
         stock_quantity: product.stock_quantity?.toString() || '',
         condition: product.condition || 'new',
-        visible: product.visible ?? true,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
         is_on_sale: product.is_on_sale || false,
@@ -79,19 +102,61 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     }
   }, [product]);
 
+  useEffect(() => {
+    if (existingAssignments && existingAssignments.length > 0) {
+      const assignments = existingAssignments.map(assignment => ({
+        categoryId: assignment.category_id || '',
+        categoryName: assignment.product_categories_new?.name || '',
+        subcategory: assignment.subcategory_name || ''
+      }));
+      setCategoryAssignments(assignments);
+    } else if (open) {
+      setCategoryAssignments([{ categoryId: "", categoryName: "", subcategory: "" }]);
+    }
+  }, [existingAssignments, open]);
+
   const updateProductMutation = useMutation({
     mutationFn: async (updates: Partial<Tables<'products'>>) => {
       if (!product) throw new Error("No product selected");
       
-      const { error } = await supabase
+      // Update the product
+      const { error: productError } = await supabase
         .from('products')
         .update(updates)
         .eq('id', product.id);
       
-      if (error) throw error;
+      if (productError) throw productError;
+
+      // Delete existing category assignments
+      const { error: deleteError } = await supabase
+        .from('product_category_assignments')
+        .delete()
+        .eq('product_id', product.id);
+      
+      if (deleteError) throw deleteError;
+
+      // Create new category assignments
+      const validAssignments = categoryAssignments.filter(
+        assignment => assignment.categoryId && assignment.categoryName
+      );
+
+      if (validAssignments.length > 0) {
+        const assignments = validAssignments.map(assignment => ({
+          product_id: product.id,
+          category_id: assignment.categoryId,
+          subcategory_name: assignment.subcategory || null
+        }));
+
+        const { error: assignmentError } = await supabase
+          .from('product_category_assignments')
+          .insert(assignments);
+
+        if (assignmentError) throw assignmentError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product-category-assignments'] });
       toast({ title: 'Product Updated', description: 'Product has been updated successfully.' });
       onOpenChange(false);
     },
@@ -111,15 +176,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     const updates: Partial<Tables<'products'>> = {
       name: formData.name,
       description: formData.description,
-      category: formData.category,
-      subcategory: formData.subcategory,
       brand: formData.brand,
       model: formData.model,
       regular_price: formData.regular_price ? parseFloat(formData.regular_price) : null,
       sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
       stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : null,
       condition: formData.condition,
-      visible: formData.visible,
       is_featured: formData.is_featured,
       is_recommended: formData.is_recommended,
       is_on_sale: formData.is_on_sale,
@@ -137,7 +199,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -180,25 +242,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="subcategory">Subcategory</Label>
-                <Input
-                  id="subcategory"
-                  value={formData.subcategory}
-                  onChange={(e) => setFormData(prev => ({ ...prev, subcategory: e.target.value }))}
-                />
-              </div>
-            </div>
+            {/* Categories & Subcategories */}
+            <MultiCategorySelector
+              productId={product.id}
+              value={categoryAssignments}
+              onChange={setCategoryAssignments}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -251,15 +300,6 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="visible"
-                  checked={formData.visible}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, visible: checked }))}
-                />
-                <Label htmlFor="visible">Visible in store</Label>
-              </div>
-
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_featured"

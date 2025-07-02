@@ -1,9 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Package } from "lucide-react";
+import { Package } from "lucide-react";
 import AddProductDialog from "./AddProductDialog";
-import { AmazonProductImportDialog } from "./AmazonProductImportDialog";
 
 export const AddProductForm = () => {
   return (
@@ -14,13 +12,12 @@ export const AddProductForm = () => {
           Product Creation Hub
         </CardTitle>
         <CardDescription className="font-mono">
-          Add new products manually or import from Amazon with automated affiliate link processing.
+          Add new products manually with automated category and subcategory management.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex gap-4">
           <AddProductDialog />
-          <AmazonProductImportDialog />
         </div>
       </CardContent>
     </Card>
