@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const RecommendedProducts = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['recommended-products'],
@@ -38,6 +40,18 @@ const RecommendedProducts = () => {
       return product.sale_price;
     }
     return product.regular_price;
+  };
+
+  const handleBuyNow = (product: any) => {
+    const affiliateUrl = product.affiliate_links?.[0]?.link_url;
+    if (affiliateUrl) {
+      window.open(affiliateUrl, '_blank');
+    } else {
+      toast({
+        title: "Coming Soon",
+        description: "Direct purchasing will be available soon!",
+      });
+    }
   };
 
   if (isLoading) {
@@ -120,14 +134,14 @@ const RecommendedProducts = () => {
                 >
                   View Details
                 </Button>
-                {product.affiliate_links?.[0]?.link_url && (
-                  <Button 
-                    size="sm"
-                    onClick={() => window.open(product.affiliate_links[0].link_url, '_blank')}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                )}
+                <Button 
+                  size="sm"
+                  onClick={() => handleBuyNow(product)}
+                  disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  Buy Now
+                </Button>
               </div>
             </CardContent>
           </Card>

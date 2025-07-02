@@ -3,10 +3,11 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, DollarSign, Info } from "lucide-react";
+import { ExternalLink, DollarSign, Info, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tables } from "@/integrations/supabase/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   product: Tables<'products'> & {
@@ -25,10 +26,12 @@ interface ProductCardProps {
       tag_type: string;
     }>;
   };
+  showBuyNow?: boolean;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const getEffectivePrice = () => {
     if (product.is_on_sale && product.sale_price && 
@@ -65,6 +68,18 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleCardClick = () => {
     navigate(`/product/${product.id}`);
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (affiliateUrl) {
+      window.open(affiliateUrl, '_blank');
+    } else {
+      toast({
+        title: "Coming Soon",
+        description: "Direct purchasing will be available soon!",
+      });
+    }
   };
 
   const handleAmazonClick = (e: React.MouseEvent) => {
@@ -242,18 +257,29 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
 
           {/* Action buttons */}
-          {affiliateUrl && (
-            <div className="flex justify-end pt-2">
+          <div className="flex gap-2 pt-2">
+            {showBuyNow && (
               <Button 
                 size="sm"
-                className="px-3"
+                className="flex-1"
+                onClick={handleBuyNow}
+                disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
+              >
+                <ShoppingCart className="h-4 w-4 mr-1" />
+                Buy Now
+              </Button>
+            )}
+            {affiliateUrl && !showBuyNow && (
+              <Button 
+                size="sm"
+                className="px-3 ml-auto"
                 onClick={handleAmazonClick}
               >
                 <ExternalLink className="h-4 w-4 mr-1" />
                 Buy Now
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
     </TooltipProvider>
