@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 import { Product, Category, FilterState } from "@/components/shopping/types";
+import { Tables } from "@/integrations/supabase/types";
 
 const Shopping = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,7 +31,8 @@ const Shopping = () => {
     compatibilityTags: [],
   });
 
-  const { data: products = [], isLoading } = useQuery({
+  // Fetch raw data from Supabase and keep it in the original format for ProductCard
+  const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -42,46 +44,48 @@ const Shopping = () => {
             link_url
           )
         `)
-        .eq('is_visible', true)
+        .eq('visible', true)
         .order("name");
 
       if (error) throw error;
-      
-      // Transform the data to match our Product interface
-      const transformedProducts: Product[] = (data || []).map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        regular_price: item.regular_price,
-        sale_price: item.sale_price,
-        is_on_sale: item.is_on_sale,
-        sale_start_date: item.sale_start_date,
-        sale_end_date: item.sale_end_date,
-        image_url: item.image_url,
-        imageurls: item.imageurls,
-        brand: item.brand,
-        category: item.category,
-        subcategory: item.subcategory,
-        condition: item.condition,
-        tank_types: item.tank_types,
-        is_visible: item.is_visible,
-        is_livestock: item.is_livestock,
-        size_class: item.size_class,
-        temperament: item.temperament,
-        difficulty_level: item.difficulty_level,
-        max_size: item.max_size,
-        min_tank_size: item.min_tank_size,
-        track_inventory: item.track_inventory,
-        stock_quantity: item.stock_quantity,
-        low_stock_threshold: item.low_stock_threshold,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        affiliate_links: item.affiliate_links || []
-      }));
-      
-      return transformedProducts;
+      return data || [];
     },
   });
+
+  // Transform raw products to our simplified Product interface for filtering
+  const products = useMemo(() => {
+    return rawProducts.map((item): Product => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      regular_price: item.regular_price,
+      sale_price: item.sale_price,
+      is_on_sale: item.is_on_sale,
+      sale_start_date: item.sale_start_date,
+      sale_end_date: item.sale_end_date,
+      image_url: item.image_url,
+      imageurls: Array.isArray(item.imageurls) ? item.imageurls as string[] : 
+                 typeof item.imageurls === 'string' ? [item.imageurls] : null,
+      brand: item.brand,
+      category: item.category,
+      subcategory: item.subcategory,
+      condition: item.condition,
+      tank_types: Array.isArray(item.tank_types) ? item.tank_types as string[] : null,
+      visible: item.visible,
+      is_livestock: item.is_livestock,
+      size_class: item.size_class,
+      temperament: item.temperament,
+      difficulty_level: item.difficulty_level,
+      max_size: item.max_size,
+      min_tank_size: item.min_tank_size,
+      track_inventory: item.track_inventory,
+      stock_quantity: item.stock_quantity,
+      low_stock_threshold: item.low_stock_threshold,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      affiliate_links: item.affiliate_links || []
+    }));
+  }, [rawProducts]);
 
   const { data: categories = [] } = useQuery({
     queryKey: ["product-categories"],
@@ -181,6 +185,13 @@ const Shopping = () => {
     return filtered;
   }, [products, searchQuery, sortBy, filters]);
 
+  // Create a mapping from filtered products back to raw products for ProductCard
+  const filteredRawProducts = useMemo(() => {
+    return filteredProducts.map(filteredProduct => 
+      rawProducts.find(rawProduct => rawProduct.id === filteredProduct.id)
+    ).filter(Boolean) as (Tables<'products'> & { affiliate_links?: Array<{ link_url: string; provider: string; }> })[];
+  }, [filteredProducts, rawProducts]);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
   };
@@ -250,7 +261,7 @@ const Shopping = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredProducts.map((product) => (
+                  {filteredRawProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>

@@ -16,7 +16,7 @@ export interface Product {
   subcategory?: string | null;
   condition?: string | null;
   tank_types?: string[] | null;
-  is_visible?: boolean | null;
+  visible?: boolean | null;
   is_livestock?: boolean | null;
   size_class?: string | null;
   temperament?: string | null;
