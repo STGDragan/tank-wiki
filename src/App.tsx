@@ -27,6 +27,7 @@ import AdminFeedback from "./pages/admin/Feedback";
 import AdminSubscriptionManager from "./pages/admin/SubscriptionManager";
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminSocialMedia from "./pages/admin/SocialMedia";
+import ArticleEditor from "./pages/admin/ArticleEditor";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,8 @@ function App() {
                 <Route element={<AdminRoute />}>
                   <Route path="/admin/products" element={<AdminProducts />} />
                   <Route path="/admin/knowledge-base" element={<AdminKnowledgeBase />} />
+                  <Route path="/admin/knowledge-base/article/new" element={<ArticleEditor />} />
+                  <Route path="/admin/knowledge-base/article/edit/:slug" element={<ArticleEditor />} />
                   <Route path="/admin/slideshow" element={<AdminSlideshow />} />
                   <Route path="/admin/legal" element={<AdminLegal />} />
                   <Route path="/admin/feedback" element={<AdminFeedback />} />
