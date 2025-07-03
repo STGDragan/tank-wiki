@@ -1,3 +1,4 @@
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -41,6 +42,7 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedConsumables, setSelectedConsumables] = useState<string[]>([]);
+  const [customType, setCustomType] = useState("");
   const [customBrand, setCustomBrand] = useState("");
   const [customModel, setCustomModel] = useState("");
 
@@ -59,6 +61,7 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
   const { isSubmitting } = form.formState;
   const watchedType = form.watch("type");
   const watchedBrand = form.watch("brand");
+  const watchedModel = form.watch("model");
 
   const currentEquipmentDefault = equipmentDefaults.find(eq => eq.type === watchedType);
   const currentBrandDefault = currentEquipmentDefault?.brands.find(brand => brand.name === watchedBrand);
@@ -66,11 +69,27 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
     consumable.compatibleEquipment.includes(watchedType)
   );
 
+  const handleTypeChange = (type: string) => {
+    form.setValue("type", type);
+    form.setValue("brand", "");
+    form.setValue("model", "");
+    if (type === "Other") {
+      setCustomType("");
+    }
+  };
+
   const handleBrandChange = (brand: string) => {
     form.setValue("brand", brand);
     form.setValue("model", "");
     if (brand === "Other") {
       setCustomBrand("");
+    }
+  };
+
+  const handleModelChange = (model: string) => {
+    form.setValue("model", model);
+    if (model === "Other") {
+      setCustomModel("");
     }
   };
 
@@ -88,8 +107,9 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
       return;
     }
 
+    const finalType = values.type === "Other" ? customType : values.type;
     const finalBrand = values.brand === "Other" ? customBrand : values.brand;
-    const finalModel = values.brand === "Other" ? customModel : values.model;
+    const finalModel = values.model === "Other" ? customModel : values.model;
 
     // Insert equipment
     const { data: equipment, error: equipmentError } = await supabase
@@ -97,7 +117,7 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
       .insert({
         aquarium_id: aquariumId,
         user_id: user.id,
-        type: values.type,
+        type: finalType,
         brand: finalBrand,
         model: finalModel || null,
         installed_at: values.installed_at ? values.installed_at.toISOString().split('T')[0] : null,
@@ -152,7 +172,7 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
           task: `Replace ${consumableName}`,
           due_date: dueDate.toISOString().split('T')[0],
           frequency: defaultFrequency,
-          notes: `Scheduled maintenance for ${finalBrand} ${finalModel || values.type}`,
+          notes: `Scheduled maintenance for ${finalBrand} ${finalModel || finalType}`,
         };
       });
 
@@ -180,10 +200,10 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Equipment Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormLabel className="font-display text-primary">Equipment Type</FormLabel>
+              <Select onValueChange={handleTypeChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="cyber-input">
                     <SelectValue placeholder="Select equipment type..." />
                   </SelectTrigger>
                 </FormControl>
@@ -200,16 +220,30 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
           )}
         />
 
+        {watchedType === "Other" && (
+          <FormItem>
+            <FormLabel className="font-display text-primary">Custom Equipment Type</FormLabel>
+            <FormControl>
+              <Input 
+                placeholder="Enter equipment type..."
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+                className="cyber-input"
+              />
+            </FormControl>
+          </FormItem>
+        )}
+
         {currentEquipmentDefault && (
           <FormField
             control={form.control}
             name="brand"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Brand</FormLabel>
+                <FormLabel className="font-display text-primary">Brand</FormLabel>
                 <Select onValueChange={handleBrandChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="cyber-input">
                       <SelectValue placeholder="Select brand..." />
                     </SelectTrigger>
                   </FormControl>
@@ -229,12 +263,13 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
 
         {watchedBrand === "Other" && (
           <FormItem>
-            <FormLabel>Custom Brand</FormLabel>
+            <FormLabel className="font-display text-primary">Custom Brand</FormLabel>
             <FormControl>
               <Input 
                 placeholder="Enter brand name..."
                 value={customBrand}
                 onChange={(e) => setCustomBrand(e.target.value)}
+                className="cyber-input"
               />
             </FormControl>
           </FormItem>
@@ -246,10 +281,10 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
             name="model"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Model</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel className="font-display text-primary">Model</FormLabel>
+                <Select onValueChange={handleModelChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="cyber-input">
                       <SelectValue placeholder="Select model..." />
                     </SelectTrigger>
                   </FormControl>
@@ -267,14 +302,15 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
           />
         )}
 
-        {watchedBrand === "Other" && (
+        {watchedModel === "Other" && (
           <FormItem>
-            <FormLabel>Custom Model</FormLabel>
+            <FormLabel className="font-display text-primary">Custom Model</FormLabel>
             <FormControl>
               <Input 
                 placeholder="Enter model name..."
                 value={customModel}
                 onChange={(e) => setCustomModel(e.target.value)}
+                className="cyber-input"
               />
             </FormControl>
           </FormItem>
@@ -295,8 +331,8 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
 
         {compatibleConsumables.length > 0 && (
           <div className="space-y-3">
-            <FormLabel>Consumables & Maintenance Items</FormLabel>
-            <p className="text-sm text-muted-foreground">
+            <FormLabel className="font-display text-primary">Consumables & Maintenance Items</FormLabel>
+            <p className="text-sm text-muted-foreground font-mono">
               Select items that need regular replacement/maintenance:
             </p>
             <div className="space-y-2">
@@ -307,7 +343,7 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
                     checked={selectedConsumables.includes(consumable.name)}
                     onCheckedChange={() => handleConsumableToggle(consumable.name)}
                   />
-                  <Label htmlFor={consumable.name} className="text-sm">
+                  <Label htmlFor={consumable.name} className="text-sm font-mono">
                     {consumable.name} 
                     <span className="text-muted-foreground ml-2">
                       (typically {consumable.maintenanceFrequency[0]})
@@ -324,16 +360,20 @@ export function EnhancedAddEquipmentForm({ aquariumId, aquariumType, onSuccess }
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes (Optional)</FormLabel>
+              <FormLabel className="font-display text-primary">Notes (Optional)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Any additional details..." {...field} />
+                <Textarea 
+                  placeholder="Any additional details..." 
+                  {...field} 
+                  className="cyber-input"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <Button type="submit" disabled={isSubmitting} className="w-full btn-primary">
           {isSubmitting ? "Adding..." : "Add Equipment"}
         </Button>
       </form>

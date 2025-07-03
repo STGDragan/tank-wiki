@@ -4,9 +4,10 @@ import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Fish, Droplets, Wrench, TestTube, Filter } from "lucide-react";
+import { PlusCircle, Fish, Droplets, Wrench, TestTube, Filter, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
+import { EnhancedAddEquipmentForm } from "@/components/aquarium/EnhancedAddEquipmentForm";
 import { QuickLogForm } from "./QuickLogForm";
 import { VolumeUnitSelector } from "./VolumeUnitSelector";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
@@ -21,26 +22,30 @@ const quickActions = [
   { 
     id: 'water_change', 
     label: 'Water Change', 
-    icon: <Droplets className="mr-2 h-4 w-4" />,
-    color: 'text-blue-500'
+    icon: <Droplets className="h-5 w-5" />,
+    color: 'text-blue-400 hover:text-blue-300',
+    bgColor: 'bg-blue-900/20 hover:bg-blue-800/30 border-blue-500/30 hover:border-blue-400/50'
   },
   { 
     id: 'water_test', 
     label: 'Water Test', 
-    icon: <TestTube className="mr-2 h-4 w-4" />,
-    color: 'text-green-500'
+    icon: <TestTube className="h-5 w-5" />,
+    color: 'text-green-400 hover:text-green-300',
+    bgColor: 'bg-green-900/20 hover:bg-green-800/30 border-green-500/30 hover:border-green-400/50'
   },
   { 
     id: 'clean_filter', 
     label: 'Clean Filter', 
-    icon: <Filter className="mr-2 h-4 w-4" />,
-    color: 'text-purple-500'
+    icon: <Filter className="h-5 w-5" />,
+    color: 'text-purple-400 hover:text-purple-300',
+    bgColor: 'bg-purple-900/20 hover:bg-purple-800/30 border-purple-500/30 hover:border-purple-400/50'
   },
   { 
     id: 'maintenance', 
     label: 'General Maintenance', 
-    icon: <Wrench className="mr-2 h-4 w-4" />,
-    color: 'text-orange-500'
+    icon: <Wrench className="h-5 w-5" />,
+    color: 'text-orange-400 hover:text-orange-300',
+    bgColor: 'bg-orange-900/20 hover:bg-orange-800/30 border-orange-500/30 hover:border-orange-400/50'
   },
 ];
 
@@ -48,6 +53,7 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   const [selectedAquariumId, setSelectedAquariumId] = useState<string>('');
   const [isQuickLogDialogOpen, setQuickLogDialogOpen] = useState(false);
   const [isLivestockDialogOpen, setLivestockDialogOpen] = useState(false);
+  const [isEquipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string>('');
   const { preferences } = useUserPreferences();
   
@@ -65,19 +71,21 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   
   return (
     <>
-      <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
+      <Card className="cyber-card glass-panel">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-white text-xl">Quick Add</CardTitle>
-              <CardDescription className="text-gray-400">Quickly log activities or add livestock to your aquariums.</CardDescription>
+              <CardTitle className="text-primary font-display">Quick Add</CardTitle>
+              <CardDescription className="text-muted-foreground font-mono">
+                Quickly log activities or add items to your aquariums.
+              </CardDescription>
             </div>
             <VolumeUnitSelector />
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <Select onValueChange={setSelectedAquariumId} value={selectedAquariumId}>
-            <SelectTrigger>
+            <SelectTrigger className="cyber-input">
               <SelectValue placeholder="Select an aquarium..." />
             </SelectTrigger>
             <SelectContent>
@@ -87,38 +95,56 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
             </SelectContent>
           </Select>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+          {/* First Row - Activities */}
+          <div>
+            <h4 className="text-sm font-display text-primary mb-3">Log Activities</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {quickActions.map((action) => (
-                  <Button 
-                      key={action.id}
-                      variant="outline"
-                      disabled={!selectedAquariumId}
-                      onClick={() => handleActionClick(action.id)}
-                      className="flex-col h-auto py-3"
-                  >
-                      <div className={action.color}>
-                        {action.icon}
-                      </div>
-                      <span className="text-xs mt-1">{action.label}</span>
-                  </Button>
-              ))}
-              <Button
+                <Button 
+                  key={action.id}
                   variant="outline"
                   disabled={!selectedAquariumId}
-                  onClick={() => setLivestockDialogOpen(true)}
-                  className="flex-col h-auto py-3"
+                  onClick={() => handleActionClick(action.id)}
+                  className={`flex-col h-20 p-3 border-2 transition-all duration-200 ${action.bgColor} ${action.color}`}
+                >
+                  {action.icon}
+                  <span className="text-xs mt-2 font-mono">{action.label}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Second Row - Add Items */}
+          <div>
+            <h4 className="text-sm font-display text-primary mb-3">Add Items</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                disabled={!selectedAquariumId}
+                onClick={() => setLivestockDialogOpen(true)}
+                className="flex-col h-20 p-3 border-2 transition-all duration-200 bg-cyan-900/20 hover:bg-cyan-800/30 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300"
               >
-                  <Fish className="mr-0 mb-1 h-4 w-4 text-green-500" />
-                  <span className="text-xs">Add Livestock</span>
+                <Fish className="h-5 w-5" />
+                <span className="text-xs mt-2 font-mono">Add Livestock</span>
               </Button>
+              <Button
+                variant="outline"
+                disabled={!selectedAquariumId}
+                onClick={() => setEquipmentDialogOpen(true)}
+                className="flex-col h-20 p-3 border-2 transition-all duration-200 bg-teal-900/20 hover:bg-teal-800/30 border-teal-500/30 hover:border-teal-400/50 text-teal-400 hover:text-teal-300"
+              >
+                <Plus className="h-5 w-5" />
+                <span className="text-xs mt-2 font-mono">Add Equipment</span>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <Dialog open={isQuickLogDialogOpen} onOpenChange={setQuickLogDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="cyber-card max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{getActionTitle()}</DialogTitle>
+            <DialogTitle className="font-display text-primary">{getActionTitle()}</DialogTitle>
           </DialogHeader>
           {selectedAquarium && (
             <QuickLogForm 
@@ -136,15 +162,30 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
       </Dialog>
       
       <Dialog open={isLivestockDialogOpen} onOpenChange={setLivestockDialogOpen}>
-        <DialogContent>
+        <DialogContent className="cyber-card">
           <DialogHeader>
-            <DialogTitle>Add Livestock</DialogTitle>
+            <DialogTitle className="font-display text-primary">Add Livestock</DialogTitle>
           </DialogHeader>
           {selectedAquarium && (
             <AddLivestockForm
               aquariumId={selectedAquarium.id}
               aquariumType={selectedAquarium.type}
               onSuccess={() => setLivestockDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEquipmentDialogOpen} onOpenChange={setEquipmentDialogOpen}>
+        <DialogContent className="cyber-card max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-primary">Add Equipment</DialogTitle>
+          </DialogHeader>
+          {selectedAquarium && (
+            <EnhancedAddEquipmentForm
+              aquariumId={selectedAquarium.id}
+              aquariumType={selectedAquarium.type}
+              onSuccess={() => setEquipmentDialogOpen(false)}
             />
           )}
         </DialogContent>
