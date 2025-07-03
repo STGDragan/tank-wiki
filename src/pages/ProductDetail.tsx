@@ -1,10 +1,11 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, ExternalLink, ShoppingCart, Heart, Package, Hash, DollarSign } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, ExternalLink, ShoppingCart, Heart, Package, Hash, DollarSign, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProductImageGallery } from "@/components/shopping/ProductImageGallery";
 
@@ -117,15 +118,15 @@ const ProductDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 mobile-nav-space">
         <div className="animate-pulse space-y-8">
-          <div className="h-8 bg-muted rounded w-1/4"></div>
+          <div className="h-8 bg-muted/50 rounded w-1/4 neon-border"></div>
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="aspect-square bg-muted rounded-lg"></div>
+            <div className="aspect-square bg-muted/50 rounded-lg neon-border"></div>
             <div className="space-y-4">
-              <div className="h-8 bg-muted rounded w-3/4"></div>
-              <div className="h-6 bg-muted rounded w-1/2"></div>
-              <div className="h-20 bg-muted rounded"></div>
+              <div className="h-8 bg-muted/50 rounded w-3/4 neon-border"></div>
+              <div className="h-6 bg-muted/50 rounded w-1/2 neon-border"></div>
+              <div className="h-20 bg-muted/50 rounded neon-border"></div>
             </div>
           </div>
         </div>
@@ -135,12 +136,16 @@ const ProductDetail = () => {
 
   if (error || !product) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-2xl font-bold text-muted-foreground mb-4">Product Not Found</h1>
-        <Button onClick={() => navigate('/shopping')} variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Shopping
-        </Button>
+      <div className="container mx-auto px-4 py-8 text-center mobile-nav-space">
+        <Card className="cyber-card glass-panel">
+          <CardContent className="pt-6">
+            <h1 className="text-2xl font-display font-bold text-muted-foreground mb-4">Product Not Found</h1>
+            <Button onClick={() => navigate('/shopping')} variant="outline" className="cyber-button">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Shopping
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -166,198 +171,209 @@ const ProductDetail = () => {
   const purchaseProvider = getPurchaseProvider();
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 mobile-nav-space">
       {/* Breadcrumb */}
       <Button
         variant="ghost"
         onClick={() => navigate('/shopping')}
-        className="mb-6 text-muted-foreground hover:text-foreground"
+        className="mb-6 text-muted-foreground hover:text-foreground cyber-button"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Shopping
       </Button>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Product Images - Updated to use new gallery component */}
-        <ProductImageGallery
-          images={images}
-          productName={product.name}
-          primaryImage={primaryImage}
-        />
+        {/* Product Images */}
+        <Card className="cyber-card glass-panel">
+          <CardContent className="p-6">
+            <ProductImageGallery
+              images={images}
+              productName={product.name}
+              primaryImage={primaryImage}
+            />
+          </CardContent>
+        </Card>
 
-        {/* Product Details - Keep existing code */}
+        {/* Product Details */}
         <div className="space-y-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              {product.category && (
-                <Badge variant="secondary">{product.category}</Badge>
-              )}
-              {product.subcategory && (
-                <Badge variant="outline">{product.subcategory}</Badge>
-              )}
-              {product.is_on_sale && (
-                <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-                  Sale
-                </Badge>
-              )}
-              {product.is_featured && (
-                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-                  Featured
-                </Badge>
-              )}
-            </div>
-            
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            
-            {product.brand && (
-              <p className="text-lg text-muted-foreground mb-4">by {product.brand}</p>
-            )}
-          </div>
-
-          {/* Pricing */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              {effectivePrice && (
-                <span className="text-3xl font-bold text-primary">
-                  ${effectivePrice.toFixed(2)}
-                </span>
-              )}
-              
-              {product.is_on_sale && originalCost && originalCost !== effectivePrice && (
-                <span className="text-xl text-muted-foreground line-through">
-                  ${originalCost.toFixed(2)}
-                </span>
-              )}
-            </div>
-            
-            {savings && (
-              <div className="text-green-600 font-medium">
-                Save ${savings.amount.toFixed(2)} ({savings.percentage}% off)
-              </div>
-            )}
-          </div>
-
-          {/* Stock Status and Inventory */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  Quantity: <span className="font-medium text-foreground">{product.stock_quantity || 0}</span>
-                </span>
+          <Card className="cyber-card glass-panel">
+            <CardHeader>
+              <div className="flex items-center gap-2 mb-2">
+                {product.category && (
+                  <Badge variant="secondary" className="neon-border">{product.category}</Badge>
+                )}
+                {product.subcategory && (
+                  <Badge variant="outline" className="neon-border">{product.subcategory}</Badge>
+                )}
+                {product.is_on_sale && (
+                  <Badge className="bg-red-100 text-red-800 hover:bg-red-100 neon-border">
+                    Sale
+                  </Badge>
+                )}
+                {product.is_featured && (
+                  <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 neon-border">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                )}
               </div>
               
-              {product.track_inventory && (
+              <CardTitle className="text-3xl font-display neon-text">{product.name}</CardTitle>
+              
+              {product.brand && (
+                <CardDescription className="text-lg font-mono">by {product.brand}</CardDescription>
+              )}
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Pricing */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  {effectivePrice && (
+                    <span className="text-3xl font-bold text-primary neon-text">
+                      ${effectivePrice.toFixed(2)}
+                    </span>
+                  )}
+                  
+                  {product.is_on_sale && originalCost && originalCost !== effectivePrice && (
+                    <span className="text-xl text-muted-foreground line-through font-mono">
+                      ${originalCost.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                
+                {savings && (
+                  <div className="text-green-400 font-medium font-mono neon-text">
+                    Save ${savings.amount.toFixed(2)} ({savings.percentage}% off)
+                  </div>
+                )}
+              </div>
+
+              {/* Stock Status */}
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${
-                    (product.stock_quantity || 0) > 0 ? 'bg-green-500' : 'bg-red-500'
-                  }`}></div>
-                  <span className={(product.stock_quantity || 0) > 0 ? 'text-green-600' : 'text-red-600'}>
-                    {(product.stock_quantity || 0) > 0 
-                      ? `${product.stock_quantity} in stock`
-                      : 'Out of stock'
-                    }
+                  <Package className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-mono">
+                    Quantity: <span className="font-medium text-primary">{product.stock_quantity || 0}</span>
                   </span>
                 </div>
-              )}
-            </div>
-          </div>
+                
+                {product.track_inventory && (
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${
+                      (product.stock_quantity || 0) > 0 ? 'bg-green-500' : 'bg-red-500'
+                    } glow`}></div>
+                    <span className={`font-mono ${(product.stock_quantity || 0) > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {(product.stock_quantity || 0) > 0 
+                        ? `${product.stock_quantity} in stock`
+                        : 'Out of stock'
+                      }
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={handlePurchase} 
+                    className="flex-1 cyber-button"
+                    disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    {purchaseProvider ? `Buy on ${purchaseProvider}` : 'Purchase'}
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                  
+                  <Button variant="outline" onClick={handleAddToWishlist} className="cyber-button">
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                {purchaseProvider && (
+                  <p className="text-sm text-muted-foreground text-center font-mono">
+                    Available at {purchaseProvider}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Description */}
           {product.description && (
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-3">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
+            <Card className="cyber-card glass-panel">
+              <CardHeader>
+                <CardTitle className="font-display text-primary">Description</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground leading-relaxed font-mono">
                   {product.description}
                 </p>
               </CardContent>
             </Card>
           )}
 
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <div className="flex gap-3">
-              <Button 
-                onClick={handlePurchase} 
-                className="flex-1"
-                disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
-              >
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                {purchaseProvider ? `Buy on ${purchaseProvider}` : 'Purchase'}
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Button>
-              
-              <Button variant="outline" onClick={handleAddToWishlist}>
-                <Heart className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            {purchaseProvider && (
-              <p className="text-sm text-muted-foreground text-center">
-                Available at {purchaseProvider}
-              </p>
-            )}
-          </div>
-
           {/* Product Details */}
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-4">Product Details</h3>
+          <Card className="cyber-card glass-panel">
+            <CardHeader>
+              <CardTitle className="font-display text-primary">Product Details</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-3">
                 {product.brand && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Brand:</span>
-                    <span>{product.brand}</span>
+                  <div className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-mono">Brand:</span>
+                    <span className="font-mono text-primary">{product.brand}</span>
                   </div>
                 )}
                 
                 {product.model && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Model:</span>
-                    <span>{product.model}</span>
+                  <div className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-mono">Model:</span>
+                    <span className="font-mono text-primary">{product.model}</span>
                   </div>
                 )}
                 
                 {originalCost && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground flex items-center gap-1">
+                  <div className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground flex items-center gap-1 font-mono">
                       <DollarSign className="h-4 w-4" />
                       Original Cost:
                     </span>
-                    <span className="font-medium">${originalCost.toFixed(2)}</span>
+                    <span className="font-medium font-mono text-primary">${originalCost.toFixed(2)}</span>
                   </div>
                 )}
                 
                 {asin && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground flex items-center gap-1">
+                  <div className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground flex items-center gap-1 font-mono">
                       <Hash className="h-4 w-4" />
                       ASIN:
                     </span>
-                    <span className="font-mono text-sm">{asin}</span>
+                    <span className="font-mono text-sm text-primary">{asin}</span>
                   </div>
                 )}
                 
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center gap-1">
+                <div className="flex justify-between border-b border-border/30 pb-2">
+                  <span className="text-muted-foreground flex items-center gap-1 font-mono">
                     <Package className="h-4 w-4" />
                     Stock Quantity:
                   </span>
-                  <span className="font-medium">{product.stock_quantity || 0}</span>
+                  <span className="font-medium font-mono text-primary">{product.stock_quantity || 0}</span>
                 </div>
                 
                 {product.condition && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Condition:</span>
-                    <span className="capitalize">{product.condition}</span>
+                  <div className="flex justify-between border-b border-border/30 pb-2">
+                    <span className="text-muted-foreground font-mono">Condition:</span>
+                    <span className="capitalize font-mono text-primary">{product.condition}</span>
                   </div>
                 )}
                 
                 {product.sku && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">SKU:</span>
-                    <span className="font-mono text-sm">{product.sku}</span>
+                    <span className="text-muted-foreground font-mono">SKU:</span>
+                    <span className="font-mono text-sm text-primary">{product.sku}</span>
                   </div>
                 )}
               </div>

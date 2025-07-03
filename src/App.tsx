@@ -19,7 +19,6 @@ import ProductDetail from "./pages/ProductDetail";
 import Feedback from "./pages/Feedback";
 import SharedWithMe from "./pages/SharedWithMe";
 import LegalPage from "./pages/LegalPage";
-import AdminShoppingManager from "./pages/admin/ShoppingManager";
 import AdminProducts from "./pages/admin/Products";
 import "./App.css";
 
@@ -40,10 +39,6 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/aquarium/:id" element={<AquariumDetail />} />
                 <Route path="/account" element={<Account />} />
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin/shopping" element={<AdminShoppingManager />} />
-                  <Route path="/admin/products" element={<AdminProducts />} />
-                </Route>
                 <Route path="/knowledge-base" element={<KnowledgeBase />} />
                 <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
                 <Route path="/shopping" element={<Shopping />} />
@@ -51,6 +46,9 @@ function App() {
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/shared-with-me" element={<SharedWithMe />} />
                 <Route path="/legal/:type" element={<LegalPage />} />
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin/products" element={<AdminProducts />} />
+                </Route>
               </Route>
             </Routes>
           </AuthProvider>
