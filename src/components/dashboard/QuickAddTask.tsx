@@ -4,13 +4,12 @@ import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Fish, Droplets, Wrench, TestTube, Filter, Plus } from "lucide-react";
+import { Fish, Droplets, Wrench, TestTube, Filter, Plus, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
 import { EnhancedAddEquipmentForm } from "@/components/aquarium/EnhancedAddEquipmentForm";
+import { AddMaintenanceTaskForm } from "@/components/aquarium/AddMaintenanceTaskForm";
 import { QuickLogForm } from "./QuickLogForm";
-import { VolumeUnitSelector } from "./VolumeUnitSelector";
-import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 type Aquarium = Pick<Tables<'aquariums'>, 'id' | 'name' | 'type' | 'size'>;
 
@@ -54,8 +53,8 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   const [isQuickLogDialogOpen, setQuickLogDialogOpen] = useState(false);
   const [isLivestockDialogOpen, setLivestockDialogOpen] = useState(false);
   const [isEquipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
+  const [isMaintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string>('');
-  const { preferences } = useUserPreferences();
   
   const selectedAquarium = aquariums.find(aq => aq.id === selectedAquariumId);
 
@@ -73,14 +72,11 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
     <>
       <Card className="cyber-card glass-panel">
         <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-primary font-display">Quick Add</CardTitle>
-              <CardDescription className="text-muted-foreground font-mono">
-                Quickly log activities or add items to your aquariums.
-              </CardDescription>
-            </div>
-            <VolumeUnitSelector />
+          <div>
+            <CardTitle className="text-primary font-display">Quick Add</CardTitle>
+            <CardDescription className="text-muted-foreground font-mono">
+              Quickly log activities or add items to your aquariums.
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -95,10 +91,10 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
             </SelectContent>
           </Select>
 
-          {/* First Row - Activities */}
+          {/* Log Activities Section */}
           <div>
             <h4 className="text-sm font-display text-primary mb-3">Log Activities</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               {quickActions.map((action) => (
                 <Button 
                   key={action.id}
@@ -114,7 +110,7 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
             </div>
           </div>
 
-          {/* Second Row - Add Items */}
+          {/* Add Items Section */}
           <div>
             <h4 className="text-sm font-display text-primary mb-3">Add Items</h4>
             <div className="grid grid-cols-2 gap-3">
@@ -137,6 +133,20 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
                 <span className="text-xs mt-2 font-mono">Add Equipment</span>
               </Button>
             </div>
+          </div>
+
+          {/* Maintenance Section */}
+          <div>
+            <h4 className="text-sm font-display text-primary mb-3">Maintenance</h4>
+            <Button
+              variant="outline"
+              disabled={!selectedAquariumId}
+              onClick={() => setMaintenanceDialogOpen(true)}
+              className="w-full flex-col h-20 p-3 border-2 transition-all duration-200 bg-yellow-900/20 hover:bg-yellow-800/30 border-yellow-500/30 hover:border-yellow-400/50 text-yellow-400 hover:text-yellow-300"
+            >
+              <Calendar className="h-5 w-5" />
+              <span className="text-sm mt-2 font-mono">Add Task</span>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -186,6 +196,22 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
               aquariumId={selectedAquarium.id}
               aquariumType={selectedAquarium.type}
               onSuccess={() => setEquipmentDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMaintenanceDialogOpen} onOpenChange={setMaintenanceDialogOpen}>
+        <DialogContent className="cyber-card max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-primary">Add Maintenance Task</DialogTitle>
+          </DialogHeader>
+          {selectedAquarium && (
+            <AddMaintenanceTaskForm
+              aquariumId={selectedAquarium.id}
+              aquariumType={selectedAquarium.type}
+              aquariumSize={selectedAquarium.size}
+              onSuccess={() => setMaintenanceDialogOpen(false)}
             />
           )}
         </DialogContent>
