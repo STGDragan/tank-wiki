@@ -5,22 +5,20 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { DateSelector } from "./DateSelector";
-import { LivestockTypeSelector } from "./LivestockTypeSelector";
-import { CascadingSpeciesSelector } from "./CascadingSpeciesSelector";
-import { useState } from "react";
+import { CustomizableLivestockTypeSelector } from "./CustomizableLivestockTypeSelector";
+import { SpeciesCombobox } from "./species-selector/SpeciesCombobox";
+import { getAllSpecies, getCategorizedSpecies } from "@/data/species";
 
 const livestockFormSchema = z.object({
-  livestockType: z.string().min(1, "Livestock type is required."),
+  type: z.string().min(1, "Type is required."),
   species: z.string().min(1, "Species is required."),
   name: z.string().optional(),
-  quantity: z.coerce.number().int().min(1, "Quantity must be at least 1."),
-  added_at: z.date({ required_error: "Date added is required."}),
+  quantity: z.number().min(1, "Quantity must be at least 1."),
   notes: z.string().optional(),
 });
 
@@ -28,40 +26,28 @@ type LivestockFormValues = z.infer<typeof livestockFormSchema>;
 
 interface AddLivestockFormProps {
   aquariumId: string;
-  aquariumType: string | null;
+  aquariumType?: string | null;
   onSuccess: () => void;
-  initialData?: Partial<LivestockFormValues>;
 }
 
-export function AddLivestockForm({ 
-  aquariumId, 
-  aquariumType, 
-  onSuccess, 
-  initialData 
-}: AddLivestockFormProps) {
+export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLivestockFormProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const form = useForm<LivestockFormValues>({
     resolver: zodResolver(livestockFormSchema),
     defaultValues: {
-      livestockType: initialData?.livestockType || "",
-      species: initialData?.species || "",
-      name: initialData?.name || "",
-      quantity: initialData?.quantity || 1,
-      added_at: initialData?.added_at || new Date(),
-      notes: initialData?.notes || "",
+      type: "",
+      species: "",
+      name: "",
+      quantity: 1,
+      notes: "",
     },
   });
 
   const { isSubmitting } = form.formState;
-  const watchedLivestockType = form.watch("livestockType");
-
-  // Reset species when livestock type changes
-  const handleLivestockTypeChange = (type: string) => {
-    form.setValue("livestockType", type);
-    form.setValue("species", "");
-  };
+  const allSpecies = getAllSpecies();
+  const categorizedSpecies = getCategorizedSpecies();
 
   async function onSubmit(values: LivestockFormValues) {
     if (!user) {
@@ -72,20 +58,21 @@ export function AddLivestockForm({
     const { error } = await supabase.from("livestock").insert({
       aquarium_id: aquariumId,
       user_id: user.id,
+      type: values.type,
       species: values.species,
       name: values.name || null,
       quantity: values.quantity,
       notes: values.notes || null,
-      added_at: values.added_at.toISOString(),
     });
 
     if (error) {
       toast({ title: "Error adding livestock", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Success", description: "Livestock added successfully." });
-      await queryClient.invalidateQueries({ queryKey: ['livestock', aquariumId] });
-      onSuccess();
+      return;
     }
+
+    toast({ title: "Success", description: "Livestock added successfully." });
+    await queryClient.invalidateQueries({ queryKey: ['livestock', aquariumId] });
+    onSuccess();
   }
 
   return (
@@ -93,13 +80,16 @@ export function AddLivestockForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="livestockType"
+          name="type"
           render={({ field }) => (
-            <LivestockTypeSelector
-              value={field.value}
-              onChange={handleLivestockTypeChange}
-              aquariumType={aquariumType}
-            />
+            <FormItem>
+              <CustomizableLivestockTypeSelector
+                value={field.value}
+                onChange={field.onChange}
+                label="Type"
+              />
+              <FormMessage />
+            </FormItem>
           )}
         />
 
@@ -107,70 +97,70 @@ export function AddLivestockForm({
           control={form.control}
           name="species"
           render={({ field }) => (
-            <CascadingSpeciesSelector
-              value={field.value}
-              onChange={field.onChange}
-              livestockType={watchedLivestockType}
-              aquariumType={aquariumType}
-            />
+            <FormItem>
+              <FormLabel className="font-display text-primary">Species</FormLabel>
+              <FormControl>
+                <SpeciesCombobox
+                  value={field.value}
+                  onChange={field.onChange}
+                  allSpecies={allSpecies}
+                  categorizedSpecies={categorizedSpecies}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name (Optional)</FormLabel>
+              <FormLabel className="font-display text-primary">Name (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Nemo" {...field} />
+                <Input placeholder="Give your livestock a name..." {...field} className="cyber-input" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="quantity"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Quantity</FormLabel>
+              <FormLabel className="font-display text-primary">Quantity</FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <Input
+                  type="number"
+                  min="1"
+                  {...field}
+                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  className="cyber-input"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
-        <FormField
-          control={form.control}
-          name="added_at"
-          render={({ field }) => (
-            <DateSelector
-              value={field.value}
-              onChange={field.onChange}
-              label="Date Added"
-            />
-          )}
-        />
-        
+
         <FormField
           control={form.control}
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes (Optional)</FormLabel>
+              <FormLabel className="font-display text-primary">Notes (Optional)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Any extra details..." {...field} />
+                <Textarea placeholder="Any additional details..." {...field} className="cyber-input" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+
+        <Button type="submit" disabled={isSubmitting} className="w-full btn-primary">
           {isSubmitting ? "Adding..." : "Add Livestock"}
         </Button>
       </form>

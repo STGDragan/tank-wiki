@@ -1,10 +1,9 @@
-
 import { useAuth } from "@/providers/AuthProvider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Fish, Calendar, Trash2 } from "lucide-react";
+import { Fish, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
 import { toast } from "@/hooks/use-toast";
@@ -12,6 +11,7 @@ import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
 import { TankHealthIndicator } from "@/components/aquarium/TankHealthIndicator";
 import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
+import { UpcomingMaintenanceTracker } from "@/components/dashboard/UpcomingMaintenanceTracker";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -228,52 +228,12 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Maintenance Section - Full Width */}
-        <div className="w-full">
-          <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-white text-xl">Maintenance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {upcomingTasks.length > 0 ? (
-                  <>
-                    {upcomingTasks.slice(0, 3).map((task) => (
-                      <div key={task.id} className="flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0">
-                        <div>
-                          <div className="text-white font-medium">{task.task}</div>
-                          <div className="text-gray-400 text-sm">{task.aquariums?.name}</div>
-                        </div>
-                        <div className="text-gray-400 text-sm">
-                          {task.due_date === new Date().toISOString().split('T')[0] ? 'Today' : 
-                           task.due_date === new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] ? 'Tomorrow' :
-                           new Date(task.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </div>
-                      </div>
-                    ))}
-                    <Button 
-                      className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
-                      onClick={handleAddTask}
-                    >
-                      ADD TASK
-                    </Button>
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <p className="text-gray-400 mb-4">No upcoming maintenance tasks</p>
-                    <Button 
-                      className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                      onClick={handleAddTask}
-                    >
-                      Add Task
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Upcoming Maintenance Section - Full Width */}
+        {aquariums.length > 0 && (
+          <div className="w-full">
+            <UpcomingMaintenanceTracker aquariums={aquariums} />
+          </div>
+        )}
 
         {/* Recommended Products Section */}
         <div>
