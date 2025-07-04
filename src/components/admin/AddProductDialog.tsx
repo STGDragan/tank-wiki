@@ -1,375 +1,325 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { Plus, X } from "lucide-react";
-import SanitizeAmazonLinkButton from "./SanitizeAmazonLinkButton";
-import MultiCategorySelector from "./MultiCategorySelector";
+import { Plus } from "lucide-react";
+import CategorySelector from "./CategorySelector";
+import SubcategorySelector from "./SubcategorySelector";
 
-interface CategoryAssignment {
-  categoryId: string;
-  categoryName: string;
-  subcategory: string;
-}
+const productSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
+  subcategory: z.string().optional(),
+  brand: z.string().optional(),
+  regular_price: z.number().min(0, "Price must be positive").optional(),
+  sale_price: z.number().min(0, "Sale price must be positive").optional(),
+  is_on_sale: z.boolean().default(false),
+  condition: z.string().optional(),
+  visible: z.boolean().default(true),
+  is_featured: z.boolean().default(false),
+  is_recommended: z.boolean().default(false),
+});
+
+type ProductFormValues = z.infer<typeof productSchema>;
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    brand: "",
-    model: "",
-    regular_price: "",
-    sale_price: "",
-    is_on_sale: false,
-    is_featured: false,
-    is_recommended: false,
-    stock_quantity: "",
-    track_inventory: false,
-    low_stock_threshold: "5",
-    image_urls: [""],
-    amazon_url: "",
-  });
-
-  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[]>([
-    { categoryId: "", categoryName: "", subcategory: "" }
-  ]);
-
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const addProductMutation = useMutation({
-    mutationFn: async (productData: any) => {
-      // Create the product first
-      const { data: product, error: productError } = await supabase
-        .from('products')
-        .insert([productData])
-        .select()
-        .single();
-      
-      if (productError) throw productError;
-
-      // Create category assignments
-      const validAssignments = categoryAssignments.filter(
-        assignment => assignment.categoryId && assignment.categoryName
-      );
-
-      if (validAssignments.length > 0) {
-        const assignments = validAssignments.map(assignment => ({
-          product_id: product.id,
-          category_id: assignment.categoryId,
-          subcategory_name: assignment.subcategory || null
-        }));
-
-        const { error: assignmentError } = await supabase
-          .from('product_category_assignments')
-          .insert(assignments);
-
-        if (assignmentError) throw assignmentError;
-      }
-
-      return product;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast({ title: 'Product Added', description: 'The product has been successfully added.' });
-      setOpen(false);
-      resetForm();
-    },
-    onError: (error: Error) => {
-      toast({ title: 'Error adding product', description: error.message, variant: 'destructive' });
-    }
-  });
-
-  const resetForm = () => {
-    setFormData({
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
       name: "",
       description: "",
+      category: "",
+      subcategory: "",
       brand: "",
-      model: "",
-      regular_price: "",
-      sale_price: "",
-      is_on_sale: false,
+      condition: "new",
+      visible: true,
       is_featured: false,
       is_recommended: false,
-      stock_quantity: "",
-      track_inventory: false,
-      low_stock_threshold: "5",
-      image_urls: [""],
-      amazon_url: "",
-    });
-    setCategoryAssignments([{ categoryId: "", categoryName: "", subcategory: "" }]);
-  };
+      is_on_sale: false,
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const filteredImageUrls = formData.image_urls.filter(url => url.trim() !== "");
-    
-    const productData = {
-      ...formData,
-      regular_price: formData.regular_price ? parseFloat(formData.regular_price) : null,
-      sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
-      stock_quantity: formData.stock_quantity ? parseInt(formData.stock_quantity) : 0,
-      low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold) : 5,
-      image_url: filteredImageUrls[0] || null,
-      imageurls: filteredImageUrls.length > 0 ? filteredImageUrls : null,
-      visible: true, // Always visible when creating
-    };
+  const selectedCategory = form.watch("category");
 
-    // Remove image_urls from the final data since we use image_url and imageurls
-    delete productData.image_urls;
+  const createProductMutation = useMutation({
+    mutationFn: async (values: ProductFormValues) => {
+      const { error } = await supabase.from("products").insert([values]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast({ title: "Product created successfully!" });
+      form.reset();
+      setOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error creating product",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
-    addProductMutation.mutate(productData);
-  };
-
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const addImageUrl = () => {
-    setFormData(prev => ({
-      ...prev,
-      image_urls: [...prev.image_urls, ""]
-    }));
-  };
-
-  const removeImageUrl = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      image_urls: prev.image_urls.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateImageUrl = (index: number, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      image_urls: prev.image_urls.map((url, i) => i === index ? value : url)
-    }));
+  const onSubmit = (values: ProductFormValues) => {
+    createProductMutation.mutate(values);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button className="cyber-button">
+          <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Product</DialogTitle>
           <DialogDescription>
-            Add a new product to your store inventory.
+            Create a new product with consistent categorization matching the shopping filters.
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Product Name*</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="brand">Brand</Label>
-              <Input
-                id="brand"
-                value={formData.brand}
-                onChange={(e) => handleInputChange('brand', e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              rows={3}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter product name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="brand"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Brand</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter brand name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Enter product description" 
+                      className="min-h-[100px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          {/* Categories & Subcategories */}
-          <MultiCategorySelector
-            value={categoryAssignments}
-            onChange={setCategoryAssignments}
-          />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <CategorySelector
+                      value={field.value}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        // Reset subcategory when category changes
+                        form.setValue("subcategory", "");
+                      }}
+                      label="Category"
+                      placeholder="Select main category..."
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="space-y-2">
-            <Label htmlFor="model">Model</Label>
-            <Input
-              id="model"
-              value={formData.model}
-              onChange={(e) => handleInputChange('model', e.target.value)}
-            />
-          </div>
+              {selectedCategory && (
+                <FormField
+                  control={form.control}
+                  name="subcategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <SubcategorySelector
+                        parentCategorySlug={selectedCategory}
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        label="Subcategory"
+                        allowCustom={true}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="regular_price">Regular Price ($)</Label>
-              <Input
-                id="regular_price"
-                type="number"
-                step="0.01"
-                value={formData.regular_price}
-                onChange={(e) => handleInputChange('regular_price', e.target.value)}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="regular_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Regular Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="sale_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sale Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Condition</FormLabel>
+                    <FormControl>
+                      <CategorySelector
+                        value={field.value || "new"}
+                        onChange={field.onChange}
+                        label=""
+                        placeholder="Select condition..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="sale_price">Sale Price ($)</Label>
-              <Input
-                id="sale_price"
-                type="number"
-                step="0.01"
-                value={formData.sale_price}
-                onChange={(e) => handleInputChange('sale_price', e.target.value)}
+
+            <div className="flex flex-wrap gap-6">
+              <FormField
+                control={form.control}
+                name="visible"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel>Visible in Shop</FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_featured"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel>Featured</FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_recommended"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel>Recommended</FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_on_sale"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel>On Sale</FormLabel>
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Image URLs</Label>
-              <Button type="button" onClick={addImageUrl} size="sm" variant="outline">
-                <Plus className="h-4 w-4 mr-1" />
-                Add Image
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={createProductMutation.isPending}
+                className="cyber-button"
+              >
+                {createProductMutation.isPending ? "Creating..." : "Create Product"}
               </Button>
             </div>
-            {formData.image_urls.map((url, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  type="url"
-                  value={url}
-                  onChange={(e) => updateImageUrl(index, e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="flex-1"
-                />
-                {formData.image_urls.length > 1 && (
-                  <Button
-                    type="button"
-                    onClick={() => removeImageUrl(index)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="amazon_url">Amazon URL</Label>
-            <div className="flex gap-2">
-              <Input
-                id="amazon_url"
-                type="url"
-                value={formData.amazon_url}
-                onChange={(e) => handleInputChange('amazon_url', e.target.value)}
-                placeholder="https://amazon.com/dp/ASIN123456"
-                className="flex-1"
-              />
-              <SanitizeAmazonLinkButton
-                url={formData.amazon_url}
-                onUrlChange={(cleanedUrl) => handleInputChange('amazon_url', cleanedUrl)}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Enter any Amazon product URL. Use the sanitize button to clean it and add your affiliate tag.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="stock_quantity">Stock Quantity</Label>
-              <Input
-                id="stock_quantity"
-                type="number"
-                value={formData.stock_quantity}
-                onChange={(e) => handleInputChange('stock_quantity', e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="low_stock_threshold">Low Stock Threshold</Label>
-              <Input
-                id="low_stock_threshold"
-                type="number"
-                value={formData.low_stock_threshold}
-                onChange={(e) => handleInputChange('low_stock_threshold', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-6">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="track_inventory"
-                checked={formData.track_inventory}
-                onCheckedChange={(checked) => handleInputChange('track_inventory', checked)}
-              />
-              <Label htmlFor="track_inventory">Track Inventory</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_on_sale"
-                checked={formData.is_on_sale}
-                onCheckedChange={(checked) => handleInputChange('is_on_sale', checked)}
-              />
-              <Label htmlFor="is_on_sale">On Sale</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_featured"
-                checked={formData.is_featured}
-                onCheckedChange={(checked) => handleInputChange('is_featured', checked)}
-              />
-              <Label htmlFor="is_featured">Featured</Label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="is_recommended"
-                checked={formData.is_recommended}
-                onCheckedChange={(checked) => handleInputChange('is_recommended', checked)}
-              />
-              <Label htmlFor="is_recommended">Recommended</Label>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={addProductMutation.isPending}>
-              {addProductMutation.isPending ? "Adding..." : "Add Product"}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

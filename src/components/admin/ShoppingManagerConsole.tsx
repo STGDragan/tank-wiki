@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -85,6 +84,20 @@ const ShoppingManagerConsole = () => {
   } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
+  });
+
+  // Fetch categories using the same system as shopping filters
+  const { data: categories = [] } = useQuery({
+    queryKey: ["product-categories-new"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_categories_new")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
   });
 
   const deleteProductMutation = useMutation({
@@ -187,7 +200,47 @@ const ShoppingManagerConsole = () => {
     return 'outline';
   };
 
-  const categories = Array.from(new Set(products?.map(p => p.category).filter(Boolean))) as string[];
+  const categoryOptions = React.useMemo(() => {
+    const rootCategories = categories.filter(cat => cat.parent_id === null);
+    const subcategoriesByParent = categories.reduce((acc, cat) => {
+      if (cat.parent_id) {
+        if (!acc[cat.parent_id]) acc[cat.parent_id] = [];
+        acc[cat.parent_id].push(cat);
+      }
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const options: Array<{ value: string; label: string; level: number }> = [
+      { value: 'all', label: 'All Categories', level: 0 }
+    ];
+
+    rootCategories.forEach(category => {
+      options.push({ value: category.slug, label: category.name, level: 0 });
+      
+      if (subcategoriesByParent[category.id]) {
+        subcategoriesByParent[category.id].forEach(subcat => {
+          options.push({ 
+            value: subcat.slug, 
+            label: `${category.name} → ${subcat.name}`, 
+            level: 1 
+          });
+          
+          if (subcategoriesByParent[subcat.id]) {
+            subcategoriesByParent[subcat.id].forEach(subsubcat => {
+              options.push({ 
+                value: subsubcat.slug, 
+                label: `${category.name} → ${subcat.name} → ${subsubcat.name}`, 
+                level: 2 
+              });
+            });
+          }
+        });
+      }
+    });
+
+    return options;
+  }, [categories]);
+
   const filteredProducts = products?.filter(product => 
     selectedCategory === 'all' || product.category === selectedCategory
   );
@@ -234,20 +287,23 @@ const ShoppingManagerConsole = () => {
                 <div>
                   <CardTitle className="font-display">Product Inventory</CardTitle>
                   <CardDescription className="font-mono">
-                    Manage all products with quick-edit capabilities and visibility controls.
+                    Manage all products with categories matching the shopping page filters.
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4 text-primary" />
                   <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-48 cyber-input">
+                    <SelectTrigger className="w-64 cyber-input">
                       <SelectValue placeholder="Filter by category" />
                     </SelectTrigger>
-                    <SelectContent className="glass-panel border-border">
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
+                    <SelectContent className="glass-panel border-border max-h-96 overflow-y-auto">
+                      {categoryOptions.map((option) => (
+                        <SelectItem 
+                          key={option.value} 
+                          value={option.value}
+                          className={option.level > 0 ? `pl-${4 + option.level * 2} text-sm` : ''}
+                        >
+                          {option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -419,7 +475,7 @@ const ShoppingManagerConsole = () => {
                         <TableCell colSpan={6} className="h-24 text-center">
                           <div className="text-muted-foreground font-mono">
                             {selectedCategory !== 'all' ? 
-                              `No products found in the "${selectedCategory}" category.` : 
+                              `No products found in the selected category.` : 
                               'No products found. Initialize by adding a new one!'
                             }
                           </div>
