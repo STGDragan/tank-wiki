@@ -37,7 +37,6 @@ export const LivestockSection = ({
     showRecommendations = true 
 }: LivestockSectionProps) => {
     const [isAddLivestockOpen, setAddLivestockOpen] = useState(false);
-    const [duplicateData, setDuplicateData] = useState<Partial<any> | null>(null);
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
@@ -48,6 +47,7 @@ export const LivestockSection = ({
             const { error } = await supabase.from("livestock").insert({
                 aquarium_id: originalLivestock.aquarium_id,
                 user_id: user.id,
+                type: originalLivestock.type,
                 species: originalLivestock.species,
                 name: originalLivestock.name ? `${originalLivestock.name} (Copy)` : null,
                 quantity: 1, // Default to 1 for duplicates
@@ -132,11 +132,7 @@ export const LivestockSection = ({
                                     <AddLivestockForm 
                                         aquariumId={aquariumId} 
                                         aquariumType={aquariumType} 
-                                        onSuccess={() => {
-                                            setAddLivestockOpen(false);
-                                            setDuplicateData(null);
-                                        }}
-                                        initialData={duplicateData || undefined}
+                                        onSuccess={() => setAddLivestockOpen(false)}
                                     />
                                 </div>
                             </DrawerContent>

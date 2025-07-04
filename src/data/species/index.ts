@@ -122,3 +122,15 @@ export const livestockCategories: LivestockCategory[] = [
     species: coldwaterSpecies
   }
 ];
+
+// Export helper functions
+export function getAllSpecies(): string[] {
+  return livestockCategories.flatMap(category => category.species);
+}
+
+export function getCategorizedSpecies(): Array<{ name: string; species: string[] }> {
+  return livestockCategories.map(category => ({
+    name: category.name,
+    species: category.species
+  }));
+}
