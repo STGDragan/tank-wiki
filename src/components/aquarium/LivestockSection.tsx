@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Tables } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
@@ -47,7 +46,6 @@ export const LivestockSection = ({
             const { error } = await supabase.from("livestock").insert({
                 aquarium_id: originalLivestock.aquarium_id,
                 user_id: user.id,
-                type: originalLivestock.type,
                 species: originalLivestock.species,
                 name: originalLivestock.name ? `${originalLivestock.name} (Copy)` : null,
                 quantity: 1, // Default to 1 for duplicates
