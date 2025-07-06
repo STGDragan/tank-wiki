@@ -13,14 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Plus } from "lucide-react";
-import CategorySelector from "./CategorySelector";
-import SubcategorySelector from "./SubcategorySelector";
+import MultiCategorySelector from "./MultiCategorySelector";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
-  subcategory: z.string().optional(),
   brand: z.string().optional(),
   regular_price: z.number().min(0, "Price must be positive").optional(),
   sale_price: z.number().min(0, "Sale price must be positive").optional(),
@@ -33,8 +30,17 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
+interface CategoryAssignment {
+  categoryId: string;
+  categoryName: string;
+  subcategory: string;
+}
+
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
+  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[]>([
+    { categoryId: "", categoryName: "", subcategory: "" }
+  ]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,8 +49,6 @@ const AddProductDialog = () => {
     defaultValues: {
       name: "",
       description: "",
-      category: "",
-      subcategory: "",
       brand: "",
       condition: "new",
       visible: true,
@@ -54,16 +58,12 @@ const AddProductDialog = () => {
     },
   });
 
-  const selectedCategory = form.watch("category");
-
   const createProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
-      // Ensure all required fields are present and handle optional fields properly
+      // Create the product first
       const productData = {
         name: values.name,
         description: values.description || null,
-        category: values.category || null,
-        subcategory: values.subcategory || null,
         brand: values.brand || null,
         regular_price: values.regular_price || null,
         sale_price: values.sale_price || null,
@@ -72,15 +72,45 @@ const AddProductDialog = () => {
         visible: values.visible || true,
         is_featured: values.is_featured || false,
         is_recommended: values.is_recommended || false,
+        // Set primary category and subcategory for backward compatibility
+        category: categoryAssignments.length > 0 ? categoryAssignments[0].categoryName : null,
+        subcategory: categoryAssignments.length > 0 ? categoryAssignments[0].subcategory : null,
       };
 
-      const { error } = await supabase.from("products").insert([productData]);
-      if (error) throw error;
+      const { data: product, error: productError } = await supabase
+        .from("products")
+        .insert([productData])
+        .select()
+        .single();
+
+      if (productError) throw productError;
+
+      // Create category assignments
+      if (categoryAssignments.length > 0 && categoryAssignments[0].categoryId) {
+        const assignments = categoryAssignments
+          .filter(assignment => assignment.categoryId)
+          .map(assignment => ({
+            product_id: product.id,
+            category_id: assignment.categoryId,
+            subcategory_name: assignment.subcategory || null,
+          }));
+
+        if (assignments.length > 0) {
+          const { error: assignmentError } = await supabase
+            .from("product_category_assignments")
+            .insert(assignments);
+
+          if (assignmentError) throw assignmentError;
+        }
+      }
+
+      return product;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast({ title: "Product created successfully!" });
       form.reset();
+      setCategoryAssignments([{ categoryId: "", categoryName: "", subcategory: "" }]);
       setOpen(false);
     },
     onError: (error: Error) => {
@@ -104,11 +134,11 @@ const AddProductDialog = () => {
           Add Product
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Product</DialogTitle>
           <DialogDescription>
-            Create a new product with consistent categorization matching the shopping filters.
+            Create a new product with multiple categories and subcategories.
           </DialogDescription>
         </DialogHeader>
 
@@ -162,46 +192,10 @@ const AddProductDialog = () => {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <CategorySelector
-                      value={field.value}
-                      onChange={(value) => {
-                        field.onChange(value);
-                        // Reset subcategory when category changes
-                        form.setValue("subcategory", "");
-                      }}
-                      label="Category"
-                      placeholder="Select main category..."
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedCategory && (
-                <FormField
-                  control={form.control}
-                  name="subcategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <SubcategorySelector
-                        parentCategorySlug={selectedCategory}
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        label="Subcategory"
-                        allowCustom={true}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
+            <MultiCategorySelector
+              value={categoryAssignments}
+              onChange={setCategoryAssignments}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
@@ -251,12 +245,7 @@ const AddProductDialog = () => {
                   <FormItem>
                     <FormLabel>Condition</FormLabel>
                     <FormControl>
-                      <CategorySelector
-                        value={field.value || "new"}
-                        onChange={field.onChange}
-                        label=""
-                        placeholder="Select condition..."
-                      />
+                      <Input placeholder="e.g., new, used, refurbished" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
