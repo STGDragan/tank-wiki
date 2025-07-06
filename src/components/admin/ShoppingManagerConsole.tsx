@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +32,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AmazonProductImportDialog } from "@/components/admin/AmazonProductImportDialog";
 import AffiliateSettings from "@/components/admin/AffiliateSettings";
-import { useState, useEffect } from "react";
 import EditProductDialog from "@/components/admin/EditProductDialog";
 import { EditableProductCell } from "@/components/admin/EditableProductCell";
 import { useNavigate, useSearchParams } from "react-router-dom";
