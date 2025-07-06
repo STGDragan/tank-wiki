@@ -58,7 +58,23 @@ const AddProductDialog = () => {
 
   const createProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
-      const { error } = await supabase.from("products").insert([values]);
+      // Ensure all required fields are present and handle optional fields properly
+      const productData = {
+        name: values.name,
+        description: values.description || null,
+        category: values.category || null,
+        subcategory: values.subcategory || null,
+        brand: values.brand || null,
+        regular_price: values.regular_price || null,
+        sale_price: values.sale_price || null,
+        is_on_sale: values.is_on_sale || false,
+        condition: values.condition || null,
+        visible: values.visible || true,
+        is_featured: values.is_featured || false,
+        is_recommended: values.is_recommended || false,
+      };
+
+      const { error } = await supabase.from("products").insert([productData]);
       if (error) throw error;
     },
     onSuccess: () => {
