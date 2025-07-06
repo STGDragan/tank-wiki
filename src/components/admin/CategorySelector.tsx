@@ -58,6 +58,15 @@ const CategorySelector = ({
   const selectedCategory = categories.find(cat => cat.name === value);
   const availableSubcategories = selectedCategory ? subcategoriesByParent[selectedCategory.id] || [] : [];
 
+  const handleSubcategoryChange = (newValue: string) => {
+    // Handle the "none" case by setting empty string
+    if (newValue === "__none__") {
+      onSubcategoryChange("");
+    } else {
+      onSubcategoryChange(newValue);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -80,12 +89,12 @@ const CategorySelector = ({
         <div className="space-y-2">
           <Label>Subcategory</Label>
           {availableSubcategories.length > 0 ? (
-            <Select value={subcategory} onValueChange={onSubcategoryChange}>
+            <Select value={subcategory || "__none__"} onValueChange={handleSubcategoryChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select subcategory (optional)" />
               </SelectTrigger>
               <SelectContent className="max-h-96 overflow-y-auto">
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {availableSubcategories.map((subcat) => (
                   <SelectItem key={subcat.id} value={subcat.name}>
                     {subcat.name}
