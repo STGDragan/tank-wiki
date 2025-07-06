@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tables } from "@/integrations/supabase/types";
-import MultiCategorySelector from "./MultiCategorySelector";
+import CategorySelector from "./CategorySelector";
 
 type Product = Tables<'products'>;
 
@@ -28,15 +28,12 @@ const productSchema = z.object({
   visible: z.boolean().default(true),
   is_featured: z.boolean().default(false),
   is_recommended: z.boolean().default(false),
+  image_url: z.string().optional(),
+  amazon_url: z.string().optional(),
+  affiliate_url: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
-
-interface CategoryAssignment {
-  categoryId: string;
-  categoryName: string;
-  subcategory: string;
-}
 
 interface EditProductDialogProps {
   product: Product | null;
@@ -45,9 +42,8 @@ interface EditProductDialogProps {
 }
 
 const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
-  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[]>([
-    { categoryId: "", categoryName: "", subcategory: "" }
-  ]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -62,27 +58,10 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       is_featured: false,
       is_recommended: false,
       is_on_sale: false,
+      image_url: "",
+      amazon_url: "",
+      affiliate_url: "",
     },
-  });
-
-  // Fetch existing category assignments
-  const { data: existingAssignments } = useQuery({
-    queryKey: ["product-category-assignments", product?.id],
-    queryFn: async () => {
-      if (!product?.id) return [];
-      
-      const { data, error } = await supabase
-        .from("product_category_assignments")
-        .select(`
-          *,
-          product_categories_new!inner(name)
-        `)
-        .eq("product_id", product.id);
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!product?.id && open,
   });
 
   // Reset form when product changes
@@ -99,39 +78,24 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         visible: product.visible || true,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
+        image_url: product.image_url || "",
+        amazon_url: product.amazon_url || "",
+        affiliate_url: product.affiliate_url || "",
       });
+      
+      setSelectedCategory(product.category || "");
+      setSubcategory(product.subcategory || "");
     }
   }, [product, form]);
-
-  // Set category assignments when data is loaded
-  useEffect(() => {
-    if (existingAssignments && existingAssignments.length > 0) {
-      const assignments = existingAssignments.map(assignment => ({
-        categoryId: assignment.category_id || "",
-        categoryName: assignment.product_categories_new?.name || "",
-        subcategory: assignment.subcategory_name || "",
-      }));
-      setCategoryAssignments(assignments);
-    } else if (product) {
-      // Fallback to legacy category/subcategory fields
-      setCategoryAssignments([{
-        categoryId: "",
-        categoryName: product.category || "",
-        subcategory: product.subcategory || "",
-      }]);
-    }
-  }, [existingAssignments, product]);
 
   const updateProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
       if (!product) throw new Error("No product selected");
       
-      // Update the product
       const productData = {
         ...values,
-        // Set primary category and subcategory for backward compatibility
-        category: categoryAssignments.length > 0 ? categoryAssignments[0].categoryName : null,
-        subcategory: categoryAssignments.length > 0 ? categoryAssignments[0].subcategory : null,
+        category: selectedCategory,
+        subcategory: subcategory || null,
       };
 
       const { error: productError } = await supabase
@@ -140,37 +104,9 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         .eq("id", product.id);
       
       if (productError) throw productError;
-
-      // Delete existing category assignments
-      const { error: deleteError } = await supabase
-        .from("product_category_assignments")
-        .delete()
-        .eq("product_id", product.id);
-
-      if (deleteError) throw deleteError;
-
-      // Create new category assignments
-      if (categoryAssignments.length > 0 && categoryAssignments[0].categoryId) {
-        const assignments = categoryAssignments
-          .filter(assignment => assignment.categoryId)
-          .map(assignment => ({
-            product_id: product.id,
-            category_id: assignment.categoryId,
-            subcategory_name: assignment.subcategory || null,
-          }));
-
-        if (assignments.length > 0) {
-          const { error: assignmentError } = await supabase
-            .from("product_category_assignments")
-            .insert(assignments);
-
-          if (assignmentError) throw assignmentError;
-        }
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ["product-category-assignments"] });
       toast({ title: "Product updated successfully!" });
       onOpenChange(false);
     },
@@ -195,7 +131,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
-            Update product details with multiple categories and subcategories.
+            Update product details with category and subcategory.
           </DialogDescription>
         </DialogHeader>
 
@@ -249,10 +185,55 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               )}
             />
 
-            <MultiCategorySelector
-              productId={product.id}
-              value={categoryAssignments}
-              onChange={setCategoryAssignments}
+            <CategorySelector
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              subcategory={subcategory}
+              onSubcategoryChange={setSubcategory}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter image URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="amazon_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amazon URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Amazon product URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="affiliate_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Affiliate URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter affiliate URL (optional)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

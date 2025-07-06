@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface Category {
   id: string;
@@ -16,6 +17,8 @@ interface Category {
 interface CategorySelectorProps {
   value: string;
   onChange: (value: string) => void;
+  subcategory: string;
+  onSubcategoryChange: (value: string) => void;
   label?: string;
   placeholder?: string;
 }
@@ -23,6 +26,8 @@ interface CategorySelectorProps {
 const CategorySelector = ({ 
   value, 
   onChange, 
+  subcategory,
+  onSubcategoryChange,
   label = "Category",
   placeholder = "Select category..."
 }: CategorySelectorProps) => {
@@ -50,45 +55,53 @@ const CategorySelector = ({
     return acc;
   }, {} as Record<string, Category[]>);
 
-  const selectedCategory = categories.find(cat => cat.slug === value);
+  const selectedCategory = categories.find(cat => cat.name === value);
+  const availableSubcategories = selectedCategory ? subcategoriesByParent[selectedCategory.id] || [] : [];
 
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent className="max-h-96 overflow-y-auto">
-          {rootCategories.map((category) => (
-            <React.Fragment key={category.id}>
-              <SelectItem value={category.slug} className="font-medium">
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>{label}</Label>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="max-h-96 overflow-y-auto">
+            {rootCategories.map((category) => (
+              <SelectItem key={category.id} value={category.name} className="font-medium">
                 {category.name}
               </SelectItem>
-              
-              {/* Subcategories - indented */}
-              {subcategoriesByParent[category.id] && 
-                subcategoriesByParent[category.id].map((subcat) => (
-                  <React.Fragment key={subcat.id}>
-                    <SelectItem value={subcat.slug} className="pl-6 text-sm">
-                      {subcat.name}
-                    </SelectItem>
-                    
-                    {/* Sub-subcategories - further indented */}
-                    {subcategoriesByParent[subcat.id] && 
-                      subcategoriesByParent[subcat.id].map((subsubcat) => (
-                        <SelectItem key={subsubcat.id} value={subsubcat.slug} className="pl-10 text-xs">
-                          {subsubcat.name}
-                        </SelectItem>
-                      ))
-                    }
-                  </React.Fragment>
-                ))
-              }
-            </React.Fragment>
-          ))}
-        </SelectContent>
-      </Select>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {selectedCategory && (
+        <div className="space-y-2">
+          <Label>Subcategory</Label>
+          {availableSubcategories.length > 0 ? (
+            <Select value={subcategory} onValueChange={onSubcategoryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select subcategory (optional)" />
+              </SelectTrigger>
+              <SelectContent className="max-h-96 overflow-y-auto">
+                <SelectItem value="">None</SelectItem>
+                {availableSubcategories.map((subcat) => (
+                  <SelectItem key={subcat.id} value={subcat.name}>
+                    {subcat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              value={subcategory}
+              onChange={(e) => onSubcategoryChange(e.target.value)}
+              placeholder="Enter custom subcategory (optional)"
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };

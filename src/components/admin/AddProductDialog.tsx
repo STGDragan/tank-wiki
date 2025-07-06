@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Plus } from "lucide-react";
-import MultiCategorySelector from "./MultiCategorySelector";
+import CategorySelector from "./CategorySelector";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -26,21 +26,17 @@ const productSchema = z.object({
   visible: z.boolean().default(true),
   is_featured: z.boolean().default(false),
   is_recommended: z.boolean().default(false),
+  image_url: z.string().optional(),
+  amazon_url: z.string().optional(),
+  affiliate_url: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-interface CategoryAssignment {
-  categoryId: string;
-  categoryName: string;
-  subcategory: string;
-}
-
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
-  const [categoryAssignments, setCategoryAssignments] = useState<CategoryAssignment[]>([
-    { categoryId: "", categoryName: "", subcategory: "" }
-  ]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -55,12 +51,14 @@ const AddProductDialog = () => {
       is_featured: false,
       is_recommended: false,
       is_on_sale: false,
+      image_url: "",
+      amazon_url: "",
+      affiliate_url: "",
     },
   });
 
   const createProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
-      // Create the product first
       const productData = {
         name: values.name,
         description: values.description || null,
@@ -72,9 +70,11 @@ const AddProductDialog = () => {
         visible: values.visible || true,
         is_featured: values.is_featured || false,
         is_recommended: values.is_recommended || false,
-        // Set primary category and subcategory for backward compatibility
-        category: categoryAssignments.length > 0 ? categoryAssignments[0].categoryName : null,
-        subcategory: categoryAssignments.length > 0 ? categoryAssignments[0].subcategory : null,
+        image_url: values.image_url || null,
+        amazon_url: values.amazon_url || null,
+        affiliate_url: values.affiliate_url || null,
+        category: selectedCategory,
+        subcategory: subcategory || null,
       };
 
       const { data: product, error: productError } = await supabase
@@ -84,33 +84,14 @@ const AddProductDialog = () => {
         .single();
 
       if (productError) throw productError;
-
-      // Create category assignments
-      if (categoryAssignments.length > 0 && categoryAssignments[0].categoryId) {
-        const assignments = categoryAssignments
-          .filter(assignment => assignment.categoryId)
-          .map(assignment => ({
-            product_id: product.id,
-            category_id: assignment.categoryId,
-            subcategory_name: assignment.subcategory || null,
-          }));
-
-        if (assignments.length > 0) {
-          const { error: assignmentError } = await supabase
-            .from("product_category_assignments")
-            .insert(assignments);
-
-          if (assignmentError) throw assignmentError;
-        }
-      }
-
       return product;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast({ title: "Product created successfully!" });
       form.reset();
-      setCategoryAssignments([{ categoryId: "", categoryName: "", subcategory: "" }]);
+      setSelectedCategory("");
+      setSubcategory("");
       setOpen(false);
     },
     onError: (error: Error) => {
@@ -138,7 +119,7 @@ const AddProductDialog = () => {
         <DialogHeader>
           <DialogTitle>Add New Product</DialogTitle>
           <DialogDescription>
-            Create a new product with multiple categories and subcategories.
+            Create a new product with category and subcategory.
           </DialogDescription>
         </DialogHeader>
 
@@ -192,9 +173,55 @@ const AddProductDialog = () => {
               )}
             />
 
-            <MultiCategorySelector
-              value={categoryAssignments}
-              onChange={setCategoryAssignments}
+            <CategorySelector
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              subcategory={subcategory}
+              onSubcategoryChange={setSubcategory}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter image URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="amazon_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amazon URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter Amazon product URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="affiliate_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Affiliate URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter affiliate URL (optional)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
