@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,10 +62,10 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   
   const affiliateUrl = product.affiliate_links?.[0]?.link_url;
 
-  // Get subcategories for display
+  // Get subcategories for display - handle both old and new fields safely
   const subcategories = [];
-  if (product.subcategories && Array.isArray(product.subcategories)) {
-    subcategories.push(...product.subcategories);
+  if ((product as any).subcategories && Array.isArray((product as any).subcategories)) {
+    subcategories.push(...(product as any).subcategories);
   } else if (product.subcategory) {
     subcategories.push(product.subcategory);
   }

@@ -10,10 +10,12 @@ export interface Product {
   sale_start_date?: string | null;
   sale_end_date?: string | null;
   image_url?: string | null;
+  images?: string[] | null;
   imageurls?: string[] | null;
   brand?: string | null;
   category?: string | null;
   subcategory?: string | null;
+  subcategories?: string[] | null;
   condition?: string | null;
   tank_types?: string[] | null;
   visible?: boolean | null;

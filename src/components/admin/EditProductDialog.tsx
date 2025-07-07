@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -97,18 +96,18 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       
       setSelectedCategory(product.category || "");
       
-      // Handle multiple subcategories
-      if (product.subcategories && Array.isArray(product.subcategories)) {
-        setSubcategories(product.subcategories);
+      // Handle multiple subcategories safely
+      if ((product as any).subcategories && Array.isArray((product as any).subcategories)) {
+        setSubcategories((product as any).subcategories);
       } else if (product.subcategory) {
         setSubcategories([product.subcategory]);
       } else {
         setSubcategories([]);
       }
       
-      // Handle multiple images
-      if (product.images && Array.isArray(product.images)) {
-        setImages(product.images);
+      // Handle multiple images safely
+      if ((product as any).images && Array.isArray((product as any).images)) {
+        setImages((product as any).images);
       } else {
         setImages([]);
       }
