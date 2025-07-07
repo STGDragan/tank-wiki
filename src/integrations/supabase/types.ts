@@ -1482,6 +1482,7 @@ export type Database = {
           size_class: Database["public"]["Enums"]["size_class"] | null
           sku: string | null
           stock_quantity: number | null
+          subcategories: string[] | null
           subcategory: string | null
           tags: string[] | null
           tank_types: Database["public"]["Enums"]["tank_type"][] | null
@@ -1531,6 +1532,7 @@ export type Database = {
           size_class?: Database["public"]["Enums"]["size_class"] | null
           sku?: string | null
           stock_quantity?: number | null
+          subcategories?: string[] | null
           subcategory?: string | null
           tags?: string[] | null
           tank_types?: Database["public"]["Enums"]["tank_type"][] | null
@@ -1580,6 +1582,7 @@ export type Database = {
           size_class?: Database["public"]["Enums"]["size_class"] | null
           sku?: string | null
           stock_quantity?: number | null
+          subcategories?: string[] | null
           subcategory?: string | null
           tags?: string[] | null
           tank_types?: Database["public"]["Enums"]["tank_type"][] | null

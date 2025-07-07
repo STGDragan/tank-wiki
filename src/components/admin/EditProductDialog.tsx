@@ -14,6 +14,9 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, X } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 import CategorySelector from "./CategorySelector";
+import { ProductImageManager } from "./product/ProductImageManager";
+import { ProductSubcategoryManager } from "./product/ProductSubcategoryManager";
+import { ProductInventorySection } from "./product/ProductInventorySection";
 
 type Product = Tables<'products'>;
 
@@ -48,7 +51,6 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
   const [selectedCategory, setSelectedCategory] = useState("");
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
-  const [newImage, setNewImage] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -96,18 +98,18 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       
       setSelectedCategory(product.category || "");
       
-      // Handle multiple subcategories safely
-      if ((product as any).subcategories && Array.isArray((product as any).subcategories)) {
-        setSubcategories((product as any).subcategories);
+      // Handle multiple subcategories
+      if (product.subcategories && Array.isArray(product.subcategories)) {
+        setSubcategories(product.subcategories);
       } else if (product.subcategory) {
         setSubcategories([product.subcategory]);
       } else {
         setSubcategories([]);
       }
       
-      // Handle multiple images safely
-      if ((product as any).images && Array.isArray((product as any).images)) {
-        setImages((product as any).images);
+      // Handle multiple images
+      if (product.images && Array.isArray(product.images)) {
+        setImages(product.images);
       } else {
         setImages([]);
       }
@@ -153,25 +155,10 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     updateProductMutation.mutate(values);
   };
 
-  const addImage = () => {
-    if (newImage.trim() && !images.includes(newImage.trim())) {
-      setImages([...images, newImage.trim()]);
-      setNewImage("");
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
-
   const addSubcategory = (subcategory: string) => {
     if (subcategory.trim() && !subcategories.includes(subcategory.trim())) {
       setSubcategories([...subcategories, subcategory.trim()]);
     }
-  };
-
-  const removeSubcategory = (index: number) => {
-    setSubcategories(subcategories.filter((_, i) => i !== index));
   };
 
   if (!product) return null;
@@ -247,88 +234,31 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                 }}
               />
               
-              {/* Multiple Subcategories */}
-              {subcategories.length > 0 && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Selected Subcategories</label>
-                  <div className="flex flex-wrap gap-2">
-                    {subcategories.map((subcategory, index) => (
-                      <div key={index} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-md">
-                        <span className="text-sm">{subcategory}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={() => removeSubcategory(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Images Section */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <FormLabel>Images</FormLabel>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter image URL"
-                    value={newImage}
-                    onChange={(e) => setNewImage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
-                  />
-                  <Button type="button" onClick={addImage} variant="outline">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {images.length > 0 && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Product Images</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {images.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <img 
-                          src={image} 
-                          alt={`Product image ${index + 1}`}
-                          className="w-full h-24 object-cover rounded border"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeImage(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Legacy single image field for backward compatibility */}
-              <FormField
-                control={form.control}
-                name="image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Primary Image URL (Legacy)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter primary image URL" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <ProductSubcategoryManager 
+                subcategories={subcategories}
+                onSubcategoriesChange={setSubcategories}
               />
             </div>
+
+            <ProductImageManager 
+              images={images}
+              onImagesChange={setImages}
+            />
+
+            {/* Legacy single image field for backward compatibility */}
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Primary Image URL (Legacy)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter primary image URL" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -416,63 +346,10 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               )}
             />
 
-            {/* Inventory Tracking Section */}
-            <div className="space-y-4 border-t pt-4">
-              <FormField
-                control={form.control}
-                name="track_inventory"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                    <FormLabel>Track Inventory</FormLabel>
-                  </FormItem>
-                )}
-              />
-
-              {form.watch("track_inventory") && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="stock_quantity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Stock Quantity</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="low_stock_threshold"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Low Stock Threshold</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="5"
-                            {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 5)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-            </div>
+            <ProductInventorySection 
+              control={form.control}
+              watchTrackInventory={form.watch("track_inventory")}
+            />
 
             <div className="flex flex-wrap gap-6">
               <FormField

@@ -1,5 +1,5 @@
 
-// Simplified Product type that avoids deep type instantiation issues
+// Enhanced Product type with new features
 export interface Product {
   id: string;
   name: string;

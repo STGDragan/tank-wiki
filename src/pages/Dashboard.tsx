@@ -1,21 +1,16 @@
 import { useAuth } from "@/providers/AuthProvider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Fish, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
 import { toast } from "@/hooks/use-toast";
 import { SponsorshipBanner } from "@/components/sponsorship/SponsorshipBanner";
-import { TankHealthIndicator } from "@/components/aquarium/TankHealthIndicator";
 import { QuickAddTask } from "@/components/dashboard/QuickAddTask";
 import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts";
 import { UpcomingMaintenanceTracker } from "@/components/dashboard/UpcomingMaintenanceTracker";
+import { AquariumCard } from "@/components/dashboard/AquariumCard";
+import { AquariumEmptyState } from "@/components/dashboard/AquariumEmptyState";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: aquariums = [], isLoading: aquariumsLoading } = useQuery({
@@ -113,17 +108,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleAddTask = () => {
-    if (aquariums[0]) {
-      navigate(`/aquarium/${aquariums[0].id}?tab=maintenance`);
-    } else {
-      toast({
-        title: "No Aquarium",
-        description: "Please create an aquarium first to add maintenance tasks.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (aquariumsLoading) {
     return (
@@ -150,74 +134,16 @@ const Dashboard = () => {
           {aquariums.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {aquariums.map((aquarium) => (
-                <Card key={aquarium.id} className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-white text-lg">{aquarium.name}</CardTitle>
-                        <p className="text-gray-400 text-sm">
-                          Started on {new Date(aquarium.created_at).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
-                          })}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteAquarium(aquarium.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Tank Health Indicator integrated into each aquarium */}
-                    {tankHealthData?.[aquarium.id] && (
-                      <TankHealthIndicator
-                        waterParameters={tankHealthData[aquarium.id].waterParameters}
-                        maintenanceTasks={tankHealthData[aquarium.id].maintenance}
-                        livestock={tankHealthData[aquarium.id].livestock}
-                        equipment={tankHealthData[aquarium.id].equipment}
-                        aquariumType={aquarium.type}
-                        aquariumSize={aquarium.size}
-                        compact={true}
-                      />
-                    )}
-                    
-                    {aquarium.image_url && (
-                      <div className="w-full h-32 rounded-lg overflow-hidden">
-                        <img
-                          src={aquarium.image_url}
-                          alt={aquarium.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    
-                    <Button
-                      onClick={() => navigate(`/aquarium/${aquarium.id}`)}
-                      className="w-full bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white hover:shadow-[0_0_15px_rgba(6,182,212,0.4)]"
-                    >
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
+                <AquariumCard
+                  key={aquarium.id}
+                  aquarium={aquarium}
+                  tankHealthData={tankHealthData?.[aquarium.id]}
+                  onDelete={handleDeleteAquarium}
+                />
               ))}
             </div>
           ) : (
-            <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
-              <CardContent className="text-center py-8">
-                <Fish className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-semibold mb-2 text-white">No aquariums yet</h3>
-                <p className="text-gray-400 mb-4">
-                  Get started by creating your first aquarium
-                </p>
-                <AquariumSetupWizard aquariumCount={0} />
-              </CardContent>
-            </Card>
+            <AquariumEmptyState />
           )}
         </div>
 
