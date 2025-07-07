@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Plus, X } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 import CategorySelector from "./CategorySelector";
 
@@ -31,6 +32,9 @@ const productSchema = z.object({
   image_url: z.string().optional(),
   amazon_url: z.string().optional(),
   affiliate_url: z.string().optional(),
+  track_inventory: z.boolean().default(false),
+  stock_quantity: z.number().min(0, "Stock quantity must be positive").optional(),
+  low_stock_threshold: z.number().min(0, "Low stock threshold must be positive").optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -43,7 +47,9 @@ interface EditProductDialogProps {
 
 const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [subcategory, setSubcategory] = useState("");
+  const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [newImage, setNewImage] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -61,6 +67,9 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       image_url: "",
       amazon_url: "",
       affiliate_url: "",
+      track_inventory: false,
+      stock_quantity: undefined,
+      low_stock_threshold: 5,
     },
   });
 
@@ -81,10 +90,28 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         image_url: product.image_url || "",
         amazon_url: product.amazon_url || "",
         affiliate_url: product.affiliate_url || "",
+        track_inventory: product.track_inventory || false,
+        stock_quantity: product.stock_quantity || undefined,
+        low_stock_threshold: product.low_stock_threshold || 5,
       });
       
       setSelectedCategory(product.category || "");
-      setSubcategory(product.subcategory || "");
+      
+      // Handle multiple subcategories
+      if (product.subcategories && Array.isArray(product.subcategories)) {
+        setSubcategories(product.subcategories);
+      } else if (product.subcategory) {
+        setSubcategories([product.subcategory]);
+      } else {
+        setSubcategories([]);
+      }
+      
+      // Handle multiple images
+      if (product.images && Array.isArray(product.images)) {
+        setImages(product.images);
+      } else {
+        setImages([]);
+      }
     }
   }, [product, form]);
 
@@ -95,7 +122,11 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       const productData = {
         ...values,
         category: selectedCategory,
-        subcategory: subcategory || null,
+        subcategory: subcategories.length > 0 ? subcategories[0] : null, // Keep backward compatibility
+        subcategories: subcategories.length > 0 ? subcategories : null,
+        images: images.length > 0 ? images : null,
+        stock_quantity: values.track_inventory ? values.stock_quantity : null,
+        low_stock_threshold: values.track_inventory ? values.low_stock_threshold : null,
       };
 
       const { error: productError } = await supabase
@@ -123,20 +154,41 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     updateProductMutation.mutate(values);
   };
 
+  const addImage = () => {
+    if (newImage.trim() && !images.includes(newImage.trim())) {
+      setImages([...images, newImage.trim()]);
+      setNewImage("");
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
+  const addSubcategory = (subcategory: string) => {
+    if (subcategory.trim() && !subcategories.includes(subcategory.trim())) {
+      setSubcategories([...subcategories, subcategory.trim()]);
+    }
+  };
+
+  const removeSubcategory = (index: number) => {
+    setSubcategories(subcategories.filter((_, i) => i !== index));
+  };
+
   if (!product) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>
-            Update product details with category and subcategory.
+            Update product details with multiple subcategories, images, and inventory tracking.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -185,28 +237,101 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               )}
             />
 
-            <CategorySelector
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-              subcategory={subcategory}
-              onSubcategoryChange={setSubcategory}
-            />
+            {/* Category and Subcategories */}
+            <div className="space-y-4">
+              <CategorySelector
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                subcategory=""
+                onSubcategoryChange={(subcategory) => {
+                  if (subcategory) addSubcategory(subcategory);
+                }}
+              />
+              
+              {/* Multiple Subcategories */}
+              {subcategories.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Selected Subcategories</label>
+                  <div className="flex flex-wrap gap-2">
+                    {subcategories.map((subcategory, index) => (
+                      <div key={index} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-md">
+                        <span className="text-sm">{subcategory}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => removeSubcategory(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Images Section */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <FormLabel>Images</FormLabel>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter image URL"
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
+                  />
+                  <Button type="button" onClick={addImage} variant="outline">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {images.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Product Images</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img 
+                          src={image} 
+                          alt={`Product image ${index + 1}`}
+                          className="w-full h-24 object-cover rounded border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Legacy single image field for backward compatibility */}
               <FormField
                 control={form.control}
                 name="image_url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Image URL</FormLabel>
+                    <FormLabel>Primary Image URL (Legacy)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter image URL" {...field} />
+                      <Input placeholder="Enter primary image URL" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="amazon_url"
@@ -220,21 +345,21 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                   </FormItem>
                 )}
               />
-            </div>
 
-            <FormField
-              control={form.control}
-              name="affiliate_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Affiliate URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter affiliate URL (optional)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="affiliate_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Affiliate URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter affiliate URL (optional)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -291,6 +416,64 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
                 </FormItem>
               )}
             />
+
+            {/* Inventory Tracking Section */}
+            <div className="space-y-4 border-t pt-4">
+              <FormField
+                control={form.control}
+                name="track_inventory"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel>Track Inventory</FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch("track_inventory") && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="stock_quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Stock Quantity</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="low_stock_threshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Low Stock Threshold</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="5"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 5)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
 
             <div className="flex flex-wrap gap-6">
               <FormField

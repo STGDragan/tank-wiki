@@ -1,9 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, DollarSign, Info, ShoppingCart } from "lucide-react";
+import { ExternalLink, DollarSign, Info, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tables } from "@/integrations/supabase/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -32,6 +32,7 @@ interface ProductCardProps {
 const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const getEffectivePrice = () => {
     if (product.is_on_sale && product.sale_price && 
@@ -43,8 +44,32 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   };
 
   const effectivePrice = getEffectivePrice();
-  const imageUrl = product.imageurls?.[0] || product.image_url || '/placeholder.svg';
+  
+  // Get all available images
+  const allImages = [];
+  if (product.images && Array.isArray(product.images)) {
+    allImages.push(...product.images);
+  }
+  if (product.imageurls && Array.isArray(product.imageurls)) {
+    allImages.push(...product.imageurls);
+  }
+  if (product.image_url) {
+    allImages.push(product.image_url);
+  }
+  
+  // Remove duplicates and use placeholder if no images
+  const uniqueImages = [...new Set(allImages)];
+  const images = uniqueImages.length > 0 ? uniqueImages : ['/placeholder.svg'];
+  
   const affiliateUrl = product.affiliate_links?.[0]?.link_url;
+
+  // Get subcategories for display
+  const subcategories = [];
+  if (product.subcategories && Array.isArray(product.subcategories)) {
+    subcategories.push(...product.subcategories);
+  } else if (product.subcategory) {
+    subcategories.push(product.subcategory);
+  }
 
   // Truncate description
   const truncateDescription = (text: string | null, maxLength: number = 100) => {
@@ -89,6 +114,22 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
     }
   };
 
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const isOutOfStock = product.track_inventory && (product.stock_quantity === 0);
+  const isLowStock = product.track_inventory && 
+    product.stock_quantity !== null && 
+    product.stock_quantity <= (product.low_stock_threshold || 5) && 
+    product.stock_quantity > 0;
+
   return (
     <TooltipProvider>
       <Card 
@@ -97,10 +138,44 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
           <img
-            src={imageUrl}
+            src={images[currentImageIndex]}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          
+          {/* Image Navigation */}
+          {images.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={nextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              
+              {/* Image indicators */}
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+                {images.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
           
           {/* Product badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -113,13 +188,18 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
           </div>
 
           {/* Stock status */}
-          {product.track_inventory && product.stock_quantity !== null && product.stock_quantity <= (product.low_stock_threshold || 5) && (
-            <div className="absolute top-2 right-2">
-              <Badge variant={product.stock_quantity === 0 ? "destructive" : "default"} className="shadow-md">
-                {product.stock_quantity === 0 ? "Out of Stock" : "Low Stock"}
+          <div className="absolute top-2 right-2">
+            {isOutOfStock && (
+              <Badge variant="destructive" className="shadow-md">
+                Out of Stock
               </Badge>
-            </div>
-          )}
+            )}
+            {isLowStock && (
+              <Badge variant="default" className="shadow-md">
+                Low Stock
+              </Badge>
+            )}
+          </div>
         </div>
 
         <CardContent className="p-4 space-y-3">
@@ -158,18 +238,18 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
 
           {/* Enhanced Category & Properties */}
           <div className="space-y-2">
-            {/* Category */}
+            {/* Category and Subcategories */}
             <div className="flex items-center gap-2 text-xs">
               {product.category_info && (
                 <Badge variant="outline" className="text-xs">
                   {product.category_info.name}
                 </Badge>
               )}
-              {product.subcategory && (
-                <Badge variant="outline" className="text-xs">
-                  {product.subcategory}
+              {subcategories.map((subcategory, index) => (
+                <Badge key={index} variant="outline" className="text-xs">
+                  {subcategory}
                 </Badge>
-              )}
+              ))}
             </div>
 
             {/* Livestock-specific information */}
@@ -254,6 +334,15 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                 )}
               </div>
             )}
+
+            {/* Stock Information */}
+            {product.track_inventory && (
+              <div className="text-xs text-muted-foreground">
+                {product.stock_quantity !== null && (
+                  <span>{product.stock_quantity} in stock</span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Action buttons */}
@@ -263,10 +352,10 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                 size="sm"
                 className="flex-1"
                 onClick={handleBuyNow}
-                disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
+                disabled={isOutOfStock}
               >
                 <ShoppingCart className="h-4 w-4 mr-1" />
-                Buy Now
+                {isOutOfStock ? "Out of Stock" : "Buy Now"}
               </Button>
             )}
             {affiliateUrl && !showBuyNow && (
@@ -274,9 +363,10 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                 size="sm"
                 className="px-3 ml-auto"
                 onClick={handleAmazonClick}
+                disabled={isOutOfStock}
               >
                 <ExternalLink className="h-4 w-4 mr-1" />
-                Buy Now
+                {isOutOfStock ? "Out of Stock" : "Buy Now"}
               </Button>
             )}
           </div>
