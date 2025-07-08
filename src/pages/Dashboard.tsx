@@ -8,6 +8,8 @@ import { RecommendedProducts } from "@/components/dashboard/RecommendedProducts"
 import { UpcomingMaintenanceTracker } from "@/components/dashboard/UpcomingMaintenanceTracker";
 import { AquariumCard } from "@/components/dashboard/AquariumCard";
 import { AquariumEmptyState } from "@/components/dashboard/AquariumEmptyState";
+import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
+import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -130,7 +132,15 @@ const Dashboard = () => {
       <div className="p-6 space-y-6">
         {/* My Aquariums Section - Always at the top */}
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">My Aquariums</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">My Aquariums</h2>
+            {aquariums.length > 0 && (
+              <div className="flex gap-3">
+                <AquariumSetupWizard aquariumCount={aquariums.length} />
+                <CreateTankDialog aquariumCount={aquariums.length} />
+              </div>
+            )}
+          </div>
           {aquariums.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {aquariums.map((aquarium) => (
