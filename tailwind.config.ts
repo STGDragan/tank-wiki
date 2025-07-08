@@ -61,11 +61,11 @@ export default {
 				},
 				// Cyber theme colors
 				neon: {
-					cyan: 'rgb(var(--neon-cyan))',
-					green: 'rgb(var(--neon-green))',
-					blue: 'rgb(var(--neon-blue))',
+					cyan: 'hsl(var(--neon-cyan))',
+					green: 'hsl(var(--neon-green))',
+					blue: 'hsl(var(--neon-blue))',
 				},
-				cta: 'rgb(var(--cta-highlight))',
+				cta: 'hsl(var(--cta-highlight))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -74,8 +74,8 @@ export default {
 				none: '0',
 			},
 			boxShadow: {
-				'cyber': '0 0 10px rgb(var(--neon-cyan) / 0.3), 0 0 20px rgb(var(--neon-cyan) / 0.2)',
-				'cyber-lg': '0 0 20px rgb(var(--neon-cyan) / 0.4), 0 0 40px rgb(var(--neon-cyan) / 0.2)',
+				'cyber': '0 0 10px hsl(var(--neon-cyan) / 0.3), 0 0 20px hsl(var(--neon-cyan) / 0.2)',
+				'cyber-lg': '0 0 20px hsl(var(--neon-cyan) / 0.4), 0 0 40px hsl(var(--neon-cyan) / 0.2)',
 				'glass': '0 8px 32px rgba(0, 0, 0, 0.3)',
 			},
 			animation: {
@@ -86,20 +86,20 @@ export default {
 			keyframes: {
 				'cyber-pulse': {
 					'0%, 100%': {
-						boxShadow: '0 0 5px rgb(var(--neon-cyan) / 0.2)'
+						boxShadow: '0 0 5px hsl(var(--neon-cyan) / 0.2)'
 					},
 					'50%': {
-						boxShadow: '0 0 20px rgb(var(--neon-cyan) / 0.4), 0 0 30px rgb(var(--neon-cyan) / 0.2)'
+						boxShadow: '0 0 20px hsl(var(--neon-cyan) / 0.4), 0 0 30px hsl(var(--neon-cyan) / 0.2)'
 					}
 				},
 				'neon-flicker': {
 					'0%, 100%': {
 						opacity: '1',
-						textShadow: '0 0 10px rgb(var(--neon-cyan) / 0.5)'
+						textShadow: '0 0 10px hsl(var(--neon-cyan) / 0.5)'
 					},
 					'50%': {
 						opacity: '0.8',
-						textShadow: '0 0 5px rgb(var(--neon-cyan) / 0.3)'
+						textShadow: '0 0 5px hsl(var(--neon-cyan) / 0.3)'
 					}
 				},
 				'slide-in': {
