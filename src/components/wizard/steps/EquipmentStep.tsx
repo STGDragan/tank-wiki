@@ -104,6 +104,7 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
                   <EquipmentProductSelector
                     equipmentType={equipment.name}
                     tankType={getTankType()}
+                    tankSize={data.tankSize}
                     onProductSelect={(productId, product) => 
                       handleProductSelect(equipment.id, productId, product)
                     }
@@ -148,6 +149,7 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
                   <EquipmentProductSelector
                     equipmentType={equipment.name}
                     tankType={getTankType()}
+                    tankSize={data.tankSize}
                     onProductSelect={(productId, product) => 
                       handleProductSelect(equipment.id, productId, product)
                     }
