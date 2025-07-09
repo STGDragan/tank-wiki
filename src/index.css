@@ -161,9 +161,6 @@
   }
   
   /* Muted text should still be readable */
-  .text-muted-foreground {
-    @apply text-muted-foreground;
-  }
   
   /* Futuristic gradients */
   .cyber-gradient {
