@@ -155,11 +155,21 @@ const Shopping = () => {
         product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.brand?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Fix category matching: convert category slugs to names for comparison
+      // Fix category matching: handle both hierarchical and flat category structures
       const matchesCategory = filters.categories.length === 0 || 
         filters.categories.some(slug => {
           const category = categories.find(cat => cat.slug === slug);
-          return category && category.name === product.category;
+          if (!category) return false;
+          
+          // Check if it matches the product's main category
+          if (category.name === product.category) return true;
+          
+          // Check if it matches the product's subcategory (old flat structure)
+          if (category.name === product.subcategory) return true;
+          
+          // Check if the product's subcategory matches any child of this category
+          const categoryChildren = categories.filter(cat => cat.parent_id === category.id);
+          return categoryChildren.some(child => child.name === product.subcategory);
         });
 
       const effectivePrice = product.regular_price || 0;

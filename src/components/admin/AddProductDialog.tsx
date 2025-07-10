@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Plus, X } from "lucide-react";
-import CategorySelector from "./CategorySelector";
+import HierarchicalCategorySelector from "./HierarchicalCategorySelector";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -38,8 +38,11 @@ type ProductFormValues = z.infer<typeof productSchema>;
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [categoryHierarchy, setCategoryHierarchy] = useState({
+    category: "",
+    subcategory: "",
+    subSubcategory: ""
+  });
   const [images, setImages] = useState<string[]>([]);
   const [newImage, setNewImage] = useState("");
   const { toast } = useToast();
@@ -81,9 +84,9 @@ const AddProductDialog = () => {
         image_url: values.image_url || null,
         amazon_url: values.amazon_url || null,
         affiliate_url: values.affiliate_url || null,
-        category: selectedCategory,
-        subcategory: subcategories.length > 0 ? subcategories[0] : null, // Keep backward compatibility
-        subcategories: subcategories.length > 0 ? subcategories : null,
+        category: categoryHierarchy.category,
+        subcategory: categoryHierarchy.subcategory || categoryHierarchy.subSubcategory,
+        subcategories: categoryHierarchy.subcategory ? [categoryHierarchy.subcategory] : null,
         images: images.length > 0 ? images : null,
         track_inventory: values.track_inventory || false,
         stock_quantity: values.track_inventory ? values.stock_quantity : null,
@@ -103,8 +106,11 @@ const AddProductDialog = () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast({ title: "Product created successfully!" });
       form.reset();
-      setSelectedCategory("");
-      setSubcategories([]);
+      setCategoryHierarchy({
+        category: "",
+        subcategory: "",
+        subSubcategory: ""
+      });
       setImages([]);
       setNewImage("");
       setOpen(false);
@@ -133,15 +139,6 @@ const AddProductDialog = () => {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  const addSubcategory = (subcategory: string) => {
-    if (subcategory.trim() && !subcategories.includes(subcategory.trim())) {
-      setSubcategories([...subcategories, subcategory.trim()]);
-    }
-  };
-
-  const removeSubcategory = (index: number) => {
-    setSubcategories(subcategories.filter((_, i) => i !== index));
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -209,40 +206,12 @@ const AddProductDialog = () => {
               )}
             />
 
-            {/* Category and Subcategories */}
-            <div className="space-y-4">
-              <CategorySelector
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-                subcategory=""
-                onSubcategoryChange={(subcategory) => {
-                  if (subcategory) addSubcategory(subcategory);
-                }}
-              />
-              
-              {/* Multiple Subcategories */}
-              {subcategories.length > 0 && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Selected Subcategories</label>
-                  <div className="flex flex-wrap gap-2">
-                    {subcategories.map((subcategory, index) => (
-                      <div key={index} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-md">
-                        <span className="text-sm">{subcategory}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                          onClick={() => removeSubcategory(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Hierarchical Category Selection */}
+            <HierarchicalCategorySelector
+              value={categoryHierarchy}
+              onChange={setCategoryHierarchy}
+              label="Product Category"
+            />
 
             {/* Images Section */}
             <div className="space-y-4">

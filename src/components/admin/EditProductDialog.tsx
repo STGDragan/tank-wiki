@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Plus, X } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
-import CategorySelector from "./CategorySelector";
+import HierarchicalCategorySelector from "./HierarchicalCategorySelector";
 import { ProductImageManager } from "./product/ProductImageManager";
 import { ProductSubcategoryManager } from "./product/ProductSubcategoryManager";
 import { ProductInventorySection } from "./product/ProductInventorySection";
@@ -48,8 +48,11 @@ interface EditProductDialogProps {
 }
 
 const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [categoryHierarchy, setCategoryHierarchy] = useState({
+    category: "",
+    subcategory: "",
+    subSubcategory: ""
+  });
   const [images, setImages] = useState<string[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -96,16 +99,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         low_stock_threshold: product.low_stock_threshold || 5,
       });
       
-      setSelectedCategory(product.category || "");
-      
-      // Handle multiple subcategories
-      if (product.subcategories && Array.isArray(product.subcategories)) {
-        setSubcategories(product.subcategories);
-      } else if (product.subcategory) {
-        setSubcategories([product.subcategory]);
-      } else {
-        setSubcategories([]);
-      }
+      // Set up category hierarchy
+      setCategoryHierarchy({
+        category: product.category || "",
+        subcategory: product.subcategory || "",
+        subSubcategory: "" // We'll need to determine this from the hierarchy
+      });
       
       // Handle multiple images
       if (product.images && Array.isArray(product.images)) {
@@ -122,9 +121,9 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       
       const productData = {
         ...values,
-        category: selectedCategory,
-        subcategory: subcategories.length > 0 ? subcategories[0] : null, // Keep backward compatibility
-        subcategories: subcategories.length > 0 ? subcategories : null,
+        category: categoryHierarchy.category,
+        subcategory: categoryHierarchy.subcategory || categoryHierarchy.subSubcategory,
+        subcategories: categoryHierarchy.subcategory ? [categoryHierarchy.subcategory] : null,
         images: images.length > 0 ? images : null,
         stock_quantity: values.track_inventory ? values.stock_quantity : null,
         low_stock_threshold: values.track_inventory ? values.low_stock_threshold : null,
@@ -155,11 +154,6 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     updateProductMutation.mutate(values);
   };
 
-  const addSubcategory = (subcategory: string) => {
-    if (subcategory.trim() && !subcategories.includes(subcategory.trim())) {
-      setSubcategories([...subcategories, subcategory.trim()]);
-    }
-  };
 
   if (!product) return null;
 
@@ -223,22 +217,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               )}
             />
 
-            {/* Category and Subcategories */}
-            <div className="space-y-4">
-              <CategorySelector
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-                subcategory=""
-                onSubcategoryChange={(subcategory) => {
-                  if (subcategory) addSubcategory(subcategory);
-                }}
-              />
-              
-              <ProductSubcategoryManager 
-                subcategories={subcategories}
-                onSubcategoriesChange={setSubcategories}
-              />
-            </div>
+            {/* Hierarchical Category Selection */}
+            <HierarchicalCategorySelector
+              value={categoryHierarchy}
+              onChange={setCategoryHierarchy}
+              label="Product Category"
+            />
 
             <ProductImageManager 
               images={images}
