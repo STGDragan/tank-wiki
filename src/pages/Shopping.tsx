@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/shopping/ProductCard";
@@ -30,6 +30,9 @@ const Shopping = () => {
     difficultyLevel: [],
     compatibilityTags: [],
   });
+
+  // Track if initial price has been set
+  const [initialPriceSet, setInitialPriceSet] = useState(false);
 
   // Fetch raw data from Supabase and keep it in the original format for ProductCard
   const { data: rawProducts = [], isLoading } = useQuery({
@@ -131,8 +134,20 @@ const Shopping = () => {
 
   const maxPrice = useMemo(() => {
     if (products.length === 0) return 1000;
-    return Math.max(...products.map(p => p.regular_price || 0));
+    const prices = products.map(p => p.regular_price || 0).filter(p => p > 0);
+    return prices.length > 0 ? Math.max(...prices) : 1000;
   }, [products]);
+
+  // Update initial price range when products load
+  useEffect(() => {
+    if (!initialPriceSet && maxPrice > 1000) {
+      setFilters(prev => ({
+        ...prev,
+        priceRange: [0, maxPrice]
+      }));
+      setInitialPriceSet(true);
+    }
+  }, [maxPrice, initialPriceSet]);
 
   const filteredProducts = useMemo(() => {
     let filtered = products.filter((product) => {
@@ -140,8 +155,12 @@ const Shopping = () => {
         product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.brand?.toLowerCase().includes(searchQuery.toLowerCase());
 
+      // Fix category matching: convert category slugs to names for comparison
       const matchesCategory = filters.categories.length === 0 || 
-        filters.categories.includes(product.category || '');
+        filters.categories.some(slug => {
+          const category = categories.find(cat => cat.slug === slug);
+          return category && category.name === product.category;
+        });
 
       const effectivePrice = product.regular_price || 0;
       const matchesPrice = effectivePrice >= filters.priceRange[0] && 
@@ -183,7 +202,7 @@ const Shopping = () => {
     });
 
     return filtered;
-  }, [products, searchQuery, sortBy, filters]);
+  }, [products, searchQuery, sortBy, filters, categories]);
 
   // Create a mapping from filtered products back to raw products for ProductCard
   const filteredRawProducts = useMemo(() => {
