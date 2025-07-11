@@ -35,6 +35,13 @@ const HierarchicalCategorySelector = ({
   const [selectedSubcategory, setSelectedSubcategory] = useState(value.subcategory);
   const [selectedSubSubcategory, setSelectedSubSubcategory] = useState(value.subSubcategory);
 
+  // Sync internal state with prop changes
+  useEffect(() => {
+    setSelectedCategory(value.category);
+    setSelectedSubcategory(value.subcategory);
+    setSelectedSubSubcategory(value.subSubcategory);
+  }, [value.category, value.subcategory, value.subSubcategory]);
+
   // Fetch categories
   const { data: categories = [] } = useQuery({
     queryKey: ["product-categories-hierarchy"],
