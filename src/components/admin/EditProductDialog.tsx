@@ -99,11 +99,15 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         low_stock_threshold: product.low_stock_threshold || 5,
       });
       
-      // Set up category hierarchy
+      // Set up category hierarchy - reconstruct from stored data
+      const subcategoriesArray = product.subcategories as string[] || [];
+      const storedSubcategory = subcategoriesArray[0] || "";
+      const storedSubSubcategory = subcategoriesArray[1] || "";
+      
       setCategoryHierarchy({
         category: product.category || "",
-        subcategory: product.subcategory || "",
-        subSubcategory: "" // We'll need to determine this from the hierarchy
+        subcategory: storedSubcategory,
+        subSubcategory: storedSubSubcategory
       });
       
       // Handle multiple images
@@ -160,8 +164,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       const productData = {
         ...values,
         category: categoryHierarchy.category,
-        subcategory: categoryHierarchy.subcategory || categoryHierarchy.subSubcategory,
-        subcategories: categoryHierarchy.subcategory ? [categoryHierarchy.subcategory] : null,
+        subcategory: categoryHierarchy.subSubcategory || categoryHierarchy.subcategory || null,
+        subcategories: [categoryHierarchy.subcategory, categoryHierarchy.subSubcategory].filter(Boolean),
         images: images.length > 0 ? images : null,
         stock_quantity: values.track_inventory ? values.stock_quantity : null,
         low_stock_threshold: values.track_inventory ? values.low_stock_threshold : null,
