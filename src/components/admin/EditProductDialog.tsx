@@ -112,8 +112,46 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       } else {
         setImages([]);
       }
+    } else {
+      // Reset everything when no product is selected
+      form.reset({
+        name: "",
+        description: "",
+        brand: "",
+        condition: "new",
+        visible: true,
+        is_featured: false,
+        is_recommended: false,
+        is_on_sale: false,
+        image_url: "",
+        amazon_url: "",
+        affiliate_url: "",
+        track_inventory: false,
+        stock_quantity: undefined,
+        low_stock_threshold: 5,
+      });
+      
+      setCategoryHierarchy({
+        category: "",
+        subcategory: "",
+        subSubcategory: ""
+      });
+      
+      setImages([]);
     }
   }, [product, form]);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setCategoryHierarchy({
+        category: "",
+        subcategory: "",
+        subSubcategory: ""
+      });
+      setImages([]);
+    }
+  }, [open]);
 
   const updateProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
