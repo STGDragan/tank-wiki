@@ -180,7 +180,12 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         .update(productData)
         .eq("id", product.id);
       
-      if (productError) throw productError;
+      if (productError) {
+        console.error("Database error:", productError);
+        throw productError;
+      }
+      
+      console.log("Product saved successfully!");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
