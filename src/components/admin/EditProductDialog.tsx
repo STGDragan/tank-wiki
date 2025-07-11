@@ -161,6 +161,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     mutationFn: async (values: ProductFormValues) => {
       if (!product) throw new Error("No product selected");
       
+      console.log("Saving product with category hierarchy:", categoryHierarchy);
+      
       const productData = {
         ...values,
         category: categoryHierarchy.category,
@@ -170,6 +172,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         stock_quantity: values.track_inventory ? values.stock_quantity : null,
         low_stock_threshold: values.track_inventory ? values.low_stock_threshold : null,
       };
+
+      console.log("Product data being saved:", productData);
 
       const { error: productError } = await supabase
         .from("products")
