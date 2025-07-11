@@ -81,12 +81,14 @@ const HierarchicalCategorySelector = ({
   };
 
   const handleSubcategoryChange = (subcategoryName: string) => {
-    setSelectedSubcategory(subcategoryName);
+    const actualValue = subcategoryName === "none" ? "" : subcategoryName;
+    setSelectedSubcategory(actualValue);
     setSelectedSubSubcategory(""); // Reset sub-subcategory
   };
 
   const handleSubSubcategoryChange = (subSubcategoryName: string) => {
-    setSelectedSubSubcategory(subSubcategoryName);
+    const actualValue = subSubcategoryName === "none" ? "" : subSubcategoryName;
+    setSelectedSubSubcategory(actualValue);
   };
 
   return (
@@ -114,12 +116,12 @@ const HierarchicalCategorySelector = ({
       {selectedCategory && subcategories.length > 0 && (
         <div className="space-y-2">
           <Label className="text-sm font-medium">Subcategory</Label>
-          <Select value={selectedSubcategory} onValueChange={handleSubcategoryChange}>
+          <Select value={selectedSubcategory || "none"} onValueChange={handleSubcategoryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select subcategory..." />
             </SelectTrigger>
             <SelectContent className="max-h-96 overflow-y-auto">
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="none">None</SelectItem>
               {subcategories.map((subcat) => (
                 <SelectItem key={subcat.id} value={subcat.name}>
                   {subcat.name}
@@ -134,12 +136,12 @@ const HierarchicalCategorySelector = ({
       {selectedSubcategory && subSubcategories.length > 0 && (
         <div className="space-y-2">
           <Label className="text-sm font-medium">Sub-subcategory</Label>
-          <Select value={selectedSubSubcategory} onValueChange={handleSubSubcategoryChange}>
+          <Select value={selectedSubSubcategory || "none"} onValueChange={handleSubSubcategoryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select sub-subcategory..." />
             </SelectTrigger>
             <SelectContent className="max-h-96 overflow-y-auto">
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="none">None</SelectItem>
               {subSubcategories.map((subsubcat) => (
                 <SelectItem key={subsubcat.id} value={subsubcat.name}>
                   {subsubcat.name}
