@@ -151,6 +151,12 @@ const Shopping = () => {
   }, [maxPrice, initialPriceSet]);
 
   const filteredProducts = useMemo(() => {
+    console.log("Filtering products:", {
+      totalProducts: products.length,
+      selectedFilters: filters.categories,
+      categoriesData: categories.map(c => ({ name: c.name, slug: c.slug }))
+    });
+    
     let filtered = products.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
