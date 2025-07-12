@@ -162,6 +162,14 @@ const Shopping = () => {
           const category = categories.find(cat => cat.slug === slug);
           if (!category) return false;
           
+          console.log("Checking category filter:", {
+            filterSlug: slug,
+            categoryName: category.name,
+            productCategory: product.category,
+            productSubcategory: product.subcategory,
+            productSubcategories: product.subcategories
+          });
+          
           // Check if it matches the product's main category
           if (category.name === product.category) return true;
           

@@ -102,11 +102,20 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       // Set up category hierarchy - reconstruct from stored data
       const subcategoriesArray = product.subcategories as string[] || [];
       
-      setCategoryHierarchy({
+      console.log("Loading product data:", {
+        category: product.category,
+        subcategory: product.subcategory,
+        subcategories: product.subcategories
+      });
+      
+      const hierarchyData = {
         category: product.category || "",
         subcategory: subcategoriesArray.length > 0 ? subcategoriesArray[0] : product.subcategory || "",
         subSubcategory: subcategoriesArray.length > 1 ? subcategoriesArray[1] : ""
-      });
+      };
+      
+      console.log("Setting category hierarchy:", hierarchyData);
+      setCategoryHierarchy(hierarchyData);
       
       // Handle multiple images
       if (product.images && Array.isArray(product.images)) {

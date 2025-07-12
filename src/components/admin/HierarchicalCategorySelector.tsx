@@ -37,6 +37,7 @@ const HierarchicalCategorySelector = ({
 
   // Sync internal state with prop changes
   useEffect(() => {
+    console.log("HierarchicalCategorySelector: Syncing with props:", value);
     setSelectedCategory(value.category);
     setSelectedSubcategory(value.subcategory);
     setSelectedSubSubcategory(value.subSubcategory);
