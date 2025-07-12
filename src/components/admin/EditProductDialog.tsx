@@ -101,13 +101,11 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       
       // Set up category hierarchy - reconstruct from stored data
       const subcategoriesArray = product.subcategories as string[] || [];
-      const storedSubcategory = subcategoriesArray[0] || "";
-      const storedSubSubcategory = subcategoriesArray[1] || "";
       
       setCategoryHierarchy({
         category: product.category || "",
-        subcategory: storedSubcategory,
-        subSubcategory: storedSubSubcategory
+        subcategory: subcategoriesArray[0] || "",
+        subSubcategory: subcategoriesArray[1] || ""
       });
       
       // Handle multiple images
