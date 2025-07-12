@@ -72,6 +72,7 @@ const Shopping = () => {
       brand: item.brand,
       category: item.category,
       subcategory: item.subcategory,
+      subcategories: Array.isArray(item.subcategories) ? item.subcategories as string[] : null,
       condition: item.condition,
       tank_types: Array.isArray(item.tank_types) ? item.tank_types as string[] : null,
       visible: item.visible,
@@ -166,6 +167,12 @@ const Shopping = () => {
           
           // Check if it matches the product's subcategory (old flat structure)
           if (category.name === product.subcategory) return true;
+          
+          // Check if the category matches any item in the product's subcategories array
+          if (product.subcategories && Array.isArray(product.subcategories)) {
+            const subcategoriesArray = product.subcategories as string[];
+            if (subcategoriesArray.includes(category.name)) return true;
+          }
           
           // Check if the product's subcategory matches any child of this category
           const categoryChildren = categories.filter(cat => cat.parent_id === category.id);

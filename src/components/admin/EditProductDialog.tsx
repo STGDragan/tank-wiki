@@ -104,8 +104,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       
       setCategoryHierarchy({
         category: product.category || "",
-        subcategory: subcategoriesArray[0] || "",
-        subSubcategory: subcategoriesArray[1] || ""
+        subcategory: subcategoriesArray.length > 0 ? subcategoriesArray[0] : product.subcategory || "",
+        subSubcategory: subcategoriesArray.length > 1 ? subcategoriesArray[1] : ""
       });
       
       // Handle multiple images
