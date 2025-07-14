@@ -153,17 +153,6 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     }
   }, [product, open, form]);
 
-  // Reset state when dialog closes
-  useEffect(() => {
-    if (!open) {
-      setCategoryHierarchy({
-        category: "",
-        subcategory: "",
-        subSubcategory: ""
-      });
-      setImages([]);
-    }
-  }, [open]);
 
   const updateProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {

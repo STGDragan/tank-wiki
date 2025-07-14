@@ -177,22 +177,35 @@ const Shopping = () => {
           });
           
           // Check if it matches the product's main category
-          if (category.name === product.category) return true;
+          if (category.name === product.category) {
+            console.log(`✅ Match: ${category.name} === ${product.category}`);
+            return true;
+          }
           
           // Check if it matches the product's subcategory (old flat structure)
-          if (category.name === product.subcategory) return true;
+          if (category.name === product.subcategory) {
+            console.log(`✅ Match: ${category.name} === ${product.subcategory}`);
+            return true;
+          }
           
           // Check if the category matches any item in the product's subcategories array
           if (product.subcategories && Array.isArray(product.subcategories)) {
             const subcategoriesArray = product.subcategories as string[];
-            if (subcategoriesArray.includes(category.name)) return true;
+            if (subcategoriesArray.includes(category.name)) {
+              console.log(`✅ Match: ${category.name} in subcategories ${subcategoriesArray.join(', ')}`);
+              return true;
+            }
           }
           
           // Check if the product's subcategory matches any child of this category
           const categoryChildren = categories.filter(cat => cat.parent_id === category.id);
-          if (categoryChildren.some(child => child.name === product.subcategory)) return true;
+          if (categoryChildren.some(child => child.name === product.subcategory)) {
+            console.log(`✅ Match: ${product.subcategory} is child of ${category.name}`);
+            return true;
+          }
           
           // If none of the above match, return false
+          console.log(`❌ No match for ${category.name}`);
           return false;
         });
 
@@ -210,8 +223,12 @@ const Shopping = () => {
         (product.tank_types && Array.isArray(product.tank_types) && 
          filters.tankTypes.some(type => (product.tank_types as string[])?.includes(type)));
 
-      return matchesSearch && matchesCategory && matchesPrice && 
-             matchesBrand && matchesCondition && matchesTankTypes;
+      const finalResult = matchesSearch && matchesCategory && matchesPrice && 
+                          matchesBrand && matchesCondition && matchesTankTypes;
+      
+      console.log(`Product ${product.name}: ${finalResult ? '✅ INCLUDED' : '❌ FILTERED OUT'} (search: ${matchesSearch}, category: ${matchesCategory}, price: ${matchesPrice})`);
+      
+      return finalResult;
     });
 
     // Sort products
