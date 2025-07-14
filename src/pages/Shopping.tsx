@@ -164,11 +164,11 @@ const Shopping = () => {
 
       // Fix category matching: handle both hierarchical and flat category structures
       const matchesCategory = filters.categories.length === 0 || 
-        filters.categories.some(slug => {
+        filters.categories.every(slug => { // Changed from .some() to .every() for AND logic
           const category = categories.find(cat => cat.slug === slug);
           if (!category) return false;
           
-          console.log("Checking category filter:", {
+          console.log("Checking category filter (AND logic):", {
             filterSlug: slug,
             categoryName: category.name,
             productCategory: product.category,
