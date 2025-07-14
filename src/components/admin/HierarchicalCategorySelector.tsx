@@ -73,14 +73,19 @@ const HierarchicalCategorySelector = ({
     ? categories.filter(cat => cat.parent_id === selectedSubcategoryData.id)
     : [];
 
-  // Update parent component when values change
+  // Update parent component when values change (only when not syncing from props)
   useEffect(() => {
-    onChange({
-      category: selectedCategory,
-      subcategory: selectedSubcategory,
-      subSubcategory: selectedSubSubcategory
-    });
-  }, [selectedCategory, selectedSubcategory, selectedSubSubcategory]);
+    // Only call onChange if the internal state differs from props
+    if (selectedCategory !== value.category || 
+        selectedSubcategory !== value.subcategory || 
+        selectedSubSubcategory !== value.subSubcategory) {
+      onChange({
+        category: selectedCategory,
+        subcategory: selectedSubcategory,
+        subSubcategory: selectedSubSubcategory
+      });
+    }
+  }, [selectedCategory, selectedSubcategory, selectedSubSubcategory, onChange, value]);
 
   const handleCategoryChange = (categoryName: string) => {
     setSelectedCategory(categoryName);
