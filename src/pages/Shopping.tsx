@@ -190,7 +190,10 @@ const Shopping = () => {
           
           // Check if the product's subcategory matches any child of this category
           const categoryChildren = categories.filter(cat => cat.parent_id === category.id);
-          return categoryChildren.some(child => child.name === product.subcategory);
+          if (categoryChildren.some(child => child.name === product.subcategory)) return true;
+          
+          // If none of the above match, return false
+          return false;
         });
 
       const effectivePrice = product.regular_price || 0;

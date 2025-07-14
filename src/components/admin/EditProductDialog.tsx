@@ -79,7 +79,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
 
   // Reset form when product changes
   useEffect(() => {
-    if (product) {
+    if (product && open) {
+      // Only process when dialog is open and product exists
       form.reset({
         name: product.name || "",
         description: product.description || "",
@@ -123,8 +124,8 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       } else {
         setImages([]);
       }
-    } else {
-      // Reset everything when no product is selected
+    } else if (!open) {
+      // Reset everything when dialog closes
       form.reset({
         name: "",
         description: "",
@@ -150,7 +151,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
       
       setImages([]);
     }
-  }, [product, form]);
+  }, [product, open, form]);
 
   // Reset state when dialog closes
   useEffect(() => {
