@@ -67,7 +67,7 @@ export function CategorizedSpeciesSelector({
 
       {categorizedSpecies.map((category) => (
         <div key={category.name} className="space-y-3">
-          <Label className="text-base font-medium dark:text-slate-200">{category.name}</Label>
+          <Label className="text-base font-medium text-foreground">{category.name}</Label>
           
           {/* Species Selection Dropdown */}
           <div className="flex gap-2">
@@ -75,14 +75,14 @@ export function CategorizedSpeciesSelector({
               value={selectedSpeciesPerCategory[category.name] || ""} 
               onValueChange={(species) => handleSpeciesSelect(category.name, species)}
             >
-              <SelectTrigger className="flex-1 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200">
+              <SelectTrigger className="flex-1 bg-popover border-border text-popover-foreground hover:bg-card">
                 <SelectValue placeholder={`Choose ${category.name.toLowerCase()}...`} />
               </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-slate-800 border dark:border-slate-700 z-50 max-h-[300px] overflow-y-auto">
+              <SelectContent className="bg-popover border-border z-50 max-h-[300px] overflow-y-auto">
                 {category.species
                   .filter(species => !value.includes(species))
                   .map((species) => (
-                    <SelectItem key={species} value={species}>
+                    <SelectItem key={species} value={species} className="text-popover-foreground hover:bg-card focus:bg-card">
                       {species}
                     </SelectItem>
                   ))}
@@ -103,7 +103,7 @@ export function CategorizedSpeciesSelector({
               placeholder={`Add custom ${category.name.toLowerCase()}...`}
               value={customSpeciesInputs[category.name] || ""}
               onChange={(e) => handleCustomSpeciesChange(category.name, e.target.value)}
-              className="flex-1 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:placeholder-slate-400"
+              className="flex-1 bg-input border-border text-foreground placeholder:text-muted-foreground"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -135,7 +135,7 @@ export function CategorizedSpeciesSelector({
                     <Badge 
                       key={species} 
                       variant="secondary" 
-                      className="cursor-pointer dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 flex items-center gap-1" 
+                      className="cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/80 flex items-center gap-1" 
                       onClick={() => removeSpecies(species)}
                     >
                       {species} 
@@ -149,8 +149,8 @@ export function CategorizedSpeciesSelector({
       ))}
 
       {value.length > 0 && (
-        <div className="space-y-2 pt-4 border-t dark:border-slate-700">
-          <Label className="text-base font-medium dark:text-slate-200">
+        <div className="space-y-2 pt-4 border-t border-border">
+          <Label className="text-base font-medium text-foreground">
             All Selected Species ({value.length})
           </Label>
           <div className="flex flex-wrap gap-2">
@@ -158,7 +158,7 @@ export function CategorizedSpeciesSelector({
               <Badge 
                 key={species} 
                 variant="default" 
-                className="cursor-pointer bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:hover:bg-blue-800/50 flex items-center gap-1" 
+                className="cursor-pointer bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 flex items-center gap-1" 
                 onClick={() => removeSpecies(species)}
               >
                 {species} 
