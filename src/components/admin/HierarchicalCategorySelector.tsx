@@ -85,7 +85,7 @@ const HierarchicalCategorySelector = ({
         subSubcategory: selectedSubSubcategory
       });
     }
-  }, [selectedCategory, selectedSubcategory, selectedSubSubcategory, onChange, value]);
+  }, [selectedCategory, selectedSubcategory, selectedSubSubcategory]);
 
   const handleCategoryChange = (categoryName: string) => {
     setSelectedCategory(categoryName);
