@@ -56,12 +56,26 @@ export function AquariumSetupWizard({ aquariumCount }: AquariumSetupWizardProps)
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
+      // Scroll to top when navigating to next step
+      setTimeout(() => {
+        const dialogContent = document.querySelector('.overflow-y-auto');
+        if (dialogContent) {
+          dialogContent.scrollTop = 0;
+        }
+      }, 100);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top when navigating to previous step
+      setTimeout(() => {
+        const dialogContent = document.querySelector('.overflow-y-auto');
+        if (dialogContent) {
+          dialogContent.scrollTop = 0;
+        }
+      }, 100);
     }
   };
 

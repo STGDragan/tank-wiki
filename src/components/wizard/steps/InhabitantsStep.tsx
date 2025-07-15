@@ -108,10 +108,10 @@ export function InhabitantsStep({ data, onUpdate, onNext, onPrev }: WizardStepPr
   };
 
   return (
-    <div className="space-y-6 wizard-bg min-h-screen p-6">
+    <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold mb-2 text-white drop-shadow-lg">Introducing Your Inhabitants</h2>
-        <p className="text-white/90 drop-shadow">Recommended stocking timeline for your {data.tankGoal.toLowerCase()}</p>
+        <h2 className="text-2xl font-semibold mb-2 dark:text-slate-100">Introducing Your Inhabitants</h2>
+        <p className="text-muted-foreground dark:text-slate-400">Recommended stocking timeline for your {data.tankGoal.toLowerCase()}</p>
       </div>
 
       <Card className="vibrant-card bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700">
@@ -130,8 +130,8 @@ export function InhabitantsStep({ data, onUpdate, onNext, onPrev }: WizardStepPr
       </Card>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white drop-shadow">Your Selected Species Timeline</h3>
-        {additionOrder.map((phase, index) => (
+        <h3 className="text-lg font-semibold dark:text-slate-100">Your Selected Species Timeline</h3>
+        {additionOrder.filter(phase => phase.selectedSpecies.length > 0).map((phase, index) => (
           <Card key={index} className={`vibrant-card ${phase.color}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -208,11 +208,11 @@ export function InhabitantsStep({ data, onUpdate, onNext, onPrev }: WizardStepPr
       </Card>
 
       <div className="flex justify-between">
-        <Button variant="outline" onClick={onPrev} className="bg-white/90 backdrop-blur-sm">
+        <Button variant="outline" onClick={onPrev}>
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <Button onClick={() => { handleOrderSelect(); onNext(); }} className="btn-vibrant">
+        <Button onClick={() => { handleOrderSelect(); onNext(); }}>
           Next
         </Button>
       </div>
