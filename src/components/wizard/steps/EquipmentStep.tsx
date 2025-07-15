@@ -14,17 +14,19 @@ interface EquipmentStepProps {
 }
 
 const essentialEquipment = [
-  { id: 'filter', name: 'Filter System', description: 'Essential for water quality' },
-  { id: 'heater', name: 'Heater', description: 'Temperature control for tropical fish' },
-  { id: 'lighting', name: 'LED Lighting', description: 'Proper illumination for fish and plants' },
-  { id: 'airPump', name: 'Air Pump', description: 'Oxygenation and water circulation' },
+  { id: 'filter', name: 'Filter System', description: 'Essential for water quality', category: 'Filters' },
+  { id: 'heater', name: 'Heater', description: 'Temperature control for tropical fish', category: 'Heating' },
+  { id: 'lighting', name: 'LED Lighting', description: 'Proper illumination for fish and plants', category: 'Lights' },
+  { id: 'substrate', name: 'Substrate', description: 'Gravel, sand, or specialized substrate', category: 'Substrate' },
+  { id: 'airPump', name: 'Air Pump', description: 'Oxygenation and water circulation', category: 'Air' },
+  { id: 'waterConditioner', name: 'Water Conditioner', description: 'Essential water treatment', category: 'Treatment' },
+  { id: 'fishFood', name: 'Fish Food', description: 'Quality nutrition for your fish', category: 'Food' },
 ];
 
 const optionalEquipment = [
-  { id: 'substrate', name: 'Substrate', description: 'Gravel, sand, or specialized substrate' },
-  { id: 'decorations', name: 'Decorations', description: 'Caves, plants, and ornaments' },
-  { id: 'waterConditioner', name: 'Water Conditioner', description: 'Treatment chemicals' },
-  { id: 'foodFlakes', name: 'Fish Food', description: 'Quality nutrition for your fish' },
+  { id: 'decorations', name: 'Decorations', description: 'Caves, plants, and ornaments', category: 'Decorations' },
+  { id: 'testKit', name: 'Water Test Kit', description: 'Monitor water parameters', category: 'Testing' },
+  { id: 'maintenance', name: 'Maintenance Tools', description: 'Cleaning and maintenance equipment', category: 'Maintenance' },
 ];
 
 export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepProps) {
@@ -64,20 +66,20 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 wizard-bg min-h-screen p-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">Essential Equipment</h2>
-        <p className="text-muted-foreground">
-          Select the equipment you'll need for your aquarium setup
+        <h2 className="text-2xl font-semibold mb-2 text-foreground drop-shadow-lg">Equipment Selection</h2>
+        <p className="text-muted-foreground drop-shadow">
+          Choose products to purchase or mark what you already have
         </p>
       </div>
 
       {/* Essential Equipment */}
-      <Card>
+      <Card className="vibrant-card">
         <CardHeader>
-          <CardTitle className="text-lg">Required Equipment</CardTitle>
+          <CardTitle className="text-lg text-foreground">Essential Equipment</CardTitle>
           <CardDescription>
-            These items are essential for a healthy aquarium
+            These items are required for a healthy aquarium setup
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -102,7 +104,7 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
               {isEquipmentSelected(equipment.id) && (
                 <div className="ml-8 mr-4">
                   <EquipmentProductSelector
-                    equipmentType={equipment.name}
+                    equipmentType={equipment.category}
                     tankType={getTankType()}
                     tankSize={data.tankSize}
                     onProductSelect={(productId, product) => 
@@ -118,11 +120,11 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
       </Card>
 
       {/* Optional Equipment */}
-      <Card>
+      <Card className="vibrant-card">
         <CardHeader>
-          <CardTitle className="text-lg">Optional Equipment</CardTitle>
+          <CardTitle className="text-lg text-foreground">Optional Equipment</CardTitle>
           <CardDescription>
-            Additional items to enhance your aquarium
+            Additional items to enhance your aquarium experience
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -147,7 +149,7 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
               {isEquipmentSelected(equipment.id) && (
                 <div className="ml-8 mr-4">
                   <EquipmentProductSelector
-                    equipmentType={equipment.name}
+                    equipmentType={equipment.category}
                     tankType={getTankType()}
                     tankSize={data.tankSize}
                     onProductSelect={(productId, product) => 
@@ -163,10 +165,13 @@ export function EquipmentStep({ data, onUpdate, onNext, onPrev }: EquipmentStepP
       </Card>
 
       <div className="flex justify-between">
-        <Button onClick={onPrev} variant="outline">
+        <Button variant="outline" onClick={onPrev} className="bg-card/90 backdrop-blur-sm border-border">
           Previous
         </Button>
-        <Button onClick={onNext}>
+        <Button 
+          onClick={onNext}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
           Continue
         </Button>
       </div>

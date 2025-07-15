@@ -9,6 +9,8 @@ interface Product {
   id: string;
   name: string;
   brand?: string;
+  category?: string;
+  subcategory?: string;
   image_url?: string;
   regular_price?: number;
   sale_price?: number;
@@ -43,7 +45,7 @@ export const EquipmentProductSelector = ({
         .from('products')
         .select(`
           id, name, brand, image_url, regular_price, sale_price, is_on_sale, 
-          description, tank_types,
+          description, tank_types, category, subcategory,
           affiliate_links (
             provider,
             link_url
@@ -51,8 +53,12 @@ export const EquipmentProductSelector = ({
         `)
         .eq('visible', true)
         .eq('is_recommended', true)
-        .ilike('category', `%${equipmentType}%`)
-        .limit(3); // Show top 3 recommendations
+        .limit(5); // Show top 5 recommendations
+
+      // Try to match by category or subcategory
+      if (equipmentType) {
+        query = query.or(`category.ilike.%${equipmentType}%,subcategory.ilike.%${equipmentType}%`);
+      }
 
       if (tankType) {
         query = query.contains('tank_types', [tankType]);
@@ -75,6 +81,10 @@ export const EquipmentProductSelector = ({
 
   const handleProductSelect = (product: Product) => {
     onProductSelect(product.id, product);
+  };
+  
+  const handleOwnProduct = () => {
+    onProductSelect('own', { id: 'own', name: 'I have this already' } as Product);
   };
 
   const getAmazonLink = (product: Product) => {
@@ -100,16 +110,16 @@ export const EquipmentProductSelector = ({
     return (
       <Card className="border-dashed">
         <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm mb-4">
             No recommended products found for {equipmentType.toLowerCase()}
           </p>
           <Button 
             variant="outline" 
-            size="sm" 
-            className="mt-2"
-            onClick={() => onProductSelect(null, null)}
+            size="sm"
+            onClick={handleOwnProduct}
+            className="w-full"
           >
-            Skip for now
+            I have this already
           </Button>
         </CardContent>
       </Card>
@@ -123,12 +133,12 @@ export const EquipmentProductSelector = ({
           Recommended {equipmentType}
         </h4>
         <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => onProductSelect(null, null)}
+          variant="outline" 
+          size="sm"
+          onClick={handleOwnProduct}
           className="text-xs"
         >
-          Skip
+          I have this already
         </Button>
       </div>
       
@@ -136,6 +146,7 @@ export const EquipmentProductSelector = ({
         {products.map((product) => {
           const amazonLink = getAmazonLink(product);
           const isSelected = selectedProductId === product.id;
+          const isOwn = selectedProductId === 'own';
           
           return (
             <Card 
@@ -226,9 +237,19 @@ export const EquipmentProductSelector = ({
         <div className="text-center">
           <p className="text-xs text-muted-foreground">
             <Star className="inline h-3 w-3 mr-1" />
-            Selected for your aquarium setup
+            {selectedProductId === 'own' ? 'Using existing equipment' : 'Selected for purchase'}
           </p>
         </div>
+      )}
+      
+      {selectedProductId === 'own' && (
+        <Card className="border-dashed bg-muted/20">
+          <CardContent className="p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              ✓ You already have this equipment
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
