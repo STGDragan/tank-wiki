@@ -53,20 +53,20 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md vibrant-card">
+      <DialogContent className="max-w-md bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 border-slate-700 text-white">
         <DialogHeader className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+          <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
             <Crown className="h-6 w-6 text-white" />
           </div>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-2xl font-bold text-white">
             Upgrade to Pro
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
-          <Card className="bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700">
+          <Card className="bg-red-500/20 border-red-400/30 backdrop-blur-sm">
             <CardContent className="pt-4">
-              <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+              <div className="flex items-center gap-2 text-red-200">
                 <Fish className="h-4 w-4" />
                 <span className="text-sm font-medium">
                   You've reached the limit ({aquariumCount}/3 aquariums)
@@ -76,32 +76,32 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
           </Card>
 
           <div className="space-y-3">
-            <h3 className="font-semibold text-center">Unlock Pro Features:</h3>
+            <h3 className="font-semibold text-center text-white">Unlock Pro Features:</h3>
             {proFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+              <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
                 {feature.icon}
                 <div className="flex-1">
-                  <p className="font-medium text-sm">{feature.title}</p>
-                  <p className="text-xs text-muted-foreground">{feature.description}</p>
+                  <p className="font-medium text-sm text-white">{feature.title}</p>
+                  <p className="text-xs text-white/80">{feature.description}</p>
                 </div>
-                <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
               </div>
             ))}
           </div>
 
-          <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 dark:from-purple-900/20 dark:to-pink-900/20 dark:border-purple-700">
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20">
             <CardHeader className="text-center pb-2">
               <div className="flex items-center justify-center gap-2">
-                <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
                   Limited Time
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <div className="text-3xl font-bold text-white">
                 $4.99<span className="text-lg">/month</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-white/80 mt-1">
                 Cancel anytime • 7-day free trial
               </p>
             </CardContent>
@@ -111,27 +111,27 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
             <Button 
               onClick={handleUpgrade}
               disabled={isLoading}
-              className="w-full btn-pro-upgrade text-lg font-semibold py-6"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-lg font-semibold py-6 border-0"
             >
               {isLoading ? "Loading..." : "Start Free Trial"}
             </Button>
             <Button 
               variant="outline" 
               onClick={handleLearnMore}
-              className="w-full"
+              className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
             >
               Learn More About Pro
             </Button>
             <Button 
               variant="ghost" 
               onClick={onClose}
-              className="w-full text-xs"
+              className="w-full text-xs text-white/70 hover:text-white hover:bg-white/10"
             >
               Maybe Later
             </Button>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="text-xs text-center text-white/70">
             Join thousands of aquarists who've upgraded to Pro
           </p>
         </div>

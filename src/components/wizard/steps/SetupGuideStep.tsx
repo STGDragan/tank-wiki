@@ -8,55 +8,61 @@ import { WizardStepProps } from "../types";
 import { ChevronLeft, Clock, Bell, BookOpen, CheckCircle } from "lucide-react";
 
 export function SetupGuideStep({ data, onUpdate, onNext, onPrev }: WizardStepProps) {
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [completedArticles, setCompletedArticles] = useState<string[]>([]);
 
   const setupSteps = [
     {
+      id: 'tank_placed',
       step: 1,
-      title: 'Prepare the Location',
+      title: 'Tank placed in ideal location',
       description: 'Clean the area and place your tank stand',
       emoji: '🧹',
       article: 'Tank Placement Guide'
     },
     {
+      id: 'equipment_installed',
       step: 2,
-      title: 'Install Equipment',
+      title: 'Equipment installed',
       description: 'Set up filter, heater, and other equipment',
       emoji: '🔧',
       article: 'Equipment Installation'
     },
     {
+      id: 'substrate_added',
       step: 3,
-      title: 'Add Substrate',
+      title: 'Substrate added',
       description: 'Rinse and add gravel, sand, or soil',
       emoji: '🪨',
       article: 'Substrate Selection Guide'
     },
     {
+      id: 'decorations_added',
       step: 4,
-      title: 'Add Decorations',
+      title: 'Decorations and hardscape added',
       description: 'Place rocks, driftwood, and decorations',
       emoji: '🏺',
       article: 'Aquascaping Basics'
     },
     {
+      id: 'water_added',
       step: 5,
-      title: 'Fill with Water',
+      title: 'Water added and conditioned',
       description: 'Add dechlorinated water slowly',
       emoji: '💧',
       article: 'Water Preparation'
     },
     {
+      id: 'cycle_started',
       step: 6,
-      title: 'Start Equipment',
+      title: 'Cycle started',
       description: 'Turn on filter, heater, and lights',
       emoji: '⚡',
       article: 'Initial Startup'
     },
     {
+      id: 'cycle_completed',
       step: 7,
-      title: 'Begin Cycling',
+      title: 'Tank fully cycled',
       description: 'Start the nitrogen cycle process',
       emoji: '🔄',
       article: 'Nitrogen Cycle Guide'
@@ -87,11 +93,12 @@ export function SetupGuideStep({ data, onUpdate, onNext, onPrev }: WizardStepPro
   const isSaltwater = data.tankGoal.includes('Saltwater') || data.tankGoal.includes('Reef');
   const cycleInfo = isSaltwater ? cyclingInfo.saltwater : cyclingInfo.freshwater;
 
-  const handleStepComplete = (stepNumber: number, checked: boolean) => {
+  const handleStepComplete = (stepId: string, checked: boolean) => {
+    const currentSteps = data.completedSetupSteps || [];
     if (checked) {
-      setCompletedSteps([...completedSteps, stepNumber]);
+      onUpdate({ completedSetupSteps: [...currentSteps, stepId] });
     } else {
-      setCompletedSteps(completedSteps.filter(step => step !== stepNumber));
+      onUpdate({ completedSetupSteps: currentSteps.filter(step => step !== stepId) });
     }
   };
 
@@ -123,7 +130,7 @@ export function SetupGuideStep({ data, onUpdate, onNext, onPrev }: WizardStepPro
         <CardHeader>
           <CardTitle className="text-lg dark:text-slate-100 flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
-            Setup Progress ({completedSteps.length}/{setupSteps.length})
+            Setup Progress ({(data.completedSetupSteps || []).length}/{setupSteps.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -131,8 +138,8 @@ export function SetupGuideStep({ data, onUpdate, onNext, onPrev }: WizardStepPro
             {setupSteps.map((step) => (
               <div key={step.step} className="flex items-center gap-3 p-3 border rounded-lg dark:border-slate-600">
                 <Checkbox
-                  checked={completedSteps.includes(step.step)}
-                  onCheckedChange={(checked) => handleStepComplete(step.step, checked as boolean)}
+                  checked={(data.completedSetupSteps || []).includes(step.id)}
+                  onCheckedChange={(checked) => handleStepComplete(step.id, checked as boolean)}
                 />
                 <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400">
                   {step.step}

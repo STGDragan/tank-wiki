@@ -35,7 +35,8 @@ export function AquariumSetupWizard({ aquariumCount }: AquariumSetupWizardProps)
     tankShape: '',
     equipment: [],
     wantsCycleReminders: false,
-    inhabitantOrder: []
+    inhabitantOrder: [],
+    completedSetupSteps: []
   });
 
   const steps = [

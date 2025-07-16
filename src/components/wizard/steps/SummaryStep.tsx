@@ -35,6 +35,8 @@ export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummarySte
     { id: 'first_fish_added', label: 'First fish added' },
     { id: 'tank_established', label: 'Tank fully established' }
   ];
+  
+  const completedStepsCount = (data.completedSetupSteps || []).length;
 
   const createAquariumMutation = useMutation({
     mutationFn: async (aquariumData: any) => {
@@ -182,18 +184,27 @@ export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummarySte
           <div className="mb-4">
             <div className="flex justify-between text-sm text-muted-foreground dark:text-slate-400 mb-2">
               <span>Progress</span>
-              <span>0 of {milestones.length} completed</span>
+              <span>{completedStepsCount} of {milestones.length} completed</span>
             </div>
-            <Progress value={0} className="h-2" />
+            <Progress value={(completedStepsCount / milestones.length) * 100} className="h-2" />
           </div>
           
           <div className="space-y-2">
-            {milestones.map((milestone) => (
-              <div key={milestone.id} className="flex items-center gap-3">
-                <Circle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm dark:text-slate-300">{milestone.label}</span>
-              </div>
-            ))}
+            {milestones.map((milestone) => {
+              const isCompleted = (data.completedSetupSteps || []).includes(milestone.id);
+              return (
+                <div key={milestone.id} className="flex items-center gap-3">
+                  {isCompleted ? (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <span className={`text-sm ${isCompleted ? 'text-green-600 dark:text-green-400' : 'dark:text-slate-300'}`}>
+                    {milestone.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
