@@ -97,11 +97,19 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="text-center">
-              <div className="text-3xl font-bold text-white">
-                $49.99<span className="text-lg">/year</span>
+            <CardContent className="text-center space-y-3">
+              <div className="space-y-1">
+                <div className="text-lg text-white/80">
+                  $4.99<span className="text-sm">/month</span>
+                </div>
+                <div className="text-3xl font-bold text-white">
+                  $49.99<span className="text-lg">/year</span>
+                </div>
+                <p className="text-sm text-green-300 font-medium">
+                  Save $9.89 with annual billing
+                </p>
               </div>
-              <p className="text-sm text-white/80 mt-1">
+              <p className="text-sm text-white/80">
                 Cancel anytime • 7-day free trial
               </p>
             </CardContent>

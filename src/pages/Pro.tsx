@@ -133,9 +133,17 @@ const ProPage = () => {
                 <Crown className="h-6 w-6 text-primary" />
                 <CardTitle className="text-2xl font-display">Pro Plan</CardTitle>
               </div>
-              <div className="space-y-2">
-                <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  $49.99<span className="text-lg font-mono">/year</span>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <div className="text-lg text-muted-foreground font-mono">
+                    $4.99<span className="text-sm">/month</span>
+                  </div>
+                  <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    $49.99<span className="text-lg font-mono">/year</span>
+                  </div>
+                  <p className="text-sm text-green-600 font-semibold font-mono">
+                    Save $9.89 with annual billing
+                  </p>
                 </div>
                 <p className="text-sm text-muted-foreground font-mono">
                   Cancel anytime • 7-day free trial • No setup fees
