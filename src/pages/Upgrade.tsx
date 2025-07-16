@@ -63,7 +63,7 @@ const UpgradePage = () => {
     {
       icon: <Fish className="h-6 w-6 text-blue-500" />,
       title: "Unlimited Aquariums",
-      description: "Track unlimited aquariums instead of just 10",
+      description: "Track up to 10 aquariums instead of just 3",
       category: "Capacity"
     },
     {
@@ -87,7 +87,7 @@ const UpgradePage = () => {
   ];
 
   const comparisonFeatures = [
-    { feature: "Aquarium Tracking", free: "Up to 10", pro: "Unlimited" },
+    { feature: "Aquarium Tracking", free: "Up to 3", pro: "Up to 10" },
     { feature: "Maintenance Reminders", free: "Basic", pro: "Advanced" },
     { feature: "Tank Sharing", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
     { feature: "Priority Support", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }

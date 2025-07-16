@@ -88,7 +88,7 @@ export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummarySte
   });
 
   const handleCreateAquarium = () => {
-    if (!hasActiveSubscription && aquariumCount >= 10) {
+    if (!hasActiveSubscription && aquariumCount >= 3) {
       setShowProPrompt(true);
       return;
     }
