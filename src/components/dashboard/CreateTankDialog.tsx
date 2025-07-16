@@ -79,6 +79,8 @@ export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogPro
     }
   };
 
+  const shouldShowDialog = hasActiveSubscription || aquariumCount < 3;
+  
   const defaultTrigger = (
     <Button 
       size="lg" 
@@ -93,15 +95,27 @@ export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogPro
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          {trigger ? (
+        {shouldShowDialog && (
+          <DialogTrigger asChild>
+            {trigger ? (
+              <div onClick={handleCreateClick}>
+                {trigger}
+              </div>
+            ) : (
+              defaultTrigger
+            )}
+          </DialogTrigger>
+        )}
+        
+        {!shouldShowDialog && (
+          trigger ? (
             <div onClick={handleCreateClick}>
               {trigger}
             </div>
           ) : (
             defaultTrigger
-          )}
-        </DialogTrigger>
+          )
+        )}
         <DialogContent className="vibrant-card max-w-md">
           <DialogHeader>
             <DialogTitle>Create New Aquarium</DialogTitle>
