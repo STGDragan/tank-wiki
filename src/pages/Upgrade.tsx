@@ -63,62 +63,34 @@ const UpgradePage = () => {
     {
       icon: <Fish className="h-6 w-6 text-blue-500" />,
       title: "Unlimited Aquariums",
-      description: "Track unlimited aquariums instead of just 3",
+      description: "Track unlimited aquariums instead of just 10",
       category: "Capacity"
     },
     {
       icon: <Calendar className="h-6 w-6 text-green-500" />,
       title: "Advanced Maintenance",
-      description: "Smart scheduling, automated reminders, and maintenance templates",
+      description: "Smart scheduling and automated reminders",
       category: "Automation"
     },
     {
       icon: <Users className="h-6 w-6 text-purple-500" />,
-      title: "Tank Sharing & Collaboration",
-      description: "Share your aquariums with family, friends, and fellow aquarists",
+      title: "Tank Sharing",
+      description: "Share your aquariums with family & friends",
       category: "Social"
     },
     {
-      icon: <BarChart3 className="h-6 w-6 text-orange-500" />,
-      title: "Advanced Analytics",
-      description: "Detailed insights, trends, and health reports for your aquariums",
-      category: "Analytics"
-    },
-    {
-      icon: <Cloud className="h-6 w-6 text-cyan-500" />,
-      title: "Cloud Backup & Sync",
-      description: "Never lose your data with automatic cloud backups",
-      category: "Backup"
-    },
-    {
-      icon: <Zap className="h-6 w-6 text-yellow-500" />,
-      title: "Priority Product Recommendations",
-      description: "Get the best equipment suggestions based on your setup",
-      category: "Shopping"
-    },
-    {
-      icon: <HeadphonesIcon className="h-6 w-6 text-pink-500" />,
+      icon: <Star className="h-6 w-6 text-yellow-500" />,
       title: "Priority Support",
-      description: "Get help faster with premium email and chat support",
+      description: "Get help faster with premium support",
       category: "Support"
-    },
-    {
-      icon: <Sparkles className="h-6 w-6 text-indigo-500" />,
-      title: "Early Access Features",
-      description: "Be the first to try new features and beta releases",
-      category: "Exclusive"
     }
   ];
 
   const comparisonFeatures = [
-    { feature: "Aquarium Tracking", free: "Up to 3", pro: "Unlimited" },
-    { feature: "Maintenance Reminders", free: "Basic", pro: "Advanced + Templates" },
+    { feature: "Aquarium Tracking", free: "Up to 10", pro: "Unlimited" },
+    { feature: "Maintenance Reminders", free: "Basic", pro: "Advanced" },
     { feature: "Tank Sharing", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Analytics & Reports", free: "Basic", pro: "Advanced" },
-    { feature: "Cloud Backup", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Priority Support", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Early Access", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Ad-Free Experience", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }
+    { feature: "Priority Support", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }
   ];
 
   return (

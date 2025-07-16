@@ -32,7 +32,7 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
     {
       icon: <Fish className="h-5 w-5 text-blue-600" />,
       title: "Unlimited Aquariums",
-      description: "Track up to 10 aquariums instead of just 3"
+      description: "Track unlimited aquariums instead of just 10"
     },
     {
       icon: <Calendar className="h-5 w-5 text-green-600" />,
@@ -69,7 +69,7 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
               <div className="flex items-center gap-2 text-red-200">
                 <Fish className="h-4 w-4" />
                 <span className="text-sm font-medium">
-                  You've reached the limit ({aquariumCount}/3 aquariums)
+                  You've reached the limit ({aquariumCount}/10 aquariums)
                 </span>
               </div>
             </CardContent>
