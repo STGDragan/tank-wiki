@@ -159,7 +159,7 @@ const UpgradePage = () => {
               </div>
               <div className="space-y-2">
                 <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  $9.99<span className="text-lg">/year</span>
+                  $49.99<span className="text-lg">/year</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Cancel anytime • 7-day free trial • No setup fees

@@ -42,6 +42,13 @@ export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogPro
     e.preventDefault();
     if (!user || !name || !type) return;
 
+    // Additional check to prevent bypass
+    if (aquariumCount >= 3) {
+      setIsOpen(false);
+      setShowProPrompt(true);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase

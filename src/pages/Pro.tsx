@@ -135,7 +135,7 @@ const ProPage = () => {
               </div>
               <div className="space-y-2">
                 <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  $4.99<span className="text-lg font-mono">/month</span>
+                  $49.99<span className="text-lg font-mono">/year</span>
                 </div>
                 <p className="text-sm text-muted-foreground font-mono">
                   Cancel anytime • 7-day free trial • No setup fees

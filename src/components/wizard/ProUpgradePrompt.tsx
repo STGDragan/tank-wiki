@@ -99,7 +99,7 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
             </CardHeader>
             <CardContent className="text-center">
               <div className="text-3xl font-bold text-white">
-                $4.99<span className="text-lg">/month</span>
+                $49.99<span className="text-lg">/year</span>
               </div>
               <p className="text-sm text-white/80 mt-1">
                 Cancel anytime • 7-day free trial
