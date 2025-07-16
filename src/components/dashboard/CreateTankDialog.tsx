@@ -26,12 +26,12 @@ export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogPro
   const [type, setType] = useState("");
   const [size, setSize] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  const { user, hasActiveSubscription } = useAuth();
   const queryClient = useQueryClient();
 
   const handleCreateClick = () => {
     // Check if user has reached the limit (3 tanks for free users)
-    if (aquariumCount >= 3) {
+    if (!hasActiveSubscription && aquariumCount >= 3) {
       setShowProPrompt(true);
       return;
     }
@@ -43,7 +43,7 @@ export function CreateTankDialog({ aquariumCount, trigger }: CreateTankDialogPro
     if (!user || !name || !type) return;
 
     // Additional check to prevent bypass
-    if (aquariumCount >= 3) {
+    if (!hasActiveSubscription && aquariumCount >= 3) {
       setIsOpen(false);
       setShowProPrompt(true);
       return;
