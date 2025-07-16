@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/providers/AuthProvider";
 import { toast } from "@/hooks/use-toast";
+import { ProUpgradePrompt } from "../ProUpgradePrompt";
 
 interface SummaryStepProps extends WizardStepProps {
   aquariumCount: number;
@@ -20,6 +21,7 @@ interface SummaryStepProps extends WizardStepProps {
 
 export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummaryStepProps) {
   const [aquariumName, setAquariumName] = useState(`My ${data.tankGoal} Tank`);
+  const [showProPrompt, setShowProPrompt] = useState(false);
   const { user, hasActiveSubscription } = useAuth();
   const queryClient = useQueryClient();
 
@@ -86,12 +88,8 @@ export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummarySte
   });
 
   const handleCreateAquarium = () => {
-    if (!hasActiveSubscription && aquariumCount >= 2) {
-      toast({
-        title: "Upgrade Required",
-        description: "Free users can create up to 2 aquariums. Upgrade to Pro for unlimited aquariums.",
-        variant: "destructive"
-      });
+    if (!hasActiveSubscription && aquariumCount >= 3) {
+      setShowProPrompt(true);
       return;
     }
 
@@ -236,6 +234,12 @@ export function SummaryStep({ data, aquariumCount, onClose, onPrev }: SummarySte
           {createAquariumMutation.isPending ? 'Creating...' : 'Create Aquarium'}
         </Button>
       </div>
+
+      <ProUpgradePrompt 
+        isOpen={showProPrompt} 
+        onClose={() => setShowProPrompt(false)}
+        aquariumCount={aquariumCount}
+      />
     </div>
   );
 }
