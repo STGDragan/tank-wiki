@@ -63,6 +63,7 @@ export function useSubscriptionData() {
   const { data: grantedSubscriptions, isLoading: subscriptionsLoading } = useQuery({
     queryKey: ['admin-granted-subscriptions'],
     queryFn: async () => {
+      console.log('Fetching granted subscriptions...');
       const { data, error } = await supabase
         .from('admin_granted_subscriptions')
         .select(`
@@ -79,9 +80,15 @@ export function useSubscriptionData() {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching granted subscriptions:', error);
+        throw error;
+      }
+
+      console.log('Granted subscriptions data:', data);
 
       if (!data || data.length === 0) {
+        console.log('No granted subscriptions found');
         return [];
       }
 
@@ -92,13 +99,19 @@ export function useSubscriptionData() {
       ];
       
       const uniqueUserIds = Array.from(new Set(userIds));
+      console.log('Fetching profiles for user IDs:', uniqueUserIds);
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, full_name, first_name, last_name, email')
         .in('id', uniqueUserIds);
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Error fetching profiles for granted subscriptions:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('Profiles for granted subscriptions:', profilesData);
 
       // Create profiles map for quick lookup
       const profilesMap = new Map((profilesData || []).map(p => [p.id, p]));
@@ -127,6 +140,7 @@ export function useSubscriptionData() {
         };
       });
 
+      console.log('Final granted subscriptions with profiles:', subscriptionsWithProfiles);
       return subscriptionsWithProfiles;
     },
   });

@@ -25,19 +25,26 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
 
   const toggleAdminOverrideMutation = useMutation({
     mutationFn: async ({ userId, override }: { userId: string; override: boolean }) => {
+      console.log('Toggling admin override for user:', userId, 'to:', override);
       const { error } = await supabase
         .from('profiles')
         .update({ admin_subscription_override: override })
         .eq('id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating admin override:', error);
+        throw error;
+      }
+      console.log('Admin override updated successfully');
     },
     onSuccess: () => {
+      console.log('Override mutation successful, invalidating queries');
       toast({ title: "Admin override updated successfully" });
       queryClient.invalidateQueries({ queryKey: ['admin-profiles'] });
       queryClient.invalidateQueries({ queryKey: ['admin-granted-subscriptions'] });
     },
     onError: (error: Error) => {
+      console.error('Override mutation error:', error);
       toast({
         title: "Error updating admin override",
         description: error.message,

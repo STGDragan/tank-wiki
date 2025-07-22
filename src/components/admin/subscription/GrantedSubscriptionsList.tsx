@@ -42,19 +42,26 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
 
   const revokeSubscriptionMutation = useMutation({
     mutationFn: async (subscriptionId: string) => {
+      console.log('Revoking subscription:', subscriptionId);
       const { error } = await supabase
         .from('admin_granted_subscriptions')
         .update({ is_active: false })
         .eq('id', subscriptionId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error revoking subscription:', error);
+        throw error;
+      }
+      console.log('Subscription revoked successfully');
     },
     onSuccess: () => {
+      console.log('Revoke mutation successful, invalidating queries');
       toast({ title: "Subscription revoked successfully" });
       queryClient.invalidateQueries({ queryKey: ['admin-granted-subscriptions'] });
       queryClient.invalidateQueries({ queryKey: ['admin-profiles'] });
     },
     onError: (error: Error) => {
+      console.error('Revoke mutation error:', error);
       toast({
         title: "Error revoking subscription",
         description: error.message,
