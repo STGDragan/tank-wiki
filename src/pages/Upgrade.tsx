@@ -64,33 +64,88 @@ const UpgradePage = () => {
       icon: <Fish className="h-6 w-6 text-blue-500" />,
       title: "Unlimited Aquariums",
       description: "Track up to 10 aquariums instead of just 3",
-      category: "Capacity"
+      category: "Capacity",
+      details: [
+        "Manage up to 10 aquarium systems",
+        "Perfect for serious hobbyists",
+        "Track multiple tank types",
+        "Organize by room or setup type"
+      ]
     },
     {
       icon: <Calendar className="h-6 w-6 text-green-500" />,
       title: "Advanced Maintenance",
       description: "Smart scheduling and automated reminders",
-      category: "Automation"
+      category: "Automation",
+      details: [
+        "Customizable maintenance templates",
+        "Automated recurring task creation",
+        "Email and in-app notifications",
+        "Equipment-specific maintenance tracking",
+        "Maintenance history analytics"
+      ]
     },
     {
       icon: <Users className="h-6 w-6 text-purple-500" />,
-      title: "Tank Sharing",
+      title: "Tank Sharing & Collaboration",
       description: "Share your aquariums with family & friends",
-      category: "Social"
+      category: "Social",
+      details: [
+        "Invite family members to view tanks",
+        "Grant editing permissions to helpers",
+        "Share maintenance responsibilities",
+        "Collaborative aquarium management",
+        "Access control and permissions"
+      ]
     },
     {
-      icon: <Star className="h-6 w-6 text-yellow-500" />,
-      title: "Priority Support",
-      description: "Get help faster with premium support",
-      category: "Support"
+      icon: <BarChart3 className="h-6 w-6 text-orange-500" />,
+      title: "Advanced Analytics",
+      description: "Deep insights into your aquarium health",
+      category: "Analytics",
+      details: [
+        "Water parameter trend analysis",
+        "Maintenance cost tracking",
+        "Equipment performance metrics",
+        "Health score calculations",
+        "Custom reporting dashboards"
+      ]
+    },
+    {
+      icon: <Cloud className="h-6 w-6 text-cyan-500" />,
+      title: "Cloud Backup & Sync",
+      description: "Never lose your aquarium data",
+      category: "Data",
+      details: [
+        "Automatic cloud backups",
+        "Cross-device synchronization",
+        "Data export capabilities",
+        "Secure encrypted storage",
+        "Access from anywhere"
+      ]
+    },
+    {
+      icon: <Zap className="h-6 w-6 text-yellow-500" />,
+      title: "Automation Tools",
+      description: "Streamline your aquarium management",
+      category: "Efficiency",
+      details: [
+        "Bulk task creation",
+        "Template-based setups",
+        "Smart reminder scheduling",
+        "Quick-add shortcuts",
+        "Batch operations"
+      ]
     }
   ];
 
   const comparisonFeatures = [
     { feature: "Aquarium Tracking", free: "Up to 3", pro: "Up to 10" },
-    { feature: "Maintenance Reminders", free: "Basic", pro: "Advanced" },
+    { feature: "Maintenance Reminders", free: "Basic", pro: "Advanced Templates" },
     { feature: "Tank Sharing", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Priority Support", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }
+    { feature: "Advanced Analytics", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
+    { feature: "Cloud Backup", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
+    { feature: "Automation Tools", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }
   ];
 
   return (
@@ -108,7 +163,7 @@ const UpgradePage = () => {
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Take your aquarium management to the next level with advanced features, 
-            unlimited tracking, and priority support.
+            unlimited tracking, and powerful automation tools.
           </p>
           
           <div className="flex items-center justify-center gap-4">
@@ -174,9 +229,9 @@ const UpgradePage = () => {
             <p className="text-muted-foreground">Everything you need to manage your aquariums like a pro</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {proFeatures.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-200 hover:scale-105 border-primary/10">
+              <Card key={index} className="hover:shadow-lg transition-all duration-200 hover:scale-105 border-primary/10 group">
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     {feature.icon}
@@ -184,13 +239,23 @@ const UpgradePage = () => {
                       {feature.category}
                     </Badge>
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="font-semibold">{feature.title}</h3>
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-lg">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground">
                       {feature.description}
                     </p>
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-medium text-primary uppercase tracking-wide">Features Include:</h4>
+                      <ul className="space-y-1">
+                        {feature.details.map((detail, detailIndex) => (
+                          <li key={detailIndex} className="text-xs text-muted-foreground flex items-start gap-2">
+                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                            {detail}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <CheckCircle className="h-5 w-5 text-green-500" />
                 </CardContent>
               </Card>
             ))}
