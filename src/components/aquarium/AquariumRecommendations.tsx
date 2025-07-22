@@ -25,6 +25,8 @@ export function AquariumRecommendations({
     queryFn: async () => {
       if (!aquariumType) return [];
       
+      console.log('Fetching recommendations for aquarium type:', aquariumType);
+      
       const { data, error } = await supabase
         .from('products')
         .select(`
@@ -39,7 +41,14 @@ export function AquariumRecommendations({
         .or(`tank_types.cs.{${aquariumType}},tank_types.is.null`)
         .limit(6);
       
-      if (error) throw error;
+      console.log('Query result:', { data, error });
+      
+      if (error) {
+        console.error('Query error:', error);
+        throw error;
+      }
+      
+      console.log('Returning products:', data?.length || 0);
       return data || [];
     },
     enabled: !!aquariumType,
