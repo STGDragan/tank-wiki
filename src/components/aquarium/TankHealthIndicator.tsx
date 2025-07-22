@@ -28,6 +28,7 @@ interface HealthMetrics {
   bgColor: string;
   icon: React.ReactNode;
   issues: string[];
+  recommendations: string[];
 }
 
 const calculateTankHealth = (
@@ -40,11 +41,13 @@ const calculateTankHealth = (
 ): HealthMetrics => {
   let score = 100;
   const issues: string[] = [];
+  const recommendations: string[] = [];
 
   // Water Parameters (40% of score)
   if (!waterParameters || waterParameters.length === 0) {
     score -= 30;
     issues.push("No recent water tests");
+    recommendations.push("Test your water parameters (ammonia, nitrite, nitrate, pH)");
   } else {
     const latest = waterParameters[0];
     const testAge = new Date().getTime() - new Date(latest.recorded_at).getTime();
@@ -53,20 +56,24 @@ const calculateTankHealth = (
     if (daysOld > 14) {
       score -= 20;
       issues.push("Water tests outdated");
+      recommendations.push("Test water parameters weekly for optimal monitoring");
     }
 
     // Critical parameters
     if (latest.ammonia && latest.ammonia > 0) {
       score -= 25;
       issues.push("Ammonia detected");
+      recommendations.push("Perform immediate 50% water change and check filter");
     }
     if (latest.nitrite && latest.nitrite > 0) {
       score -= 25;
       issues.push("Nitrite detected");
+      recommendations.push("Increase beneficial bacteria with supplement or media");
     }
     if (latest.nitrate && latest.nitrate > 40) {
       score -= 15;
       issues.push("High nitrates");
+      recommendations.push("Perform 25-30% water change and reduce feeding");
     }
   }
 
@@ -79,6 +86,7 @@ const calculateTankHealth = (
     if (overdueTasks.length > 0) {
       score -= Math.min(overdueTasks.length * 10, 30);
       issues.push(`${overdueTasks.length} overdue maintenance task${overdueTasks.length > 1 ? 's' : ''}`);
+      recommendations.push("Complete overdue maintenance tasks to maintain tank stability");
     }
   }
 
@@ -92,6 +100,10 @@ const calculateTankHealth = (
     if (hasEssential.length < essentialEquipment.length) {
       score -= 15;
       issues.push("Missing essential equipment");
+      const missingEquipment = essentialEquipment.filter(type => 
+        !equipment.some(eq => eq.type.toLowerCase().includes(type.toLowerCase()))
+      );
+      recommendations.push(`Add essential equipment: ${missingEquipment.join(', ')}`);
     }
   }
 
@@ -103,7 +115,14 @@ const calculateTankHealth = (
     if (bioLoad > 2) {
       score -= 10;
       issues.push("High bioload");
+      recommendations.push("Consider reducing livestock count or upgrading to larger tank");
     }
+  }
+
+  // Add general recommendations when tank is healthy
+  if (issues.length === 0) {
+    recommendations.push("Maintain regular water testing and maintenance schedule");
+    recommendations.push("Continue monitoring your livestock for signs of stress or disease");
   }
 
   score = Math.max(0, Math.min(100, score));
@@ -130,7 +149,7 @@ const calculateTankHealth = (
     icon = <AlertTriangle className="h-4 w-4 text-red-600" />;
   }
 
-  return { score, status, color, bgColor, icon, issues };
+  return { score, status, color, bgColor, icon, issues, recommendations };
 };
 
 export function TankHealthIndicator({
@@ -192,6 +211,17 @@ export function TankHealthIndicator({
               <ul className="list-disc list-inside space-y-1">
                 {health.issues.map((issue, index) => (
                   <li key={index}>{issue}</li>
+                ))}
+              </ul>
+            </div>
+            )}
+          
+          {health.recommendations.length > 0 && (
+            <div className="text-xs text-blue-600 mt-2">
+              <p className="font-medium">💡 Recommendations:</p>
+              <ul className="list-disc list-inside space-y-1">
+                {health.recommendations.map((recommendation, index) => (
+                  <li key={index}>{recommendation}</li>
                 ))}
               </ul>
             </div>
