@@ -226,8 +226,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
 
             {/* Description */}
             {product.description && (
-              <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
-                {truncateDescription(product.description, 150)}
+              <p className="text-sm text-muted-foreground line-clamp-6 leading-relaxed">
+                {truncateDescription(product.description, 250)}
               </p>
             )}
 
