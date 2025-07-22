@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Fish, Calendar, Users, Star, CheckCircle } from "lucide-react";
+import { Crown, Fish, Calendar, Users, Star, CheckCircle, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ProUpgradePromptProps {
@@ -41,12 +41,17 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
       description: "Track up to 10 aquariums instead of just 3"
     },
     {
+      icon: <BarChart3 className="h-5 w-5 text-purple-600" />,
+      title: "Advanced Analytics",
+      description: "Custom metrics, trend analysis, and professional reports"
+    },
+    {
       icon: <Calendar className="h-5 w-5 text-green-600" />,
       title: "Advanced Maintenance",
       description: "Smart scheduling and automated reminders"
     },
     {
-      icon: <Users className="h-5 w-5 text-purple-600" />,
+      icon: <Users className="h-5 w-5 text-orange-600" />,
       title: "Tank Sharing",
       description: "Share your aquariums with family & friends"
     },

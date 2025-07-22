@@ -48,33 +48,61 @@ const ProPage = () => {
       ]
     },
     {
+      icon: <BarChart3 className="h-6 w-6 text-purple-500" />,
+      title: "Advanced Analytics",
+      description: "Custom metrics, trend analysis, and professional reports",
+      category: "Analytics",
+      details: [
+        "Water quality trend analysis",
+        "Livestock growth tracking",
+        "Custom dashboard creation",
+        "Professional PDF reports"
+      ]
+    },
+    {
       icon: <Calendar className="h-6 w-6 text-green-500" />,
       title: "Advanced Maintenance",
-      description: "Access maintenance templates and scheduling",
+      description: "Smart scheduling and automated reminders",
       category: "Automation",
       details: [
         "Pre-built maintenance templates",
         "Equipment-specific maintenance tracking",
-        "Maintenance history and completion tracking"
+        "Maintenance history and completion tracking",
+        "Automated reminder notifications"
       ]
     },
     {
-      icon: <Users className="h-6 w-6 text-purple-500" />,
+      icon: <Users className="h-6 w-6 text-orange-500" />,
       title: "Tank Sharing & Collaboration",
       description: "Share your aquariums with family & friends",
       category: "Social",
       details: [
         "Invite others to view your tanks",
         "Grant editing permissions",
-        "Collaborative aquarium management"
+        "Collaborative aquarium management",
+        "Real-time collaboration"
+      ]
+    },
+    {
+      icon: <Star className="h-6 w-6 text-yellow-500" />,
+      title: "Priority Support",
+      description: "Get help faster with premium support",
+      category: "Support",
+      details: [
+        "Priority email support",
+        "Faster response times",
+        "Direct access to experts",
+        "Phone support available"
       ]
     }
   ];
 
   const comparisonFeatures = [
     { feature: "Aquarium Tracking", free: "Up to 3", pro: "Up to 10" },
+    { feature: "Advanced Analytics", free: "❌", pro: "✅" },
     { feature: "Maintenance Templates", free: "❌", pro: "✅" },
-    { feature: "Tank Sharing", free: "❌", pro: "✅" }
+    { feature: "Tank Sharing", free: "❌", pro: "✅" },
+    { feature: "Priority Support", free: "❌", pro: "✅" }
   ];
 
   return (
