@@ -4,3 +4,6 @@ project_id = "zlkefvmjdlqewcreqhko"
 
 [functions.maintenance-reminder]
 verify_jwt = true
+
+[functions.ga4-analytics]
+verify_jwt = false

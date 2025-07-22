@@ -33,124 +33,156 @@ export function ManagementAnalytics() {
   const { data: analytics, isLoading } = useQuery({
     queryKey: ['management-analytics', timeRange],
     queryFn: async (): Promise<AnalyticsData> => {
-      const endDate = new Date();
-      const startDate = new Date();
-      
-      switch (timeRange) {
-        case "7d":
-          startDate.setDate(endDate.getDate() - 7);
-          break;
-        case "30d":
-          startDate.setDate(endDate.getDate() - 30);
-          break;
-        case "90d":
-          startDate.setDate(endDate.getDate() - 90);
-          break;
-        default:
-          startDate.setDate(endDate.getDate() - 7);
+      try {
+        // First, try to get real analytics data from GA4
+        const ga4Response = await supabase.functions.invoke('ga4-analytics', {
+          body: { timeRange }
+        });
+
+        let ga4Data = null;
+        if (ga4Response.data && !ga4Response.error) {
+          ga4Data = ga4Response.data;
+          console.log('GA4 data fetched successfully:', ga4Data);
+        } else {
+          console.warn('GA4 data fetch failed:', ga4Response.error);
+        }
+
+        // Always fetch Supabase data for application-specific metrics
+        const endDate = new Date();
+        const startDate = new Date();
+        
+        switch (timeRange) {
+          case "7d":
+            startDate.setDate(endDate.getDate() - 7);
+            break;
+          case "30d":
+            startDate.setDate(endDate.getDate() - 30);
+            break;
+          case "90d":
+            startDate.setDate(endDate.getDate() - 90);
+            break;
+          default:
+            startDate.setDate(endDate.getDate() - 7);
+        }
+
+        // Fetch user statistics
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, updated_at');
+        
+        if (profilesError) throw profilesError;
+
+        // Fetch aquarium statistics
+        const { data: aquariums, error: aquariumsError } = await supabase
+          .from('aquariums')
+          .select('id, created_at, user_id');
+        
+        if (aquariumsError) throw aquariumsError;
+
+        // Fetch feedback statistics
+        const { data: feedback, error: feedbackError } = await supabase
+          .from('feedback')
+          .select('id, type, status, created_at');
+        
+        if (feedbackError) throw feedbackError;
+
+        // Calculate Supabase metrics
+        const totalUsers = profiles?.length || 0;
+        const totalAquariums = aquariums?.length || 0;
+        const totalFeedback = feedback?.length || 0;
+        const errorCount = feedback?.filter(f => f.type === 'bug').length || 0;
+
+        // Generate user growth data
+        const userGrowth = [];
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+          const dateStr = d.toISOString().split('T')[0];
+          const usersUpToDate = profiles?.filter(p => 
+            new Date(p.updated_at) <= d
+          ).length || 0;
+          userGrowth.push({ date: dateStr, users: usersUpToDate });
+        }
+
+        // Generate feedback by type data
+        const feedbackTypes = feedback?.reduce((acc, f) => {
+          acc[f.type] = (acc[f.type] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>) || {};
+
+        const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1'];
+        const feedbackByType = Object.entries(feedbackTypes).map(([type, count], index) => ({
+          type: type.charAt(0).toUpperCase() + type.slice(1),
+          count,
+          color: colors[index % colors.length]
+        }));
+
+        // Generate aquariums over time
+        const aquariumsOverTime = [];
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+          const dateStr = d.toISOString().split('T')[0];
+          const aquariumsUpToDate = aquariums?.filter(a => 
+            new Date(a.created_at) <= d
+          ).length || 0;
+          aquariumsOverTime.push({ date: dateStr, count: aquariumsUpToDate });
+        }
+
+        // Use GA4 data when available, otherwise use mock data
+        const pageViews = ga4Data?.pageViews || Math.floor(Math.random() * 10000) + 5000;
+        const uniqueVisitors = ga4Data?.uniqueVisitors || Math.floor(pageViews * 0.7);
+        const bounceRate = ga4Data?.bounceRate || Math.floor(Math.random() * 30) + 20;
+
+        const trafficSources = ga4Data?.trafficSources || [
+          { source: "Direct", visits: Math.floor(uniqueVisitors * 0.4), percentage: 40 },
+          { source: "Search", visits: Math.floor(uniqueVisitors * 0.3), percentage: 30 },
+          { source: "Social", visits: Math.floor(uniqueVisitors * 0.2), percentage: 20 },
+          { source: "Referral", visits: Math.floor(uniqueVisitors * 0.1), percentage: 10 },
+        ];
+
+        const popularPages = ga4Data?.popularPages || [
+          { page: "/dashboard", views: Math.floor(pageViews * 0.25) },
+          { page: "/", views: Math.floor(pageViews * 0.20) },
+          { page: "/aquarium/[id]", views: Math.floor(pageViews * 0.15) },
+          { page: "/maintenance", views: Math.floor(pageViews * 0.12) },
+          { page: "/livestock", views: Math.floor(pageViews * 0.10) },
+        ];
+
+        return {
+          totalUsers,
+          activeUsers: ga4Data?.activeUsers || totalUsers,
+          totalAquariums,
+          totalFeedback,
+          errorCount,
+          pageViews,
+          uniqueVisitors,
+          bounceRate,
+          userGrowth: userGrowth.slice(-10),
+          feedbackByType,
+          aquariumsOverTime: aquariumsOverTime.slice(-10),
+          trafficSources,
+          popularPages
+        };
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+        // Fallback to Supabase-only data if everything fails
+        const { data: profiles } = await supabase.from('profiles').select('id, updated_at');
+        const { data: aquariums } = await supabase.from('aquariums').select('id, created_at, user_id');
+        const { data: feedback } = await supabase.from('feedback').select('id, type, status, created_at');
+
+        return {
+          totalUsers: profiles?.length || 0,
+          activeUsers: profiles?.length || 0,
+          totalAquariums: aquariums?.length || 0,
+          totalFeedback: feedback?.length || 0,
+          errorCount: feedback?.filter(f => f.type === 'bug').length || 0,
+          pageViews: 0,
+          uniqueVisitors: 0,
+          bounceRate: 0,
+          userGrowth: [],
+          feedbackByType: [],
+          aquariumsOverTime: [],
+          trafficSources: [],
+          popularPages: []
+        };
       }
-
-      // Fetch user statistics
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, updated_at');
-      
-      if (profilesError) throw profilesError;
-
-      // Fetch aquarium statistics
-      const { data: aquariums, error: aquariumsError } = await supabase
-        .from('aquariums')
-        .select('id, created_at, user_id');
-      
-      if (aquariumsError) throw aquariumsError;
-
-      // Fetch feedback statistics
-      const { data: feedback, error: feedbackError } = await supabase
-        .from('feedback')
-        .select('id, type, status, created_at');
-      
-      if (feedbackError) throw feedbackError;
-
-      // Calculate metrics
-      const totalUsers = profiles?.length || 0;
-      const recentUsers = profiles?.filter(p => 
-        new Date(p.updated_at) >= startDate
-      ).length || 0;
-      
-      const totalAquariums = aquariums?.length || 0;
-      const totalFeedback = feedback?.length || 0;
-      
-      // Count error feedback as proxy for errors
-      const errorCount = feedback?.filter(f => f.type === 'bug').length || 0;
-
-      // Generate user growth data (using updated_at as proxy for registration)
-      const userGrowth = [];
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        const usersUpToDate = profiles?.filter(p => 
-          new Date(p.updated_at) <= d
-        ).length || 0;
-        userGrowth.push({ date: dateStr, users: usersUpToDate });
-      }
-
-      // Generate feedback by type data
-      const feedbackTypes = feedback?.reduce((acc, f) => {
-        acc[f.type] = (acc[f.type] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>) || {};
-
-      const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1'];
-      const feedbackByType = Object.entries(feedbackTypes).map(([type, count], index) => ({
-        type: type.charAt(0).toUpperCase() + type.slice(1),
-        count,
-        color: colors[index % colors.length]
-      }));
-
-      // Generate aquariums over time
-      const aquariumsOverTime = [];
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        const aquariumsUpToDate = aquariums?.filter(a => 
-          new Date(a.created_at) <= d
-        ).length || 0;
-        aquariumsOverTime.push({ date: dateStr, count: aquariumsUpToDate });
-      }
-
-      // Mock traffic data (replace with real analytics service integration)
-      const pageViews = Math.floor(Math.random() * 10000) + 5000;
-      const uniqueVisitors = Math.floor(pageViews * 0.7);
-      const bounceRate = Math.floor(Math.random() * 30) + 20;
-
-      const trafficSources = [
-        { source: "Direct", visits: Math.floor(uniqueVisitors * 0.4), percentage: 40 },
-        { source: "Search", visits: Math.floor(uniqueVisitors * 0.3), percentage: 30 },
-        { source: "Social", visits: Math.floor(uniqueVisitors * 0.2), percentage: 20 },
-        { source: "Referral", visits: Math.floor(uniqueVisitors * 0.1), percentage: 10 },
-      ];
-
-      const popularPages = [
-        { page: "/dashboard", views: Math.floor(pageViews * 0.25) },
-        { page: "/", views: Math.floor(pageViews * 0.20) },
-        { page: "/aquarium/[id]", views: Math.floor(pageViews * 0.15) },
-        { page: "/maintenance", views: Math.floor(pageViews * 0.12) },
-        { page: "/livestock", views: Math.floor(pageViews * 0.10) },
-      ];
-
-      return {
-        totalUsers,
-        activeUsers: totalUsers,
-        totalAquariums,
-        totalFeedback,
-        errorCount,
-        pageViews,
-        uniqueVisitors,
-        bounceRate,
-        userGrowth: userGrowth.slice(-10),
-        feedbackByType,
-        aquariumsOverTime: aquariumsOverTime.slice(-10),
-        trafficSources,
-        popularPages
-      };
     },
   });
 
