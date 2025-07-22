@@ -1170,12 +1170,15 @@ export type Database = {
       }
       maintenance_notification_preferences: {
         Row: {
+          advance_notifications_enabled: boolean | null
           created_at: string
+          due_date_notifications_enabled: boolean | null
           email_enabled: boolean | null
           escalation_days: number | null
           escalation_enabled: boolean | null
           id: string
           notification_time: string | null
+          overdue_notifications_enabled: boolean | null
           reminder_intervals: number[] | null
           sms_enabled: boolean | null
           sms_number: string | null
@@ -1185,12 +1188,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          advance_notifications_enabled?: boolean | null
           created_at?: string
+          due_date_notifications_enabled?: boolean | null
           email_enabled?: boolean | null
           escalation_days?: number | null
           escalation_enabled?: boolean | null
           id?: string
           notification_time?: string | null
+          overdue_notifications_enabled?: boolean | null
           reminder_intervals?: number[] | null
           sms_enabled?: boolean | null
           sms_number?: string | null
@@ -1200,12 +1206,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          advance_notifications_enabled?: boolean | null
           created_at?: string
+          due_date_notifications_enabled?: boolean | null
           email_enabled?: boolean | null
           escalation_days?: number | null
           escalation_enabled?: boolean | null
           id?: string
           notification_time?: string | null
+          overdue_notifications_enabled?: boolean | null
           reminder_intervals?: number[] | null
           sms_enabled?: boolean | null
           sms_number?: string | null
