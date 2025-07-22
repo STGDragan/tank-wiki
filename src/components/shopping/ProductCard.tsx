@@ -201,8 +201,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
           </div>
         </div>
 
-        <CardContent className="p-4 flex flex-col justify-between min-h-0">
-          <div className="space-y-3 flex-grow">
+        <CardContent className="p-4 flex flex-col h-full">
+          <div className="flex-1 space-y-3">
             {/* Product title */}
             <div className="space-y-1">
               <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
@@ -346,8 +346,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
             </div>
           </div>
 
-          {/* Action buttons - tight spacing */}
-          <div className="pt-1">
+          {/* Action buttons - always at bottom */}
+          <div className="pt-3 mt-auto">
             <div className="flex gap-2">
               {showBuyNow && (
                 <Button 
@@ -363,7 +363,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
               {affiliateUrl && !showBuyNow && (
                 <Button 
                   size="sm"
-                  className="px-3 ml-auto"
+                  className="flex-1"
                   onClick={handleAmazonClick}
                   disabled={isOutOfStock}
                 >
