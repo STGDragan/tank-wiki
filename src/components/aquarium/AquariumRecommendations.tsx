@@ -37,11 +37,7 @@ export function AquariumRecommendations({
       const { data, error } = await supabase
         .from('products')
         .select(`
-          *,
-          affiliate_links (
-            link_url,
-            provider
-          )
+          *
         `)
         .eq('visible', true)
         .eq('is_recommended', true)
@@ -68,6 +64,21 @@ export function AquariumRecommendations({
       return product.sale_price;
     }
     return product.regular_price;
+  };
+
+  const hasAffiliateLink = (product: any) => {
+    return product.affiliate_url || product.amazon_url;
+  };
+
+  const getAffiliateUrl = (product: any) => {
+    return product.affiliate_url || product.amazon_url;
+  };
+
+  const getAffiliateProvider = (product: any) => {
+    if (product.affiliate_url || product.amazon_url) {
+      return 'Amazon'; // Since these are Amazon URLs based on the data
+    }
+    return 'Store';
   };
 
   if (isLoading) {
@@ -131,7 +142,8 @@ export function AquariumRecommendations({
                     )}
                   </div>
 
-                  <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
+                  <CardContent className="p-4 flex flex-col h-full">
+                    <div className="space-y-3 flex-grow">
                     {/* Product title */}
                     <div className="space-y-1">
                       <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
@@ -165,26 +177,27 @@ export function AquariumRecommendations({
                         }
                       </p>
                     )}
+                    </div>
 
                     {/* Action button - pushed to bottom */}
-                    <div className="pt-2 mt-auto">
+                    <div className="pt-2">
                       <Button 
                         size="sm"
                         className="w-full"
                         onClick={() => {
-                          if (product.affiliate_links && product.affiliate_links.length > 0) {
-                            window.open(product.affiliate_links[0].link_url, '_blank');
+                          if (hasAffiliateLink(product)) {
+                            window.open(getAffiliateUrl(product), '_blank');
                           } else {
                             console.log('Add to cart clicked for product:', product.id);
                           }
                         }}
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        {product.affiliate_links && product.affiliate_links.length > 0 ? 
-                          (product.affiliate_links[0].provider === 'Amazon' ? 'Buy on Amazon' : `Buy on ${product.affiliate_links[0].provider}`) : 
+                        {hasAffiliateLink(product) ? 
+                          (getAffiliateProvider(product) === 'Amazon' ? 'Buy on Amazon' : `Buy on ${getAffiliateProvider(product)}`) : 
                           'Add to Cart'
                         }
-                        {product.affiliate_links && product.affiliate_links.length > 0 && (
+                        {hasAffiliateLink(product) && (
                           <ExternalLink className="h-4 w-4 ml-2" />
                         )}
                       </Button>

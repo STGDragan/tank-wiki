@@ -202,7 +202,8 @@ export const RecommendedProducts = () => {
                     </div>
                   </div>
 
-                  <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
+                  <CardContent className="p-4 flex flex-col h-full">
+                    <div className="space-y-3 flex-grow">
                     {/* Product title */}
                     <div className="space-y-1">
                       <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => handleProductClick(product.id)}>
@@ -244,6 +245,7 @@ export const RecommendedProducts = () => {
                         )}
                       </div>
                     )}
+                    </div>
 
                     {/* Action button - pushed to bottom */}
                     <div className="pt-2 mt-auto">
