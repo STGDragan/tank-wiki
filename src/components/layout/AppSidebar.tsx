@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, MessageSquare, Crown, UserCog, Share2, Mail, Facebook, Instagram, Youtube, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, MessageSquare, Crown, UserCog, Share2, Mail, Facebook, Instagram, Youtube, BarChart3, Fish } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { useSocialMediaLinks } from "@/hooks/useSocialMedia";
 import {
@@ -22,6 +22,7 @@ import {
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Shared Tanks", href: "/shared-with-me", icon: Users },
+  { name: "Compatibility", href: "/compatibility", icon: Fish },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
