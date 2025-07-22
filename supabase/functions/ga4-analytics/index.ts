@@ -1,5 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { create, getNumericDate, Header, Payload } from "https://deno.land/x/djwt@v3.0.1/mod.ts";
+import { crypto } from "https://deno.land/std@0.190.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,87 +23,204 @@ const serviceAccount = {
   "universe_domain": "googleapis.com"
 };
 
-const GA4_PROPERTY_ID = "456709306"; // Your property ID (extracted from G-VX4VK3HPFG)
+const GA4_PROPERTY_ID = "456709306"; // Extracted from G-VX4VK3HPFG
 
-async function getAccessToken() {
+async function createJWTToken(): Promise<string> {
   const scope = 'https://www.googleapis.com/auth/analytics.readonly';
   const aud = 'https://oauth2.googleapis.com/token';
   
-  const header = {
-    alg: 'RS256',
-    typ: 'JWT'
+  const now = Math.floor(Date.now() / 1000);
+  
+  const header: Header = {
+    alg: "RS256",
+    typ: "JWT"
   };
   
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
+  const payload: Payload = {
     iss: serviceAccount.client_email,
     scope: scope,
     aud: aud,
-    exp: now + 3600,
-    iat: now
+    exp: getNumericDate(60 * 60), // 1 hour
+    iat: getNumericDate(0)
   };
+
+  // Import the private key
+  const privateKeyPem = serviceAccount.private_key;
+  const privateKeyArrayBuffer = new TextEncoder().encode(privateKeyPem);
   
-  // Create JWT manually (simplified version)
-  const encodedHeader = btoa(JSON.stringify(header)).replace(/[+\/=]/g, (m) => ({'+':'-','/':'_','=':''}[m]));
-  const encodedPayload = btoa(JSON.stringify(payload)).replace(/[+\/=]/g, (m) => ({'+':'-','/':'_','=':''}[m]));
+  // Parse the PEM format
+  const pemHeader = "-----BEGIN PRIVATE KEY-----";
+  const pemFooter = "-----END PRIVATE KEY-----";
+  const pemContents = privateKeyPem
+    .replace(pemHeader, "")
+    .replace(pemFooter, "")
+    .replace(/\s/g, "");
   
-  const unsignedToken = `${encodedHeader}.${encodedPayload}`;
+  const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
   
-  // For production, you'd need to implement proper RSA signing
-  // For now, let's use a simpler approach with the Google Token endpoint
-  
-  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+  const cryptoKey = await crypto.subtle.importKey(
+    "pkcs8",
+    binaryDer,
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      hash: "SHA-256",
     },
-    body: new URLSearchParams({
-      'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      'assertion': unsignedToken // This would need proper signing in production
-    })
-  });
-  
-  if (!tokenResponse.ok) {
-    // Fallback: try to use the service account directly
-    throw new Error('Failed to get access token');
-  }
-  
-  const tokenData = await tokenResponse.json();
-  return tokenData.access_token;
+    false,
+    ["sign"]
+  );
+
+  return await create(header, payload, cryptoKey);
 }
 
-async function fetchGA4Data(timeRange: string) {
+async function getAccessToken(): Promise<string> {
   try {
-    // For now, return mock data since JWT signing is complex
-    // In production, you'd implement proper JWT signing with the private key
+    const jwt = await createJWTToken();
     
-    const mockData = {
-      totalUsers: Math.floor(Math.random() * 10000) + 5000,
-      activeUsers: Math.floor(Math.random() * 5000) + 2000,
-      pageViews: Math.floor(Math.random() * 50000) + 20000,
-      uniqueVisitors: Math.floor(Math.random() * 8000) + 3000,
-      bounceRate: Math.floor(Math.random() * 30) + 20,
-      userGrowth: Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        users: Math.floor(Math.random() * 500) + 100,
-        sessions: Math.floor(Math.random() * 700) + 150
-      })),
-      trafficSources: [
-        { source: 'Organic Search', users: Math.floor(Math.random() * 3000) + 1000, percentage: 45 },
-        { source: 'Direct', users: Math.floor(Math.random() * 2000) + 800, percentage: 30 },
-        { source: 'Social Media', users: Math.floor(Math.random() * 1000) + 400, percentage: 15 },
-        { source: 'Referral', users: Math.floor(Math.random() * 600) + 200, percentage: 10 }
-      ],
-      popularPages: [
-        { page: '/dashboard', views: Math.floor(Math.random() * 5000) + 2000, uniqueViews: Math.floor(Math.random() * 3000) + 1500 },
-        { page: '/aquariums', views: Math.floor(Math.random() * 4000) + 1500, uniqueViews: Math.floor(Math.random() * 2500) + 1200 },
-        { page: '/', views: Math.floor(Math.random() * 3000) + 1000, uniqueViews: Math.floor(Math.random() * 2000) + 800 },
-        { page: '/profile', views: Math.floor(Math.random() * 2000) + 800, uniqueViews: Math.floor(Math.random() * 1500) + 600 },
-        { page: '/admin', views: Math.floor(Math.random() * 1000) + 300, uniqueViews: Math.floor(Math.random() * 800) + 250 }
-      ]
+    const response = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion': jwt
+      })
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to get access token: ${response.status} ${error}`);
+    }
+    
+    const tokenData = await response.json();
+    return tokenData.access_token;
+  } catch (error) {
+    console.error('Error getting access token:', error);
+    throw error;
+  }
+}
+
+async function fetchGA4Data(timeRange: string, accessToken: string) {
+  try {
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    
+    switch (timeRange) {
+      case '7d':
+        startDate.setDate(endDate.getDate() - 7);
+        break;
+      case '30d':
+        startDate.setDate(endDate.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(endDate.getDate() - 90);
+        break;
+      default:
+        startDate.setDate(endDate.getDate() - 7);
+    }
+    
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+    
+    // Fetch basic metrics
+    const metricsResponse = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: startDateStr, endDate: endDateStr }],
+        metrics: [
+          { name: 'totalUsers' },
+          { name: 'activeUsers' },
+          { name: 'screenPageViews' },
+          { name: 'bounceRate' }
+        ]
+      })
+    });
+    
+    if (!metricsResponse.ok) {
+      throw new Error(`GA4 API error: ${metricsResponse.status}`);
+    }
+    
+    const metricsData = await metricsResponse.json();
+    console.log('GA4 metrics response:', metricsData);
+    
+    // Fetch traffic sources
+    const sourcesResponse = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: startDateStr, endDate: endDateStr }],
+        dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+        metrics: [{ name: 'sessions' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 10
+      })
+    });
+    
+    const sourcesData = await sourcesResponse.json();
+    
+    // Fetch popular pages
+    const pagesResponse = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: startDateStr, endDate: endDateStr }],
+        dimensions: [{ name: 'pagePath' }],
+        metrics: [{ name: 'screenPageViews' }],
+        orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+        limit: 10
+      })
+    });
+    
+    const pagesData = await pagesResponse.json();
+    
+    // Parse the data
+    const metrics = metricsData.rows?.[0]?.metricValues || [];
+    const totalUsers = parseInt(metrics[0]?.value || '0');
+    const activeUsers = parseInt(metrics[1]?.value || '0');
+    const pageViews = parseInt(metrics[2]?.value || '0');
+    const bounceRate = parseFloat(metrics[3]?.value || '0') * 100;
+    
+    // Process traffic sources
+    const trafficSources = sourcesData.rows?.map((row: any) => {
+      const source = row.dimensionValues[0].value;
+      const sessions = parseInt(row.metricValues[0].value);
+      return { source, users: sessions, percentage: 0 }; // Calculate percentage later
+    }) || [];
+    
+    // Calculate percentages for traffic sources
+    const totalSessions = trafficSources.reduce((sum, source) => sum + source.users, 0);
+    trafficSources.forEach(source => {
+      source.percentage = totalSessions > 0 ? Math.round((source.users / totalSessions) * 100) : 0;
+    });
+    
+    // Process popular pages
+    const popularPages = pagesData.rows?.map((row: any) => ({
+      page: row.dimensionValues[0].value,
+      views: parseInt(row.metricValues[0].value),
+      uniqueViews: parseInt(row.metricValues[0].value) // GA4 doesn't separate unique views easily
+    })) || [];
+    
+    return {
+      totalUsers,
+      activeUsers,
+      pageViews,
+      uniqueVisitors: Math.floor(totalUsers * 0.8), // Estimate
+      bounceRate: Math.round(bounceRate),
+      trafficSources,
+      popularPages,
+      userGrowth: [] // Would need additional API calls for time series data
     };
-    
-    return mockData;
   } catch (error) {
     console.error('Error fetching GA4 data:', error);
     throw error;
@@ -114,11 +233,17 @@ serve(async (req) => {
   }
 
   try {
-    const { timeRange = '30days' } = await req.json();
+    const { timeRange = '30d' } = await req.json();
     
     console.log(`Fetching GA4 analytics data for time range: ${timeRange}`);
     
-    const analyticsData = await fetchGA4Data(timeRange);
+    // Get access token
+    const accessToken = await getAccessToken();
+    console.log('Successfully obtained access token');
+    
+    // Fetch analytics data
+    const analyticsData = await fetchGA4Data(timeRange, accessToken);
+    console.log('Successfully fetched GA4 data:', analyticsData);
     
     return new Response(JSON.stringify(analyticsData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
