@@ -2,7 +2,8 @@
 import { useSubscriptionData } from "./subscription/hooks/useSubscriptionData";
 import { AdminOverrideSection } from "./subscription/AdminOverrideSection";
 import { GrantSubscriptionSection } from "./subscription/GrantSubscriptionSection";
-import { GrantedSubscriptionsList } from "./subscription/GrantedSubscriptionsList";
+import { ActiveSubscriptionsTable } from "./subscription/ActiveSubscriptionsTable";
+import { RevokedSubscriptionsTable } from "./subscription/RevokedSubscriptionsTable";
 
 export function UserSubscriptionManager() {
   const { profiles, grantedSubscriptions, isLoading } = useSubscriptionData();
@@ -15,7 +16,8 @@ export function UserSubscriptionManager() {
     <div className="space-y-6">
       <AdminOverrideSection profiles={profiles} />
       <GrantSubscriptionSection profiles={profiles} />
-      <GrantedSubscriptionsList grantedSubscriptions={grantedSubscriptions} />
+      <ActiveSubscriptionsTable grantedSubscriptions={grantedSubscriptions} />
+      <RevokedSubscriptionsTable grantedSubscriptions={grantedSubscriptions} />
     </div>
   );
 }
