@@ -208,11 +208,6 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
               <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                 {product.name}
               </h3>
-              {product.brand && (
-                <p className="text-sm text-muted-foreground">
-                  by {product.brand}
-                </p>
-              )}
             </div>
 
             {/* Price */}
@@ -231,8 +226,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
 
             {/* Description */}
             {product.description && (
-              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                {truncateDescription(product.description, 120)}
+              <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
+                {truncateDescription(product.description, 150)}
               </p>
             )}
 
@@ -357,7 +352,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                   disabled={isOutOfStock}
                 >
                   <ShoppingCart className="h-4 w-4 mr-1" />
-                  {isOutOfStock ? "Out of Stock" : "Buy Now"}
+                  {isOutOfStock ? "Out of Stock" : affiliateUrl ? "Buy on Amazon" : "Buy Now"}
                 </Button>
               )}
               {affiliateUrl && !showBuyNow && (
@@ -368,7 +363,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                   disabled={isOutOfStock}
                 >
                   <ExternalLink className="h-4 w-4 mr-1" />
-                  {isOutOfStock ? "Out of Stock" : "Buy Now"}
+                  {isOutOfStock ? "Out of Stock" : "Buy on Amazon"}
                 </Button>
               )}
             </div>
