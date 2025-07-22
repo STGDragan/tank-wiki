@@ -48,7 +48,10 @@ const quickActions = [
 ];
 
 export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
-  const [selectedAquariumId, setSelectedAquariumId] = useState<string>('');
+  // Default to oldest aquarium (first in array)
+  const [selectedAquariumId, setSelectedAquariumId] = useState<string>(() => 
+    aquariums.length > 0 ? aquariums[0].id : ''
+  );
   const [isQuickLogDialogOpen, setQuickLogDialogOpen] = useState(false);
   const [isLivestockDialogOpen, setLivestockDialogOpen] = useState(false);
   const [isEquipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
