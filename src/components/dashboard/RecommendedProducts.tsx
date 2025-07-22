@@ -177,7 +177,7 @@ export const RecommendedProducts = () => {
           <CarouselContent className="-ml-2 md:-ml-4">
             {products.map((product) => (
               <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-72 sm:basis-80">
-                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground h-full flex flex-col">
+                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground flex flex-col">
                   <div className="aspect-square overflow-hidden bg-muted relative cursor-pointer" onClick={() => handleProductClick(product.id)}>
                     <img
                       src={product.image_url || '/placeholder.svg'}
@@ -200,8 +200,8 @@ export const RecommendedProducts = () => {
                     </div>
                   </div>
 
-                  <CardContent className="p-2 flex flex-col justify-between min-h-0">
-                    <div className="space-y-1 flex-grow">
+                  <CardContent className="p-2 flex flex-col flex-1">
+                    <div className="space-y-1 flex-1">
                     {/* Product title */}
                     <div>
                       <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => handleProductClick(product.id)}>
@@ -240,8 +240,8 @@ export const RecommendedProducts = () => {
                     )}
                     </div>
 
-                    {/* Action button - tight spacing */}
-                    <div className="pt-1">
+                    {/* Action button - aligned at bottom */}
+                    <div className="pt-1 mt-auto">
                       <Button 
                         size="sm"
                         className="w-full"
