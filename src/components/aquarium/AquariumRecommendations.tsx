@@ -142,15 +142,15 @@ export function AquariumRecommendations({
                     )}
                   </div>
 
-                  <CardContent className="p-4 flex flex-col h-full">
-                    <div className="space-y-3 flex-grow">
+                  <CardContent className="p-3 flex flex-col h-full">
+                    <div className="space-y-2 flex-grow">
                     {/* Product title */}
-                    <div className="space-y-1">
-                      <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                    <div>
+                      <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                         {product.name}
                       </h3>
                       {product.brand && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground mt-1">
                           by {product.brand}
                         </p>
                       )}
@@ -158,25 +158,15 @@ export function AquariumRecommendations({
 
                     {/* Price */}
                     <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-primary">
+                      <span className="text-lg font-bold text-primary">
                         ${getEffectivePrice(product).toFixed(2)}
                       </span>
                       {product.is_on_sale && getEffectivePrice(product) < product.regular_price && (
-                        <span className="text-sm text-muted-foreground line-through">
+                        <span className="text-xs text-muted-foreground line-through">
                           ${product.regular_price.toFixed(2)}
                         </span>
                       )}
                     </div>
-
-                    {/* Description */}
-                    {product.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {product.description.length > 80 ? 
-                          product.description.substring(0, 80) + '...' : 
-                          product.description
-                        }
-                      </p>
-                    )}
                     </div>
 
                     {/* Action button - pushed to bottom */}
