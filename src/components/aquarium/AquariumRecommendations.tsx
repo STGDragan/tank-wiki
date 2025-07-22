@@ -38,7 +38,7 @@ export function AquariumRecommendations({
         `)
         .eq('visible', true)
         .eq('is_recommended', true)
-        .or(`tank_types.cs.{${aquariumType}},tank_types.is.null`)
+        .is('tank_types', null)
         .limit(6);
       
       console.log('Query result:', { data, error });
