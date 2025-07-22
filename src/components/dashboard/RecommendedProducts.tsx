@@ -23,6 +23,8 @@ interface Product {
   is_recommended: boolean;
   category?: string;
   subcategory?: string;
+  affiliate_url?: string;
+  amazon_url?: string;
   affiliate_links?: Array<{
     link_url: string;
     provider: string;
@@ -71,6 +73,21 @@ export const RecommendedProducts = () => {
       return product.sale_price;
     }
     return product.regular_price;
+  };
+
+  const hasAffiliateLink = (product: Product) => {
+    return product.affiliate_url || product.amazon_url || (product.affiliate_links && product.affiliate_links.length > 0);
+  };
+
+  const getAffiliateUrl = (product: Product) => {
+    return product.affiliate_url || product.amazon_url || product.affiliate_links?.[0]?.link_url;
+  };
+
+  const getAffiliateProvider = (product: Product) => {
+    if (product.affiliate_url || product.amazon_url) {
+      return 'Amazon'; // Since these are Amazon URLs based on the data
+    }
+    return product.affiliate_links?.[0]?.provider || 'Store';
   };
 
   const handleProductClick = (productId: string) => {
@@ -236,19 +253,19 @@ export const RecommendedProducts = () => {
                         size="sm"
                         className="w-full"
                         onClick={() => {
-                          if (product.affiliate_links && product.affiliate_links.length > 0) {
-                            window.open(product.affiliate_links[0].link_url, '_blank');
+                          if (hasAffiliateLink(product)) {
+                            window.open(getAffiliateUrl(product), '_blank');
                           } else {
                             console.log('Add to cart clicked for product:', product.id);
                           }
                         }}
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        {product.affiliate_links && product.affiliate_links.length > 0 ? 
-                          (product.affiliate_links[0].provider === 'Amazon' ? 'Buy on Amazon' : `Buy on ${product.affiliate_links[0].provider}`) : 
+                        {hasAffiliateLink(product) ? 
+                          (getAffiliateProvider(product) === 'Amazon' ? 'Buy on Amazon' : `Buy on ${getAffiliateProvider(product)}`) : 
                           'Add to Cart'
                         }
-                        {product.affiliate_links && product.affiliate_links.length > 0 && (
+                        {hasAffiliateLink(product) && (
                           <ExternalLink className="h-4 w-4 ml-2" />
                         )}
                       </Button>
