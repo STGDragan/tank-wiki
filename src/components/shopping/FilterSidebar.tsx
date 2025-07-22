@@ -4,6 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown } from "lucide-react";
 import CategoryFilter from "./filters/CategoryFilter";
 import CheckboxFilter from "./filters/CheckboxFilter";
+import DropdownFilter from "./filters/DropdownFilter";
 import PriceRangeFilter from "./filters/PriceRangeFilter";
 import CompatibilityTagsFilter from "./filters/CompatibilityTagsFilter";
 import { FilterState, Category } from "./types";
@@ -31,6 +32,9 @@ const FilterSidebar = ({
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     price: false,
     categories: false,
+    aquariumEquipment: false,
+    consumables: false,
+    livestock: false,
     condition: false,
     tankTypes: false,
     compatibility: false,
@@ -86,6 +90,81 @@ const FilterSidebar = ({
               filters={filters}
               onFiltersChange={onFiltersChange}
               maxPrice={maxPrice}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Aquarium Equipment Dropdown */}
+        <Collapsible 
+          open={openSections.aquariumEquipment} 
+          onOpenChange={() => toggleSection('aquariumEquipment')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Aquarium Equipment</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.aquariumEquipment ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <DropdownFilter
+              categories={categories}
+              parentCategorySlug="aquarium-equipment"
+              filterKey="categories"
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              placeholder="Select equipment type..."
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Consumables Dropdown */}
+        <Collapsible 
+          open={openSections.consumables} 
+          onOpenChange={() => toggleSection('consumables')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Consumables</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.consumables ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <DropdownFilter
+              categories={categories}
+              parentCategorySlug="consumables"
+              filterKey="categories"
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              placeholder="Select consumable type..."
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Livestock Dropdown */}
+        <Collapsible 
+          open={openSections.livestock} 
+          onOpenChange={() => toggleSection('livestock')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Livestock</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.livestock ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <DropdownFilter
+              categories={categories}
+              parentCategorySlug="livestock"
+              filterKey="categories"
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              placeholder="Select livestock type..."
             />
           </CollapsibleContent>
         </Collapsible>
