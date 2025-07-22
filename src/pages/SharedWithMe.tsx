@@ -19,15 +19,15 @@ const SharedWithMe = () => {
 
   if (authLoading) {
     return (
-      <div className="bg-gray-900 text-white min-h-screen">
+      <div className="bg-background text-foreground min-h-screen">
         <div className="space-y-8 p-6">
           <div className="flex items-center justify-between">
-            <Skeleton className="h-8 w-48 bg-gray-800" />
+            <Skeleton className="h-8 w-48 bg-muted" />
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Skeleton className="h-48 w-full bg-gray-800" />
-            <Skeleton className="h-48 w-full bg-gray-800" />
-            <Skeleton className="h-48 w-full bg-gray-800" />
+            <Skeleton className="h-48 w-full bg-muted" />
+            <Skeleton className="h-48 w-full bg-muted" />
+            <Skeleton className="h-48 w-full bg-muted" />
           </div>
         </div>
       </div>
@@ -35,23 +35,23 @@ const SharedWithMe = () => {
   }
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       <div className="space-y-8 p-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-white">Shared Tanks</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Shared Tanks</h1>
         </div>
         
         <Tabs defaultValue="accessible" className="space-y-6">
-          <TabsList className="bg-gray-800 backdrop-blur-sm border border-gray-600">
+          <TabsList className="bg-muted backdrop-blur-sm border border-border">
             <TabsTrigger 
               value="accessible" 
-              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground"
             >
               Tanks I Can Access
             </TabsTrigger>
             <TabsTrigger 
               value="invitations" 
-              className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white text-gray-300 hover:text-white"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground"
             >
               My Sent Invitations
             </TabsTrigger>

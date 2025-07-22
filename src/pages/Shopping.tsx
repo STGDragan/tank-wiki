@@ -267,7 +267,7 @@ const Shopping = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       <SponsorshipBanner page="shopping" />
       
       <div className="container mx-auto px-4 py-8">

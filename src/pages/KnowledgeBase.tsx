@@ -68,14 +68,14 @@ const KnowledgeBase = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       <div className="space-y-8 p-6">
         <div className="w-full h-[250px] rounded-lg overflow-hidden">
           <SlideshowSection context="knowledge-base" />
         </div>
         
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-white">Knowledge Base</h1>
+          <h1 className="text-3xl font-bold text-foreground">Knowledge Base</h1>
           <p className="text-gray-400">
             Explore articles, guides, and a glossary to enhance your aquarium hobby.
           </p>

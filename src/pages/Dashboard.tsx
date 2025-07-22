@@ -125,7 +125,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       {/* Sponsorship Banner */}
       <SponsorshipBanner page="dashboard" />
 
@@ -133,7 +133,7 @@ const Dashboard = () => {
         {/* My Aquariums Section - Always at the top */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-white">My Aquariums</h2>
+            <h2 className="text-2xl font-bold text-foreground">My Aquariums</h2>
             {aquariums.length > 0 && (
               <div className="flex gap-3">
                 <AquariumSetupWizard aquariumCount={aquariums.length} />
