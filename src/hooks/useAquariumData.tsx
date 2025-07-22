@@ -180,6 +180,9 @@ export const useAquariumData = (aquariumId: string | undefined, userId: string |
         if (aquariumId) {
             queryClient.invalidateQueries({ queryKey: ['maintenance', aquariumId] });
             queryClient.invalidateQueries({ queryKey: ['aquarium', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['livestock', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['equipment', aquariumId] });
         }
     }, [queryClient, aquariumId]);
 
