@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 import CategoryFilter from "./filters/CategoryFilter";
 import CheckboxFilter from "./filters/CheckboxFilter";
 import PriceRangeFilter from "./filters/PriceRangeFilter";
@@ -28,11 +29,11 @@ const FilterSidebar = ({
   isMobile = false 
 }: FilterSidebarProps) => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    price: true,
-    categories: true,
-    condition: true,
-    tankTypes: true,
-    compatibility: true,
+    price: false,
+    categories: false,
+    condition: false,
+    tankTypes: false,
+    compatibility: false,
   });
 
   const toggleSection = (section: string) => {
@@ -55,7 +56,7 @@ const FilterSidebar = ({
   };
 
   const content = (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Filters</h3>
         <button
@@ -66,131 +67,128 @@ const FilterSidebar = ({
         </button>
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <button
-            onClick={() => toggleSection('price')}
-            className="flex w-full justify-between items-center text-left font-medium"
-          >
-            Price Range
-            <span className={`transform transition-transform ${openSections.price ? 'rotate-180' : ''}`}>
-              ▼
-            </span>
-          </button>
-          {openSections.price && (
-            <div className="mt-3">
-              <PriceRangeFilter
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-                maxPrice={maxPrice}
-              />
-            </div>
-          )}
-        </div>
+      <div className="space-y-3">
+        {/* Price Range Filter */}
+        <Collapsible 
+          open={openSections.price} 
+          onOpenChange={() => toggleSection('price')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Price Range</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.price ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <PriceRangeFilter
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+              maxPrice={maxPrice}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <Separator />
+        {/* Categories Filter */}
+        <Collapsible 
+          open={openSections.categories} 
+          onOpenChange={() => toggleSection('categories')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Categories</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.categories ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <CategoryFilter
+              categories={categories}
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <div>
-          <button
-            onClick={() => toggleSection('categories')}
-            className="flex w-full justify-between items-center text-left font-medium"
-          >
-            Categories
-            <span className={`transform transition-transform ${openSections.categories ? 'rotate-180' : ''}`}>
-              ▼
-            </span>
-          </button>
-          {openSections.categories && (
-            <div className="mt-3">
-              <CategoryFilter
-                categories={categories}
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-              />
-            </div>
-          )}
-        </div>
+        {/* Condition Filter */}
+        <Collapsible 
+          open={openSections.condition} 
+          onOpenChange={() => toggleSection('condition')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Condition</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.condition ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <CheckboxFilter
+              options={[
+                { value: "new", label: "New" },
+                { value: "used", label: "Used" },
+                { value: "refurbished", label: "Refurbished" }
+              ]}
+              filterKey="condition"
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <Separator />
+        {/* Tank Types Filter */}
+        <Collapsible 
+          open={openSections.tankTypes} 
+          onOpenChange={() => toggleSection('tankTypes')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Tank Types</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.tankTypes ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <CheckboxFilter
+              options={[
+                { value: "freshwater", label: "Freshwater" },
+                { value: "saltwater", label: "Saltwater" },
+                { value: "reef", label: "Reef" },
+                { value: "planted", label: "Planted" },
+                { value: "nano", label: "Nano" }
+              ]}
+              filterKey="tankTypes"
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-        <div>
-          <button
-            onClick={() => toggleSection('condition')}
-            className="flex w-full justify-between items-center text-left font-medium"
-          >
-            Condition
-            <span className={`transform transition-transform ${openSections.condition ? 'rotate-180' : ''}`}>
-              ▼
-            </span>
-          </button>
-          {openSections.condition && (
-            <div className="mt-3">
-              <CheckboxFilter
-                options={[
-                  { value: "new", label: "New" },
-                  { value: "used", label: "Used" },
-                  { value: "refurbished", label: "Refurbished" }
-                ]}
-                filterKey="condition"
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-              />
-            </div>
-          )}
-        </div>
-
-        <Separator />
-
-        <div>
-          <button
-            onClick={() => toggleSection('tankTypes')}
-            className="flex w-full justify-between items-center text-left font-medium"
-          >
-            Tank Types
-            <span className={`transform transition-transform ${openSections.tankTypes ? 'rotate-180' : ''}`}>
-              ▼
-            </span>
-          </button>
-          {openSections.tankTypes && (
-            <div className="mt-3">
-              <CheckboxFilter
-                options={[
-                  { value: "freshwater", label: "Freshwater" },
-                  { value: "saltwater", label: "Saltwater" },
-                  { value: "reef", label: "Reef" },
-                  { value: "planted", label: "Planted" },
-                  { value: "nano", label: "Nano" }
-                ]}
-                filterKey="tankTypes"
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-              />
-            </div>
-          )}
-        </div>
-
-        <Separator />
-
-        <div>
-          <button
-            onClick={() => toggleSection('compatibility')}
-            className="flex w-full justify-between items-center text-left font-medium"
-          >
-            Compatibility
-            <span className={`transform transition-transform ${openSections.compatibility ? 'rotate-180' : ''}`}>
-              ▼
-            </span>
-          </button>
-          {openSections.compatibility && (
-            <div className="mt-3">
-              <CompatibilityTagsFilter
-                compatibilityTags={compatibilityTags}
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-              />
-            </div>
-          )}
-        </div>
+        {/* Compatibility Filter */}
+        <Collapsible 
+          open={openSections.compatibility} 
+          onOpenChange={() => toggleSection('compatibility')}
+        >
+          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
+            <span className="font-medium">Compatibility</span>
+            <ChevronDown 
+              className={`h-4 w-4 transition-transform duration-200 ${
+                openSections.compatibility ? 'transform rotate-180' : ''
+              }`} 
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
+            <CompatibilityTagsFilter
+              compatibilityTags={compatibilityTags}
+              filters={filters}
+              onFiltersChange={onFiltersChange}
+            />
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );
