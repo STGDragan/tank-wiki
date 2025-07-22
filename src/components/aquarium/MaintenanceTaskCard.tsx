@@ -13,7 +13,7 @@ type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, bran
 
 interface MaintenanceTaskCardProps {
   task: MaintenanceTask;
-  onMarkComplete: (taskId: string, completedDate: Date) => void;
+  onMarkComplete: (taskId: string, completedDate: Date, additionalData?: any) => void;
   onDelete: (taskId: string) => void;
   hasActiveSubscription?: boolean;
 }
@@ -61,7 +61,7 @@ export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete, hasActiveS
   };
 
   const handleComplete = (taskId: string, completedDate: Date, additionalData?: any) => {
-    onMarkComplete(taskId, completedDate);
+    onMarkComplete(taskId, completedDate, additionalData);
   };
 
   const getCardVariant = () => {

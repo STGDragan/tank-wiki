@@ -24,7 +24,7 @@ interface MaintenanceSectionProps {
     aquariumId: string;
     aquariumType: string | null;
     aquariumSize: number | null | undefined;
-    onMarkComplete: (taskId: string, completedDate: Date) => void;
+    onMarkComplete: (taskId: string, completedDate: Date, additionalData?: any) => void;
     onDelete: (taskId: string) => void;
     showRecommendations?: boolean;
     onRefresh?: () => void;
