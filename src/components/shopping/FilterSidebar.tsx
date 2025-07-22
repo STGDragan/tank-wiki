@@ -31,7 +31,6 @@ const FilterSidebar = ({
 }: FilterSidebarProps) => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     price: false,
-    categories: false,
     aquariumEquipment: false,
     consumables: false,
     livestock: false,
@@ -94,7 +93,7 @@ const FilterSidebar = ({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Aquarium Equipment Dropdown */}
+        {/* Aquarium Equipment Checkboxes */}
         <Collapsible 
           open={openSections.aquariumEquipment} 
           onOpenChange={() => toggleSection('aquariumEquipment')}
@@ -108,13 +107,18 @@ const FilterSidebar = ({
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
-            <DropdownFilter
-              categories={categories}
-              parentCategorySlug="aquarium-equipment"
+            <CheckboxFilter
+              options={
+                categories
+                  .find(cat => cat.slug === 'aquarium-equipment')
+                  ? categories
+                      .filter(cat => cat.parent_id === categories.find(parent => parent.slug === 'aquarium-equipment')?.id)
+                      .map(subcat => ({ value: subcat.slug, label: subcat.name }))
+                  : []
+              }
               filterKey="categories"
               filters={filters}
               onFiltersChange={onFiltersChange}
-              placeholder="Select equipment type..."
             />
           </CollapsibleContent>
         </Collapsible>
@@ -168,29 +172,6 @@ const FilterSidebar = ({
             />
           </CollapsibleContent>
         </Collapsible>
-
-        {/* Categories Filter */}
-        <Collapsible 
-          open={openSections.categories} 
-          onOpenChange={() => toggleSection('categories')}
-        >
-          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
-            <span className="font-medium">Categories</span>
-            <ChevronDown 
-              className={`h-4 w-4 transition-transform duration-200 ${
-                openSections.categories ? 'transform rotate-180' : ''
-              }`} 
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
-            <CategoryFilter
-              categories={categories}
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
-          </CollapsibleContent>
-        </Collapsible>
-
         {/* Condition Filter */}
         <Collapsible 
           open={openSections.condition} 
