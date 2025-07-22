@@ -15,10 +15,27 @@ interface MaintenanceTaskCardProps {
   task: MaintenanceTask;
   onMarkComplete: (taskId: string, completedDate: Date) => void;
   onDelete: (taskId: string) => void;
+  hasActiveSubscription?: boolean;
 }
 
-export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete }: MaintenanceTaskCardProps) => {
+export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete, hasActiveSubscription = false }: MaintenanceTaskCardProps) => {
   const [isCompleteDialogOpen, setCompleteDialogOpen] = useState(false);
+  
+  // Function to get filter type for pro users
+  const getFilterTypeInfo = () => {
+    if (!hasActiveSubscription || !task.equipment) return null;
+    
+    const equipmentType = task.equipment.type.toLowerCase();
+    if (equipmentType.includes('filter')) {
+      if (task.task.toLowerCase().includes('carbon')) return '🔸 Carbon Filter Media';
+      if (task.task.toLowerCase().includes('mechanical')) return '🔸 Mechanical Filter Media';
+      if (task.task.toLowerCase().includes('biological') || task.task.toLowerCase().includes('bio')) return '🔸 Biological Filter Media';
+      if (task.task.toLowerCase().includes('sponge')) return '🔸 Sponge Filter';
+      if (task.task.toLowerCase().includes('cartridge')) return '🔸 Filter Cartridge';
+      return '🔸 Filter Media';
+    }
+    return null;
+  };
   
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.completed_date;
   const isCompleted = !!task.completed_date;
@@ -89,6 +106,13 @@ export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete }: Maintena
             <Wrench className="mr-1 h-3 w-3" />
             {task.equipment.type}
             {task.equipment.brand && ` (${task.equipment.brand})`}
+          </div>
+        )}
+        
+        {/* Pro feature: Filter type information */}
+        {getFilterTypeInfo() && (
+          <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 mt-1 ml-6 bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded">
+            <span className="font-medium">{getFilterTypeInfo()}</span>
           </div>
         )}
       </CardHeader>

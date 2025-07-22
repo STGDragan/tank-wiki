@@ -74,8 +74,14 @@ export function EquipmentDetailsDialog({ equipment, isOpen, onClose, onDelete }:
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center gap-2">
             <span>{equipment.type} Details</span>
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Action buttons moved here, below the header */}
+          <div className="flex justify-between items-center pt-2 border-t">
             <div className="flex gap-2">
               {!isEditing ? (
                 <Button onClick={() => setIsEditing(true)}>
@@ -88,32 +94,31 @@ export function EquipmentDetailsDialog({ equipment, isOpen, onClose, onDelete }:
                   <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
                 </div>
               )}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="icon">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Equipment</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this {equipment.type}? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => { onDelete(equipment.id); onClose(); }}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-6">
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Equipment
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Equipment</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this {equipment.type}? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => { onDelete(equipment.id); onClose(); }}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
           {formData.image_url && (
             <div className="space-y-2">
               <Label>Current Image</Label>

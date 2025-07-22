@@ -258,7 +258,8 @@ export const MaintenanceSection = ({
                                         <MaintenanceTaskCard 
                                             task={task} 
                                             onMarkComplete={onMarkComplete} 
-                                            onDelete={onDelete} 
+                                            onDelete={onDelete}
+                                            hasActiveSubscription={hasActiveSubscription}
                                         />
                                     </CarouselItem>
                                 ))}
