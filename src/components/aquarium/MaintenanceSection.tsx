@@ -117,10 +117,8 @@ export const MaintenanceSection = ({
                 </Card>
             )}
             
-            <MaintenanceStats tasks={tasks} />
-            
             <Card>
-                <CardHeader className="flex flex-row items-start justify-between">
+                <CardHeader className="flex flex-row items-start justify-between pb-4">
                     <div>
                         <CardTitle className="flex items-center text-2xl">
                             <Calendar className="mr-3 h-6 w-6" />
@@ -209,8 +207,11 @@ export const MaintenanceSection = ({
                 </CardHeader>
                 
                 <CardContent>
+                    {/* Maintenance Statistics */}
+                    <MaintenanceStats tasks={tasks} />
+                    
                     {hasActiveSubscription && (
-                        <div className="mb-6">
+                        <div className="mt-6 mb-6">
                             <div className="flex items-center gap-2 mb-4">
                                 <Crown className="h-4 w-4 text-yellow-600" />
                                 <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Premium Features Active</span>

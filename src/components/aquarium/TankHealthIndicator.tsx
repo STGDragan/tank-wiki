@@ -205,25 +205,40 @@ export function TankHealthIndicator({
             Status: {health.status.charAt(0).toUpperCase() + health.status.slice(1)}
           </p>
           
-          {health.issues.length > 0 && (
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              <p className="font-medium">Issues detected:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {health.issues.map((issue, index) => (
-                  <li key={index}>{issue}</li>
-                ))}
-              </ul>
-            </div>
-            )}
-          
-          {health.recommendations.length > 0 && (
-            <div className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-              <p className="font-medium">💡 Recommendations:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {health.recommendations.map((recommendation, index) => (
-                  <li key={index}>{recommendation}</li>
-                ))}
-              </ul>
+          {(health.issues.length > 0 || health.recommendations.length > 0) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {health.issues.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Issues Detected
+                  </p>
+                  <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                    {health.issues.map((issue, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-red-500 mt-1">•</span>
+                        <span>{issue}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {health.recommendations.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                    💡 Recommendations
+                  </p>
+                  <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                    {health.recommendations.map((recommendation, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-blue-500 mt-1">•</span>
+                        <span>{recommendation}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </div>
