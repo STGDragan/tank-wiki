@@ -20,27 +20,58 @@ interface Task {
 
 interface ReminderEmailProps {
   fullName: string | null;
-  upcomingTasks: Task[] | null;
+  advanceTasks: Task[] | null;
+  dueTodayTasks: Task[] | null;
   overdueTasks: Task[] | null;
+  escalationTasks: Task[] | null;
+  reminderIntervals: number[];
 }
 
-export const ReminderEmail = ({ fullName, upcomingTasks, overdueTasks }: ReminderEmailProps) => (
+export const ReminderEmail = ({ 
+  fullName, 
+  advanceTasks, 
+  dueTodayTasks, 
+  overdueTasks, 
+  escalationTasks,
+  reminderIntervals 
+}: ReminderEmailProps) => (
   <Html>
     <Head />
     <Preview>Your Aquarium Maintenance Reminder</Preview>
     <Body style={main}>
       <Container style={container}>
         <Heading style={h1}>Hi {fullName || 'there'},</Heading>
-        <Text style={text}>This is a friendly reminder about your upcoming and overdue aquarium maintenance tasks.</Text>
+        <Text style={text}>This is your personalized aquarium maintenance reminder.</Text>
+
+        {escalationTasks && escalationTasks.length > 0 && (
+          <Section>
+            <Heading as="h2" style={{ ...h2, color: '#d73502' }}>🚨 Urgent: Tasks Need Immediate Attention</Heading>
+            <Text style={{ ...text, color: '#d73502', fontWeight: 'bold' }}>
+              These tasks have been overdue for several days and require immediate action:
+            </Text>
+            {escalationTasks.map((task, index) => (
+              <Row key={`escalation-${index}`}>
+                <Column>
+                  <Text style={{ ...taskItem, color: '#d73502', fontWeight: 'bold' }}>
+                    ⚠️ <strong>{task.task}</strong> - Due on {new Date(task.due_date).toLocaleDateString()}
+                  </Text>
+                </Column>
+              </Row>
+            ))}
+          </Section>
+        )}
 
         {overdueTasks && overdueTasks.length > 0 && (
           <Section>
-            <Heading as="h2" style={h2}>Overdue Tasks</Heading>
+            <Heading as="h2" style={{ ...h2, color: '#d9534f' }}>Overdue Tasks</Heading>
+            <Text style={{ ...text, color: '#d9534f' }}>
+              These tasks are past their due date:
+            </Text>
             {overdueTasks.map((task, index) => (
               <Row key={`overdue-${index}`}>
                 <Column>
                   <Text style={{ ...taskItem, color: '#d9534f' }}>
-                    <strong>{task.task}</strong> - Due on {new Date(task.due_date).toLocaleDateString()}
+                    🔴 <strong>{task.task}</strong> - Due on {new Date(task.due_date).toLocaleDateString()}
                   </Text>
                 </Column>
               </Row>
@@ -48,14 +79,17 @@ export const ReminderEmail = ({ fullName, upcomingTasks, overdueTasks }: Reminde
           </Section>
         )}
 
-        {upcomingTasks && upcomingTasks.length > 0 && (
+        {dueTodayTasks && dueTodayTasks.length > 0 && (
           <Section>
-            <Heading as="h2" style={h2}>Upcoming Tasks (Next 7 Days)</Heading>
-            {upcomingTasks.map((task, index) => (
-              <Row key={`upcoming-${index}`}>
+            <Heading as="h2" style={{ ...h2, color: '#f0ad4e' }}>Due Today</Heading>
+            <Text style={{ ...text, color: '#f0ad4e' }}>
+              These tasks are due today:
+            </Text>
+            {dueTodayTasks.map((task, index) => (
+              <Row key={`due-today-${index}`}>
                 <Column>
-                  <Text style={taskItem}>
-                    <strong>{task.task}</strong> - Due on {new Date(task.due_date).toLocaleDateString()}
+                  <Text style={{ ...taskItem, color: '#f0ad4e' }}>
+                    🟡 <strong>{task.task}</strong> - Due today
                   </Text>
                 </Column>
               </Row>
@@ -63,7 +97,29 @@ export const ReminderEmail = ({ fullName, upcomingTasks, overdueTasks }: Reminde
           </Section>
         )}
 
-        <Text style={text}>Please log in to your dashboard to mark them as complete or manage your schedule.</Text>
+        {advanceTasks && advanceTasks.length > 0 && (
+          <Section>
+            <Heading as="h2" style={{ ...h2, color: '#5bc0de' }}>Upcoming Tasks</Heading>
+            <Text style={{ ...text, color: '#5bc0de' }}>
+              These tasks are coming up in the next {Math.max(...(reminderIntervals || [7]))} days:
+            </Text>
+            {advanceTasks.map((task, index) => {
+              const daysUntilDue = Math.ceil((new Date(task.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              return (
+                <Row key={`advance-${index}`}>
+                  <Column>
+                    <Text style={{ ...taskItem, color: '#5bc0de' }}>
+                      🔵 <strong>{task.task}</strong> - Due on {new Date(task.due_date).toLocaleDateString()} 
+                      ({daysUntilDue} day{daysUntilDue !== 1 ? 's' : ''} from now)
+                    </Text>
+                  </Column>
+                </Row>
+              );
+            })}
+          </Section>
+        )}
+
+        <Text style={text}>Please log in to your dashboard to mark tasks as complete or adjust your maintenance schedule.</Text>
         
         <Text style={footer}>
           Happy fishkeeping!

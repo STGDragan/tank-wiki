@@ -22,8 +22,13 @@ interface UserNotification {
   user_id: string;
   email: string;
   full_name: string | null;
-  upcoming_tasks: Task[] | null;
+  user_timezone: string;
+  preferred_time: string;
+  reminder_intervals: number[];
+  advance_tasks: Task[] | null;
+  due_today_tasks: Task[] | null;
   overdue_tasks: Task[] | null;
+  escalation_tasks: Task[] | null;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -62,8 +67,12 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Found ${notificationsData.length} users with pending tasks.`);
 
     for (const notification of notificationsData) {
-      if ((!notification.upcoming_tasks || notification.upcoming_tasks.length === 0) &&
-          (!notification.overdue_tasks || notification.overdue_tasks.length === 0)) {
+      const hasAnyTasks = (notification.advance_tasks && notification.advance_tasks.length > 0) ||
+                         (notification.due_today_tasks && notification.due_today_tasks.length > 0) ||
+                         (notification.overdue_tasks && notification.overdue_tasks.length > 0) ||
+                         (notification.escalation_tasks && notification.escalation_tasks.length > 0);
+      
+      if (!hasAnyTasks) {
         continue;
       }
       
@@ -72,8 +81,11 @@ const handler = async (req: Request): Promise<Response> => {
       const emailHtml = await renderAsync(
         React.createElement(ReminderEmail, {
           fullName: notification.full_name,
-          upcomingTasks: notification.upcoming_tasks,
+          advanceTasks: notification.advance_tasks,
+          dueTodayTasks: notification.due_today_tasks,
           overdueTasks: notification.overdue_tasks,
+          escalationTasks: notification.escalation_tasks,
+          reminderIntervals: notification.reminder_intervals || [7, 3, 1],
         })
       );
       

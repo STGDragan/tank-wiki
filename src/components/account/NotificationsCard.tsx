@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { Bell, Clock, Globe } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Bell, Clock, Globe, Calendar, AlertTriangle, CheckCircle, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/providers/AuthProvider';
 import { Tables } from '@/integrations/supabase/types';
@@ -16,6 +17,12 @@ interface NotificationPreferences {
   email_enabled: boolean;
   notification_time: string;
   timezone: string;
+  reminder_intervals: number[];
+  advance_notifications_enabled: boolean;
+  due_date_notifications_enabled: boolean;
+  overdue_notifications_enabled: boolean;
+  escalation_enabled: boolean;
+  escalation_days: number;
 }
 
 interface NotificationsCardProps {
@@ -46,7 +53,13 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     email_enabled: true,
     notification_time: '18:00',
-    timezone: 'UTC'
+    timezone: 'UTC',
+    reminder_intervals: [7, 3, 1],
+    advance_notifications_enabled: true,
+    due_date_notifications_enabled: true,
+    overdue_notifications_enabled: true,
+    escalation_enabled: false,
+    escalation_days: 3
   });
 
   useEffect(() => {
@@ -59,9 +72,9 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
     try {
       const { data, error } = await supabase
         .from('maintenance_notification_preferences')
-        .select('email_enabled, notification_time, timezone')
+        .select('email_enabled, notification_time, timezone, reminder_intervals, advance_notifications_enabled, due_date_notifications_enabled, overdue_notifications_enabled, escalation_enabled, escalation_days')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
@@ -71,7 +84,13 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
         setPreferences({
           email_enabled: data.email_enabled ?? profile?.enable_maintenance_notifications ?? true,
           notification_time: data.notification_time?.substring(0, 5) || '18:00',
-          timezone: data.timezone || 'UTC'
+          timezone: data.timezone || 'UTC',
+          reminder_intervals: data.reminder_intervals || [7, 3, 1],
+          advance_notifications_enabled: data.advance_notifications_enabled ?? true,
+          due_date_notifications_enabled: data.due_date_notifications_enabled ?? true,
+          overdue_notifications_enabled: data.overdue_notifications_enabled ?? true,
+          escalation_enabled: data.escalation_enabled ?? false,
+          escalation_days: data.escalation_days || 3
         });
       } else {
         // Use profile settings as fallback
@@ -105,7 +124,13 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
             user_id: user.id,
             email_enabled: preferences.email_enabled,
             notification_time: preferences.notification_time + ':00',
-            timezone: preferences.timezone
+            timezone: preferences.timezone,
+            reminder_intervals: preferences.reminder_intervals,
+            advance_notifications_enabled: preferences.advance_notifications_enabled,
+            due_date_notifications_enabled: preferences.due_date_notifications_enabled,
+            overdue_notifications_enabled: preferences.overdue_notifications_enabled,
+            escalation_enabled: preferences.escalation_enabled,
+            escalation_days: preferences.escalation_days
           }),
         supabase
           .from('profiles')
@@ -150,6 +175,34 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
 
   const handleEmailToggle = (checked: boolean) => {
     setPreferences(prev => ({ ...prev, email_enabled: checked }));
+  };
+
+  const handleReminderIntervalsChange = (value: string) => {
+    const intervals = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v) && v > 0);
+    setPreferences(prev => ({ ...prev, reminder_intervals: intervals }));
+  };
+
+  const handleAdvanceNotificationsToggle = (checked: boolean) => {
+    setPreferences(prev => ({ ...prev, advance_notifications_enabled: checked }));
+  };
+
+  const handleDueDateNotificationsToggle = (checked: boolean) => {
+    setPreferences(prev => ({ ...prev, due_date_notifications_enabled: checked }));
+  };
+
+  const handleOverdueNotificationsToggle = (checked: boolean) => {
+    setPreferences(prev => ({ ...prev, overdue_notifications_enabled: checked }));
+  };
+
+  const handleEscalationToggle = (checked: boolean) => {
+    setPreferences(prev => ({ ...prev, escalation_enabled: checked }));
+  };
+
+  const handleEscalationDaysChange = (value: string) => {
+    const days = parseInt(value);
+    if (!isNaN(days) && days > 0) {
+      setPreferences(prev => ({ ...prev, escalation_days: days }));
+    }
   };
 
   if (loading || profileLoading) {
@@ -239,6 +292,120 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
                 Select your local timezone for accurate notification scheduling.
               </p>
             </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Reminder Settings
+              </h4>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="advance-notifications">Advance Notifications</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Get reminded before tasks are due
+                    </p>
+                  </div>
+                  <Switch
+                    id="advance-notifications"
+                    checked={preferences.advance_notifications_enabled}
+                    onCheckedChange={handleAdvanceNotificationsToggle}
+                  />
+                </div>
+
+                {preferences.advance_notifications_enabled && (
+                  <div className="space-y-2 pl-4 border-l-2 border-muted">
+                    <Label>Remind me (days before due date)</Label>
+                    <Input
+                      type="text"
+                      value={preferences.reminder_intervals.join(', ')}
+                      onChange={(e) => handleReminderIntervalsChange(e.target.value)}
+                      placeholder="7, 3, 1"
+                      className="w-full"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Enter comma-separated days (e.g., "7, 3, 1" for 7 days, 3 days, and 1 day before)
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="due-date-notifications" className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      Due Date Notifications
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Get notified when tasks are due today
+                    </p>
+                  </div>
+                  <Switch
+                    id="due-date-notifications"
+                    checked={preferences.due_date_notifications_enabled}
+                    onCheckedChange={handleDueDateNotificationsToggle}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="overdue-notifications" className="flex items-center gap-2">
+                      <X className="h-4 w-4" />
+                      Overdue Task Notifications
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Get notified about tasks that are past due
+                    </p>
+                  </div>
+                  <Switch
+                    id="overdue-notifications"
+                    checked={preferences.overdue_notifications_enabled}
+                    onCheckedChange={handleOverdueNotificationsToggle}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label htmlFor="escalation-notifications" className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Escalation Notifications
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Extra reminders for tasks that remain overdue
+                      </p>
+                    </div>
+                    <Switch
+                      id="escalation-notifications"
+                      checked={preferences.escalation_enabled}
+                      onCheckedChange={handleEscalationToggle}
+                    />
+                  </div>
+
+                  {preferences.escalation_enabled && (
+                    <div className="space-y-2 pl-4 border-l-2 border-muted">
+                      <Label>Start escalation after</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="1"
+                          max="30"
+                          value={preferences.escalation_days}
+                          onChange={(e) => handleEscalationDaysChange(e.target.value)}
+                          className="w-20"
+                        />
+                        <span className="text-sm text-muted-foreground">days overdue</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        How many days past due before sending escalation reminders
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </>
         )}
 
@@ -255,11 +422,12 @@ export function NotificationsCard({ profile, isLoading: profileLoading }: Notifi
         <div className="bg-muted/50 p-4 rounded-lg">
           <h4 className="font-medium text-sm mb-2">How it works:</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Notifications are checked every 30 minutes</li>
-            <li>• You'll only receive emails if you have upcoming or overdue maintenance tasks</li>
-            <li>• Upcoming tasks are those due within the next 7 days</li>
-            <li>• Overdue tasks are those past their due date</li>
-            <li>• Notifications respect your timezone and preferred time</li>
+            <li>• Notifications are checked every 30 minutes at your preferred time</li>
+            <li>• <strong>Advance notifications:</strong> Get reminded X days before tasks are due</li>
+            <li>• <strong>Due date notifications:</strong> Reminders for tasks due today</li>
+            <li>• <strong>Overdue notifications:</strong> Alerts for tasks past their due date</li>
+            <li>• <strong>Escalation notifications:</strong> Extra reminders for persistently overdue tasks</li>
+            <li>• All notifications respect your timezone and preferred time</li>
           </ul>
         </div>
       </CardContent>
