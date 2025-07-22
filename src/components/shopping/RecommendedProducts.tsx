@@ -137,36 +137,33 @@ const RecommendedProducts = () => {
                         </Badge>
                       </div>
                     </div>
-                    <CardContent className="p-4 flex flex-col h-full">
-                      <div className="flex-1 space-y-3">
-                        <div className="space-y-1">
-                          <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                            {product.name}
-                          </h3>
-                          
-                          {product.brand && (
-                            <p className="text-sm text-muted-foreground">
-                              by {product.brand}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {effectivePrice && (
-                            <span className="text-xl font-bold text-primary">
-                              ${effectivePrice.toFixed(2)}
-                            </span>
-                          )}
-                          {product.is_on_sale && product.regular_price && (
-                            <span className="text-sm text-muted-foreground line-through">
-                              ${product.regular_price.toFixed(2)}
-                            </span>
-                          )}
-                        </div>
+                    <CardContent className="p-4 space-y-3">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                          {product.name}
+                        </h3>
+                        
+                        {product.brand && (
+                          <p className="text-sm text-muted-foreground">
+                            by {product.brand}
+                          </p>
+                        )}
                       </div>
 
-                      {/* Action buttons - fixed at bottom */}
-                      <div className="flex gap-2 pt-3 mt-auto">
+                      <div className="flex items-center gap-2">
+                        {effectivePrice && (
+                          <span className="text-xl font-bold text-primary">
+                            ${effectivePrice.toFixed(2)}
+                          </span>
+                        )}
+                        {product.is_on_sale && product.regular_price && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            ${product.regular_price.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
                         <Button 
                           variant="outline" 
                           size="sm" 

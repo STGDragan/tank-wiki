@@ -131,45 +131,43 @@ export function AquariumRecommendations({
                     )}
                   </div>
 
-                  <CardContent className="p-4 flex flex-col h-full">
-                    <div className="flex-1 space-y-3">
-                      {/* Product title */}
-                      <div className="space-y-1">
-                        <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                          {product.name}
-                        </h3>
-                        {product.brand && (
-                          <p className="text-sm text-muted-foreground">
-                            by {product.brand}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-primary">
-                          ${getEffectivePrice(product).toFixed(2)}
-                        </span>
-                        {product.is_on_sale && getEffectivePrice(product) < product.regular_price && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            ${product.regular_price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Description */}
-                      {product.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                          {product.description.length > 80 ? 
-                            product.description.substring(0, 80) + '...' : 
-                            product.description
-                          }
+                  <CardContent className="p-4 space-y-3">
+                    {/* Product title */}
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h3>
+                      {product.brand && (
+                        <p className="text-sm text-muted-foreground">
+                          by {product.brand}
                         </p>
                       )}
                     </div>
 
-                    {/* Action button - fixed at bottom */}
-                    <div className="pt-3 mt-auto">
+                    {/* Price */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-primary">
+                        ${getEffectivePrice(product).toFixed(2)}
+                      </span>
+                      {product.is_on_sale && getEffectivePrice(product) < product.regular_price && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ${product.regular_price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Description */}
+                    {product.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {product.description.length > 80 ? 
+                          product.description.substring(0, 80) + '...' : 
+                          product.description
+                        }
+                      </p>
+                    )}
+
+                    {/* Action button */}
+                    <div className="pt-2">
                       {product.affiliate_links && product.affiliate_links.length > 0 ? (
                         <Button 
                           size="sm"
