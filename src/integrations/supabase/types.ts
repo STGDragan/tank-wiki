@@ -606,6 +606,56 @@ export type Database = {
           },
         ]
       }
+      equipment_warranties: {
+        Row: {
+          created_at: string
+          equipment_id: string
+          id: string
+          is_active: boolean | null
+          proof_of_purchase_url: string | null
+          updated_at: string
+          user_id: string
+          warranty_end_date: string
+          warranty_provider: string | null
+          warranty_start_date: string
+          warranty_terms: string | null
+        }
+        Insert: {
+          created_at?: string
+          equipment_id: string
+          id?: string
+          is_active?: boolean | null
+          proof_of_purchase_url?: string | null
+          updated_at?: string
+          user_id: string
+          warranty_end_date: string
+          warranty_provider?: string | null
+          warranty_start_date: string
+          warranty_terms?: string | null
+        }
+        Update: {
+          created_at?: string
+          equipment_id?: string
+          id?: string
+          is_active?: boolean | null
+          proof_of_purchase_url?: string | null
+          updated_at?: string
+          user_id?: string
+          warranty_end_date?: string
+          warranty_provider?: string | null
+          warranty_start_date?: string
+          warranty_terms?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_warranties_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feedback: {
         Row: {
           browser_info: Json | null
@@ -915,39 +965,72 @@ export type Database = {
       }
       maintenance: {
         Row: {
+          actual_cost: number | null
+          actual_duration: number | null
           aquarium_id: string
           completed_date: string | null
+          completion_percentage: number | null
+          cost_estimate: number | null
           created_at: string
           due_date: string | null
           equipment_id: string | null
+          estimated_duration: number | null
           frequency: string | null
           id: string
+          maintenance_category: string | null
+          next_due_date: string | null
           notes: string | null
+          priority: string | null
+          recurring_pattern: string | null
+          supplier_id: string | null
           task: string
+          template_id: string | null
           user_id: string
         }
         Insert: {
+          actual_cost?: number | null
+          actual_duration?: number | null
           aquarium_id: string
           completed_date?: string | null
+          completion_percentage?: number | null
+          cost_estimate?: number | null
           created_at?: string
           due_date?: string | null
           equipment_id?: string | null
+          estimated_duration?: number | null
           frequency?: string | null
           id?: string
+          maintenance_category?: string | null
+          next_due_date?: string | null
           notes?: string | null
+          priority?: string | null
+          recurring_pattern?: string | null
+          supplier_id?: string | null
           task: string
+          template_id?: string | null
           user_id: string
         }
         Update: {
+          actual_cost?: number | null
+          actual_duration?: number | null
           aquarium_id?: string
           completed_date?: string | null
+          completion_percentage?: number | null
+          cost_estimate?: number | null
           created_at?: string
           due_date?: string | null
           equipment_id?: string | null
+          estimated_duration?: number | null
           frequency?: string | null
           id?: string
+          maintenance_category?: string | null
+          next_due_date?: string | null
           notes?: string | null
+          priority?: string | null
+          recurring_pattern?: string | null
+          supplier_id?: string | null
           task?: string
+          template_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -965,7 +1048,254 @@ export type Database = {
             referencedRelation: "equipment"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "maintenance_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance_suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance_templates"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      maintenance_analytics: {
+        Row: {
+          aquarium_id: string
+          calculated_at: string
+          equipment_id: string | null
+          id: string
+          metric_type: string
+          metric_value: number
+          period_end: string
+          period_start: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_id: string
+          calculated_at?: string
+          equipment_id?: string | null
+          id?: string
+          metric_type: string
+          metric_value: number
+          period_end: string
+          period_start: string
+          user_id: string
+        }
+        Update: {
+          aquarium_id?: string
+          calculated_at?: string
+          equipment_id?: string | null
+          id?: string
+          metric_type?: string
+          metric_value?: number
+          period_end?: string
+          period_start?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_analytics_aquarium_id_fkey"
+            columns: ["aquarium_id"]
+            isOneToOne: false
+            referencedRelation: "aquariums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_analytics_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maintenance_costs: {
+        Row: {
+          cost_amount: number
+          cost_type: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          maintenance_id: string
+          notes: string | null
+          receipt_url: string | null
+          user_id: string
+          vendor_name: string | null
+        }
+        Insert: {
+          cost_amount: number
+          cost_type?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          maintenance_id: string
+          notes?: string | null
+          receipt_url?: string | null
+          user_id: string
+          vendor_name?: string | null
+        }
+        Update: {
+          cost_amount?: number
+          cost_type?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          maintenance_id?: string
+          notes?: string | null
+          receipt_url?: string | null
+          user_id?: string
+          vendor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_costs_maintenance_id_fkey"
+            columns: ["maintenance_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maintenance_notification_preferences: {
+        Row: {
+          created_at: string
+          email_enabled: boolean | null
+          escalation_days: number | null
+          escalation_enabled: boolean | null
+          id: string
+          notification_time: string | null
+          reminder_intervals: number[] | null
+          sms_enabled: boolean | null
+          sms_number: string | null
+          task_type_preferences: Json | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean | null
+          escalation_days?: number | null
+          escalation_enabled?: boolean | null
+          id?: string
+          notification_time?: string | null
+          reminder_intervals?: number[] | null
+          sms_enabled?: boolean | null
+          sms_number?: string | null
+          task_type_preferences?: Json | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean | null
+          escalation_days?: number | null
+          escalation_enabled?: boolean | null
+          id?: string
+          notification_time?: string | null
+          reminder_intervals?: number[] | null
+          sms_enabled?: boolean | null
+          sms_number?: string | null
+          task_type_preferences?: Json | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      maintenance_suppliers: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          preferred_supplier: boolean | null
+          specialties: string[] | null
+          supplier_name: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preferred_supplier?: boolean | null
+          specialties?: string[] | null
+          supplier_name: string
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          preferred_supplier?: boolean | null
+          specialties?: string[] | null
+          supplier_name?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      maintenance_templates: {
+        Row: {
+          created_at: string
+          equipment_type: string
+          estimated_cost: number | null
+          frequency_days: number
+          id: string
+          instructions: string | null
+          is_active: boolean | null
+          priority: string | null
+          required_supplies: Json | null
+          task_description: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          equipment_type: string
+          estimated_cost?: number | null
+          frequency_days: number
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          priority?: string | null
+          required_supplies?: Json | null
+          task_description: string
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          equipment_type?: string
+          estimated_cost?: number | null
+          frequency_days?: number
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          priority?: string | null
+          required_supplies?: Json | null
+          task_description?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       medications: {
         Row: {
@@ -2103,6 +2433,15 @@ export type Database = {
       }
       format_amazon_affiliate_url: {
         Args: { input_url: string; affiliate_tag?: string }
+        Returns: string
+      }
+      generate_maintenance_from_template: {
+        Args: {
+          p_equipment_id: string
+          p_template_id: string
+          p_user_id: string
+          p_aquarium_id: string
+        }
         Returns: string
       }
       generate_order_number: {
