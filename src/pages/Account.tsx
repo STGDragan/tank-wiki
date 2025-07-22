@@ -11,7 +11,7 @@ import { AppearanceCard } from "@/components/account/AppearanceCard";
 import { AdminRoleCard } from "@/components/account/AdminRoleCard";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, LogOut } from "lucide-react";
+import { ArrowRight, LogOut, MessageSquare } from "lucide-react";
 import { DeleteAccountCard } from "@/components/account/DeleteAccountCard";
 import { PasswordCard } from "@/components/account/PasswordCard";
 
@@ -27,6 +27,27 @@ const LegalCard = () => (
       <Button asChild>
         <Link to="/legal">
           View Documents <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    </CardContent>
+  </Card>
+);
+
+const FeedbackCard = () => (
+  <Card>
+    <CardHeader>
+      <CardTitle className="flex items-center gap-2">
+        <MessageSquare className="h-5 w-5" />
+        Feedback
+      </CardTitle>
+      <CardDescription>
+        Share your thoughts and suggestions to help us improve.
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <Button asChild>
+        <Link to="/feedback">
+          Send Feedback <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>
     </CardContent>
@@ -142,6 +163,7 @@ const Account = () => {
       <NotificationsCard profile={profile} isLoading={isLoading} />
       <AppearanceCard />
       <LegalCard />
+      <FeedbackCard />
       <AdminRoleCard />
       <DeleteAccountCard />
     </div>

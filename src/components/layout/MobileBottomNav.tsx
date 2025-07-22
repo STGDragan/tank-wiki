@@ -2,7 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ShoppingCart, Book, Users, Settings, MessageSquare } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Book, Users, Settings, MessageSquare, BarChart3 } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 
 const navItems = [
@@ -10,7 +10,7 @@ const navItems = [
   { name: "Shared", href: "/shared-with-me", icon: Users },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge", href: "/knowledge-base", icon: Book },
-  { name: "Feedback", href: "/feedback", icon: MessageSquare },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Settings", href: "/account", icon: Settings },
 ];
 

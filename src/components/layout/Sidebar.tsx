@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, Menu, MessageSquare, Crown, UserCog, Share2 } from "lucide-react";
+import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, Menu, MessageSquare, Crown, UserCog, Share2, BarChart3 } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { ScrollArea } from "../ui/scroll-area";
 import { useState } from "react";
@@ -13,7 +13,7 @@ const mainNav = [
   { name: "Shared Tanks", href: "/shared-with-me", icon: Users },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
-  { name: "Feedback", href: "/feedback", icon: MessageSquare },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
 
 const adminNav = [
@@ -73,7 +73,7 @@ export function Sidebar() {
           </div>
         </ScrollArea>
       </div>
-      <div className="p-4 border-t flex-shrink-0">
+      <div className="p-4 border-t flex-shrink-0 space-y-1">
         <Button
           variant={location.pathname.startsWith("/account") ? "secondary" : "ghost"}
           className="w-full justify-start"
@@ -83,6 +83,17 @@ export function Sidebar() {
           <Link to="/account">
             <Settings className="mr-2 h-4 w-4" />
             Settings
+          </Link>
+        </Button>
+        <Button
+          variant={location.pathname.startsWith("/feedback") ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          asChild
+          onClick={() => setIsMobileOpen(false)}
+        >
+          <Link to="/feedback">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Feedback
           </Link>
         </Button>
       </div>

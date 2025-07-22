@@ -24,9 +24,13 @@ const mainNav = [
   { name: "Shared Tanks", href: "/shared-with-me", icon: Users },
   { name: "Shopping", href: "/shopping", icon: ShoppingCart },
   { name: "Knowledge Base", href: "/knowledge-base", icon: Book },
-  { name: "Feedback", href: "/feedback", icon: MessageSquare },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Upgrade to Pro", href: "/upgrade", icon: Crown },
+];
+
+const accountNav = [
+  { name: "Settings", href: "/account", icon: Settings },
+  { name: "Feedback", href: "/feedback", icon: MessageSquare },
 ];
 
 const adminNav = [
@@ -145,14 +149,16 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-3">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={location.pathname.startsWith("/account")}>
-              <Link to="/account" className="flex items-center gap-3 px-3 py-2">
-                <Settings className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {accountNav.map((item) => (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
+                <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
