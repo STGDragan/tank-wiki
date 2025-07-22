@@ -144,6 +144,11 @@ const AquariumDetail = () => {
               userId={user.id}
               aquariumCount={0}
             />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
+            />
           </TabsContent>
 
           <TabsContent value="livestock" className="space-y-6">
@@ -156,6 +161,11 @@ const AquariumDetail = () => {
               onDelete={handleDeleteLivestock}
               showRecommendations={false}
             />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
+            />
           </TabsContent>
 
           <TabsContent value="equipment" className="space-y-6">
@@ -166,6 +176,11 @@ const AquariumDetail = () => {
               canEdit={canEdit}
               onDelete={handleDeleteEquipment}
               showRecommendations={false}
+            />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
             />
           </TabsContent>
 
@@ -179,6 +194,11 @@ const AquariumDetail = () => {
               onDelete={handleDeleteTask}
               showRecommendations={false}
             />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
+            />
           </TabsContent>
 
           <TabsContent value="water" className="space-y-6">
@@ -186,6 +206,11 @@ const AquariumDetail = () => {
               aquariumId={aquarium.id}
               aquariumType={aquarium.type}
               latestReading={latestWaterReading}
+            />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
             />
           </TabsContent>
 
@@ -195,10 +220,20 @@ const AquariumDetail = () => {
               userId={user.id}
               canEdit={canEdit}
             />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
+            />
           </TabsContent>
 
           <TabsContent value="wishlist">
             <WishlistTab aquariumId={aquarium.id} canEdit={canEdit} />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
+            />
           </TabsContent>
 
           <TabsContent value="journal">
@@ -210,6 +245,11 @@ const AquariumDetail = () => {
               livestock={livestock}
               waterParameters={waterParameters}
               equipment={equipment}
+            />
+            <AquariumRecommendationsContainer
+              aquariumId={aquarium.id}
+              aquariumType={aquarium.type}
+              userId={user.id}
             />
           </TabsContent>
         </Tabs>
