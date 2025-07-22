@@ -132,7 +132,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   return (
     <TooltipProvider>
       <Card 
-        className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/30 bg-card text-card-foreground cursor-pointer flex flex-col"
+        className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/30 bg-card text-card-foreground cursor-pointer h-full flex flex-col"
         onClick={handleCardClick}
       >
         <div className="aspect-square overflow-hidden bg-muted relative">

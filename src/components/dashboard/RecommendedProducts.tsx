@@ -177,7 +177,7 @@ export const RecommendedProducts = () => {
           <CarouselContent className="-ml-2 md:-ml-4">
             {products.map((product) => (
               <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-72 sm:basis-80">
-                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground flex flex-col">
+                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground h-full flex flex-col">
                   <div className="aspect-square overflow-hidden bg-muted relative cursor-pointer" onClick={() => handleProductClick(product.id)}>
                     <img
                       src={product.image_url || '/placeholder.svg'}
@@ -185,16 +185,11 @@ export const RecommendedProducts = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     
-                    {/* Badges */}
+                    {/* Badges - only sale badges */}
                     <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      {product.is_featured && (
-                        <Badge className="bg-yellow-500 text-white hover:bg-yellow-500 shadow-md">
-                          Featured
-                        </Badge>
-                      )}
-                      {product.is_recommended && (
-                        <Badge className="bg-green-500 text-white hover:bg-green-500 shadow-md">
-                          Recommended
+                      {product.is_on_sale && (
+                        <Badge className="bg-red-500 text-white hover:bg-red-500 shadow-md">
+                          Sale
                         </Badge>
                       )}
                     </div>
