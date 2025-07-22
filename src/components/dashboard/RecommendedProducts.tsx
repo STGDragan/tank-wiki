@@ -72,9 +72,7 @@ export const RecommendedProducts = () => {
   };
 
   const hasAffiliateLink = (product: Product) => {
-    const hasLink = product.affiliate_url || product.amazon_url || (product.affiliate_links && product.affiliate_links.length > 0);
-    console.log(`Product ${product.name}: affiliate_url=${product.affiliate_url}, amazon_url=${product.amazon_url}, hasLink=${hasLink}`);
-    return hasLink;
+    return product.affiliate_url || product.amazon_url || (product.affiliate_links && product.affiliate_links.length > 0);
   };
 
   const getAffiliateUrl = (product: Product) => {
@@ -202,8 +200,8 @@ export const RecommendedProducts = () => {
                     </div>
                   </div>
 
-                  <CardContent className="p-3 flex flex-col justify-between h-full">
-                    <div className="space-y-2">
+                  <CardContent className="p-2 flex flex-col min-h-0">
+                    <div className="space-y-1 flex-grow">
                     {/* Product title */}
                     <div>
                       <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => handleProductClick(product.id)}>
@@ -230,11 +228,11 @@ export const RecommendedProducts = () => {
                     {/* Price */}
                     {getEffectivePrice(product) && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-primary">
+                        <span className="text-lg font-bold text-primary">
                           ${getEffectivePrice(product)?.toFixed(2)}
                         </span>
                         {product.is_on_sale && product.regular_price && (
-                          <span className="text-sm text-muted-foreground line-through">
+                          <span className="text-xs text-muted-foreground line-through">
                             ${product.regular_price.toFixed(2)}
                           </span>
                         )}
@@ -242,8 +240,8 @@ export const RecommendedProducts = () => {
                     )}
                     </div>
 
-                    {/* Action button - pushed to bottom */}
-                    <div className="pt-2 mt-auto">
+                    {/* Action button - tight spacing */}
+                    <div className="pt-1">
                       <Button 
                         size="sm"
                         className="w-full"

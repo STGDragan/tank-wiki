@@ -142,8 +142,8 @@ export function AquariumRecommendations({
                     )}
                   </div>
 
-                  <CardContent className="p-3 flex flex-col justify-between h-full">
-                    <div className="space-y-2">
+                  <CardContent className="p-2 flex flex-col min-h-0">
+                    <div className="space-y-1 flex-grow">
                     {/* Product title */}
                     <div>
                       <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">
@@ -164,8 +164,8 @@ export function AquariumRecommendations({
                     </div>
                     </div>
 
-                    {/* Action button - pushed to bottom */}
-                    <div className="pt-2">
+                    {/* Action button - tight spacing */}
+                    <div className="pt-1">
                       <Button 
                         size="sm"
                         className="w-full"
