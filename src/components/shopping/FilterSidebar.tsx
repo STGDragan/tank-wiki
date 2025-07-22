@@ -34,7 +34,6 @@ const FilterSidebar = ({
     aquariumEquipment: false,
     consumables: false,
     livestock: false,
-    condition: false,
     tankTypes: false,
     compatibility: false,
   });
@@ -193,32 +192,6 @@ const FilterSidebar = ({
                   .map(cat => ({ value: cat.slug, label: cat.name }));
               })()}
               filterKey="categories"
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
-          </CollapsibleContent>
-        </Collapsible>
-        {/* Condition Filter */}
-        <Collapsible 
-          open={openSections.condition} 
-          onOpenChange={() => toggleSection('condition')}
-        >
-          <CollapsibleTrigger className="flex w-full justify-between items-center p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors">
-            <span className="font-medium">Condition</span>
-            <ChevronDown 
-              className={`h-4 w-4 transition-transform duration-200 ${
-                openSections.condition ? 'transform rotate-180' : ''
-              }`} 
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
-            <CheckboxFilter
-              options={[
-                { value: "new", label: "New" },
-                { value: "used", label: "Used" },
-                { value: "refurbished", label: "Refurbished" }
-              ]}
-              filterKey="condition"
               filters={filters}
               onFiltersChange={onFiltersChange}
             />
