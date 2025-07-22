@@ -113,7 +113,7 @@ export function AquariumRecommendations({
           <CarouselContent className="-ml-2 md:-ml-4">
             {products.map((product) => (
               <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-72 sm:basis-80">
-                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground h-full">
+                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground h-full flex flex-col">
                   <div className="aspect-square overflow-hidden bg-muted relative">
                     <img
                       src={product.image_url || '/placeholder.svg'}
@@ -131,7 +131,7 @@ export function AquariumRecommendations({
                     )}
                   </div>
 
-                  <CardContent className="p-4 space-y-3">
+                  <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
                     {/* Product title */}
                     <div className="space-y-1">
                       <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
@@ -166,32 +166,28 @@ export function AquariumRecommendations({
                       </p>
                     )}
 
-                    {/* Action button */}
-                    <div className="pt-2">
-                      {product.affiliate_links && product.affiliate_links.length > 0 ? (
-                        <Button 
-                          size="sm"
-                          className="w-full"
-                          onClick={() => window.open(product.affiliate_links[0].link_url, '_blank')}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          {product.affiliate_links[0].provider === 'Amazon' ? 'Buy on Amazon' : `Buy on ${product.affiliate_links[0].provider}`}
-                          <ExternalLink className="h-4 w-4 ml-2" />
-                        </Button>
-                      ) : (
-                        <Button 
-                          variant="default" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => {
-                            // TODO: Implement direct purchase functionality
+                    {/* Action button - pushed to bottom */}
+                    <div className="pt-2 mt-auto">
+                      <Button 
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          if (product.affiliate_links && product.affiliate_links.length > 0) {
+                            window.open(product.affiliate_links[0].link_url, '_blank');
+                          } else {
                             console.log('Add to cart clicked for product:', product.id);
-                          }}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Add to Cart
-                        </Button>
-                      )}
+                          }
+                        }}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        {product.affiliate_links && product.affiliate_links.length > 0 ? 
+                          (product.affiliate_links[0].provider === 'Amazon' ? 'Buy on Amazon' : `Buy on ${product.affiliate_links[0].provider}`) : 
+                          'Add to Cart'
+                        }
+                        {product.affiliate_links && product.affiliate_links.length > 0 && (
+                          <ExternalLink className="h-4 w-4 ml-2" />
+                        )}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
