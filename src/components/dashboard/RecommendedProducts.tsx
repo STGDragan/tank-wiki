@@ -187,51 +187,53 @@ export const RecommendedProducts = () => {
                     </div>
                   </div>
 
-                  <CardContent className="p-4 space-y-3">
-                    {/* Product title */}
-                    <div className="space-y-1">
-                      <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => handleProductClick(product.id)}>
-                        {product.name}
-                      </h3>
-                      {product.brand && (
-                        <p className="text-sm text-muted-foreground">
-                          by {product.brand}
-                        </p>
+                  <CardContent className="p-4 flex flex-col h-full">
+                    <div className="flex-1 space-y-3">
+                      {/* Product title */}
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => handleProductClick(product.id)}>
+                          {product.name}
+                        </h3>
+                        {product.brand && (
+                          <p className="text-sm text-muted-foreground">
+                            by {product.brand}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Categories */}
+                      {(product.category || product.subcategory) && (
+                        <div className="flex gap-1">
+                          {product.category && (
+                            <Badge variant="outline" className="text-xs">
+                              {product.category}
+                            </Badge>
+                          )}
+                          {product.subcategory && (
+                            <Badge variant="outline" className="text-xs">
+                              {product.subcategory}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      {getEffectivePrice(product) && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl font-bold text-primary">
+                            ${getEffectivePrice(product)?.toFixed(2)}
+                          </span>
+                          {product.is_on_sale && product.regular_price && (
+                            <span className="text-sm text-muted-foreground line-through">
+                              ${product.regular_price.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
 
-                    {/* Categories */}
-                    {(product.category || product.subcategory) && (
-                      <div className="flex gap-1">
-                        {product.category && (
-                          <Badge variant="outline" className="text-xs">
-                            {product.category}
-                          </Badge>
-                        )}
-                        {product.subcategory && (
-                          <Badge variant="outline" className="text-xs">
-                            {product.subcategory}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Price */}
-                    {getEffectivePrice(product) && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-primary">
-                          ${getEffectivePrice(product)?.toFixed(2)}
-                        </span>
-                        {product.is_on_sale && product.regular_price && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            ${product.regular_price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Action button */}
-                    <div className="pt-2">
+                    {/* Action button - fixed at bottom */}
+                    <div className="pt-3 mt-auto">
                       {product.affiliate_links && product.affiliate_links.length > 0 ? (
                         <Button 
                           size="sm"
@@ -239,7 +241,7 @@ export const RecommendedProducts = () => {
                           onClick={() => window.open(product.affiliate_links[0].link_url, '_blank')}
                         >
                           <ShoppingCart className="h-4 w-4 mr-2" />
-                          Buy on {product.affiliate_links[0].provider}
+                          {product.affiliate_links[0].provider === 'Amazon' ? 'Buy on Amazon' : `Buy on ${product.affiliate_links[0].provider}`}
                           <ExternalLink className="h-4 w-4 ml-2" />
                         </Button>
                       ) : (

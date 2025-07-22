@@ -137,33 +137,36 @@ const FeaturedProducts = () => {
                         </Badge>
                       </div>
                     </div>
-                    <CardContent className="p-4 space-y-3">
-                      <div className="space-y-1">
-                        <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                          {product.name}
-                        </h3>
-                        
-                        {product.brand && (
-                          <p className="text-sm text-muted-foreground">
-                            by {product.brand}
-                          </p>
-                        )}
+                    <CardContent className="p-4 flex flex-col h-full">
+                      <div className="flex-1 space-y-3">
+                        <div className="space-y-1">
+                          <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                            {product.name}
+                          </h3>
+                          
+                          {product.brand && (
+                            <p className="text-sm text-muted-foreground">
+                              by {product.brand}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {effectivePrice && (
+                            <span className="text-xl font-bold text-primary">
+                              ${effectivePrice.toFixed(2)}
+                            </span>
+                          )}
+                          {product.is_on_sale && product.regular_price && (
+                            <span className="text-sm text-muted-foreground line-through">
+                              ${product.regular_price.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {effectivePrice && (
-                          <span className="text-xl font-bold text-primary">
-                            ${effectivePrice.toFixed(2)}
-                          </span>
-                        )}
-                        {product.is_on_sale && product.regular_price && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            ${product.regular_price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2 pt-2">
+                      {/* Action buttons - fixed at bottom */}
+                      <div className="flex gap-2 pt-3 mt-auto">
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -178,7 +181,7 @@ const FeaturedProducts = () => {
                           disabled={product.track_inventory && (product.stock_quantity || 0) === 0}
                         >
                           <ShoppingCart className="h-4 w-4 mr-1" />
-                          Buy Now
+                          {product.affiliate_links?.[0]?.provider === 'Amazon' ? 'Buy on Amazon' : 'Buy Now'}
                         </Button>
                       </div>
                     </CardContent>
