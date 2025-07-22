@@ -8,28 +8,29 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Service account credentials
-const serviceAccount = {
-  "type": "service_account",
-  "project_id": "aquasage-h18f7",
-  "private_key_id": "074802191c4dc6a058db50abd749c26a8589b0d9",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCxHNWvAOUxQ87z\nIDWWJBVTyrpVF7XA0OUe5C38G2OCwVmSgBJY0vuVrgft/90SIuZTviyBGa1mkYhd\nTq5yBClsDTtNhkyta0Bq3mU+j7+KGZXTvhLBiklUPZgOuWib6SXJK1+bHTCw22yz\nS3uQkorYBB6eS/dSZSpcCkqtqg9dZ4NxTstIjEogDpZJiPNBGF64dCvIWP8r2A7+\nejOr+YHQKAkpf7bYCbVasDc8Vj4/7Y3f4kudBXi3kguiw+7EZFI6wGSdGR6ggmmk\n2ZpnOjQKLK0ZaPY6xS1Cu1XmmxsbMLqUijBnwXQMR5TQvt31fRlNzqNwWsqzX1Pq\nTm9HJmNtAgMBAAECggEAEASCksQq9iyiv7wu/Hgg8aYI+f8d8eUyg3uxaPZ1JnMk\nDarFfgD+vceyceTM8oHzgKlXTwmqc/c/dOjTv/3+XQZJUbaOorRra/7W+zR25x9v\nPGoZOiWugg7b/KDqBAeu4iWpDNcz+xqtFv4Bm86U/fpJZpmKMYpyrUZFALW7k//M\nysVebc8G9VzhUNkEABSABDqUGc6zc+ueZhQ5Cpbvw82yj9V6aB9WqG7xe+6tGldB\nKWJRy8EkSwy4MtxWF3tLyBjVijf1vkcAl6sMnu4nvEMk7B2M/4uQJ0IDawdKFLID\njjhAR3cLrv9dX9ROCejOVeaIwx/f8Av91Qaja8JnBQKBgQDv0oPSR8pOJp8UACnk\n0lbmQDly2eXhi3IlMGLQClst//jGV1YMtiTj9UAwTTKEmiMb0puuU3WbEE18AoT2\ne6bKY1zyIAp2fIhWhHuG+BA6qMe1Hqhd13SKU+bqMtC1I4m5nUJM/AN2Q7b09I+B\nG5kFXUOcFLG6zIFo9FoDv7yfswKBgQC9D2NNhboMBmZz1DhGwEfsc8xPGA1jDX+Z\nTtIEcaIG0BQIv2pmNVdfgiJqEMeCJRsbVmwvDse2FMJpjHDb3x5mOItUS36GsxVg\ntrwiz8BXLQHrycCBBE+n83GyiSEfm6YhDDG1kCOduOJT9ovMtajOwikKT1K34Ssm\nkLEmiKxgXwKBgQCB+8bI9XI4M4SrMX+Db2H8QDki/+kx+wOuFnCoM8TBxOhQkEuq\nbhrGl0noJB9KccSvstIAhWnL1uU4XqE0e0amkX5yGV2yZML8qafOOquJL6u2hlxZ\nKIsY4mrY6xvl4dInEY467ajus7r5P4h8QLoKh0c61JiUF33YpgAX4hdZMwKBgDKM\nFK67XDyu0WGSkeFIs3Iim7Nh6OJcz4q7qicKApnztAeKtfXRuSSN9ImLJuxC43Zx\nqscCGp8x+bCineILS2NlJstIy/FTnBmZgb+E8BXesK7L6C4Wav2qdvGW/EYpJUec\nrQWwHfWjYs+0ETiQMSvmeXaKMsF68ECFWvfEfuHdAoGBAL/7dPOMa3knBY238wqr\nZD4+57+P1VLMSxaTL8MzredhjKkcwLiQ6KR2xGOeoUatjoOXLXCi/3EeqXW1QfZl\ncaIFjO/duoqYBkrWMbOMuQl4sJbxpRrOYZLN4dwAzDB0LzIpCoYCd2n3l0UYjwiy\nf9ZK1lRZBeTTKN2e2gAGq1Wh\n-----END PRIVATE KEY-----\n",
-  "client_email": "tank-wiki@aquasage-h18f7.iam.gserviceaccount.com",
-  "client_id": "105250850712430228202",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tank-wiki%40aquasage-h18f7.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
+// Get service account credentials from Supabase secrets
+const getServiceAccountCredentials = () => {
+  const privateKey = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY');
+  const clientEmail = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL');
+  const projectId = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_PROJECT_ID');
+  
+  if (!privateKey || !clientEmail || !projectId) {
+    throw new Error('Missing required Google service account credentials in environment variables');
+  }
+  
+  return {
+    private_key: privateKey.replace(/\\n/g, '\n'), // Handle escaped newlines
+    client_email: clientEmail,
+    project_id: projectId
+  };
 };
 
 const GA4_PROPERTY_ID = "456709306"; // Extracted from G-VX4VK3HPFG
 
 async function createJWTToken(): Promise<string> {
+  const serviceAccount = getServiceAccountCredentials();
   const scope = 'https://www.googleapis.com/auth/analytics.readonly';
   const aud = 'https://oauth2.googleapis.com/token';
-  
-  const now = Math.floor(Date.now() / 1000);
   
   const header: Header = {
     alg: "RS256",
@@ -46,7 +47,6 @@ async function createJWTToken(): Promise<string> {
 
   // Import the private key
   const privateKeyPem = serviceAccount.private_key;
-  const privateKeyArrayBuffer = new TextEncoder().encode(privateKeyPem);
   
   // Parse the PEM format
   const pemHeader = "-----BEGIN PRIVATE KEY-----";
