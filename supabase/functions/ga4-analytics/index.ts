@@ -25,7 +25,7 @@ const getServiceAccountCredentials = () => {
   };
 };
 
-const GA4_PROPERTY_ID = "456709306"; // Extracted from G-VX4VK3HPFG
+const GA4_PROPERTY_ID = "456709306"; // Need to update this with the new property ID from G-JRMD62DTMJ
 
 async function createJWTToken(): Promise<string> {
   const serviceAccount = getServiceAccountCredentials();
