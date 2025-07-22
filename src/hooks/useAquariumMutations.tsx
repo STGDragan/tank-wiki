@@ -11,13 +11,30 @@ export const useAquariumMutations = (aquariumId: string | undefined, userId: str
     const queryClient = useQueryClient();
 
     const completeTaskMutation = useMutation({
-        mutationFn: async ({ taskId, completedDate }: { taskId: string, completedDate: Date }) => {
+        mutationFn: async ({ taskId, completedDate, additionalData }: { taskId: string, completedDate: Date, additionalData?: any }) => {
             const taskToComplete = tasks?.find(t => t.id === taskId);
             if (!taskToComplete) throw new Error("Task not found");
             if (!userId) throw new Error("User not found");
 
             const { error: updateError } = await supabase.from('maintenance').update({ completed_date: completedDate.toISOString() }).eq('id', taskId);
             if (updateError) throw updateError;
+            
+            // If this is a water testing task and we have water parameter data, save it
+            const isWaterTest = taskToComplete.task.toLowerCase().includes('test water') || taskToComplete.task.toLowerCase().includes('water parameters');
+            if (isWaterTest && additionalData?.waterParameters && aquariumId) {
+                const waterParams = additionalData.waterParameters;
+                const { error: waterParamError } = await supabase.from('water_parameters').insert({
+                    aquarium_id: aquariumId,
+                    user_id: userId,
+                    recorded_at: completedDate.toISOString(),
+                    temperature: waterParams.temperature,
+                    ph: waterParams.ph,
+                    ammonia: waterParams.ammonia,
+                    nitrite: waterParams.nitrite,
+                    nitrate: waterParams.nitrate,
+                });
+                if (waterParamError) throw waterParamError;
+            }
             
             if (taskToComplete.frequency) {
                 const calculateNextDueDate = (lastCompleted: Date, frequency: string): Date => {
@@ -45,6 +62,7 @@ export const useAquariumMutations = (aquariumId: string | undefined, userId: str
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['maintenance', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
             toast({ title: 'Task completed!' });
         },
         onError: (err: Error) => {
@@ -114,8 +132,8 @@ export const useAquariumMutations = (aquariumId: string | undefined, userId: str
         }
     });
 
-    const handleMarkComplete = (taskId: string, completedDate: Date) => {
-        completeTaskMutation.mutate({ taskId, completedDate });
+    const handleMarkComplete = (taskId: string, completedDate: Date, additionalData?: any) => {
+        completeTaskMutation.mutate({ taskId, completedDate, additionalData });
     };
 
     const handleUpdateLivestockQuantity = (livestockId: string, currentQuantity: number, change: number) => {

@@ -51,8 +51,8 @@ export function UpcomingMaintenanceTracker({ aquariums }: UpcomingMaintenanceTra
     setCompleteDialogOpen(true);
   };
 
-  const onComplete = (taskId: string, completedDate: Date) => {
-    handleMarkComplete(taskId, completedDate);
+  const onComplete = (taskId: string, completedDate: Date, additionalData?: any) => {
+    handleMarkComplete(taskId, completedDate, additionalData);
     setCompleteDialogOpen(false);
     setSelectedTask(null);
   };
