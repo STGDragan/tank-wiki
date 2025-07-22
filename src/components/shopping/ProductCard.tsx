@@ -351,8 +351,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                   onClick={handleBuyNow}
                   disabled={isOutOfStock}
                 >
-                  <ShoppingCart className="h-4 w-4 mr-1" />
-                  {isOutOfStock ? "Out of Stock" : affiliateUrl ? "Buy on Amazon" : "Buy Now"}
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  {isOutOfStock ? "Out of Stock" : "Buy on Amazon"}
                 </Button>
               )}
               {affiliateUrl && !showBuyNow && (
