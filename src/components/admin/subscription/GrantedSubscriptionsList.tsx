@@ -52,6 +52,7 @@ export function GrantedSubscriptionsList({ grantedSubscriptions }: GrantedSubscr
     onSuccess: () => {
       toast({ title: "Subscription revoked successfully" });
       queryClient.invalidateQueries({ queryKey: ['admin-granted-subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-profiles'] });
     },
     onError: (error: Error) => {
       toast({

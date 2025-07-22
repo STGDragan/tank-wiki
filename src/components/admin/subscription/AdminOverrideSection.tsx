@@ -35,6 +35,7 @@ export function AdminOverrideSection({ profiles }: AdminOverrideSectionProps) {
     onSuccess: () => {
       toast({ title: "Admin override updated successfully" });
       queryClient.invalidateQueries({ queryKey: ['admin-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-granted-subscriptions'] });
     },
     onError: (error: Error) => {
       toast({

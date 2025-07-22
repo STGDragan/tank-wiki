@@ -69,6 +69,7 @@ export function GrantSubscriptionSection({ profiles }: GrantSubscriptionSectionP
       setExpiresAt("");
       setNotes("");
       queryClient.invalidateQueries({ queryKey: ['admin-granted-subscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-profiles'] });
     },
     onError: (error: Error) => {
       toast({
