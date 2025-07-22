@@ -38,27 +38,24 @@ const ProPage = () => {
   const proFeatures = [
     {
       icon: <Fish className="h-6 w-6 text-blue-500" />,
-      title: "Unlimited Aquariums",
+      title: "Up to 10 Aquariums",
       description: "Track up to 10 aquariums instead of just 3",
       category: "Capacity",
       details: [
         "Manage up to 10 aquarium systems",
         "Perfect for serious hobbyists",
-        "Track multiple tank types",
-        "Organize by room or setup type"
+        "Track multiple tank types"
       ]
     },
     {
       icon: <Calendar className="h-6 w-6 text-green-500" />,
       title: "Advanced Maintenance",
-      description: "Smart scheduling and automated reminders",
+      description: "Access maintenance templates and scheduling",
       category: "Automation",
       details: [
-        "Customizable maintenance templates",
-        "Automated recurring task creation",
-        "Email and in-app notifications",
+        "Pre-built maintenance templates",
         "Equipment-specific maintenance tracking",
-        "Maintenance history analytics"
+        "Maintenance history and completion tracking"
       ]
     },
     {
@@ -67,61 +64,17 @@ const ProPage = () => {
       description: "Share your aquariums with family & friends",
       category: "Social",
       details: [
-        "Invite family members to view tanks",
-        "Grant editing permissions to helpers",
-        "Share maintenance responsibilities",
-        "Collaborative aquarium management",
-        "Access control and permissions"
-      ]
-    },
-    {
-      icon: <BarChart3 className="h-6 w-6 text-orange-500" />,
-      title: "Advanced Analytics",
-      description: "Deep insights into your aquarium health",
-      category: "Analytics",
-      details: [
-        "Water parameter trend analysis",
-        "Maintenance cost tracking",
-        "Equipment performance metrics",
-        "Health score calculations",
-        "Custom reporting dashboards"
-      ]
-    },
-    {
-      icon: <Cloud className="h-6 w-6 text-cyan-500" />,
-      title: "Cloud Backup & Sync",
-      description: "Never lose your aquarium data",
-      category: "Data",
-      details: [
-        "Automatic cloud backups",
-        "Cross-device synchronization",
-        "Data export capabilities",
-        "Secure encrypted storage",
-        "Access from anywhere"
-      ]
-    },
-    {
-      icon: <Zap className="h-6 w-6 text-yellow-500" />,
-      title: "Automation Tools",
-      description: "Streamline your aquarium management",
-      category: "Efficiency",
-      details: [
-        "Bulk task creation",
-        "Template-based setups",
-        "Smart reminder scheduling",
-        "Quick-add shortcuts",
-        "Batch operations"
+        "Invite others to view your tanks",
+        "Grant editing permissions",
+        "Collaborative aquarium management"
       ]
     }
   ];
 
   const comparisonFeatures = [
     { feature: "Aquarium Tracking", free: "Up to 3", pro: "Up to 10" },
-    { feature: "Maintenance Reminders", free: "Basic", pro: "Advanced Templates" },
-    { feature: "Tank Sharing", free: "❌", pro: "✅" },
-    { feature: "Advanced Analytics", free: "❌", pro: "✅" },
-    { feature: "Cloud Backup", free: "❌", pro: "✅" },
-    { feature: "Automation Tools", free: "❌", pro: "✅" }
+    { feature: "Maintenance Templates", free: "❌", pro: "✅" },
+    { feature: "Tank Sharing", free: "❌", pro: "✅" }
   ];
 
   return (
@@ -138,8 +91,8 @@ const ProPage = () => {
             Upgrade to Pro
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-mono">
-            Take your aquarium management to the next level with advanced features, 
-            unlimited tracking, and powerful automation tools.
+            Take your aquarium management to the next level with more tanks, 
+            maintenance templates, and collaborative features.
           </p>
           
           <div className="flex items-center justify-center gap-4">
@@ -200,7 +153,7 @@ const ProPage = () => {
             <p className="text-muted-foreground font-mono">Everything you need to manage your aquariums like a pro</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {proFeatures.map((feature, index) => (
               <Card key={index} className="cyber-card hover:scale-105 transition-transform group">
                 <CardContent className="p-6 space-y-4">
