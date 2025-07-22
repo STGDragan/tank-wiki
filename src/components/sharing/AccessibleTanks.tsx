@@ -28,8 +28,8 @@ export function AccessibleTanks() {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-800 border-2 border-cyan-500/50 rounded-lg p-6">
-        <div className="text-white">Loading accessible tanks...</div>
+      <div className="bg-card border-2 border-primary/50 rounded-lg p-6">
+        <div className="text-foreground">Loading accessible tanks...</div>
       </div>
     );
   }
@@ -43,20 +43,20 @@ export function AccessibleTanks() {
 
   if (sharedAquariums.length === 0) {
     return (
-      <Card className="bg-gray-800 border-2 border-cyan-500/50">
+    <Card className="bg-card border-2 border-primary/50">
         <CardHeader>
-          <CardTitle className="text-white">Tanks Shared With You</CardTitle>
-          <CardDescription className="text-gray-400">No tanks have been shared with you yet.</CardDescription>
+          <CardTitle className="text-card-foreground">Tanks Shared With You</CardTitle>
+          <CardDescription className="text-muted-foreground">No tanks have been shared with you yet.</CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   return (
-    <Card className="bg-gray-800 border-2 border-cyan-500/50">
+    <Card className="bg-card border-2 border-primary/50">
       <CardHeader>
-        <CardTitle className="text-white">Tanks Shared With You</CardTitle>
-        <CardDescription className="text-gray-400">Aquariums that others have shared with you.</CardDescription>
+        <CardTitle className="text-card-foreground">Tanks Shared With You</CardTitle>
+        <CardDescription className="text-muted-foreground">Aquariums that others have shared with you.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -37,7 +37,7 @@ export const SystemHealthBar = () => {
           SYSTEM HEALTH STATUS
         </h3>
       </div>
-      <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden border border-gray-600">
+      <div className="relative h-8 bg-muted rounded-full overflow-hidden border border-border">
         {/* Full gradient background - red to cyan to green across entire width */}
         <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-cyan-500 to-green-500 opacity-20" />
         
@@ -70,8 +70,8 @@ export const SystemHealthBar = () => {
       </div>
       
       <div className="text-center mt-2">
-        <span className="text-2xl font-mono text-white">{healthScore}%</span>
-        <span className="text-gray-400 ml-2">SYSTEM EFFICIENCY</span>
+        <span className="text-2xl font-mono text-foreground">{healthScore}%</span>
+        <span className="text-muted-foreground ml-2">SYSTEM EFFICIENCY</span>
       </div>
     </div>
   );

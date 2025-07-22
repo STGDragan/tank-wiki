@@ -200,9 +200,9 @@ const FilterSidebar = ({
   }
 
   return (
-    <Card className="bg-gray-800 border-gray-700">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-white">Filters</CardTitle>
+        <CardTitle className="text-card-foreground">Filters</CardTitle>
       </CardHeader>
       <CardContent>
         {content}

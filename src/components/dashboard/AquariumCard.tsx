@@ -26,12 +26,12 @@ export const AquariumCard = ({ aquarium, tankHealthData, onDelete }: AquariumCar
   const navigate = useNavigate();
 
   return (
-    <Card className="bg-gray-800 border-2 border-cyan-500/50 rounded-xl">
+    <Card className="bg-card border-2 border-primary/50 rounded-xl">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-white text-lg">{aquarium.name}</CardTitle>
-            <p className="text-gray-400 text-sm">
+            <CardTitle className="text-card-foreground text-lg">{aquarium.name}</CardTitle>
+            <p className="text-muted-foreground text-sm">
               Started on {new Date(aquarium.created_at).toLocaleDateString('en-US', { 
                 month: 'short', 
                 day: 'numeric', 

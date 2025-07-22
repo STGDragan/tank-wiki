@@ -30,13 +30,13 @@ export function SharedTankCard({ id, name, type, size, image_url, ownerName }: S
   };
 
   return (
-    <Card className="flex flex-col h-full bg-gray-800 border-2 border-cyan-500/50">
+    <Card className="flex flex-col h-full bg-card border-2 border-primary/50">
       <CardHeader>
-        <CardTitle className="text-white">{name}</CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardTitle className="text-card-foreground">{name}</CardTitle>
+        <CardDescription className="text-muted-foreground">
           {size} Gallon {type} Tank
         </CardDescription>
-        {ownerName && <CardDescription className="text-gray-400">Owner: {ownerName}</CardDescription>}
+        {ownerName && <CardDescription className="text-muted-foreground">Owner: {ownerName}</CardDescription>}
       </CardHeader>
       <CardContent className="flex-grow">
         <Link to={`/aquarium/${id}`}>
