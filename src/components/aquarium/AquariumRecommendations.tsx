@@ -142,18 +142,13 @@ export function AquariumRecommendations({
                     )}
                   </div>
 
-                  <CardContent className="p-3 flex flex-col h-full">
-                    <div className="space-y-2 flex-grow">
+                  <CardContent className="p-3 flex flex-col justify-between h-full">
+                    <div className="space-y-2">
                     {/* Product title */}
                     <div>
                       <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                         {product.name}
                       </h3>
-                      {product.brand && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          by {product.brand}
-                        </p>
-                      )}
                     </div>
 
                     {/* Price */}
