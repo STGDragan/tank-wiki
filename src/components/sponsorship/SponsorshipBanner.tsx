@@ -91,8 +91,8 @@ export const SponsorshipBanner = ({
                 <img
                   src={currentSponsorship.image_url}
                   alt={currentSponsorship.title}
-                  className="h-[90px] w-[728px] object-contain rounded border-2 border-white/20"
-                  style={{ maxWidth: '728px', maxHeight: '90px' }}
+                  className="h-[90px] w-full max-w-[728px] object-contain rounded border-2 border-white/20"
+                  style={{ maxHeight: '90px' }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}

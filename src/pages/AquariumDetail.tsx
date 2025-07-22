@@ -49,9 +49,9 @@ const AquariumDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 md:space-y-6 p-3 md:p-6 max-w-full overflow-x-hidden">
           <Skeleton className="h-8 w-64 bg-muted" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[...Array(6)].map((_, i) => (
               <Skeleton key={i} className="h-48 w-full bg-muted" />
             ))}
@@ -64,7 +64,7 @@ const AquariumDetail = () => {
   if (error || !aquarium) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <div className="text-center py-12">
+        <div className="text-center py-12 px-4">
           <h2 className="text-2xl font-bold text-foreground">Aquarium not found</h2>
           <p className="text-muted-foreground mt-2">
             {error?.message || "The aquarium you're looking for doesn't exist."}
@@ -79,7 +79,7 @@ const AquariumDetail = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="space-y-6 p-6">
+      <div className="space-y-4 md:space-y-6 p-3 md:p-6 max-w-full overflow-x-hidden">
         <AquariumHeader aquarium={aquarium} />
 
         {/* Tank Health Indicator - Prominent placement */}
@@ -92,20 +92,22 @@ const AquariumDetail = () => {
           aquariumSize={aquarium.size}
         />
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 bg-muted backdrop-blur-sm border border-border shadow-sm">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Overview</TabsTrigger>
-            <TabsTrigger value="progress" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Progress</TabsTrigger>
-            <TabsTrigger value="livestock" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Livestock</TabsTrigger>
-            <TabsTrigger value="equipment" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Equipment</TabsTrigger>
-            <TabsTrigger value="maintenance" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Maintenance</TabsTrigger>
-            <TabsTrigger value="water" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Water Tests</TabsTrigger>
-            <TabsTrigger value="timeline" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Timeline</TabsTrigger>
-            <TabsTrigger value="wishlist" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Wishlist</TabsTrigger>
-            <TabsTrigger value="journal" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Journal</TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="overview" className="space-y-4 md:space-y-6">
+          <div className="overflow-x-auto">
+            <TabsList className="flex w-full min-w-max md:grid md:grid-cols-9 bg-muted backdrop-blur-sm border border-border shadow-sm">
+              <TabsTrigger value="overview" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Overview</TabsTrigger>
+              <TabsTrigger value="progress" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Progress</TabsTrigger>
+              <TabsTrigger value="livestock" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Livestock</TabsTrigger>
+              <TabsTrigger value="equipment" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Equipment</TabsTrigger>
+              <TabsTrigger value="maintenance" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Maintenance</TabsTrigger>
+              <TabsTrigger value="water" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Water Tests</TabsTrigger>
+              <TabsTrigger value="timeline" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Timeline</TabsTrigger>
+              <TabsTrigger value="wishlist" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Wishlist</TabsTrigger>
+              <TabsTrigger value="journal" className="flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground hover:text-foreground">Journal</TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-4 md:space-y-6">
             <LivestockSection
               livestock={livestock || []}
               aquariumId={aquarium.id}

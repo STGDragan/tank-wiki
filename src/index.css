@@ -6,6 +6,14 @@
 @tailwind utilities;
 
 @layer base {
+  /* Prevent horizontal overflow globally */
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
   :root {
     /* Dark futuristic theme with cyan accents - FORCED DARK MODE */
     --background: 222 84% 11%;  /* gray-900 - dark background */
