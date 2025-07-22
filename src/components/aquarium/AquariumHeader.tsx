@@ -44,7 +44,7 @@ export function AquariumHeader({ aquarium }: AquariumHeaderProps) {
         {/* Left side - Aquarium info */}
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold">{aquarium.name}</h1>
+            <h1 className="text-3xl font-bold text-foreground">{aquarium.name}</h1>
             {isOwner && (
               <ShareAquariumDialog aquariumId={aquarium.id} aquariumName={aquarium.name} />
             )}
