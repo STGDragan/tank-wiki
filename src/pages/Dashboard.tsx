@@ -123,9 +123,9 @@ const Dashboard = () => {
 
   if (aquariumsLoading) {
     return (
-      <div className="animate-pulse space-y-6 p-6">
+      <div className="animate-pulse space-y-4 md:space-y-6 p-3 md:p-6 max-w-full">
         <div className="h-8 bg-gray-800 rounded w-1/4"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-96 bg-gray-800 rounded-lg"></div>
           ))}
@@ -135,13 +135,13 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="bg-background text-foreground min-h-screen overflow-x-auto">
       {/* Sponsorship Banner */}
       <SponsorshipBanner page="dashboard" />
 
       {/* Subscription Expired Alert */}
       {!hasActiveSubscription && (
-        <div className="p-6 pb-0">
+        <div className="p-3 md:p-6 pb-0">
           <SubscriptionExpiredAlert 
             reason={pendingDowngrade?.reason || 'expired'}
             previousTier={pendingDowngrade?.previous_tier || undefined}
@@ -149,7 +149,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      <div className="p-6 space-y-6">
+      <div className="p-3 md:p-6 space-y-4 md:space-y-6 max-w-full">
         {/* My Aquariums Section - Always at the top */}
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -162,7 +162,7 @@ const Dashboard = () => {
             )}
           </div>
           {aquariums.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {aquariums.map((aquarium) => (
                 <AquariumCard
                   key={aquarium.id}

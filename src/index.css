@@ -6,11 +6,6 @@
 @tailwind utilities;
 
 @layer base {
-  /* Prevent horizontal overflow globally */
-  html, body {
-    overflow-x: hidden;
-  }
-  
   * {
     box-sizing: border-box;
   }

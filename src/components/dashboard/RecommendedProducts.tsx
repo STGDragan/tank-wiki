@@ -135,7 +135,7 @@ export const RecommendedProducts = () => {
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {products.map((product) => (
-              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-72 sm:basis-80">
+              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-full sm:basis-80 md:basis-72">
                 <ProductCard 
                   product={product} 
                   showBuyNow={true} 
