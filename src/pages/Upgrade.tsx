@@ -106,18 +106,6 @@ const UpgradePage = () => {
         "Collaborative aquarium management",
         "Real-time collaboration"
       ]
-    },
-    {
-      icon: <Star className="h-6 w-6 text-yellow-500" />,
-      title: "Priority Support",
-      description: "Get help faster with premium support",
-      category: "Support",
-      details: [
-        "Priority email support",
-        "Faster response times",
-        "Direct access to experts",
-        "Phone support available"
-      ]
     }
   ];
 
@@ -125,8 +113,7 @@ const UpgradePage = () => {
     { feature: "Aquarium Tracking", free: "Up to 3", pro: "Up to 10" },
     { feature: "Advanced Analytics", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
     { feature: "Maintenance Templates", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Tank Sharing", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> },
-    { feature: "Priority Support", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }
+    { feature: "Tank Sharing", free: <X className="h-4 w-4 text-red-500" />, pro: <CheckCircle className="h-4 w-4 text-green-500" /> }
   ];
 
   return (

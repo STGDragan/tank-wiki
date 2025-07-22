@@ -82,18 +82,6 @@ const ProPage = () => {
         "Collaborative aquarium management",
         "Real-time collaboration"
       ]
-    },
-    {
-      icon: <Star className="h-6 w-6 text-yellow-500" />,
-      title: "Priority Support",
-      description: "Get help faster with premium support",
-      category: "Support",
-      details: [
-        "Priority email support",
-        "Faster response times",
-        "Direct access to experts",
-        "Phone support available"
-      ]
     }
   ];
 
@@ -101,8 +89,7 @@ const ProPage = () => {
     { feature: "Aquarium Tracking", free: "Up to 3", pro: "Up to 10" },
     { feature: "Advanced Analytics", free: "❌", pro: "✅" },
     { feature: "Maintenance Templates", free: "❌", pro: "✅" },
-    { feature: "Tank Sharing", free: "❌", pro: "✅" },
-    { feature: "Priority Support", free: "❌", pro: "✅" }
+    { feature: "Tank Sharing", free: "❌", pro: "✅" }
   ];
 
   return (

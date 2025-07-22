@@ -54,11 +54,6 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
       icon: <Users className="h-5 w-5 text-orange-600" />,
       title: "Tank Sharing",
       description: "Share your aquariums with family & friends"
-    },
-    {
-      icon: <Star className="h-5 w-5 text-yellow-600" />,
-      title: "Priority Support",
-      description: "Get help faster with premium support"
     }
   ];
 
