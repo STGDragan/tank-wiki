@@ -58,7 +58,6 @@ export function AddLivestockForm({ aquariumId, aquariumType, onSuccess }: AddLiv
     const { error } = await supabase.from("livestock").insert({
       aquarium_id: aquariumId,
       user_id: user.id,
-      type: values.type,
       species: values.species,
       name: values.name || null,
       quantity: values.quantity,
