@@ -200,7 +200,7 @@ export const RecommendedProducts = () => {
                     </div>
                   </div>
 
-                  <CardContent className="p-2 flex flex-col h-full">
+                  <CardContent className="p-2 flex flex-col justify-between min-h-0">
                     <div className="space-y-1 flex-grow">
                     {/* Product title */}
                     <div>
