@@ -123,7 +123,7 @@ const FilterSidebar = ({
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Consumables Dropdown */}
+        {/* Consumables Checkboxes */}
         <Collapsible 
           open={openSections.consumables} 
           onOpenChange={() => toggleSection('consumables')}
@@ -137,18 +137,31 @@ const FilterSidebar = ({
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
-            <DropdownFilter
-              categories={categories}
-              parentCategorySlug="consumables"
+            <CheckboxFilter
+              options={(() => {
+                const parentCategory = categories.find(cat => cat.slug === 'consumables');
+                if (!parentCategory) return [];
+                
+                // Get direct subcategories
+                const subcategories = categories.filter(cat => cat.parent_id === parentCategory.id);
+                
+                // Get sub-subcategories
+                const subSubcategories = categories.filter(cat => 
+                  subcategories.some(subcat => subcat.id === cat.parent_id)
+                );
+                
+                // Combine all categories and map to options
+                return [...subcategories, ...subSubcategories]
+                  .map(cat => ({ value: cat.slug, label: cat.name }));
+              })()}
               filterKey="categories"
               filters={filters}
               onFiltersChange={onFiltersChange}
-              placeholder="Select consumable type..."
             />
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Livestock Dropdown */}
+        {/* Livestock Checkboxes */}
         <Collapsible 
           open={openSections.livestock} 
           onOpenChange={() => toggleSection('livestock')}
@@ -162,13 +175,26 @@ const FilterSidebar = ({
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
-            <DropdownFilter
-              categories={categories}
-              parentCategorySlug="livestock"
+            <CheckboxFilter
+              options={(() => {
+                const parentCategory = categories.find(cat => cat.slug === 'livestock');
+                if (!parentCategory) return [];
+                
+                // Get direct subcategories
+                const subcategories = categories.filter(cat => cat.parent_id === parentCategory.id);
+                
+                // Get sub-subcategories
+                const subSubcategories = categories.filter(cat => 
+                  subcategories.some(subcat => subcat.id === cat.parent_id)
+                );
+                
+                // Combine all categories and map to options
+                return [...subcategories, ...subSubcategories]
+                  .map(cat => ({ value: cat.slug, label: cat.name }));
+              })()}
               filterKey="categories"
               filters={filters}
               onFiltersChange={onFiltersChange}
-              placeholder="Select livestock type..."
             />
           </CollapsibleContent>
         </Collapsible>
