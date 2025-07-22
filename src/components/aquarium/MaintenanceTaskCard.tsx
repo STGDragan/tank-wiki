@@ -15,10 +15,11 @@ interface MaintenanceTaskCardProps {
   task: MaintenanceTask;
   onMarkComplete: (taskId: string, completedDate: Date, additionalData?: any) => void;
   onDelete: (taskId: string) => void;
+  onSkip?: (taskId: string, skipDate: Date, newDueDate: Date, reason?: string) => void;
   hasActiveSubscription?: boolean;
 }
 
-export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete, hasActiveSubscription = false }: MaintenanceTaskCardProps) => {
+export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete, onSkip, hasActiveSubscription = false }: MaintenanceTaskCardProps) => {
   const [isCompleteDialogOpen, setCompleteDialogOpen] = useState(false);
   
   // Function to get filter type for pro users
@@ -189,6 +190,7 @@ export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete, hasActiveS
         isOpen={isCompleteDialogOpen}
         onOpenChange={setCompleteDialogOpen}
         onComplete={handleComplete}
+        onSkip={onSkip}
       />
     </Card>
   );

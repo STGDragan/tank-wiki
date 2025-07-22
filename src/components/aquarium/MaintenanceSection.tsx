@@ -26,6 +26,7 @@ interface MaintenanceSectionProps {
     aquariumSize: number | null | undefined;
     onMarkComplete: (taskId: string, completedDate: Date, additionalData?: any) => void;
     onDelete: (taskId: string) => void;
+    onSkip?: (taskId: string, skipDate: Date, newDueDate: Date, reason?: string) => void;
     showRecommendations?: boolean;
     onRefresh?: () => void;
 }
@@ -37,6 +38,7 @@ export const MaintenanceSection = ({
     aquariumSize, 
     onMarkComplete, 
     onDelete, 
+    onSkip,
     showRecommendations = true,
     onRefresh 
 }: MaintenanceSectionProps) => {
@@ -266,6 +268,7 @@ export const MaintenanceSection = ({
                                             task={task} 
                                             onMarkComplete={onMarkComplete} 
                                             onDelete={onDelete}
+                                            onSkip={onSkip}
                                             hasActiveSubscription={hasActiveSubscription}
                                         />
                                     </CarouselItem>

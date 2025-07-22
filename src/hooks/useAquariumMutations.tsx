@@ -63,10 +63,60 @@ export const useAquariumMutations = (aquariumId: string | undefined, userId: str
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['maintenance', aquariumId] });
             queryClient.invalidateQueries({ queryKey: ['water_parameters', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['upcoming-maintenance-dashboard', userId] });
             toast({ title: 'Task completed!' });
         },
         onError: (err: Error) => {
             toast({ title: 'Error completing task', description: err.message, variant: 'destructive' });
+        }
+    });
+
+    const skipTaskMutation = useMutation({
+        mutationFn: async ({ taskId, skipDate, newDueDate, reason }: { taskId: string, skipDate: Date, newDueDate: Date, reason?: string }) => {
+            const taskToSkip = tasks?.find(t => t.id === taskId);
+            if (!taskToSkip) throw new Error("Task not found");
+            if (!userId) throw new Error("User not found");
+
+            // Mark the task as skipped
+            const { error: updateError } = await supabase.from('maintenance')
+                .update({ 
+                    skipped_at: skipDate.toISOString(), 
+                    skip_reason: reason || null 
+                })
+                .eq('id', taskId);
+            
+            if (updateError) throw updateError;
+            
+            // Create a new task with the rescheduled date
+            const newTask: TablesInsert<'maintenance'> = {
+                aquarium_id: taskToSkip.aquarium_id,
+                user_id: userId,
+                task: taskToSkip.task,
+                notes: taskToSkip.notes,
+                due_date: newDueDate.toISOString(),
+                equipment_id: taskToSkip.equipment_id,
+                frequency: taskToSkip.frequency,
+                maintenance_category: taskToSkip.maintenance_category,
+                priority: taskToSkip.priority
+            };
+            
+            const { error: insertError } = await supabase.from('maintenance').insert(newTask);
+            if (insertError) throw insertError;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['maintenance', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['upcoming-maintenance-dashboard', userId] });
+            toast({ 
+                title: 'Task skipped!', 
+                description: 'The task has been rescheduled successfully.'
+            });
+        },
+        onError: (err: Error) => {
+            toast({ 
+                title: 'Error skipping task', 
+                description: err.message, 
+                variant: 'destructive' 
+            });
         }
     });
 
@@ -135,6 +185,10 @@ export const useAquariumMutations = (aquariumId: string | undefined, userId: str
     const handleMarkComplete = (taskId: string, completedDate: Date, additionalData?: any) => {
         completeTaskMutation.mutate({ taskId, completedDate, additionalData });
     };
+    
+    const handleSkipTask = (taskId: string, skipDate: Date, newDueDate: Date, reason?: string) => {
+        skipTaskMutation.mutate({ taskId, skipDate, newDueDate, reason });
+    };
 
     const handleUpdateLivestockQuantity = (livestockId: string, currentQuantity: number, change: number) => {
         const newQuantity = currentQuantity + change;
@@ -155,6 +209,7 @@ export const useAquariumMutations = (aquariumId: string | undefined, userId: str
 
     return {
         handleMarkComplete,
+        handleSkipTask,
         handleUpdateLivestockQuantity,
         handleDeleteTask,
         handleDeleteLivestock,

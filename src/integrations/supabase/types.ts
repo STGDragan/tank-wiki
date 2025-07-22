@@ -982,6 +982,8 @@ export type Database = {
           notes: string | null
           priority: string | null
           recurring_pattern: string | null
+          skip_reason: string | null
+          skipped_at: string | null
           supplier_id: string | null
           task: string
           template_id: string | null
@@ -1005,6 +1007,8 @@ export type Database = {
           notes?: string | null
           priority?: string | null
           recurring_pattern?: string | null
+          skip_reason?: string | null
+          skipped_at?: string | null
           supplier_id?: string | null
           task: string
           template_id?: string | null
@@ -1028,6 +1032,8 @@ export type Database = {
           notes?: string | null
           priority?: string | null
           recurring_pattern?: string | null
+          skip_reason?: string | null
+          skipped_at?: string | null
           supplier_id?: string | null
           task?: string
           template_id?: string | null

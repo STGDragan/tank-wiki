@@ -15,9 +15,10 @@ interface MaintenanceCardProps {
   task: MaintenanceTask;
   onMarkComplete: (taskId: string, completedDate: Date, additionalData?: any) => void;
   onDelete: (taskId: string) => void;
+  onSkip?: (taskId: string, skipDate: Date, newDueDate: Date, reason?: string) => void;
 }
 
-export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceCardProps) => {
+export const MaintenanceCard = ({ task, onMarkComplete, onDelete, onSkip }: MaintenanceCardProps) => {
   const [isCompleteDialogOpen, setCompleteDialogOpen] = useState(false);
   
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.completed_date;
@@ -114,6 +115,7 @@ export const MaintenanceCard = ({ task, onMarkComplete, onDelete }: MaintenanceC
         isOpen={isCompleteDialogOpen}
         onOpenChange={setCompleteDialogOpen}
         onComplete={handleComplete}
+        onSkip={onSkip}
       />
     </Card>
   );

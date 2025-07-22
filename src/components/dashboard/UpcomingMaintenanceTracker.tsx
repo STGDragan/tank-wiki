@@ -44,7 +44,7 @@ export function UpcomingMaintenanceTracker({ aquariums }: UpcomingMaintenanceTra
     enabled: !!user?.id,
   });
 
-  const { handleMarkComplete } = useAquariumMutations(undefined, user?.id, upcomingTasks);
+  const { handleMarkComplete, handleSkipTask } = useAquariumMutations(undefined, user?.id, upcomingTasks);
 
   const handleCompleteTask = (task: any) => {
     setSelectedTask(task);
@@ -163,6 +163,11 @@ export function UpcomingMaintenanceTracker({ aquariums }: UpcomingMaintenanceTra
           isOpen={isCompleteDialogOpen}
           onOpenChange={setCompleteDialogOpen}
           onComplete={onComplete}
+          onSkip={(taskId, skipDate, newDueDate, reason) => {
+            handleSkipTask(taskId, skipDate, newDueDate, reason);
+            setCompleteDialogOpen(false);
+            setSelectedTask(null);
+          }}
         />
       )}
     </>
