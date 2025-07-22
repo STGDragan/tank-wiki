@@ -1,7 +1,6 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, AlertTriangle, Calendar, TrendingUp } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, Clock, AlertTriangle, Calendar } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import { useEffect, useState } from 'react';
 
@@ -56,7 +55,6 @@ export const MaintenanceStats = ({ tasks }: MaintenanceStatsProps) => {
   );
 
   const totalTasks = tasks.length;
-  const completionRate = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
 
   const stats = [
     {
@@ -95,44 +93,22 @@ export const MaintenanceStats = ({ tasks }: MaintenanceStatsProps) => {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <Card key={index} className={`${stat.bgColor} border-0 border-l-4 ${stat.borderColor} transition-all duration-200 hover:shadow-md ${stat.pulse ? 'animate-pulse' : ''}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold">
-                    <AnimatedCounter value={stat.value} />
-                  </p>
-                </div>
-                <stat.icon className={`h-6 w-6 ${stat.color}`} />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {stats.map((stat, index) => (
+        <Card key={index} className={`${stat.bgColor} border-0 border-l-4 ${stat.borderColor} transition-all duration-200 hover:shadow-md ${stat.pulse ? 'animate-pulse' : ''}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                <p className="text-2xl font-bold">
+                  <AnimatedCounter value={stat.value} />
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      {/* Completion Rate Card */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-0">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Completion Rate</p>
-              <p className="text-2xl font-bold text-blue-600">
-                <AnimatedCounter value={completionRate} />%
-              </p>
+              <stat.icon className={`h-6 w-6 ${stat.color}`} />
             </div>
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-6 w-6 text-blue-600" />
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                {completedTasks.length}/{totalTasks} tasks
-              </Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
