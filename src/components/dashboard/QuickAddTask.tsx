@@ -1,14 +1,14 @@
-
 import { useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Fish, Droplets, Wrench, TestTube, Filter, Plus } from "lucide-react";
+import { Fish, Droplets, Wrench, TestTube, Filter, Plus, AlertCircle, Database } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AddLivestockForm } from "@/components/aquarium/AddLivestockForm";
 import { EnhancedAddEquipmentForm } from "@/components/aquarium/EnhancedAddEquipmentForm";
 import { QuickLogForm } from "./QuickLogForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Aquarium = Pick<Tables<'aquariums'>, 'id' | 'name' | 'type' | 'size'>;
 
@@ -73,25 +73,64 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
           <div>
             <CardTitle className="text-primary font-display">Quick Add</CardTitle>
             <CardDescription className="text-muted-foreground font-mono">
-              Quickly log activities or add items to your aquariums.
+              Select an aquarium and quickly log activities or add items.
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Select onValueChange={setSelectedAquariumId} value={selectedAquariumId}>
-            <SelectTrigger className="cyber-input">
-              <SelectValue placeholder="Select an aquarium..." />
-            </SelectTrigger>
-            <SelectContent>
-              {aquariums.map((aq) => (
-                <SelectItem key={aq.id} value={aq.id}>{aq.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Prominent Aquarium Selection */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-primary" />
+              <h4 className="text-lg font-display text-primary">Select Your Aquarium</h4>
+            </div>
+            <Select onValueChange={setSelectedAquariumId} value={selectedAquariumId}>
+              <SelectTrigger className={`cyber-input h-12 text-base ${!selectedAquariumId ? 'border-amber-500/50 bg-amber-950/20' : 'border-green-500/50 bg-green-950/20'}`}>
+                <SelectValue placeholder="🐠 Choose which aquarium to work with..." />
+              </SelectTrigger>
+              <SelectContent>
+                {aquariums.map((aq) => (
+                  <SelectItem key={aq.id} value={aq.id} className="text-base py-3">
+                    <div className="flex items-center gap-2">
+                      <Database className="h-4 w-4" />
+                      <span>{aq.name}</span>
+                      {aq.type && <span className="text-xs text-muted-foreground">({aq.type})</span>}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {!selectedAquariumId && (
+              <Alert className="border-amber-500/50 bg-amber-950/20">
+                <AlertCircle className="h-4 w-4 text-amber-500" />
+                <AlertDescription className="text-amber-200">
+                  Please select an aquarium above to enable quick actions below.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {selectedAquarium && (
+              <div className="p-3 rounded-lg bg-green-950/20 border border-green-500/30">
+                <div className="flex items-center gap-2 text-green-400">
+                  <Database className="h-4 w-4" />
+                  <span className="font-medium">Working with: {selectedAquarium.name}</span>
+                  {selectedAquarium.type && (
+                    <span className="text-xs bg-green-900/50 px-2 py-1 rounded">
+                      {selectedAquarium.type}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Log Activities Section */}
-          <div>
-            <h4 className="text-sm font-display text-primary mb-3">Log Activities</h4>
+          <div className={`transition-all duration-300 ${!selectedAquariumId ? 'opacity-50' : 'opacity-100'}`}>
+            <h4 className="text-sm font-display text-primary mb-3 flex items-center gap-2">
+              <TestTube className="h-4 w-4" />
+              Log Activities
+            </h4>
             <div className="grid grid-cols-4 gap-3">
               {quickActions.map((action) => (
                 <Button 
@@ -99,24 +138,32 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
                   variant="outline"
                   disabled={!selectedAquariumId}
                   onClick={() => handleActionClick(action.id)}
-                  className={`flex-col h-20 p-3 border-2 transition-all duration-200 ${action.bgColor} ${action.color}`}
+                  className={`flex-col h-20 p-3 border-2 transition-all duration-200 ${action.bgColor} ${action.color} ${!selectedAquariumId ? 'cursor-not-allowed' : ''}`}
                 >
                   {action.icon}
                   <span className="text-xs mt-2 font-mono">{action.label}</span>
                 </Button>
               ))}
             </div>
+            {!selectedAquariumId && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Select an aquarium above to enable activity logging
+              </p>
+            )}
           </div>
 
           {/* Add Items Section */}
-          <div>
-            <h4 className="text-sm font-display text-primary mb-3">Add Items</h4>
+          <div className={`transition-all duration-300 ${!selectedAquariumId ? 'opacity-50' : 'opacity-100'}`}>
+            <h4 className="text-sm font-display text-primary mb-3 flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Items
+            </h4>
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
                 disabled={!selectedAquariumId}
                 onClick={() => setLivestockDialogOpen(true)}
-                className="flex-col h-20 p-3 border-2 transition-all duration-200 bg-cyan-900/20 hover:bg-cyan-800/30 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300"
+                className={`flex-col h-20 p-3 border-2 transition-all duration-200 bg-cyan-900/20 hover:bg-cyan-800/30 border-cyan-500/30 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300 ${!selectedAquariumId ? 'cursor-not-allowed' : ''}`}
               >
                 <Fish className="h-5 w-5" />
                 <span className="text-xs mt-2 font-mono">Add Livestock</span>
@@ -125,12 +172,17 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
                 variant="outline"
                 disabled={!selectedAquariumId}
                 onClick={() => setEquipmentDialogOpen(true)}
-                className="flex-col h-20 p-3 border-2 transition-all duration-200 bg-teal-900/20 hover:bg-teal-800/30 border-teal-500/30 hover:border-teal-400/50 text-teal-400 hover:text-teal-300"
+                className={`flex-col h-20 p-3 border-2 transition-all duration-200 bg-teal-900/20 hover:bg-teal-800/30 border-teal-500/30 hover:border-teal-400/50 text-teal-400 hover:text-teal-300 ${!selectedAquariumId ? 'cursor-not-allowed' : ''}`}
               >
                 <Plus className="h-5 w-5" />
                 <span className="text-xs mt-2 font-mono">Add Equipment</span>
               </Button>
             </div>
+            {!selectedAquariumId && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Select an aquarium above to add livestock or equipment
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
