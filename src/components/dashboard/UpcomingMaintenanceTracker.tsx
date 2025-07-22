@@ -132,13 +132,13 @@ export function UpcomingMaintenanceTracker({ aquariums }: UpcomingMaintenanceTra
                         </div>
                       )}
                     </div>
-                    <Button
+                      <Button
                       size="sm"
                       onClick={() => handleCompleteTask(task)}
                       className={`ml-3 ${
                         overdue 
-                          ? 'bg-red-600 hover:bg-red-700' 
-                          : 'bg-primary hover:bg-primary/90'
+                          ? 'bg-red-600 hover:bg-red-700 text-white' 
+                          : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                       }`}
                     >
                       <Check className="h-4 w-4 mr-1" />
