@@ -2494,6 +2494,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      setup_default_maintenance_schedule: {
+        Args: { p_user_id: string; p_aquarium_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
