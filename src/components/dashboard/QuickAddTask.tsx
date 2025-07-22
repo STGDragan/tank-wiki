@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -56,6 +56,13 @@ export function QuickAddTask({ aquariums }: QuickAddTaskProps) {
   const [isLivestockDialogOpen, setLivestockDialogOpen] = useState(false);
   const [isEquipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string>('');
+  
+  // Update selected aquarium when aquariums change
+  React.useEffect(() => {
+    if (aquariums.length > 0 && !selectedAquariumId) {
+      setSelectedAquariumId(aquariums[0].id);
+    }
+  }, [aquariums, selectedAquariumId]);
   
   const selectedAquarium = aquariums.find(aq => aq.id === selectedAquariumId);
 

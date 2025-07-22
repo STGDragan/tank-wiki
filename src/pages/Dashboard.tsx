@@ -10,10 +10,20 @@ import { AquariumCard } from "@/components/dashboard/AquariumCard";
 import { AquariumEmptyState } from "@/components/dashboard/AquariumEmptyState";
 import { CreateTankDialog } from "@/components/dashboard/CreateTankDialog";
 import { AquariumSetupWizard } from "@/components/wizard/AquariumSetupWizard";
+import { useSubscriptionDowngrade } from "@/hooks/useSubscriptionDowngrade";
+import { AquariumMigrationDialog } from "@/components/subscription/AquariumMigrationDialog";
+import { SubscriptionExpiredAlert } from "@/components/subscription/SubscriptionExpiredAlert";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, hasActiveSubscription } = useAuth();
   const queryClient = useQueryClient();
+  
+  // Subscription downgrade management
+  const { 
+    pendingDowngrade, 
+    completeMigration, 
+    isCompletingMigration 
+  } = useSubscriptionDowngrade();
 
   const { data: aquariums = [], isLoading: aquariumsLoading } = useQuery({
     queryKey: ["aquariums", user?.id],
@@ -129,6 +139,16 @@ const Dashboard = () => {
       {/* Sponsorship Banner */}
       <SponsorshipBanner page="dashboard" />
 
+      {/* Subscription Expired Alert */}
+      {!hasActiveSubscription && (
+        <div className="p-6 pb-0">
+          <SubscriptionExpiredAlert 
+            reason={pendingDowngrade?.reason || 'expired'}
+            previousTier={pendingDowngrade?.previous_tier || undefined}
+          />
+        </div>
+      )}
+
       <div className="p-6 space-y-6">
         {/* My Aquariums Section - Always at the top */}
         <div>
@@ -176,6 +196,17 @@ const Dashboard = () => {
           <RecommendedProducts />
         </div>
       </div>
+      
+      {/* Aquarium Migration Dialog */}
+      {pendingDowngrade?.migration_required && !pendingDowngrade.migration_completed && (
+        <AquariumMigrationDialog
+          isOpen={true}
+          aquariums={aquariums}
+          onComplete={completeMigration}
+          isLoading={isCompletingMigration}
+          maxSelection={pendingDowngrade.aquarium_limit}
+        />
+      )}
     </div>
   );
 };

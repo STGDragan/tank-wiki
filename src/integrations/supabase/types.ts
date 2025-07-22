@@ -2182,6 +2182,48 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_downgrades: {
+        Row: {
+          aquarium_limit: number
+          created_at: string
+          downgrade_date: string
+          id: string
+          migration_completed: boolean
+          migration_required: boolean
+          previous_tier: string | null
+          reason: string | null
+          selected_aquarium_ids: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aquarium_limit?: number
+          created_at?: string
+          downgrade_date?: string
+          id?: string
+          migration_completed?: boolean
+          migration_required?: boolean
+          previous_tier?: string | null
+          reason?: string | null
+          selected_aquarium_ids?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aquarium_limit?: number
+          created_at?: string
+          downgrade_date?: string
+          id?: string
+          migration_completed?: boolean
+          migration_required?: boolean
+          previous_tier?: string | null
+          reason?: string | null
+          selected_aquarium_ids?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           created_at: string
@@ -2437,6 +2479,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      complete_aquarium_migration: {
+        Args: { p_user_id: string; p_selected_aquarium_ids: string[] }
+        Returns: undefined
+      }
       format_amazon_affiliate_url: {
         Args: { input_url: string; affiliate_tag?: string }
         Returns: string
@@ -2473,6 +2519,10 @@ export type Database = {
       get_pending_maintenance_notifications: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      handle_subscription_downgrade: {
+        Args: { p_user_id: string; p_previous_tier?: string; p_reason?: string }
+        Returns: string
       }
       has_admin_granted_subscription: {
         Args: { _user_id: string }
