@@ -118,7 +118,7 @@ export function AquariumRecommendations({
                 </div>
               </div>
 
-              {product.affiliate_links && product.affiliate_links.length > 0 && (
+              {product.affiliate_links && product.affiliate_links.length > 0 ? (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -128,6 +128,19 @@ export function AquariumRecommendations({
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Buy on {product.affiliate_links[0].provider}
                   <ExternalLink className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => {
+                    // TODO: Implement direct purchase functionality
+                    console.log('Add to cart clicked for product:', product.id);
+                  }}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Add to Cart
                 </Button>
               )}
             </div>
