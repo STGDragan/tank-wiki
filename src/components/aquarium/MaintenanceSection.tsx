@@ -8,6 +8,7 @@ import { MaintenanceTaskCard } from '@/components/aquarium/MaintenanceTaskCard';
 import { MaintenanceStats } from '@/components/aquarium/MaintenanceStats';
 import { EquipmentBasedMaintenanceForm } from '@/components/aquarium/EquipmentBasedMaintenanceForm';
 import { ConsumablesRecommendations } from '@/components/aquarium/ConsumablesRecommendations';
+import { DefaultMaintenanceSetup } from '@/components/maintenance/DefaultMaintenanceSetup';
 import { PlusCircle, Calendar, Filter, Crown, Star, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +27,7 @@ interface MaintenanceSectionProps {
     onMarkComplete: (taskId: string, completedDate: Date) => void;
     onDelete: (taskId: string) => void;
     showRecommendations?: boolean;
+    onRefresh?: () => void;
 }
 
 export const MaintenanceSection = ({ 
@@ -35,7 +37,8 @@ export const MaintenanceSection = ({
     aquariumSize, 
     onMarkComplete, 
     onDelete, 
-    showRecommendations = true 
+    showRecommendations = true,
+    onRefresh 
 }: MaintenanceSectionProps) => {
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
     const [filter, setFilter] = useState<string>("all");
@@ -96,6 +99,10 @@ export const MaintenanceSection = ({
         
         return 0;
     });
+
+    // Check if user has any scheduled maintenance tasks (default schedule check)
+    const hasScheduledTasks = tasks.some(task => !task.completed_date);
+    const { user } = useAuth();
 
     return (
         <div className="space-y-6">
@@ -268,23 +275,35 @@ export const MaintenanceSection = ({
                             <CarouselNext className="mr-12" />
                         </Carousel>
                     ) : (
-                        <div className="text-center py-12">
-                            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                            <p className="text-muted-foreground text-lg">
-                                {filter === "all" 
-                                    ? "No maintenance tasks scheduled yet." 
-                                    : `No ${filter.replace('-', ' ')} tasks found.`
-                                }
-                            </p>
-                            {filter !== "all" && (
-                                <Button 
-                                    variant="outline" 
-                                    onClick={() => setFilter("all")} 
-                                    className="mt-2"
-                                >
-                                    Show All Tasks
-                                </Button>
+                        <div className="space-y-6">
+                            {/* Show default maintenance setup for pro users with no scheduled tasks */}
+                            {hasActiveSubscription && !hasScheduledTasks && filter === "all" && user?.id && (
+                                <DefaultMaintenanceSetup
+                                    aquariumId={aquariumId}
+                                    userId={user.id}
+                                    hasActiveSubscription={hasActiveSubscription}
+                                    onSetupComplete={() => onRefresh?.()}
+                                />
                             )}
+                            
+                            <div className="text-center py-12">
+                                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <p className="text-muted-foreground text-lg">
+                                    {filter === "all" 
+                                        ? "No maintenance tasks scheduled yet." 
+                                        : `No ${filter.replace('-', ' ')} tasks found.`
+                                    }
+                                </p>
+                                {filter !== "all" && (
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={() => setFilter("all")} 
+                                        className="mt-2"
+                                    >
+                                        Show All Tasks
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     )}
                 </CardContent>

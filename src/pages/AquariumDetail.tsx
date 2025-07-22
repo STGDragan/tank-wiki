@@ -31,6 +31,7 @@ const AquariumDetail = () => {
     medications,
     isLoading,
     error,
+    refreshData,
   } = useAquariumData(id, user?.id);
 
   const {
@@ -130,6 +131,7 @@ const AquariumDetail = () => {
               onMarkComplete={handleMarkComplete}
               onDelete={handleDeleteTask}
               showRecommendations={false}
+              onRefresh={refreshData}
             />
             <AquariumRecommendationsContainer
               aquariumId={aquarium.id}
@@ -193,6 +195,7 @@ const AquariumDetail = () => {
               onMarkComplete={handleMarkComplete}
               onDelete={handleDeleteTask}
               showRecommendations={false}
+              onRefresh={refreshData}
             />
             <AquariumRecommendationsContainer
               aquariumId={aquarium.id}

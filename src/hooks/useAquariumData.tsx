@@ -1,8 +1,8 @@
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
 type Livestock = Tables<'livestock'>;
 type Equipment = Tables<'equipment'> & { image_url?: string | null };
@@ -117,6 +117,7 @@ const fetchMedications = async (aquariumId: string): Promise<Tables<'medications
 };
 
 export const useAquariumData = (aquariumId: string | undefined, userId: string | undefined) => {
+    const queryClient = useQueryClient();
     const { data: aquarium, isLoading: isAquariumLoading, error: aquariumError } = useQuery({
         queryKey: ['aquarium', aquariumId],
         queryFn: () => fetchAquariumById(aquariumId!),
@@ -175,6 +176,13 @@ export const useAquariumData = (aquariumId: string | undefined, userId: string |
         return (tasks || []).filter(task => !task.completed_date);
     }, [tasks]);
 
+    const refreshData = useCallback(() => {
+        if (aquariumId) {
+            queryClient.invalidateQueries({ queryKey: ['maintenance', aquariumId] });
+            queryClient.invalidateQueries({ queryKey: ['aquarium', aquariumId] });
+        }
+    }, [queryClient, aquariumId]);
+
     const isLoading = isAquariumLoading || isLivestockLoading || isEquipmentLoading || isWaterParamsLoading || isMaintenanceLoading || presetsLoading || customSettingsLoading || isMedicationsLoading || isJournalLoading;
     const error = aquariumError || livestockError || equipmentError || waterParamsError || maintenanceError || presetsError || customSettingsError || medicationsError || journalError;
 
@@ -191,5 +199,6 @@ export const useAquariumData = (aquariumId: string | undefined, userId: string |
         pendingTasks,
         isLoading,
         error,
+        refreshData,
     };
 };
