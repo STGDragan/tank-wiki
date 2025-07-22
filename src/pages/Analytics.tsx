@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,10 +19,26 @@ import { useAuth } from "@/providers/AuthProvider";
 import { ProUpgradePrompt } from "@/components/wizard/ProUpgradePrompt";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
 import { ReportGenerator } from "@/components/analytics/ReportGenerator";
+import { supabase } from "@/integrations/supabase/client";
 
 const Analytics = () => {
-  const { hasActiveSubscription } = useAuth();
+  const { hasActiveSubscription, user } = useAuth();
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(!hasActiveSubscription);
+  const [aquariumCount, setAquariumCount] = useState(0);
+
+  // Load user's aquarium count
+  useEffect(() => {
+    const loadAquariumCount = async () => {
+      if (user) {
+        const { data: aquariums } = await supabase
+          .from('aquariums')
+          .select('id')
+          .eq('user_id', user.id);
+        setAquariumCount(aquariums?.length || 0);
+      }
+    };
+    loadAquariumCount();
+  }, [user]);
 
   const analyticsFeatures = [
     {
@@ -148,7 +164,7 @@ const Analytics = () => {
         <ProUpgradePrompt 
           isOpen={showUpgradePrompt}
           onClose={() => setShowUpgradePrompt(false)}
-          aquariumCount={0}
+          aquariumCount={aquariumCount}
         />
       </>
     );

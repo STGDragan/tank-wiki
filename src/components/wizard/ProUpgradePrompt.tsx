@@ -23,6 +23,12 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
     navigate('/pro');
   };
 
+  const handlePurchase = async () => {
+    setIsLoading(true);
+    onClose();
+    navigate('/upgrade');
+  };
+
   const handleLearnMore = () => {
     onClose();
     navigate('/pro');
@@ -31,7 +37,7 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
   const proFeatures = [
     {
       icon: <Fish className="h-5 w-5 text-blue-600" />,
-      title: "Unlimited Aquariums",
+      title: "Up to 10 Aquariums",
       description: "Track up to 10 aquariums instead of just 3"
     },
     {
@@ -122,6 +128,13 @@ export function ProUpgradePrompt({ isOpen, onClose, aquariumCount }: ProUpgradeP
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-lg font-semibold py-6 border-0"
             >
               {isLoading ? "Loading..." : "Start Free Trial"}
+            </Button>
+            <Button 
+              onClick={handlePurchase}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-4 border-0"
+            >
+              {isLoading ? "Loading..." : "Purchase Now"}
             </Button>
             <Button 
               variant="outline" 
