@@ -36,12 +36,6 @@ const Analytics = () => {
       examples: ["pH stability analysis", "Temperature fluctuations", "Parameter correlation"]
     },
     {
-      icon: <Wrench className="h-8 w-8 text-orange-500" />,
-      title: "Equipment Analytics",
-      description: "Monitor equipment performance and maintenance patterns",
-      examples: ["Equipment failure rates", "Maintenance frequency", "Replacement schedules"]
-    },
-    {
       icon: <Target className="h-8 w-8 text-purple-500" />,
       title: "Custom Metrics",
       description: "Create your own analytics from any data field",
@@ -221,7 +215,7 @@ const Analytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Standard Reports</p>
-                <p className="text-2xl font-bold">7</p>
+                <p className="text-2xl font-bold">6</p>
                 <p className="text-xs text-muted-foreground mt-1">Built-in report templates</p>
               </div>
               <Calendar className="h-8 w-8 text-orange-500" />
@@ -244,7 +238,7 @@ const Analytics = () => {
             { name: "Water Quality Trends", description: "pH, temperature, and parameter analysis", icon: <Droplets className="h-5 w-5" /> },
             { name: "Livestock Health Report", description: "Population and mortality tracking", icon: <Fish className="h-5 w-5" /> },
             { name: "Maintenance Schedule", description: "Equipment service and task completion", icon: <Wrench className="h-5 w-5" /> },
-            { name: "Equipment Performance", description: "Failure rates and efficiency metrics", icon: <Target className="h-5 w-5" /> },
+            
             { name: "Weekly Summary", description: "Overview of all aquarium activities", icon: <Calendar className="h-5 w-5" /> },
             { name: "Monthly Report", description: "Comprehensive monthly analytics", icon: <BarChart3 className="h-5 w-5" /> },
             { name: "Annual Overview", description: "Yearly trends and comparisons", icon: <TrendingUp className="h-5 w-5" /> }
