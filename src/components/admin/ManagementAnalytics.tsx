@@ -16,9 +16,14 @@ interface AnalyticsData {
   totalAquariums: number;
   totalFeedback: number;
   errorCount: number;
+  pageViews: number;
+  uniqueVisitors: number;
+  bounceRate: number;
   userGrowth: Array<{ date: string; users: number }>;
   feedbackByType: Array<{ type: string; count: number; color: string }>;
   aquariumsOverTime: Array<{ date: string; count: number }>;
+  trafficSources: Array<{ source: string; visits: number; percentage: number }>;
+  popularPages: Array<{ page: string; views: number }>;
 }
 
 export function ManagementAnalytics() {
@@ -111,15 +116,40 @@ export function ManagementAnalytics() {
         aquariumsOverTime.push({ date: dateStr, count: aquariumsUpToDate });
       }
 
+      // Mock traffic data (replace with real analytics service integration)
+      const pageViews = Math.floor(Math.random() * 10000) + 5000;
+      const uniqueVisitors = Math.floor(pageViews * 0.7);
+      const bounceRate = Math.floor(Math.random() * 30) + 20;
+
+      const trafficSources = [
+        { source: "Direct", visits: Math.floor(uniqueVisitors * 0.4), percentage: 40 },
+        { source: "Search", visits: Math.floor(uniqueVisitors * 0.3), percentage: 30 },
+        { source: "Social", visits: Math.floor(uniqueVisitors * 0.2), percentage: 20 },
+        { source: "Referral", visits: Math.floor(uniqueVisitors * 0.1), percentage: 10 },
+      ];
+
+      const popularPages = [
+        { page: "/dashboard", views: Math.floor(pageViews * 0.25) },
+        { page: "/", views: Math.floor(pageViews * 0.20) },
+        { page: "/aquarium/[id]", views: Math.floor(pageViews * 0.15) },
+        { page: "/maintenance", views: Math.floor(pageViews * 0.12) },
+        { page: "/livestock", views: Math.floor(pageViews * 0.10) },
+      ];
+
       return {
         totalUsers,
-        activeUsers: totalUsers, // For now, consider all users as active
+        activeUsers: totalUsers,
         totalAquariums,
         totalFeedback,
         errorCount,
-        userGrowth: userGrowth.slice(-10), // Last 10 data points
+        pageViews,
+        uniqueVisitors,
+        bounceRate,
+        userGrowth: userGrowth.slice(-10),
         feedbackByType,
-        aquariumsOverTime: aquariumsOverTime.slice(-10)
+        aquariumsOverTime: aquariumsOverTime.slice(-10),
+        trafficSources,
+        popularPages
       };
     },
   });
@@ -203,7 +233,31 @@ export function ManagementAnalytics() {
       </CardHeader>
       <CardContent>
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Page Views</p>
+                  <p className="text-2xl font-bold">{analytics?.pageViews?.toLocaleString() || 0}</p>
+                </div>
+                <BarChart3 className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Unique Visitors</p>
+                  <p className="text-2xl font-bold">{analytics?.uniqueVisitors?.toLocaleString() || 0}</p>
+                </div>
+                <Users className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+          
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -232,18 +286,6 @@ export function ManagementAnalytics() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Feedback Items</p>
-                  <p className="text-2xl font-bold">{analytics?.totalFeedback || 0}</p>
-                </div>
-                <Calendar className="h-8 w-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
                   <p className="text-sm font-medium text-muted-foreground">Error Reports</p>
                   <p className="text-2xl font-bold text-destructive">{analytics?.errorCount || 0}</p>
                 </div>
@@ -257,6 +299,7 @@ export function ManagementAnalytics() {
         <Tabs value={reportType} onValueChange={setReportType} className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="traffic">Traffic</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="feedback">Feedback</TabsTrigger>
             <TabsTrigger value="usage">Usage</TabsTrigger>
@@ -307,6 +350,108 @@ export function ManagementAnalytics() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="traffic" className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Traffic Sources</CardTitle>
+                  <CardDescription>
+                    Where your visitors are coming from
+                    <Badge variant="outline" className="ml-2">Mock Data</Badge>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={analytics?.trafficSources || []}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="visits"
+                        label={({ source, percentage }) => `${source}: ${percentage}%`}
+                      >
+                        {analytics?.trafficSources?.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={['#8884d8', '#82ca9d', '#ffc658', '#ff7300'][index]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Popular Pages</CardTitle>
+                  <CardDescription>
+                    Most visited pages on your site
+                    <Badge variant="outline" className="ml-2">Mock Data</Badge>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {analytics?.popularPages?.map((page, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary">{index + 1}</Badge>
+                          <span className="font-mono text-sm">{page.page}</span>
+                        </div>
+                        <span className="font-semibold">{page.views.toLocaleString()} views</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Analytics Integration</CardTitle>
+                <CardDescription>
+                  Connect real analytics services for accurate traffic data
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg text-center">
+                    <h4 className="font-semibold mb-2">Google Analytics</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Comprehensive web analytics with detailed visitor insights
+                    </p>
+                    <Button variant="outline" size="sm" disabled>
+                      Configure GA4
+                    </Button>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <h4 className="font-semibold mb-2">Plausible Analytics</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Privacy-focused analytics without cookies
+                    </p>
+                    <Button variant="outline" size="sm" disabled>
+                      Setup Plausible
+                    </Button>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <h4 className="font-semibold mb-2">Fathom Analytics</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Simple, fast, and privacy-first analytics
+                    </p>
+                    <Button variant="outline" size="sm" disabled>
+                      Connect Fathom
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-4 p-4 bg-muted rounded-lg">
+                  <p className="text-sm">
+                    <strong>Note:</strong> Currently showing mock traffic data. Integrate with your preferred analytics service to view real website traffic metrics.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
