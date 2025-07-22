@@ -6,7 +6,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Check, AlertTriangle, Clock } from "lucide-react";
+import { Calendar, Check, AlertTriangle, Clock, SkipForward } from "lucide-react";
 import { CompleteTaskDialog } from "@/components/aquarium/CompleteTaskDialog";
 import { useAquariumMutations } from "@/hooks/useAquariumMutations";
 import { format } from "date-fns";
@@ -132,18 +132,29 @@ export function UpcomingMaintenanceTracker({ aquariums }: UpcomingMaintenanceTra
                         </div>
                       )}
                     </div>
+                    <div className="flex gap-2">
                       <Button
-                      size="sm"
-                      onClick={() => handleCompleteTask(task)}
-                      className={`ml-3 ${
-                        overdue 
-                          ? 'bg-red-600 hover:bg-red-700 text-white' 
-                          : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-                      }`}
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Complete
-                    </Button>
+                        size="sm"
+                        onClick={() => handleCompleteTask(task)}
+                        className={`${
+                          overdue 
+                            ? 'bg-red-600 hover:bg-red-700 text-white' 
+                            : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                        }`}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Complete
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleCompleteTask(task)}
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                      >
+                        <SkipForward className="h-4 w-4 mr-1" />
+                        Skip
+                      </Button>
+                    </div>
                   </div>
                 );
               })}

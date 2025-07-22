@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CompleteTaskDialog } from './CompleteTaskDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Calendar, Check, Trash2, Wrench, Clock, AlertTriangle, Flag } from 'lucide-react';
+import { Calendar, Check, Trash2, Wrench, Clock, AlertTriangle, Flag, SkipForward } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import { useState } from 'react';
 
@@ -150,15 +150,28 @@ export const MaintenanceTaskCard = ({ task, onMarkComplete, onDelete, onSkip, ha
         
         <div className="flex gap-2 pt-2">
           {!isCompleted && (
-            <Button 
-              size="sm" 
-              className={`flex-1 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : ''}`}
-              onClick={() => setCompleteDialogOpen(true)}
-              variant={isOverdue ? "destructive" : "default"}
-            >
-              <Check className="mr-1 h-3 w-3" />
-              {isOverdue ? "Complete Overdue" : "Complete"}
-            </Button>
+            <>
+              <Button 
+                size="sm" 
+                className={`flex-1 ${isOverdue ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                onClick={() => setCompleteDialogOpen(true)}
+                variant={isOverdue ? "destructive" : "default"}
+              >
+                <Check className="mr-1 h-3 w-3" />
+                {isOverdue ? "Complete" : "Complete"}
+              </Button>
+              {onSkip && (
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                  onClick={() => setCompleteDialogOpen(true)}
+                >
+                  <SkipForward className="mr-1 h-3 w-3" />
+                  Skip
+                </Button>
+              )}
+            </>
           )}
           
           <AlertDialog>
