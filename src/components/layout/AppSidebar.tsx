@@ -5,19 +5,6 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Settings, ShoppingCart, Shield, Book, Image as ImageIcon, FileText, Users, MessageSquare, Crown, UserCog, Share2, Mail, Facebook, Instagram, Youtube, BarChart3, Fish } from "lucide-react";
 import { useAuth } from "@/providers/AuthProvider";
 import { useSocialMediaLinks } from "@/hooks/useSocialMedia";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
 
 const mainNav = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -78,90 +65,103 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="w-64 border-r">
-      <SidebarHeader className="p-4">
+    <div className="h-full w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
+      <div className="p-4 border-b border-sidebar-border">
         <Logo />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNav.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
-                    <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
-                      <item.icon className={`h-4 w-4 flex-shrink-0 ${item.name === 'Upgrade to Pro' ? 'text-yellow-500' : ''}`} />
-                      <span className={`truncate ${item.name === 'Upgrade to Pro' ? 'text-yellow-600 font-semibold' : ''}`}>{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      </div>
+      <div className="flex-1 overflow-auto">
+        <div className="p-2">
+          <nav>
+            {mainNav.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors mb-1",
+                  location.pathname.startsWith(item.href)
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                  item.name === 'Upgrade to Pro' && "text-yellow-600 font-semibold"
+                )}
+              >
+                <item.icon className={`h-4 w-4 flex-shrink-0 ${item.name === 'Upgrade to Pro' ? 'text-yellow-500' : ''}`} />
+                <span className="truncate">{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
         
         {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="px-3">Management</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminNav.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
-                      <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
-                        <span className="truncate">{item.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {socialLinks && socialLinks.length > 0 && (
-          <>
-            <SidebarSeparator />
-            <SidebarGroup>
-              <SidebarGroupLabel className="px-3">Follow Us</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {socialLinks.map((link) => {
-                    const config = platformConfig[link.platform];
-                    if (!config) return null;
-                    
-                    const Icon = config.icon;
-                    
-                    return (
-                      <SidebarMenuItem key={link.platform}>
-                        <SidebarMenuButton onClick={() => handleSocialClick(link.url)} className="flex items-center gap-3 px-3 py-2">
-                          <Icon className="h-4 w-4 flex-shrink-0" />
-                          <span className="truncate">{config.label}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </>
-        )}
-      </SidebarContent>
-      <SidebarFooter className="p-3">
-        <SidebarMenu>
-          {accountNav.map((item) => (
-            <SidebarMenuItem key={item.name}>
-              <SidebarMenuButton asChild isActive={location.pathname.startsWith(item.href)}>
-                <Link to={item.href} className="flex items-center gap-3 px-3 py-2">
+          <div className="p-2">
+            <div className="px-3 py-2 text-xs font-medium text-sidebar-foreground/70 uppercase tracking-wider">
+              Management
+            </div>
+            <nav>
+              {adminNav.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors mb-1",
+                    location.pathname.startsWith(item.href)
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  )}
+                >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{item.name}</span>
                 </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+              ))}
+            </nav>
+          </div>
+        )}
+
+        {socialLinks && socialLinks.length > 0 && (
+          <div className="p-2 border-t border-sidebar-border/50">
+            <div className="px-3 py-2 text-xs font-medium text-sidebar-foreground/70 uppercase tracking-wider">
+              Follow Us
+            </div>
+            <nav>
+              {socialLinks.map((link) => {
+                const config = platformConfig[link.platform];
+                if (!config) return null;
+                
+                const Icon = config.icon;
+                
+                return (
+                  <button
+                    key={link.platform}
+                    onClick={() => handleSocialClick(link.url)}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors mb-1 w-full text-left text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{config.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        )}
+      </div>
+      <div className="p-2 border-t border-sidebar-border">
+        <nav>
+          {accountNav.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors mb-1",
+                location.pathname.startsWith(item.href)
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{item.name}</span>
+            </Link>
           ))}
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+        </nav>
+      </div>
+    </div>
   );
 }
