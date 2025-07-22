@@ -2,8 +2,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, ShoppingCart } from "lucide-react";
+import { ExternalLink, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AquariumRecommendationsProps {
@@ -19,6 +22,10 @@ export function AquariumRecommendations({
   aquariumType, 
   existingEquipment 
 }: AquariumRecommendationsProps) {
+  
+  const plugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
   
   const { data: products, isLoading } = useQuery({
     queryKey: ['aquarium-recommendations', aquariumType],
@@ -39,7 +46,7 @@ export function AquariumRecommendations({
         .eq('visible', true)
         .eq('is_recommended', true)
         .is('tank_types', null)
-        .limit(6);
+        .limit(12);
       
       console.log('Query result:', { data, error });
       
@@ -54,6 +61,15 @@ export function AquariumRecommendations({
     enabled: !!aquariumType,
   });
 
+  const getEffectivePrice = (product: any) => {
+    if (product.is_on_sale && product.sale_price && 
+        (!product.sale_start_date || new Date(product.sale_start_date) <= new Date()) &&
+        (!product.sale_end_date || new Date(product.sale_end_date) >= new Date())) {
+      return product.sale_price;
+    }
+    return product.regular_price;
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -61,12 +77,15 @@ export function AquariumRecommendations({
           <CardTitle>Recommended Products</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-muted h-32 rounded-lg mb-2"></div>
-                <div className="bg-muted h-4 rounded mb-1"></div>
-                <div className="bg-muted h-3 rounded w-2/3"></div>
+          <div className="flex gap-4 overflow-hidden">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex-shrink-0 w-80 animate-pulse">
+                <div className="bg-muted aspect-square rounded-lg mb-4"></div>
+                <div className="space-y-2">
+                  <div className="bg-muted h-4 rounded"></div>
+                  <div className="bg-muted h-3 rounded w-2/3"></div>
+                  <div className="bg-muted h-6 rounded w-1/3"></div>
+                </div>
               </div>
             ))}
           </div>
@@ -85,67 +104,103 @@ export function AquariumRecommendations({
         <CardTitle>Recommended for Your {aquariumType} Tank</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map((product) => (
-            <div key={product.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-              {product.image_url && (
-                <img 
-                  src={product.image_url} 
-                  alt={product.name}
-                  className="w-full h-32 object-cover rounded-md mb-3"
-                />
-              )}
-              <h3 className="font-semibold mb-2">{product.name}</h3>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                {product.description}
-              </p>
-              
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  {product.is_on_sale && product.sale_price && (
-                    <Badge variant="destructive" className="text-xs">Sale</Badge>
-                  )}
-                  <span className="font-bold">
-                    ${product.is_on_sale && product.sale_price 
-                      ? product.sale_price 
-                      : product.regular_price}
-                  </span>
-                  {product.is_on_sale && product.sale_price && (
-                    <span className="text-sm text-muted-foreground line-through">
-                      ${product.regular_price}
-                    </span>
-                  )}
-                </div>
-              </div>
+        <Carousel 
+          plugins={[plugin.current]}
+          className="w-full"
+          onMouseEnter={plugin.current.stop}
+          onMouseLeave={plugin.current.reset}
+        >
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {products.map((product) => (
+              <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-72 sm:basis-80">
+                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground h-full">
+                  <div className="aspect-square overflow-hidden bg-muted relative">
+                    <img
+                      src={product.image_url || '/placeholder.svg'}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    
+                    {/* Sale badge */}
+                    {product.is_on_sale && getEffectivePrice(product) < product.regular_price && (
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-red-500 text-white hover:bg-red-500 shadow-md">
+                          Sale
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
 
-              {product.affiliate_links && product.affiliate_links.length > 0 ? (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => window.open(product.affiliate_links[0].link_url, '_blank')}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Buy on {product.affiliate_links[0].provider}
-                  <ExternalLink className="h-4 w-4 ml-2" />
-                </Button>
-              ) : (
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => {
-                    // TODO: Implement direct purchase functionality
-                    console.log('Add to cart clicked for product:', product.id);
-                  }}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Add to Cart
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
+                  <CardContent className="p-4 space-y-3">
+                    {/* Product title */}
+                    <div className="space-y-1">
+                      <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h3>
+                      {product.brand && (
+                        <p className="text-sm text-muted-foreground">
+                          by {product.brand}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-primary">
+                        ${getEffectivePrice(product).toFixed(2)}
+                      </span>
+                      {product.is_on_sale && getEffectivePrice(product) < product.regular_price && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ${product.regular_price.toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Description */}
+                    {product.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {product.description.length > 80 ? 
+                          product.description.substring(0, 80) + '...' : 
+                          product.description
+                        }
+                      </p>
+                    )}
+
+                    {/* Action button */}
+                    <div className="pt-2">
+                      {product.affiliate_links && product.affiliate_links.length > 0 ? (
+                        <Button 
+                          size="sm"
+                          className="w-full"
+                          onClick={() => window.open(product.affiliate_links[0].link_url, '_blank')}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Buy on {product.affiliate_links[0].provider}
+                          <ExternalLink className="h-4 w-4 ml-2" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => {
+                            // TODO: Implement direct purchase functionality
+                            console.log('Add to cart clicked for product:', product.id);
+                          }}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Add to Cart
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden sm:flex" />
+          <CarouselNext className="hidden sm:flex" />
+        </Carousel>
       </CardContent>
     </Card>
   );
