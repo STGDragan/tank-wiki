@@ -8,6 +8,20 @@ import { Tables } from "@/integrations/supabase/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ * LOCKED LAYOUT COMPONENT - DO NOT MODIFY LAYOUT WITHOUT EXPRESS PERMISSION
+ * 
+ * This component represents the standardized product card layout used across
+ * the entire application. Any layout changes must be explicitly approved.
+ * 
+ * Layout specifications:
+ * - Fixed height tiles (h-full flex flex-col)
+ * - Buttons aligned to bottom (mt-auto)
+ * - Only sale badges visible on images
+ * - Consistent spacing and typography
+ * - "Buy on Amazon" button text for affiliate links
+ */
+
 interface ProductCardProps {
   product: Tables<'products'> & {
     affiliate_links?: Array<{
@@ -26,9 +40,15 @@ interface ProductCardProps {
     }>;
   };
   showBuyNow?: boolean;
+  /**
+   * Compact mode for carousel/dashboard display
+   * - Smaller padding and text sizes
+   * - Simplified layout for space constraints
+   */
+  compact?: boolean;
 }
 
-const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
+const ProductCard = ({ product, showBuyNow = false, compact = false }: ProductCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -201,11 +221,11 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
           </div>
         </div>
 
-        <CardContent className="p-4 flex flex-col flex-1">
+        <CardContent className={compact ? "p-2 flex flex-col flex-1" : "p-4 flex flex-col flex-1"}>
           <div className="space-y-3 flex-1">
             {/* Product title */}
             <div className="space-y-1">
-              <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+              <h3 className={`font-semibold ${compact ? 'text-sm' : 'text-base'} line-clamp-2 leading-tight group-hover:text-primary transition-colors`}>
                 {product.name}
               </h3>
             </div>
@@ -213,42 +233,56 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
             {/* Price */}
             <div className="flex items-center gap-2">
               {effectivePrice && (
-                <span className="text-xl font-bold text-primary">
+                <span className={`${compact ? 'text-lg' : 'text-xl'} font-bold text-primary`}>
                   ${effectivePrice.toFixed(2)}
                 </span>
               )}
               {product.is_on_sale && product.regular_price && product.regular_price !== effectivePrice && (
-                <span className="text-sm text-muted-foreground line-through">
+                <span className={`${compact ? 'text-xs' : 'text-sm'} text-muted-foreground line-through`}>
                   ${product.regular_price.toFixed(2)}
                 </span>
               )}
             </div>
 
-            {/* Description */}
-            {product.description && (
+            {/* Description - only show in full mode */}
+            {!compact && product.description && (
               <p className="text-sm text-muted-foreground line-clamp-6 leading-relaxed">
                 {truncateDescription(product.description, 250)}
               </p>
             )}
 
-            {/* Enhanced Category & Properties */}
+            {/* Enhanced Category & Properties - simplified for compact mode */}
             <div className="space-y-2">
               {/* Category and Subcategories */}
               <div className="flex items-center gap-2 text-xs">
-                {product.category_info && (
+                {!compact && product.category_info && (
                   <Badge variant="outline" className="text-xs">
                     {product.category_info.name}
                   </Badge>
                 )}
-                {subcategories.map((subcategory, index) => (
+                {compact && (product.category || product.subcategory) && (
+                  <>
+                    {product.category && (
+                      <Badge variant="outline" className="text-xs">
+                        {product.category}
+                      </Badge>
+                    )}
+                    {product.subcategory && (
+                      <Badge variant="outline" className="text-xs">
+                        {product.subcategory}
+                      </Badge>
+                    )}
+                  </>
+                )}
+                {!compact && subcategories.map((subcategory, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {subcategory}
                   </Badge>
                 ))}
               </div>
 
-              {/* Livestock-specific information */}
-              {product.is_livestock && (
+              {/* Livestock-specific information - only in full mode */}
+              {!compact && product.is_livestock && (
                 <div className="flex flex-wrap gap-1 text-xs">
                   {product.size_class && (
                     <Badge variant="secondary" className="text-xs">
@@ -268,8 +302,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                 </div>
               )}
 
-              {/* Tank Types */}
-              {product.tank_types && product.tank_types.length > 0 && (
+              {/* Tank Types - only in full mode */}
+              {!compact && product.tank_types && product.tank_types.length > 0 && (
                 <div className="flex items-center gap-1">
                   <Tooltip>
                     <TooltipTrigger>
@@ -287,8 +321,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                 </div>
               )}
 
-              {/* Compatibility Tags */}
-              {product.compatibility_tags && product.compatibility_tags.length > 0 && (
+              {/* Compatibility Tags - only in full mode */}
+              {!compact && product.compatibility_tags && product.compatibility_tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {product.compatibility_tags.slice(0, 3).map((tag) => (
                     <Tooltip key={tag.id}>
@@ -318,8 +352,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
                 </div>
               )}
 
-              {/* Care Information for Livestock */}
-              {product.is_livestock && (
+              {/* Care Information for Livestock - only in full mode */}
+              {!compact && product.is_livestock && (
                 <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {product.max_size && (
                     <span>Max size: {product.max_size}</span>
@@ -341,7 +375,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
             </div>
           </div>
 
-          {/* Action buttons - aligned at bottom */}
+          {/* Action buttons - LOCKED LAYOUT: always aligned at bottom */}
           <div className="pt-3 mt-auto">
             <div className="flex gap-2">
               {showBuyNow && (

@@ -3,33 +3,14 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Star, ShoppingCart } from "lucide-react";
+import { ExternalLink, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import ProductCard from "@/components/shopping/ProductCard";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  image_url?: string;
-  brand?: string;
-  regular_price?: number;
-  sale_price?: number;
-  is_on_sale?: boolean;
-  is_featured: boolean;
-  is_recommended: boolean;
-  category?: string;
-  subcategory?: string;
-  affiliate_url?: string;
-  amazon_url?: string;
-  affiliate_links?: Array<{
-    link_url: string;
-    provider: string;
-  }>;
-}
 
 export const RecommendedProducts = () => {
   const navigate = useNavigate();
@@ -45,7 +26,11 @@ export const RecommendedProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select(`
-          *
+          *,
+          affiliate_links (
+            provider,
+            link_url
+          )
         `)
         .eq('visible', true)
         .or('is_recommended.eq.true,is_featured.eq.true')
@@ -60,35 +45,9 @@ export const RecommendedProducts = () => {
       }
 
       console.log('Recommended products fetched:', data);
-      return data as Product[];
+      return data as (Tables<'products'> & { affiliate_links?: Array<{ link_url: string; provider: string; }> })[];
     },
   });
-
-  const getEffectivePrice = (product: Product) => {
-    if (product.is_on_sale && product.sale_price) {
-      return product.sale_price;
-    }
-    return product.regular_price;
-  };
-
-  const hasAffiliateLink = (product: Product) => {
-    return product.affiliate_url || product.amazon_url || (product.affiliate_links && product.affiliate_links.length > 0);
-  };
-
-  const getAffiliateUrl = (product: Product) => {
-    return product.affiliate_url || product.amazon_url || product.affiliate_links?.[0]?.link_url;
-  };
-
-  const getAffiliateProvider = (product: Product) => {
-    if (product.affiliate_url || product.amazon_url) {
-      return 'Amazon'; // Since these are Amazon URLs based on the data
-    }
-    return product.affiliate_links?.[0]?.provider || 'Store';
-  };
-
-  const handleProductClick = (productId: string) => {
-    navigate(`/product/${productId}`);
-  };
 
   const handleViewAllClick = () => {
     navigate('/shopping');
@@ -177,89 +136,11 @@ export const RecommendedProducts = () => {
           <CarouselContent className="-ml-2 md:-ml-4">
             {products.map((product) => (
               <CarouselItem key={product.id} className="pl-2 md:pl-4 basis-72 sm:basis-80">
-                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground h-full flex flex-col">
-                  <div className="aspect-square overflow-hidden bg-muted relative cursor-pointer" onClick={() => handleProductClick(product.id)}>
-                    <img
-                      src={product.image_url || '/placeholder.svg'}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    
-                    {/* Badges - only sale badges */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      {product.is_on_sale && (
-                        <Badge className="bg-red-500 text-white hover:bg-red-500 shadow-md">
-                          Sale
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <CardContent className="p-2 flex flex-col flex-1">
-                    <div className="space-y-1 flex-1">
-                    {/* Product title */}
-                    <div>
-                      <h3 className="font-semibold text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors cursor-pointer" onClick={() => handleProductClick(product.id)}>
-                        {product.name}
-                      </h3>
-                    </div>
-
-                    {/* Categories */}
-                    {(product.category || product.subcategory) && (
-                      <div className="flex gap-1">
-                        {product.category && (
-                          <Badge variant="outline" className="text-xs">
-                            {product.category}
-                          </Badge>
-                        )}
-                        {product.subcategory && (
-                          <Badge variant="outline" className="text-xs">
-                            {product.subcategory}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Price */}
-                    {getEffectivePrice(product) && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-primary">
-                          ${getEffectivePrice(product)?.toFixed(2)}
-                        </span>
-                        {product.is_on_sale && product.regular_price && (
-                          <span className="text-xs text-muted-foreground line-through">
-                            ${product.regular_price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    </div>
-
-                    {/* Action button - aligned at bottom */}
-                    <div className="pt-1 mt-auto">
-                      <Button 
-                        size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          if (hasAffiliateLink(product)) {
-                            window.open(getAffiliateUrl(product), '_blank');
-                          } else {
-                            console.log('Add to cart clicked for product:', product.id);
-                          }
-                        }}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        {hasAffiliateLink(product) ? 
-                          (getAffiliateProvider(product) === 'Amazon' ? 'Buy on Amazon' : `Buy on ${getAffiliateProvider(product)}`) : 
-                          'Add to Cart'
-                        }
-                        {hasAffiliateLink(product) && (
-                          <ExternalLink className="h-4 w-4 ml-2" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ProductCard 
+                  product={product} 
+                  showBuyNow={true} 
+                  compact={true}
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
