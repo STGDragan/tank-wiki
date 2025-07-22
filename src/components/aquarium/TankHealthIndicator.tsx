@@ -79,14 +79,25 @@ const calculateTankHealth = (
 
   // Maintenance Tasks (30% of score)
   if (maintenanceTasks) {
+    const now = new Date();
     const overdueTasks = maintenanceTasks.filter(task => 
-      task.due_date && new Date(task.due_date) < new Date() && !task.completed_date
+      task.due_date && new Date(task.due_date) < now && !task.completed_date
     );
+    
+    const recentlyCompletedTasks = maintenanceTasks.filter(task => {
+      if (!task.completed_date) return false;
+      const completedDate = new Date(task.completed_date);
+      const daysSinceCompletion = (now.getTime() - completedDate.getTime()) / (1000 * 60 * 60 * 24);
+      return daysSinceCompletion <= 7; // Completed within last 7 days
+    });
     
     if (overdueTasks.length > 0) {
       score -= Math.min(overdueTasks.length * 10, 30);
       issues.push(`${overdueTasks.length} overdue maintenance task${overdueTasks.length > 1 ? 's' : ''}`);
       recommendations.push("Complete overdue maintenance tasks to maintain tank stability");
+    } else if (recentlyCompletedTasks.length > 0) {
+      // Bonus for recent maintenance completion
+      score += Math.min(recentlyCompletedTasks.length * 2, 5);
     }
   }
 
@@ -119,8 +130,18 @@ const calculateTankHealth = (
     }
   }
 
-  // Add general recommendations when tank is healthy
+  // Add specific recommendations based on recent activity
   if (issues.length === 0) {
+    const recentlyCompletedTasks = maintenanceTasks?.filter(task => {
+      if (!task.completed_date) return false;
+      const completedDate = new Date(task.completed_date);
+      const daysSinceCompletion = (new Date().getTime() - completedDate.getTime()) / (1000 * 60 * 60 * 24);
+      return daysSinceCompletion <= 7;
+    }) || [];
+    
+    if (recentlyCompletedTasks.length > 0) {
+      recommendations.push(`Great job! You've completed ${recentlyCompletedTasks.length} maintenance task${recentlyCompletedTasks.length > 1 ? 's' : ''} recently`);
+    }
     recommendations.push("Maintain regular water testing and maintenance schedule");
     recommendations.push("Continue monitoring your livestock for signs of stress or disease");
   }
