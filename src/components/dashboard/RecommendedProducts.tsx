@@ -45,11 +45,7 @@ export const RecommendedProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select(`
-          *,
-          affiliate_links (
-            link_url,
-            provider
-          )
+          *
         `)
         .eq('visible', true)
         .or('is_recommended.eq.true,is_featured.eq.true')
@@ -76,7 +72,9 @@ export const RecommendedProducts = () => {
   };
 
   const hasAffiliateLink = (product: Product) => {
-    return product.affiliate_url || product.amazon_url || (product.affiliate_links && product.affiliate_links.length > 0);
+    const hasLink = product.affiliate_url || product.amazon_url || (product.affiliate_links && product.affiliate_links.length > 0);
+    console.log(`Product ${product.name}: affiliate_url=${product.affiliate_url}, amazon_url=${product.amazon_url}, hasLink=${hasLink}`);
+    return hasLink;
   };
 
   const getAffiliateUrl = (product: Product) => {
