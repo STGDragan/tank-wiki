@@ -132,7 +132,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   return (
     <TooltipProvider>
       <Card 
-        className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground cursor-pointer"
+        className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 bg-card text-card-foreground cursor-pointer h-full flex flex-col"
         onClick={handleCardClick}
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
@@ -201,173 +201,177 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
           </div>
         </div>
 
-        <CardContent className="p-4 space-y-3">
-          {/* Product title */}
-          <div className="space-y-1">
-            <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-              {product.name}
-            </h3>
-            {product.brand && (
-              <p className="text-sm text-muted-foreground">
-                by {product.brand}
-              </p>
-            )}
-          </div>
-
-          {/* Price */}
-          <div className="flex items-center gap-2">
-            {effectivePrice && (
-              <span className="text-xl font-bold text-primary">
-                ${effectivePrice.toFixed(2)}
-              </span>
-            )}
-            {product.is_on_sale && product.regular_price && product.regular_price !== effectivePrice && (
-              <span className="text-sm text-muted-foreground line-through">
-                ${product.regular_price.toFixed(2)}
-              </span>
-            )}
-          </div>
-
-          {/* Description */}
-          {product.description && (
-            <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-              {truncateDescription(product.description, 120)}
-            </p>
-          )}
-
-          {/* Enhanced Category & Properties */}
-          <div className="space-y-2">
-            {/* Category and Subcategories */}
-            <div className="flex items-center gap-2 text-xs">
-              {product.category_info && (
-                <Badge variant="outline" className="text-xs">
-                  {product.category_info.name}
-                </Badge>
+        <CardContent className="p-4 flex flex-col justify-between min-h-0">
+          <div className="space-y-3 flex-grow">
+            {/* Product title */}
+            <div className="space-y-1">
+              <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                {product.name}
+              </h3>
+              {product.brand && (
+                <p className="text-sm text-muted-foreground">
+                  by {product.brand}
+                </p>
               )}
-              {subcategories.map((subcategory, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {subcategory}
-                </Badge>
-              ))}
             </div>
 
-            {/* Livestock-specific information */}
-            {product.is_livestock && (
-              <div className="flex flex-wrap gap-1 text-xs">
-                {product.size_class && (
-                  <Badge variant="secondary" className="text-xs">
-                    {formatEnumValue(product.size_class)}
-                  </Badge>
-                )}
-                {product.temperament && (
-                  <Badge variant="secondary" className="text-xs">
-                    {formatEnumValue(product.temperament)}
-                  </Badge>
-                )}
-                {product.difficulty_level && (
-                  <Badge variant="secondary" className="text-xs">
-                    {formatEnumValue(product.difficulty_level)}
-                  </Badge>
-                )}
-              </div>
-            )}
-
-            {/* Tank Types */}
-            {product.tank_types && product.tank_types.length > 0 && (
-              <div className="flex items-center gap-1">
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-3 w-3 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs max-w-xs">
-                      Suitable for: {formatTankTypes(product.tank_types)}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-                <span className="text-xs text-muted-foreground truncate">
-                  {product.tank_types.length} tank type{product.tank_types.length > 1 ? 's' : ''}
+            {/* Price */}
+            <div className="flex items-center gap-2">
+              {effectivePrice && (
+                <span className="text-xl font-bold text-primary">
+                  ${effectivePrice.toFixed(2)}
                 </span>
-              </div>
+              )}
+              {product.is_on_sale && product.regular_price && product.regular_price !== effectivePrice && (
+                <span className="text-sm text-muted-foreground line-through">
+                  ${product.regular_price.toFixed(2)}
+                </span>
+              )}
+            </div>
+
+            {/* Description */}
+            {product.description && (
+              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                {truncateDescription(product.description, 120)}
+              </p>
             )}
 
-            {/* Compatibility Tags */}
-            {product.compatibility_tags && product.compatibility_tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {product.compatibility_tags.slice(0, 3).map((tag) => (
-                  <Tooltip key={tag.id}>
+            {/* Enhanced Category & Properties */}
+            <div className="space-y-2">
+              {/* Category and Subcategories */}
+              <div className="flex items-center gap-2 text-xs">
+                {product.category_info && (
+                  <Badge variant="outline" className="text-xs">
+                    {product.category_info.name}
+                  </Badge>
+                )}
+                {subcategories.map((subcategory, index) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {subcategory}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* Livestock-specific information */}
+              {product.is_livestock && (
+                <div className="flex flex-wrap gap-1 text-xs">
+                  {product.size_class && (
+                    <Badge variant="secondary" className="text-xs">
+                      {formatEnumValue(product.size_class)}
+                    </Badge>
+                  )}
+                  {product.temperament && (
+                    <Badge variant="secondary" className="text-xs">
+                      {formatEnumValue(product.temperament)}
+                    </Badge>
+                  )}
+                  {product.difficulty_level && (
+                    <Badge variant="secondary" className="text-xs">
+                      {formatEnumValue(product.difficulty_level)}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Tank Types */}
+              {product.tank_types && product.tank_types.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <Tooltip>
                     <TooltipTrigger>
-                      <Badge 
-                        variant="outline" 
-                        className={`text-xs cursor-help ${
-                          tag.tag_type === 'safety' ? 'border-green-300 text-green-700' :
-                          tag.tag_type === 'behavior' ? 'border-blue-300 text-blue-700' :
-                          tag.tag_type === 'compatibility' ? 'border-purple-300 text-purple-700' :
-                          'border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        {tag.name}
-                      </Badge>
+                      <Info className="h-3 w-3 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="text-xs max-w-xs">{tag.name}</p>
+                      <p className="text-xs max-w-xs">
+                        Suitable for: {formatTankTypes(product.tank_types)}
+                      </p>
                     </TooltipContent>
                   </Tooltip>
-                ))}
-                {product.compatibility_tags.length > 3 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{product.compatibility_tags.length - 3} more
-                  </Badge>
-                )}
-              </div>
-            )}
+                  <span className="text-xs text-muted-foreground truncate">
+                    {product.tank_types.length} tank type{product.tank_types.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
 
-            {/* Care Information for Livestock */}
-            {product.is_livestock && (
-              <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                {product.max_size && (
-                  <span>Max size: {product.max_size}</span>
-                )}
-                {product.min_tank_size && (
-                  <span>Min tank: {product.min_tank_size}</span>
-                )}
-              </div>
-            )}
+              {/* Compatibility Tags */}
+              {product.compatibility_tags && product.compatibility_tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {product.compatibility_tags.slice(0, 3).map((tag) => (
+                    <Tooltip key={tag.id}>
+                      <TooltipTrigger>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs cursor-help ${
+                            tag.tag_type === 'safety' ? 'border-green-300 text-green-700' :
+                            tag.tag_type === 'behavior' ? 'border-blue-300 text-blue-700' :
+                            tag.tag_type === 'compatibility' ? 'border-purple-300 text-purple-700' :
+                            'border-gray-300 text-gray-700'
+                          }`}
+                        >
+                          {tag.name}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs max-w-xs">{tag.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                  {product.compatibility_tags.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{product.compatibility_tags.length - 3} more
+                    </Badge>
+                  )}
+                </div>
+              )}
 
-            {/* Stock Information */}
-            {product.track_inventory && (
-              <div className="text-xs text-muted-foreground">
-                {product.stock_quantity !== null && (
-                  <span>{product.stock_quantity} in stock</span>
-                )}
-              </div>
-            )}
+              {/* Care Information for Livestock */}
+              {product.is_livestock && (
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {product.max_size && (
+                    <span>Max size: {product.max_size}</span>
+                  )}
+                  {product.min_tank_size && (
+                    <span>Min tank: {product.min_tank_size}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Stock Information */}
+              {product.track_inventory && (
+                <div className="text-xs text-muted-foreground">
+                  {product.stock_quantity !== null && (
+                    <span>{product.stock_quantity} in stock</span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex gap-2 pt-2">
-            {showBuyNow && (
-              <Button 
-                size="sm"
-                className="flex-1"
-                onClick={handleBuyNow}
-                disabled={isOutOfStock}
-              >
-                <ShoppingCart className="h-4 w-4 mr-1" />
-                {isOutOfStock ? "Out of Stock" : "Buy Now"}
-              </Button>
-            )}
-            {affiliateUrl && !showBuyNow && (
-              <Button 
-                size="sm"
-                className="px-3 ml-auto"
-                onClick={handleAmazonClick}
-                disabled={isOutOfStock}
-              >
-                <ExternalLink className="h-4 w-4 mr-1" />
-                {isOutOfStock ? "Out of Stock" : "Buy Now"}
-              </Button>
-            )}
+          {/* Action buttons - tight spacing */}
+          <div className="pt-1">
+            <div className="flex gap-2">
+              {showBuyNow && (
+                <Button 
+                  size="sm"
+                  className="flex-1"
+                  onClick={handleBuyNow}
+                  disabled={isOutOfStock}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  {isOutOfStock ? "Out of Stock" : "Buy Now"}
+                </Button>
+              )}
+              {affiliateUrl && !showBuyNow && (
+                <Button 
+                  size="sm"
+                  className="px-3 ml-auto"
+                  onClick={handleAmazonClick}
+                  disabled={isOutOfStock}
+                >
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  {isOutOfStock ? "Out of Stock" : "Buy Now"}
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
