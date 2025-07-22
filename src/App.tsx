@@ -22,6 +22,7 @@ import SharedWithMe from "./pages/SharedWithMe";
 import LegalPage from "./pages/LegalPage";
 import Pro from "./pages/Pro";
 import Upgrade from "./pages/Upgrade";
+import Analytics from "./pages/Analytics";
 import AdminProducts from "./pages/admin/Products";
 import AdminKnowledgeBase from "./pages/admin/KnowledgeBase";
 import AdminSlideshow from "./pages/admin/Slideshow";
@@ -60,6 +61,7 @@ function App() {
                   <Route path="/legal/:type" element={<LegalPage />} />
                   <Route path="/pro" element={<Pro />} />
                   <Route path="/upgrade" element={<Upgrade />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route element={<AdminRoute />}>
                     <Route path="/admin/products" element={<AdminProducts />} />
                     <Route path="/admin/knowledge-base" element={<AdminKnowledgeBase />} />
