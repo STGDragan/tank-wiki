@@ -132,7 +132,7 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
   return (
     <TooltipProvider>
       <Card 
-        className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/30 bg-card text-card-foreground cursor-pointer h-full flex flex-col"
+        className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/30 bg-card text-card-foreground cursor-pointer"
         onClick={handleCardClick}
       >
         <div className="aspect-square overflow-hidden bg-muted relative">
@@ -201,8 +201,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
           </div>
         </div>
 
-        <CardContent className="p-4 flex flex-col h-full">
-          <div className="flex-1 space-y-3">
+        <CardContent className="p-4">
+          <div className="space-y-3">
             {/* Product title */}
             <div className="space-y-1">
               <h3 className="font-semibold text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors">
@@ -341,8 +341,8 @@ const ProductCard = ({ product, showBuyNow = false }: ProductCardProps) => {
             </div>
           </div>
 
-          {/* Action buttons - always at bottom */}
-          <div className="pt-3 mt-auto">
+          {/* Action buttons */}
+          <div className="pt-3">
             <div className="flex gap-2">
               {showBuyNow && (
                 <Button 
