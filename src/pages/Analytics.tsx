@@ -42,12 +42,6 @@ const Analytics = () => {
       examples: ["Equipment failure rates", "Maintenance frequency", "Replacement schedules"]
     },
     {
-      icon: <DollarSign className="h-8 w-8 text-green-500" />,
-      title: "Cost Analysis",
-      description: "Track spending patterns and budget analysis",
-      examples: ["Monthly expenses", "Cost per aquarium", "ROI on equipment"]
-    },
-    {
       icon: <Target className="h-8 w-8 text-purple-500" />,
       title: "Custom Metrics",
       description: "Create your own analytics from any data field",
@@ -227,7 +221,7 @@ const Analytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Standard Reports</p>
-                <p className="text-2xl font-bold">8</p>
+                <p className="text-2xl font-bold">7</p>
                 <p className="text-xs text-muted-foreground mt-1">Built-in report templates</p>
               </div>
               <Calendar className="h-8 w-8 text-orange-500" />
@@ -250,7 +244,6 @@ const Analytics = () => {
             { name: "Water Quality Trends", description: "pH, temperature, and parameter analysis", icon: <Droplets className="h-5 w-5" /> },
             { name: "Livestock Health Report", description: "Population and mortality tracking", icon: <Fish className="h-5 w-5" /> },
             { name: "Maintenance Schedule", description: "Equipment service and task completion", icon: <Wrench className="h-5 w-5" /> },
-            { name: "Cost Analysis", description: "Monthly expenses and budget tracking", icon: <DollarSign className="h-5 w-5" /> },
             { name: "Equipment Performance", description: "Failure rates and efficiency metrics", icon: <Target className="h-5 w-5" /> },
             { name: "Weekly Summary", description: "Overview of all aquarium activities", icon: <Calendar className="h-5 w-5" /> },
             { name: "Monthly Report", description: "Comprehensive monthly analytics", icon: <BarChart3 className="h-5 w-5" /> },
