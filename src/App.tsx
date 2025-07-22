@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AdminRoute } from "@/components/admin/AdminRoute";
 import Index from "./pages/Index";
@@ -37,44 +38,46 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route element={<AppLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/aquarium/:id" element={<AquariumDetail />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/knowledge-base" element={<KnowledgeBase />} />
-                <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
-                <Route path="/shopping" element={<Shopping />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/feedback" element={<Feedback />} />
-                <Route path="/shared-with-me" element={<SharedWithMe />} />
-                <Route path="/legal/:type" element={<LegalPage />} />
-                <Route path="/pro" element={<Pro />} />
-                <Route path="/upgrade" element={<Upgrade />} />
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin/products" element={<AdminProducts />} />
-                  <Route path="/admin/knowledge-base" element={<AdminKnowledgeBase />} />
-                  <Route path="/admin/knowledge-base/article/new" element={<ArticleEditor />} />
-                  <Route path="/admin/knowledge-base/article/edit/:slug" element={<ArticleEditor />} />
-                  <Route path="/admin/slideshow" element={<AdminSlideshow />} />
-                  <Route path="/admin/legal" element={<AdminLegal />} />
-                  <Route path="/admin/feedback" element={<AdminFeedback />} />
-                  <Route path="/admin/subscriptions" element={<AdminSubscriptionManager />} />
-                  <Route path="/admin/management" element={<AdminManagement />} />
-                  <Route path="/admin/social-media" element={<AdminSocialMedia />} />
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route element={<AppLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/aquarium/:id" element={<AquariumDetail />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/knowledge-base" element={<KnowledgeBase />} />
+                  <Route path="/knowledge-base/:slug" element={<KnowledgeBaseArticle />} />
+                  <Route path="/shopping" element={<Shopping />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/feedback" element={<Feedback />} />
+                  <Route path="/shared-with-me" element={<SharedWithMe />} />
+                  <Route path="/legal/:type" element={<LegalPage />} />
+                  <Route path="/pro" element={<Pro />} />
+                  <Route path="/upgrade" element={<Upgrade />} />
+                  <Route element={<AdminRoute />}>
+                    <Route path="/admin/products" element={<AdminProducts />} />
+                    <Route path="/admin/knowledge-base" element={<AdminKnowledgeBase />} />
+                    <Route path="/admin/knowledge-base/article/new" element={<ArticleEditor />} />
+                    <Route path="/admin/knowledge-base/article/edit/:slug" element={<ArticleEditor />} />
+                    <Route path="/admin/slideshow" element={<AdminSlideshow />} />
+                    <Route path="/admin/legal" element={<AdminLegal />} />
+                    <Route path="/admin/feedback" element={<AdminFeedback />} />
+                    <Route path="/admin/subscriptions" element={<AdminSubscriptionManager />} />
+                    <Route path="/admin/management" element={<AdminManagement />} />
+                    <Route path="/admin/social-media" element={<AdminSocialMedia />} />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
