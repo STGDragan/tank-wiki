@@ -134,19 +134,19 @@ const calculateTankHealth = (
 
   if (score >= 80) {
     status = 'healthy';
-    color = 'text-green-600';
-    bgColor = 'bg-green-50 border-green-200';
-    icon = <CheckCircle className="h-4 w-4 text-green-600" />;
+    color = 'text-green-600 dark:text-green-400';
+    bgColor = 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800/50';
+    icon = <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />;
   } else if (score >= 60) {
     status = 'caution';
-    color = 'text-yellow-600';
-    bgColor = 'bg-yellow-50 border-yellow-200';
-    icon = <AlertCircle className="h-4 w-4 text-yellow-600" />;
+    color = 'text-yellow-600 dark:text-yellow-400';
+    bgColor = 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-800/50';
+    icon = <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />;
   } else {
     status = 'critical';
-    color = 'text-red-600';
-    bgColor = 'bg-red-50 border-red-200';
-    icon = <AlertTriangle className="h-4 w-4 text-red-600" />;
+    color = 'text-red-600 dark:text-red-400';
+    bgColor = 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800/50';
+    icon = <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />;
   }
 
   return { score, status, color, bgColor, icon, issues, recommendations };
@@ -187,8 +187,8 @@ export function TankHealthIndicator({
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-blue-600" />
-            <h3 className="font-semibold text-gray-900">Tank Health</h3>
+            <Heart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Tank Health</h3>
           </div>
           <div className="flex items-center gap-2">
             {health.icon}
@@ -206,7 +206,7 @@ export function TankHealthIndicator({
           </p>
           
           {health.issues.length > 0 && (
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-gray-600 dark:text-gray-400">
               <p className="font-medium">Issues detected:</p>
               <ul className="list-disc list-inside space-y-1">
                 {health.issues.map((issue, index) => (
@@ -217,7 +217,7 @@ export function TankHealthIndicator({
             )}
           
           {health.recommendations.length > 0 && (
-            <div className="text-xs text-blue-600 mt-2">
+            <div className="text-xs text-blue-600 dark:text-blue-400 mt-2">
               <p className="font-medium">💡 Recommendations:</p>
               <ul className="list-disc list-inside space-y-1">
                 {health.recommendations.map((recommendation, index) => (

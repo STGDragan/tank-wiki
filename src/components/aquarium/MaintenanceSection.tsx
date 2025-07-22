@@ -210,34 +210,40 @@ export const MaintenanceSection = ({
                 
                 <CardContent>
                     {hasActiveSubscription && (
-                        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-blue-50/50 to-blue-100/50 dark:from-blue-950/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
-                                <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
-                                    <Crown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div>
-                                    <p className="font-medium text-sm text-blue-900 dark:text-blue-100">Equipment-Based Tasks</p>
-                                    <p className="text-xs text-blue-700 dark:text-blue-300">Create tasks from your equipment</p>
-                                </div>
+                        <div className="mb-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Crown className="h-4 w-4 text-yellow-600" />
+                                <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Premium Features Active</span>
                             </div>
-                            
-                            <div className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-purple-50/50 to-purple-100/50 dark:from-purple-950/20 dark:to-purple-900/20 border border-purple-200/50 dark:border-purple-800/50">
-                                <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
-                                    <Filter className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50/80 to-blue-100/80 dark:from-blue-950/30 dark:to-blue-900/30 border border-blue-200/60 dark:border-blue-800/60">
+                                    <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/50">
+                                        <Crown className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-xs text-blue-900 dark:text-blue-100">Equipment-Based Tasks</p>
+                                        <p className="text-xs text-blue-700 dark:text-blue-300">Create from equipment</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-sm text-purple-900 dark:text-purple-100">Advanced Filtering</p>
-                                    <p className="text-xs text-purple-700 dark:text-purple-300">Filter by status & priority</p>
+                                
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-50/80 to-purple-100/80 dark:from-purple-950/30 dark:to-purple-900/30 border border-purple-200/60 dark:border-purple-800/60">
+                                    <div className="p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/50">
+                                        <Filter className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-xs text-purple-900 dark:text-purple-100">Advanced Filtering</p>
+                                        <p className="text-xs text-purple-700 dark:text-purple-300">Filter by status</p>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-green-50/50 to-green-100/50 dark:from-green-950/20 dark:to-green-900/20 border border-green-200/50 dark:border-green-800/50">
-                                <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
-                                    <Star className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                </div>
-                                <div>
-                                    <p className="font-medium text-sm text-green-900 dark:text-green-100">Product Recommendations</p>
-                                    <p className="text-xs text-green-700 dark:text-green-300">Smart consumables suggestions</p>
+                                
+                                <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50/80 to-green-100/80 dark:from-green-950/30 dark:to-green-900/30 border border-green-200/60 dark:border-green-800/60">
+                                    <div className="p-1.5 rounded-full bg-green-100 dark:bg-green-900/50">
+                                        <Star className="h-3 w-3 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-xs text-green-900 dark:text-green-100">Smart Recommendations</p>
+                                        <p className="text-xs text-green-700 dark:text-green-300">Product suggestions</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
