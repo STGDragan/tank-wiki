@@ -8,11 +8,13 @@ import { MaintenanceTaskCard } from '@/components/aquarium/MaintenanceTaskCard';
 import { MaintenanceStats } from '@/components/aquarium/MaintenanceStats';
 import { EquipmentBasedMaintenanceForm } from '@/components/aquarium/EquipmentBasedMaintenanceForm';
 import { ConsumablesRecommendations } from '@/components/aquarium/ConsumablesRecommendations';
-import { PlusCircle, Calendar, Filter } from 'lucide-react';
+import { PlusCircle, Calendar, Filter, Crown, Star, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AddMaintenanceTaskForm } from '@/components/aquarium/AddMaintenanceTaskForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/providers/AuthProvider';
 
 type MaintenanceTask = Tables<'maintenance'> & { equipment: { type: string, brand: string | null, model: string | null } | null };
 
@@ -37,6 +39,7 @@ export const MaintenanceSection = ({
 }: MaintenanceSectionProps) => {
     const [isAddTaskOpen, setAddTaskOpen] = useState(false);
     const [filter, setFilter] = useState<string>("all");
+    const { hasActiveSubscription } = useAuth();
 
     const filterTasks = (tasks: MaintenanceTask[], filterType: string) => {
         const now = new Date();
@@ -96,6 +99,24 @@ export const MaintenanceSection = ({
 
     return (
         <div className="space-y-6">
+            {hasActiveSubscription && (
+                <Card className="border-gradient-to-r from-yellow-400/20 to-yellow-600/20 bg-gradient-to-r from-yellow-50/50 to-yellow-100/50 dark:from-yellow-950/20 dark:to-yellow-900/20">
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                            <Crown className="h-5 w-5 text-yellow-600" />
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
+                                <Star className="h-3 w-3 mr-1" />
+                                Pro Features Active
+                            </Badge>
+                        </div>
+                        <CardDescription className="text-sm text-muted-foreground">
+                            🎉 <strong>Premium maintenance features unlocked!</strong> Enjoy equipment-based task creation, 
+                            advanced filtering, maintenance statistics, and product recommendations.
+                        </CardDescription>
+                    </CardHeader>
+                </Card>
+            )}
+            
             <MaintenanceStats tasks={tasks} />
             
             <Card>
@@ -104,25 +125,36 @@ export const MaintenanceSection = ({
                         <CardTitle className="flex items-center text-2xl">
                             <Calendar className="mr-3 h-6 w-6" />
                             Maintenance Schedule
+                            {hasActiveSubscription && (
+                                <Badge variant="outline" className="ml-3 text-xs border-yellow-500 text-yellow-600">
+                                    <Zap className="h-3 w-3 mr-1" />
+                                    Enhanced
+                                </Badge>
+                            )}
                         </CardTitle>
                         <CardDescription className="mt-2">
                             Keep track of your upcoming and overdue maintenance tasks.
+                            {hasActiveSubscription && (
+                                <span className="text-yellow-600 font-medium"> Pro features include equipment-based tasks, advanced filtering, and detailed analytics.</span>
+                            )}
                         </CardDescription>
                     </div>
                     <div className="flex gap-2">
-                        <Select value={filter} onValueChange={setFilter}>
-                            <SelectTrigger className="w-40">
-                                <Filter className="h-4 w-4 mr-2" />
-                                <SelectValue placeholder="Filter tasks" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Tasks</SelectItem>
-                                <SelectItem value="overdue">Overdue</SelectItem>
-                                <SelectItem value="due-soon">Due Soon</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        {hasActiveSubscription && (
+                            <Select value={filter} onValueChange={setFilter}>
+                                <SelectTrigger className="w-40">
+                                    <Filter className="h-4 w-4 mr-2" />
+                                    <SelectValue placeholder="Filter tasks" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Tasks</SelectItem>
+                                    <SelectItem value="overdue">Overdue</SelectItem>
+                                    <SelectItem value="due-soon">Due Soon</SelectItem>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="completed">Completed</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
                         
                         <Drawer open={isAddTaskOpen} onOpenChange={setAddTaskOpen}>
                             <DrawerTrigger asChild>
@@ -136,28 +168,40 @@ export const MaintenanceSection = ({
                                     <DrawerTitle>Add New Maintenance Task</DrawerTitle>
                                 </DrawerHeader>
                                 <div className="px-4 pb-4 max-h-[80vh] overflow-y-auto">
-                                    <Tabs defaultValue="equipment-based" className="w-full">
-                                        <TabsList className="grid w-full grid-cols-2">
-                                            <TabsTrigger value="equipment-based">Equipment-Based</TabsTrigger>
-                                            <TabsTrigger value="general">General Task</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="equipment-based" className="mt-4">
-                                            <EquipmentBasedMaintenanceForm 
-                                                aquariumId={aquariumId} 
-                                                aquariumType={aquariumType} 
-                                                aquariumSize={aquariumSize} 
-                                                onSuccess={() => setAddTaskOpen(false)} 
-                                            />
-                                        </TabsContent>
-                                        <TabsContent value="general" className="mt-4">
-                                            <AddMaintenanceTaskForm 
-                                                aquariumId={aquariumId} 
-                                                aquariumType={aquariumType} 
-                                                aquariumSize={aquariumSize} 
-                                                onSuccess={() => setAddTaskOpen(false)} 
-                                            />
-                                        </TabsContent>
-                                    </Tabs>
+                                    {hasActiveSubscription ? (
+                                        <Tabs defaultValue="equipment-based" className="w-full">
+                                            <TabsList className="grid w-full grid-cols-2">
+                                                <TabsTrigger value="equipment-based">
+                                                    <Crown className="h-4 w-4 mr-2" />
+                                                    Equipment-Based
+                                                </TabsTrigger>
+                                                <TabsTrigger value="general">General Task</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="equipment-based" className="mt-4">
+                                                <EquipmentBasedMaintenanceForm 
+                                                    aquariumId={aquariumId} 
+                                                    aquariumType={aquariumType} 
+                                                    aquariumSize={aquariumSize} 
+                                                    onSuccess={() => setAddTaskOpen(false)} 
+                                                />
+                                            </TabsContent>
+                                            <TabsContent value="general" className="mt-4">
+                                                <AddMaintenanceTaskForm 
+                                                    aquariumId={aquariumId} 
+                                                    aquariumType={aquariumType} 
+                                                    aquariumSize={aquariumSize} 
+                                                    onSuccess={() => setAddTaskOpen(false)} 
+                                                />
+                                            </TabsContent>
+                                        </Tabs>
+                                    ) : (
+                                        <AddMaintenanceTaskForm 
+                                            aquariumId={aquariumId} 
+                                            aquariumType={aquariumType} 
+                                            aquariumSize={aquariumSize} 
+                                            onSuccess={() => setAddTaskOpen(false)} 
+                                        />
+                                    )}
                                 </div>
                             </DrawerContent>
                         </Drawer>
@@ -204,7 +248,9 @@ export const MaintenanceSection = ({
                 </CardContent>
             </Card>
             
-            {showRecommendations && <ConsumablesRecommendations aquariumType={aquariumType} />}
+            {showRecommendations && hasActiveSubscription && (
+                <ConsumablesRecommendations aquariumType={aquariumType} />
+            )}
         </div>
     );
 };
