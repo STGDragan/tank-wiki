@@ -23,10 +23,8 @@ export function AppLayout() {
         <SidebarInset className="flex-1 flex flex-col">
           {/* Mobile header with menu trigger */}
           <header className="md:hidden flex h-12 items-center border-b bg-background px-4">
-            <SidebarTrigger asChild>
-              <Button variant="ghost" size="sm" className="p-2">
-                <Menu className="h-5 w-5" />
-              </Button>
+            <SidebarTrigger className="p-2 hover:bg-accent">
+              <Menu className="h-5 w-5" />
             </SidebarTrigger>
           </header>
           
