@@ -35,8 +35,8 @@ export function AquariumRecommendations({
           )
         `)
         .eq('visible', true)
-        .contains('tank_types', [aquariumType])
         .eq('is_recommended', true)
+        .or(`tank_types.cs.{${aquariumType}},tank_types.is.null`)
         .limit(6);
       
       if (error) throw error;
