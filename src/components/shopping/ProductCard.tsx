@@ -80,9 +80,10 @@ const ProductCard = ({ product, showBuyNow = false, compact = false }: ProductCa
   const uniqueImages = [...new Set(allImages)];
   const images = uniqueImages.length > 0 ? uniqueImages : ['/placeholder.svg'];
   
-  // Get affiliate URL - try multiple approaches for better reliability
+  // Get affiliate URL - check both affiliate_links array and affiliate_url field
   const affiliateUrl = product.affiliate_links?.[0]?.link_url || 
                       product.affiliate_links?.find(link => link.provider?.toLowerCase().includes('amazon'))?.link_url ||
+                      product.affiliate_url ||
                       null;
 
   // Get subcategories for display - handle both old and new fields
