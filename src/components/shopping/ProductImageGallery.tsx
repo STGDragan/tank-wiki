@@ -76,17 +76,17 @@ export const ProductImageGallery = ({ images, productName, primaryImage }: Produ
       {/* Thumbnail grid */}
       {allImages.length > 1 && (
         <div className="grid grid-cols-4 gap-2">
-          {allImages.slice(1, 5).map((image, index) => (
+          {allImages.slice(0, 4).map((image, index) => (
             <div
               key={index}
               className={`aspect-square overflow-hidden rounded border cursor-pointer transition-all ${
-                selectedImageIndex === index + 1 ? 'ring-2 ring-primary' : 'hover:opacity-80'
+                selectedImageIndex === index ? 'ring-2 ring-primary' : 'hover:opacity-80'
               }`}
-              onClick={() => setSelectedImageIndex(index + 1)}
+              onClick={() => setSelectedImageIndex(index)}
             >
               <img
                 src={image}
-                alt={`${productName} ${index + 2}`}
+                alt={`${productName} ${index + 1}`}
                 className="w-full h-full object-cover"
               />
             </div>
