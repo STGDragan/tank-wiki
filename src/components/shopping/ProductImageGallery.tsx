@@ -17,11 +17,11 @@ export const ProductImageGallery = ({ images, productName, primaryImage }: Produ
   
   if (allImages.length <= 1) {
     return (
-      <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
+      <div className="w-full max-h-96 overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
         <img
           src={primaryImage}
           alt={productName}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
     );
@@ -38,11 +38,11 @@ export const ProductImageGallery = ({ images, productName, primaryImage }: Produ
   return (
     <div className="space-y-4">
       {/* Main image display */}
-      <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
+      <div className="relative w-full max-h-96 overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
         <img
           src={allImages[selectedImageIndex]}
           alt={`${productName} ${selectedImageIndex + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
         
         {/* Navigation arrows */}
