@@ -51,7 +51,10 @@ const FilterSidebar = ({
         const equipmentParent = categories.find(cat => cat.slug === 'aquarium-equipment');
         if (!equipmentParent) return false;
         const equipmentSubcats = categories.filter(cat => cat.parent_id === equipmentParent.id);
-        return equipmentSubcats.some(subcat => filters.categories.includes(subcat.slug));
+        const equipmentSubSubcats = categories.filter(cat => 
+          equipmentSubcats.some(subcat => subcat.id === cat.parent_id)
+        );
+        return [...equipmentSubcats, ...equipmentSubSubcats].some(cat => filters.categories.includes(cat.slug));
       case 'consumables':
         const consumablesParent = categories.find(cat => cat.slug === 'consumables');
         if (!consumablesParent) return false;
@@ -151,19 +154,65 @@ const FilterSidebar = ({
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 p-3 border rounded-lg bg-background/50">
-            <CheckboxFilter
-              options={
-                categories
-                  .find(cat => cat.slug === 'aquarium-equipment')
-                  ? categories
-                      .filter(cat => cat.parent_id === categories.find(parent => parent.slug === 'aquarium-equipment')?.id)
-                      .map(subcat => ({ value: subcat.slug, label: subcat.name }))
-                  : []
-              }
-              filterKey="categories"
-              filters={filters}
-              onFiltersChange={onFiltersChange}
-            />
+            {(() => {
+              const parentCategory = categories.find(cat => cat.slug === 'aquarium-equipment');
+              if (!parentCategory) return null;
+              
+              // Get direct subcategories (like Filtration, Lighting, etc.)
+              const subcategories = categories.filter(cat => cat.parent_id === parentCategory.id);
+              
+              return (
+                <div className="space-y-3">
+                  {subcategories.map(subcat => {
+                    // Get sub-subcategories for this subcategory
+                    const subSubcategories = categories.filter(cat => cat.parent_id === subcat.id);
+                    const isSubcatSelected = filters.categories.includes(subcat.slug);
+                    
+                    return (
+                      <div key={subcat.slug} className="space-y-2">
+                        {/* Main subcategory checkbox */}
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isSubcatSelected}
+                            onChange={(e) => {
+                              const newCategories = e.target.checked 
+                                ? [...filters.categories, subcat.slug]
+                                : filters.categories.filter(cat => cat !== subcat.slug);
+                              onFiltersChange({ ...filters, categories: newCategories });
+                            }}
+                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                          <span className="text-sm font-medium">{subcat.name}</span>
+                        </label>
+                        
+                        {/* Show sub-subcategories if main subcategory is selected */}
+                        {isSubcatSelected && subSubcategories.length > 0 && (
+                          <div className="ml-6 space-y-1">
+                            {subSubcategories.map(subSubcat => (
+                              <label key={subSubcat.slug} className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={filters.categories.includes(subSubcat.slug)}
+                                  onChange={(e) => {
+                                    const newCategories = e.target.checked 
+                                      ? [...filters.categories, subSubcat.slug]
+                                      : filters.categories.filter(cat => cat !== subSubcat.slug);
+                                    onFiltersChange({ ...filters, categories: newCategories });
+                                  }}
+                                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                                />
+                                <span className="text-sm text-muted-foreground">{subSubcat.name}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </CollapsibleContent>
         </Collapsible>
 
