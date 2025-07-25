@@ -21,13 +21,37 @@ interface AmazonProduct {
   name: string;
   title?: string;
   description?: string;
-  price?: number;
+  regular_price?: number;
+  sale_price?: number;
+  is_on_sale?: boolean;
   image_url?: string;
+  images?: string[];
+  imageurls?: string[];
   amazon_url?: string;
+  affiliate_url?: string;
   brand?: string;
+  model?: string;
   category?: string;
+  subcategories?: string[];
   asin?: string;
-  quantity?: number;
+  sku?: string;
+  stock_quantity?: number;
+  track_inventory?: boolean;
+  condition?: string;
+  tank_types?: string[];
+  is_livestock?: boolean;
+  size_class?: string;
+  temperament?: string;
+  difficulty_level?: string;
+  max_size?: string;
+  min_tank_size?: string;
+  care_level?: string;
+  tags?: string[];
+  weight?: number;
+  shipping_class?: string;
+  warranty_info?: string;
+  meta_title?: string;
+  meta_description?: string;
 }
 
 interface FieldMapping {
@@ -45,13 +69,33 @@ const INTERNAL_FIELDS = [
   { value: 'name', label: 'Product Name (Required)' },
   { value: 'title', label: 'Title' },
   { value: 'description', label: 'Description' },
-  { value: 'price', label: 'Price' },
+  { value: 'regular_price', label: 'Regular Price' },
+  { value: 'sale_price', label: 'Sale Price' },
   { value: 'image_url', label: 'Image URL' },
   { value: 'amazon_url', label: 'Amazon URL' },
+  { value: 'affiliate_url', label: 'Affiliate URL' },
   { value: 'brand', label: 'Brand' },
+  { value: 'model', label: 'Model' },
   { value: 'category', label: 'Category' },
+  { value: 'subcategories', label: 'Subcategories (comma-separated)' },
   { value: 'asin', label: 'ASIN' },
-  { value: 'quantity', label: 'Quantity' },
+  { value: 'sku', label: 'SKU' },
+  { value: 'stock_quantity', label: 'Stock Quantity' },
+  { value: 'condition', label: 'Condition' },
+  { value: 'tank_types', label: 'Tank Types (comma-separated)' },
+  { value: 'is_livestock', label: 'Is Livestock (true/false)' },
+  { value: 'size_class', label: 'Size Class' },
+  { value: 'temperament', label: 'Temperament' },
+  { value: 'difficulty_level', label: 'Difficulty Level' },
+  { value: 'max_size', label: 'Maximum Size' },
+  { value: 'min_tank_size', label: 'Minimum Tank Size' },
+  { value: 'care_level', label: 'Care Level' },
+  { value: 'tags', label: 'Tags (comma-separated)' },
+  { value: 'weight', label: 'Weight' },
+  { value: 'shipping_class', label: 'Shipping Class' },
+  { value: 'warranty_info', label: 'Warranty Info' },
+  { value: 'meta_title', label: 'Meta Title' },
+  { value: 'meta_description', label: 'Meta Description' },
   { value: 'ignore', label: 'Ignore Column' },
 ];
 
@@ -89,25 +133,75 @@ export function AmazonProductImportDialog() {
 
   const importProductsMutation = useMutation({
     mutationFn: async ({ products, category }: { products: AmazonProduct[]; category: string }) => {
-      const productsToInsert = products.map(product => ({
-        name: product.title || product.name,
-        description: product.description || "",
-        regular_price: product.price || 0,
-        category: product.category || category || "Amazon Import",
-        subcategory: product.brand || "Imported",
-        image_url: product.image_url || null,
-        amazon_url: sanitizeUrls && product.amazon_url ? sanitizeAmazonUrl(product.amazon_url) : product.amazon_url || null,
-        stock_quantity: product.quantity || 0,
-        sku: product.asin || null,
-        is_featured: false,
-        is_recommended: false,
+      const productsToInsert = await Promise.all(products.map(async (product) => {
+        // Prepare the product data
+        const productData: any = {
+          name: product.title || product.name,
+          description: product.description || "",
+          regular_price: product.regular_price || 0,
+          sale_price: product.sale_price || null,
+          is_on_sale: product.is_on_sale || false,
+          category: product.category || category || "Amazon Import",
+          subcategory: product.subcategories?.[0] || product.brand || "Imported",
+          subcategories: product.subcategories || [],
+          image_url: product.image_url || null,
+          images: product.images || [],
+          imageurls: product.imageurls || [],
+          brand: product.brand || null,
+          model: product.model || null,
+          stock_quantity: product.stock_quantity || 0,
+          track_inventory: product.track_inventory ?? true,
+          sku: product.sku || product.asin || null,
+          condition: product.condition || 'new',
+          tank_types: product.tank_types || [],
+          is_livestock: product.is_livestock || false,
+          size_class: product.size_class || null,
+          temperament: product.temperament || null,
+          difficulty_level: product.difficulty_level || null,
+          max_size: product.max_size || null,
+          min_tank_size: product.min_tank_size || null,
+          care_level: product.care_level || null,
+          tags: product.tags || [],
+          weight: product.weight || null,
+          shipping_class: product.shipping_class || 'standard',
+          warranty_info: product.warranty_info || null,
+          meta_title: product.meta_title || null,
+          meta_description: product.meta_description || null,
+          is_featured: false,
+          is_recommended: false,
+          visible: true,
+        };
+
+        // Insert the product first
+        const { data: insertedProduct, error: productError } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+          .single();
+
+        if (productError) throw productError;
+
+        // Handle affiliate links separately
+        const affiliateUrl = product.affiliate_url || 
+          (sanitizeUrls && product.amazon_url ? sanitizeAmazonUrl(product.amazon_url) : product.amazon_url);
+        
+        if (affiliateUrl) {
+          const { error: affiliateError } = await supabase
+            .from('affiliate_links')
+            .insert({
+              product_id: insertedProduct.id,
+              provider: 'Amazon',
+              link_url: affiliateUrl,
+            });
+
+          if (affiliateError) {
+            console.warn('Failed to insert affiliate link:', affiliateError);
+          }
+        }
+
+        return insertedProduct;
       }));
 
-      const { error } = await supabase
-        .from('products')
-        .insert(productsToInsert);
-
-      if (error) throw error;
       return productsToInsert.length;
     },
     onSuccess: (count) => {
@@ -141,21 +235,30 @@ export function AmazonProductImportDialog() {
       });
     }
     
-    if (product.price && isNaN(parseFloat(product.price))) {
+    if (product.regular_price && isNaN(parseFloat(product.regular_price))) {
       errors.push({
         row: rowIndex + 1,
-        field: 'price',
-        value: product.price,
-        message: 'Price must be a valid number'
+        field: 'regular_price',
+        value: product.regular_price,
+        message: 'Regular price must be a valid number'
       });
     }
     
-    if (product.quantity && isNaN(parseInt(product.quantity))) {
+    if (product.sale_price && isNaN(parseFloat(product.sale_price))) {
       errors.push({
         row: rowIndex + 1,
-        field: 'quantity',
-        value: product.quantity,
-        message: 'Quantity must be a valid number'
+        field: 'sale_price',
+        value: product.sale_price,
+        message: 'Sale price must be a valid number'
+      });
+    }
+    
+    if (product.stock_quantity && isNaN(parseInt(product.stock_quantity))) {
+      errors.push({
+        row: rowIndex + 1,
+        field: 'stock_quantity',
+        value: product.stock_quantity,
+        message: 'Stock quantity must be a valid number'
       });
     }
     
@@ -227,11 +330,41 @@ export function AmazonProductImportDialog() {
             case 'amazon_url':
               product.amazon_url = sanitizeUrls ? sanitizeAmazonUrl(value) : value;
               break;
-            case 'price':
-              product.price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+            case 'regular_price':
+              product.regular_price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
               break;
-            case 'quantity':
-              product.quantity = parseInt(value) || 0;
+            case 'sale_price':
+              product.sale_price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+              break;
+            case 'stock_quantity':
+              product.stock_quantity = parseInt(value) || 0;
+              break;
+            case 'subcategories':
+              product.subcategories = value.split(',').map(s => s.trim()).filter(Boolean);
+              break;
+            case 'tank_types':
+              product.tank_types = value.split(',').map(s => s.trim()).filter(Boolean);
+              break;
+            case 'tags':
+              product.tags = value.split(',').map(s => s.trim()).filter(Boolean);
+              break;
+            case 'weight':
+              product.weight = parseFloat(value.replace(/[^0-9.]/g, '')) || null;
+              break;
+            case 'is_livestock':
+              product.is_livestock = value.toLowerCase() === 'true' || value === '1';
+              break;
+            case 'is_on_sale':
+              product.is_on_sale = value.toLowerCase() === 'true' || value === '1';
+              break;
+            case 'track_inventory':
+              product.track_inventory = value.toLowerCase() === 'true' || value === '1';
+              break;
+            default:
+              // Handle all other string fields
+              if (value.trim()) {
+                product[mappedField] = value;
+              }
               break;
           }
         }
@@ -281,7 +414,8 @@ export function AmazonProductImportDialog() {
             product.description = value;
             break;
           case 'price':
-            product.price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
+          case 'regular_price':
+            product.regular_price = parseFloat(value.replace(/[^0-9.]/g, '')) || 0;
             break;
           case 'image':
           case 'image_url':
@@ -301,7 +435,8 @@ export function AmazonProductImportDialog() {
             product.asin = value;
             break;
           case 'quantity':
-            product.quantity = parseInt(value) || 0;
+          case 'stock_quantity':
+            product.stock_quantity = parseInt(value) || 0;
             break;
         }
       });
@@ -325,15 +460,39 @@ export function AmazonProductImportDialog() {
             name: item.name || item.title || item.product_name || '',
             title: item.title || '',
             description: item.description || '',
-            price: parseFloat(String(item.price || 0).replace(/[^0-9.]/g, '')) || 0,
+            regular_price: parseFloat(String(item.price || item.regular_price || 0).replace(/[^0-9.]/g, '')) || 0,
+            sale_price: item.sale_price ? parseFloat(String(item.sale_price).replace(/[^0-9.]/g, '')) : undefined,
+            is_on_sale: item.is_on_sale || false,
             image_url: item.image || item.image_url || '',
+            images: item.images || [],
+            imageurls: item.imageurls || [],
             amazon_url: sanitizeUrls && (item.url || item.amazon_url) ? 
               sanitizeAmazonUrl(item.url || item.amazon_url) : 
               item.url || item.amazon_url || '',
+            affiliate_url: item.affiliate_url || '',
             brand: item.brand || '',
+            model: item.model || '',
             category: item.category || '',
+            subcategories: item.subcategories || [],
             asin: item.asin || '',
-            quantity: parseInt(item.quantity) || 0,
+            sku: item.sku || '',
+            stock_quantity: parseInt(item.quantity || item.stock_quantity) || 0,
+            track_inventory: item.track_inventory ?? true,
+            condition: item.condition || 'new',
+            tank_types: item.tank_types || [],
+            is_livestock: item.is_livestock || false,
+            size_class: item.size_class || undefined,
+            temperament: item.temperament || undefined,
+            difficulty_level: item.difficulty_level || undefined,
+            max_size: item.max_size || undefined,
+            min_tank_size: item.min_tank_size || undefined,
+            care_level: item.care_level || undefined,
+            tags: item.tags || [],
+            weight: item.weight ? parseFloat(String(item.weight).replace(/[^0-9.]/g, '')) : undefined,
+            shipping_class: item.shipping_class || 'standard',
+            warranty_info: item.warranty_info || undefined,
+            meta_title: item.meta_title || undefined,
+            meta_description: item.meta_description || undefined,
           };
           
           if (product.name || product.title) {
@@ -366,7 +525,7 @@ export function AmazonProductImportDialog() {
           
           // Specific mappings requested by user
           if (header === 'Price' || lowerHeader === 'price') {
-            autoMapping[header] = 'price';
+            autoMapping[header] = 'regular_price';
           } else if (header === 'Product Link' || lowerHeader === 'product link') {
             autoMapping[header] = 'amazon_url';
           } else if (header === 'Title' || lowerHeader === 'title') {
@@ -387,8 +546,20 @@ export function AmazonProductImportDialog() {
             autoMapping[header] = 'amazon_url';
           } else if (lowerHeader.includes('asin')) {
             autoMapping[header] = 'asin';
-          } else if (lowerHeader.includes('quantity')) {
-            autoMapping[header] = 'quantity';
+          } else if (lowerHeader.includes('quantity') || lowerHeader.includes('stock')) {
+            autoMapping[header] = 'stock_quantity';
+          } else if (lowerHeader.includes('sku')) {
+            autoMapping[header] = 'sku';
+          } else if (lowerHeader.includes('model')) {
+            autoMapping[header] = 'model';
+          } else if (lowerHeader.includes('sale') && lowerHeader.includes('price')) {
+            autoMapping[header] = 'sale_price';
+          } else if (lowerHeader.includes('condition')) {
+            autoMapping[header] = 'condition';
+          } else if (lowerHeader.includes('weight')) {
+            autoMapping[header] = 'weight';
+          } else if (lowerHeader.includes('tag')) {
+            autoMapping[header] = 'tags';
           } else {
             autoMapping[header] = 'ignore';
           }
