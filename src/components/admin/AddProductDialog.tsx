@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Plus, X } from "lucide-react";
-import HierarchicalCategorySelector from "./HierarchicalCategorySelector";
+import MultiCategorySelector from "./MultiCategorySelector";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -38,11 +38,15 @@ type ProductFormValues = z.infer<typeof productSchema>;
 
 const AddProductDialog = () => {
   const [open, setOpen] = useState(false);
-  const [categoryHierarchy, setCategoryHierarchy] = useState({
-    category: "",
-    subcategory: "",
-    subSubcategory: ""
-  });
+  const [categoryAssignments, setCategoryAssignments] = useState<Array<{
+    categoryId: string;
+    categoryName: string;
+    subcategory: string;
+  }>>([{
+    categoryId: "",
+    categoryName: "",
+    subcategory: ""
+  }]);
   const [images, setImages] = useState<string[]>([]);
   const [newImage, setNewImage] = useState("");
   const { toast } = useToast();
@@ -70,6 +74,9 @@ const AddProductDialog = () => {
 
   const createProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
+      // Extract the first category for backward compatibility with existing category fields
+      const primaryCategory = categoryAssignments[0];
+      
       const productData = {
         name: values.name,
         description: values.description || null,
@@ -84,9 +91,9 @@ const AddProductDialog = () => {
         image_url: values.image_url || null,
         amazon_url: values.amazon_url || null,
         affiliate_url: values.affiliate_url || null,
-        category: categoryHierarchy.category,
-        subcategory: categoryHierarchy.subcategory || categoryHierarchy.subSubcategory,
-        subcategories: categoryHierarchy.subcategory ? [categoryHierarchy.subcategory] : null,
+        category: primaryCategory?.categoryName || null,
+        subcategory: primaryCategory?.subcategory || null,
+        subcategories: categoryAssignments.map(a => a.subcategory).filter(Boolean),
         images: images.length > 0 ? images : null,
         track_inventory: values.track_inventory || false,
         stock_quantity: values.track_inventory ? values.stock_quantity : null,
@@ -100,17 +107,37 @@ const AddProductDialog = () => {
         .single();
 
       if (productError) throw productError;
+
+      // Insert category assignments
+      const validAssignments = categoryAssignments.filter(a => a.categoryId);
+      if (validAssignments.length > 0) {
+        const assignments = validAssignments.map(assignment => ({
+          product_id: product.id,
+          category_id: assignment.categoryId,
+          subcategory_name: assignment.subcategory || null
+        }));
+
+        const { error: insertError } = await supabase
+          .from("product_category_assignments")
+          .insert(assignments);
+        
+        if (insertError) {
+          console.error("Insert category assignments error:", insertError);
+          throw insertError;
+        }
+      }
+
       return product;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast({ title: "Product created successfully!" });
       form.reset();
-      setCategoryHierarchy({
-        category: "",
-        subcategory: "",
-        subSubcategory: ""
-      });
+      setCategoryAssignments([{
+        categoryId: "",
+        categoryName: "",
+        subcategory: ""
+      }]);
       setImages([]);
       setNewImage("");
       setOpen(false);
@@ -206,11 +233,10 @@ const AddProductDialog = () => {
               )}
             />
 
-            {/* Hierarchical Category Selection */}
-            <HierarchicalCategorySelector
-              value={categoryHierarchy}
-              onChange={setCategoryHierarchy}
-              label="Product Category"
+            {/* Multi-Category Selection */}
+            <MultiCategorySelector
+              value={categoryAssignments}
+              onChange={setCategoryAssignments}
             />
 
             {/* Images Section */}

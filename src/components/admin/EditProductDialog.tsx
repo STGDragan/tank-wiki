@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Plus, X } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
-import HierarchicalCategorySelector from "./HierarchicalCategorySelector";
+import MultiCategorySelector from "./MultiCategorySelector";
 import { ProductImageManager } from "./product/ProductImageManager";
 import { ProductSubcategoryManager } from "./product/ProductSubcategoryManager";
 import { ProductInventorySection } from "./product/ProductInventorySection";
@@ -48,11 +48,11 @@ interface EditProductDialogProps {
 }
 
 const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogProps) => {
-  const [categoryHierarchy, setCategoryHierarchy] = useState({
-    category: "",
-    subcategory: "",
-    subSubcategory: ""
-  });
+  const [categoryAssignments, setCategoryAssignments] = useState<Array<{
+    categoryId: string;
+    categoryName: string;
+    subcategory: string;
+  }>>([]);
   const [images, setImages] = useState<string[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -77,10 +77,11 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
     },
   });
 
-  // Reset form when product changes
+  // Reset form when dialog opens with new product
   useEffect(() => {
-    if (product && open) {
-      // Only process when dialog is open and product exists
+    if (open && product) {
+      console.log("Setting up EditProductDialog for product:", product);
+      
       form.reset({
         name: product.name || "",
         description: product.description || "",
@@ -88,7 +89,7 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         regular_price: product.regular_price || undefined,
         sale_price: product.sale_price || undefined,
         is_on_sale: product.is_on_sale || false,
-        condition: product.condition || "new",
+        condition: product.condition || "",
         visible: product.visible || true,
         is_featured: product.is_featured || false,
         is_recommended: product.is_recommended || false,
@@ -99,72 +100,81 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
         stock_quantity: product.stock_quantity || undefined,
         low_stock_threshold: product.low_stock_threshold || 5,
       });
+
+      // Load existing category assignments
+      loadCategoryAssignments(product.id);
       
-      // Set up category hierarchy - reconstruct from stored data
-      const subcategoriesArray = product.subcategories as string[] || [];
-      
-      console.log("Loading product data:", {
-        category: product.category,
-        subcategory: product.subcategory,
-        subcategories: product.subcategories
-      });
-      
-      const hierarchyData = {
-        category: product.category || "",
-        subcategory: subcategoriesArray.length > 0 ? subcategoriesArray[0] : product.subcategory || "",
-        subSubcategory: subcategoriesArray.length > 1 ? subcategoriesArray[1] : ""
-      };
-      
-      console.log("Setting category hierarchy:", hierarchyData);
-      setCategoryHierarchy(hierarchyData);
-      
-      // Handle multiple images
-      if (product.images && Array.isArray(product.images)) {
-        setImages(product.images);
-      } else {
-        setImages([]);
+      // Set images
+      setImages(product.images || []);
+    }
+  }, [open, product, form]);
+
+  // Load existing category assignments for the product
+  const loadCategoryAssignments = async (productId: string) => {
+    try {
+      const { data: assignments, error } = await supabase
+        .from("product_category_assignments")
+        .select(`
+          category_id,
+          subcategory_name,
+          product_categories_new!inner(name)
+        `)
+        .eq("product_id", productId);
+
+      if (error) {
+        console.error("Error loading category assignments:", error);
+        return;
       }
-    } else if (!open) {
-      // Reset everything when dialog closes
-      form.reset({
-        name: "",
-        description: "",
-        brand: "",
-        condition: "new",
-        visible: true,
-        is_featured: false,
-        is_recommended: false,
-        is_on_sale: false,
-        image_url: "",
-        amazon_url: "",
-        affiliate_url: "",
-        track_inventory: false,
-        stock_quantity: undefined,
-        low_stock_threshold: 5,
-      });
-      
-      setCategoryHierarchy({
-        category: "",
-        subcategory: "",
-        subSubcategory: ""
-      });
-      
+
+      const formattedAssignments = assignments?.map(assignment => ({
+        categoryId: assignment.category_id || "",
+        categoryName: assignment.product_categories_new?.name || "",
+        subcategory: assignment.subcategory_name || ""
+      })) || [];
+
+      setCategoryAssignments(formattedAssignments.length > 0 ? formattedAssignments : [{
+        categoryId: "",
+        categoryName: "",
+        subcategory: ""
+      }]);
+    } catch (error) {
+      console.error("Error loading category assignments:", error);
+      setCategoryAssignments([{
+        categoryId: "",
+        categoryName: "",
+        subcategory: ""
+      }]);
+    }
+  };
+
+  // Reset form when closing
+  useEffect(() => {
+    if (!open) {
+      form.reset();
+      setCategoryAssignments([{
+        categoryId: "",
+        categoryName: "",
+        subcategory: ""
+      }]);
       setImages([]);
     }
-  }, [product, open, form]);
+  }, [open, form]);
 
 
   const updateProductMutation = useMutation({
     mutationFn: async (values: ProductFormValues) => {
       if (!product) throw new Error("No product selected");
       
-      console.log("Saving product with category hierarchy:", categoryHierarchy);
+      console.log("Saving product with category assignments:", categoryAssignments);
+      
+      // Extract the first category for backward compatibility with existing category fields
+      const primaryCategory = categoryAssignments[0];
       
       const productData = {
         ...values,
-        category: categoryHierarchy.category,
-        subcategory: categoryHierarchy.subSubcategory || categoryHierarchy.subcategory || null,
-        subcategories: [categoryHierarchy.subcategory, categoryHierarchy.subSubcategory].filter(Boolean),
+        category: primaryCategory?.categoryName || null,
+        subcategory: primaryCategory?.subcategory || null,
+        subcategories: categoryAssignments.map(a => a.subcategory).filter(Boolean),
         images: images.length > 0 ? images : null,
         stock_quantity: values.track_inventory ? values.stock_quantity : null,
         low_stock_threshold: values.track_inventory ? values.low_stock_threshold : null,
@@ -172,17 +182,48 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
 
       console.log("Product data being saved:", productData);
 
+      // Update the main product
       const { error: productError } = await supabase
         .from("products")
         .update(productData)
         .eq("id", product.id);
       
       if (productError) {
-        console.error("Database error:", productError);
+        console.error("Product update error:", productError);
         throw productError;
       }
+
+      // Delete existing category assignments
+      const { error: deleteError } = await supabase
+        .from("product_category_assignments")
+        .delete()
+        .eq("product_id", product.id);
       
-      console.log("Product saved successfully!");
+      if (deleteError) {
+        console.error("Delete category assignments error:", deleteError);
+        throw deleteError;
+      }
+
+      // Insert new category assignments
+      const validAssignments = categoryAssignments.filter(a => a.categoryId);
+      if (validAssignments.length > 0) {
+        const assignments = validAssignments.map(assignment => ({
+          product_id: product.id,
+          category_id: assignment.categoryId,
+          subcategory_name: assignment.subcategory || null
+        }));
+
+        const { error: insertError } = await supabase
+          .from("product_category_assignments")
+          .insert(assignments);
+        
+        if (insertError) {
+          console.error("Insert category assignments error:", insertError);
+          throw insertError;
+        }
+      }
+      
+      console.log("Product and category assignments saved successfully!");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -265,11 +306,11 @@ const EditProductDialog = ({ product, open, onOpenChange }: EditProductDialogPro
               )}
             />
 
-            {/* Hierarchical Category Selection */}
-            <HierarchicalCategorySelector
-              value={categoryHierarchy}
-              onChange={setCategoryHierarchy}
-              label="Product Category"
+            {/* Multi-Category Selection */}
+            <MultiCategorySelector
+              productId={product?.id}
+              value={categoryAssignments}
+              onChange={setCategoryAssignments}
             />
 
             <ProductImageManager 
